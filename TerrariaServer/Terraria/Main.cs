@@ -4545,7 +4545,10 @@ public class Main : Microsoft.Xna.Framework.Game
 
 							// [C] BUFF LOGIC
 							// 1. Lobby: Pulse Cursed on EVERYONE
-							if (isLobby && !(heldItem == 5334)) {
+							if (isLobby) {
+                                Main.dayTime = true;
+                                Main.time = 13500.0;
+                                NetMessage.SendData(7);
 								int existingIdx = Main.player[i].FindBuffIndex(23);
 								if (existingIdx != -1 && Main.player[i].buffTime[existingIdx] > 12) {
 									Main.player[i].buffTime[existingIdx] = 12;
