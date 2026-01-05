@@ -4493,7 +4493,6 @@ public class Main : Microsoft.Xna.Framework.Game
 							activePlayerCount++;
 							if (currentRunnerName != "" && Main.player[k].name.Equals(currentRunnerName, StringComparison.OrdinalIgnoreCase)) {
 								currentRunnerIndex = k;
-								runnerTeamID = Main.player[k].team;
 							}
 						}
 					}
@@ -4609,7 +4608,15 @@ public class Main : Microsoft.Xna.Framework.Game
 									NetMessage.SendData(45, -1, -1, null, i);
 								}
 							}
-						}
+                            else if (currentRunnerIndex != -1)
+                            {
+                                if (Main.player[i].team != runnerTeamID)
+                                {
+                                    Main.player[i].team = runnerTeamID;
+                                    NetMessage.SendData(45, -1, -1, null, i);
+                                }
+                            }
+                        }
 					}
 
 					// Clean up disconnected players
