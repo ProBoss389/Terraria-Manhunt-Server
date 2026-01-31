@@ -7,9 +7,9 @@ A modified dedicated server application for Terraria designed to automate the "R
 ### Game State Automation
 
 * **Lobby Phase:** Upon joining, players are permanently inflicted with the Cursed debuff to prevent pre-game item usage. World time is frozen at 8:15 AM & NPC spawns are disabled until the match begins.
-* **Runner Selection:** Any player can initiate the match by using the Ocram's Razor (Mechdusa Summon) while not on team yellow. The server automatically detects this input, designates the Runner, allows NPC spawns for the runner, and begins the countdown.
-* **Countdown:** Hunters are inflicted with Webbed (frozen) during the countdown. The duration scales based on the number of active Hunters.
-* **Match Start:** Once the countdown concludes, all movement restrictions are lifted, PvP is strictly enforced and NPC spawns are re-enabled for the hunters.
+* **Runner Selection:** Any player can initiate the match by using Ocram's Razor (Mechdusa Summon) while not on team yellow. This designates the Runner, locks everyone's teams, allows NPC spawns for the Runner, and begins the countdown.
+* **Countdown:** Hunters are inflicted with the Webbed (frozen) debuff during the countdown; duration scales based on the number of active Hunters.
+* **Match Start:** Once the countdown concludes, all movement restrictions are lifted, PvP is strictly enforced, and NPC spawns are re-enabled for the Hunters.
 
 ### Mechanics
 
