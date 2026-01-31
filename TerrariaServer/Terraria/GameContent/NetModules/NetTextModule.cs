@@ -11,16 +11,19 @@ public class NetTextModule : NetModule
 {
 	public static NetPacket SerializeClientMessage(ChatMessage message)
 	{
-		NetPacket result = NetModule.CreatePacket<NetTextModule>(message.GetMaxSerializedSize());
+		NetPacket result = NetModule.CreatePacket<NetTextModule>();
 		message.Serialize(result.Writer);
 		return result;
 	}
 
-	public static NetPacket SerializeServerMessage(NetworkText text, Color color) => SerializeServerMessage(text, color, byte.MaxValue);
+	public static NetPacket SerializeServerMessage(NetworkText text, Color color)
+	{
+		return SerializeServerMessage(text, color, byte.MaxValue);
+	}
 
 	public static NetPacket SerializeServerMessage(NetworkText text, Color color, byte authorId)
 	{
-		NetPacket result = NetModule.CreatePacket<NetTextModule>(1 + text.GetMaxSerializedSize() + 3);
+		NetPacket result = NetModule.CreatePacket<NetTextModule>();
 		result.Writer.Write(authorId);
 		text.Serialize(result.Writer);
 		result.Writer.WriteRGB(color);
@@ -46,8 +49,9 @@ public class NetTextModule : NetModule
 	public override bool Deserialize(BinaryReader reader, int senderPlayerId)
 	{
 		if (Main.dedServ)
+		{
 			return DeserializeAsServer(reader, senderPlayerId);
-
+		}
 		return DeserializeAsClient(reader, senderPlayerId);
 	}
 }

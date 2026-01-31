@@ -20,10 +20,13 @@ public class NetParticlesModule : NetModule
 		ParticleOrchestraSettings settings = default(ParticleOrchestraSettings);
 		settings.DeserializeFrom(reader);
 		if (Main.netMode == 2)
+		{
 			NetManager.Instance.Broadcast(Serialize(particleOrchestraType, settings), userId);
+		}
 		else
+		{
 			ParticleOrchestrator.SpawnParticlesDirect(particleOrchestraType, settings);
-
+		}
 		return true;
 	}
 }

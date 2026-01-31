@@ -18,8 +18,9 @@ public class SandstormShaderData : ScreenShaderData
 		vector.Normalize();
 		vector *= new Vector2(2f, 0.2f);
 		if (!Main.gamePaused && Main.hasFocus)
+		{
 			_texturePosition += vector * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+		}
 		_texturePosition.X %= 10f;
 		_texturePosition.Y %= 10f;
 		UseDirection(vector);

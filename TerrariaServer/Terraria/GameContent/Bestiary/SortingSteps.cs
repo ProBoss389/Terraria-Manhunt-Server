@@ -17,18 +17,24 @@ public static class SortingSteps
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement = x.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement2 = y.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			if (nPCNetIdBestiaryInfoElement == null && nPCNetIdBestiaryInfoElement2 != null)
+			{
 				return 1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement2 == null && nPCNetIdBestiaryInfoElement != null)
+			{
 				return -1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement == null || nPCNetIdBestiaryInfoElement2 == null)
+			{
 				return 0;
-
+			}
 			return nPCNetIdBestiaryInfoElement.NetId.CompareTo(nPCNetIdBestiaryInfoElement2.NetId);
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.Sort_ID";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_ID";
+		}
 	}
 
 	public class ByUnlockState : IBestiarySortStep, IEntrySortStep<BestiaryEntry>, IComparer<BestiaryEntry>
@@ -42,7 +48,10 @@ public static class SortingSteps
 			return y.Icon.GetUnlockState(entryUICollectionInfo2).CompareTo(x.Icon.GetUnlockState(entryUICollectionInfo));
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.Sort_Unlocks";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_Unlocks";
+		}
 	}
 
 	public class ByBestiarySortingId : IBestiarySortStep, IEntrySortStep<BestiaryEntry>, IComparer<BestiaryEntry>
@@ -54,20 +63,26 @@ public static class SortingSteps
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement = x.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement2 = y.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			if (nPCNetIdBestiaryInfoElement == null && nPCNetIdBestiaryInfoElement2 != null)
+			{
 				return 1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement2 == null && nPCNetIdBestiaryInfoElement != null)
+			{
 				return -1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement == null || nPCNetIdBestiaryInfoElement2 == null)
+			{
 				return 0;
-
+			}
 			int num = ContentSamples.NpcBestiarySortingId[nPCNetIdBestiaryInfoElement.NetId];
 			int value = ContentSamples.NpcBestiarySortingId[nPCNetIdBestiaryInfoElement2.NetId];
 			return num.CompareTo(value);
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.Sort_BestiaryID";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_BestiaryID";
+		}
 	}
 
 	public class ByBestiaryRarity : IBestiarySortStep, IEntrySortStep<BestiaryEntry>, IComparer<BestiaryEntry>
@@ -79,19 +94,25 @@ public static class SortingSteps
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement = x.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement2 = y.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			if (nPCNetIdBestiaryInfoElement == null && nPCNetIdBestiaryInfoElement2 != null)
+			{
 				return 1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement2 == null && nPCNetIdBestiaryInfoElement != null)
+			{
 				return -1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement == null || nPCNetIdBestiaryInfoElement2 == null)
+			{
 				return 0;
-
+			}
 			int value = ContentSamples.NpcBestiaryRarityStars[nPCNetIdBestiaryInfoElement.NetId];
 			return ContentSamples.NpcBestiaryRarityStars[nPCNetIdBestiaryInfoElement2.NetId].CompareTo(value);
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.Sort_Rarity";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_Rarity";
+		}
 	}
 
 	public class Alphabetical : IBestiarySortStep, IEntrySortStep<BestiaryEntry>, IComparer<BestiaryEntry>
@@ -103,20 +124,26 @@ public static class SortingSteps
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement = x.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			NPCNetIdBestiaryInfoElement nPCNetIdBestiaryInfoElement2 = y.Info.FirstOrDefault((IBestiaryInfoElement element) => element is NPCNetIdBestiaryInfoElement) as NPCNetIdBestiaryInfoElement;
 			if (nPCNetIdBestiaryInfoElement == null && nPCNetIdBestiaryInfoElement2 != null)
+			{
 				return 1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement2 == null && nPCNetIdBestiaryInfoElement != null)
+			{
 				return -1;
-
+			}
 			if (nPCNetIdBestiaryInfoElement == null || nPCNetIdBestiaryInfoElement2 == null)
+			{
 				return 0;
-
+			}
 			string textValue = Language.GetTextValue(ContentSamples.NpcsByNetId[nPCNetIdBestiaryInfoElement.NetId].TypeName);
 			string textValue2 = Language.GetTextValue(ContentSamples.NpcsByNetId[nPCNetIdBestiaryInfoElement2.NetId].TypeName);
 			return textValue.CompareTo(textValue2);
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.Sort_Alphabetical";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_Alphabetical";
+		}
 	}
 
 	public abstract class ByStat : IBestiarySortStep, IEntrySortStep<BestiaryEntry>, IComparer<BestiaryEntry>
@@ -128,14 +155,17 @@ public static class SortingSteps
 			NPCStatsReportInfoElement nPCStatsReportInfoElement = x.Info.FirstOrDefault((IBestiaryInfoElement element) => IsAStatsCardINeed(element)) as NPCStatsReportInfoElement;
 			NPCStatsReportInfoElement nPCStatsReportInfoElement2 = y.Info.FirstOrDefault((IBestiaryInfoElement element) => IsAStatsCardINeed(element)) as NPCStatsReportInfoElement;
 			if (nPCStatsReportInfoElement == null && nPCStatsReportInfoElement2 != null)
+			{
 				return 1;
-
+			}
 			if (nPCStatsReportInfoElement2 == null && nPCStatsReportInfoElement != null)
+			{
 				return -1;
-
+			}
 			if (nPCStatsReportInfoElement == null || nPCStatsReportInfoElement2 == null)
+			{
 				return 0;
-
+			}
 			return Compare(nPCStatsReportInfoElement, nPCStatsReportInfoElement2);
 		}
 
@@ -146,33 +176,62 @@ public static class SortingSteps
 		private bool IsAStatsCardINeed(IBestiaryInfoElement element)
 		{
 			if (!(element is NPCStatsReportInfoElement))
+			{
 				return false;
-
+			}
 			return true;
 		}
 	}
 
 	public class ByAttack : ByStat
 	{
-		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY) => cardY.Damage.CompareTo(cardX.Damage);
-		public override string GetDisplayNameKey() => "BestiaryInfo.Sort_Attack";
+		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY)
+		{
+			return cardY.Damage.CompareTo(cardX.Damage);
+		}
+
+		public override string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_Attack";
+		}
 	}
 
 	public class ByDefense : ByStat
 	{
-		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY) => cardY.Defense.CompareTo(cardX.Defense);
-		public override string GetDisplayNameKey() => "BestiaryInfo.Sort_Defense";
+		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY)
+		{
+			return cardY.Defense.CompareTo(cardX.Defense);
+		}
+
+		public override string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_Defense";
+		}
 	}
 
 	public class ByCoins : ByStat
 	{
-		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY) => cardY.MonetaryValue.CompareTo(cardX.MonetaryValue);
-		public override string GetDisplayNameKey() => "BestiaryInfo.Sort_Coins";
+		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY)
+		{
+			return cardY.MonetaryValue.CompareTo(cardX.MonetaryValue);
+		}
+
+		public override string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_Coins";
+		}
 	}
 
 	public class ByHP : ByStat
 	{
-		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY) => cardY.LifeMax.CompareTo(cardX.LifeMax);
-		public override string GetDisplayNameKey() => "BestiaryInfo.Sort_HitPoints";
+		public override int Compare(NPCStatsReportInfoElement cardX, NPCStatsReportInfoElement cardY)
+		{
+			return cardY.LifeMax.CompareTo(cardX.LifeMax);
+		}
+
+		public override string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.Sort_HitPoints";
+		}
 	}
 }

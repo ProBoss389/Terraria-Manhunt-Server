@@ -1,3 +1,5 @@
+using Terraria.GameContent;
+using Terraria.GameContent.Items;
 using Terraria.GameContent.NetModules;
 using Terraria.Net;
 
@@ -12,11 +14,15 @@ public static class NetworkInitializer
 		NetManager.Instance.Register<NetPingModule>();
 		NetManager.Instance.Register<NetAmbienceModule>();
 		NetManager.Instance.Register<NetBestiaryModule>();
-		NetManager.Instance.Register<NetCreativeUnlocksModule>();
 		NetManager.Instance.Register<NetCreativePowersModule>();
 		NetManager.Instance.Register<NetCreativeUnlocksPlayerReportModule>();
 		NetManager.Instance.Register<NetTeleportPylonModule>();
 		NetManager.Instance.Register<NetParticlesModule>();
 		NetManager.Instance.Register<NetCreativePowerPermissionsModule>();
+		NetManager.Instance.Register<BannerSystem.NetBannersModule>();
+		NetManager.Instance.Register<CraftingRequests.NetCraftingRequestsModule>();
+		NetManager.Instance.Register<TagEffectState.NetModule>();
+		NetManager.Instance.Register<LeashedEntity.NetModule>();
+		NetManager.Instance.Register<UnbreakableWallScan.NetModule>();
 	}
 }

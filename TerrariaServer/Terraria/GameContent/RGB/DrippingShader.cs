@@ -7,7 +7,9 @@ namespace Terraria.GameContent.RGB;
 public class DrippingShader : ChromaShader
 {
 	private readonly Vector4 _baseColor;
+
 	private readonly Vector4 _liquidColor;
+
 	private readonly float _viscosity;
 
 	public DrippingShader(Color baseColor, Color liquidColor, float viscosity = 1f)
@@ -17,23 +19,22 @@ public class DrippingShader : ChromaShader
 		_viscosity = viscosity;
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.Low
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.Low })]
 	private void ProcessLowDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
-			Vector4 color = Vector4.Lerp(amount: (float)Math.Sin(time * 0.5f + fragment.GetCanvasPositionOfIndex(i).X) * 0.5f + 0.5f, value1: _baseColor, value2: _liquidColor);
+		for (int i = 0; i < fragment.Count; i++)
+		{
+			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
+			Vector4 color = Vector4.Lerp(_baseColor, _liquidColor, (float)Math.Sin(time * 0.5f + canvasPositionOfIndex.X) * 0.5f + 0.5f);
 			fragment.SetColor(i, color);
 		}
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.High
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.High })]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			fragment.GetGridPositionOfIndex(i);
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			float staticNoise = NoiseHelper.GetStaticNoise(canvasPositionOfIndex * new Vector2(0.7f * _viscosity, 0.075f) + new Vector2(0f, time * -0.1f * _viscosity));

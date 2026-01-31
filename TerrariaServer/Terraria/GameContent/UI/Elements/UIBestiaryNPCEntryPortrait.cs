@@ -17,7 +17,8 @@ public class UIBestiaryNPCEntryPortrait : UIElement
 		Height.Set(112f, 0f);
 		Width.Set(193f, 0f);
 		SetPadding(0f);
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = new StyleDimension(-4f, 1f),
 			Height = new StyleDimension(-4f, 1f),
 			IgnoresMouseInteraction = true,
@@ -25,10 +26,11 @@ public class UIBestiaryNPCEntryPortrait : UIElement
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		uIElement.SetPadding(0f);
-		if (portraitBackgroundAsset != null) {
-			uIElement.Append(new UIImage(portraitBackgroundAsset) {
+		if (portraitBackgroundAsset != null)
+		{
+			uIElement.Append(new UIImage(portraitBackgroundAsset)
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f,
 				ScaleToFit = true,
@@ -37,11 +39,12 @@ public class UIBestiaryNPCEntryPortrait : UIElement
 				Color = portraitColor
 			});
 		}
-
-		for (int i = 0; i < overlays.Count; i++) {
+		for (int i = 0; i < overlays.Count; i++)
+		{
 			Asset<Texture2D> backgroundOverlayImage = overlays[i].GetBackgroundOverlayImage();
 			Color? backgroundOverlayColor = overlays[i].GetBackgroundOverlayColor();
-			uIElement.Append(new UIImage(backgroundOverlayImage) {
+			uIElement.Append(new UIImage(backgroundOverlayImage)
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f,
 				ScaleToFit = true,
@@ -50,11 +53,11 @@ public class UIBestiaryNPCEntryPortrait : UIElement
 				Color = (backgroundOverlayColor.HasValue ? backgroundOverlayColor.Value : Color.Lerp(Color.White, portraitColor, 0.5f))
 			});
 		}
-
 		UIBestiaryEntryIcon element = new UIBestiaryEntryIcon(entry, isPortrait: true);
 		uIElement.Append(element);
 		Append(uIElement);
-		Append(new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Portrait_Front")) {
+		Append(new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Portrait_Front", AssetRequestMode.ImmediateLoad))
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f,
 			IgnoresMouseInteraction = true

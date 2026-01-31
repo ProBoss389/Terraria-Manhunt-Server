@@ -12,33 +12,40 @@ namespace Terraria.DataStructures;
 public class TitleLinkButton
 {
 	private static Item _fakeItem = new Item();
+
 	public string TooltipTextKey;
+
 	public string LinkUrl;
+
 	public Asset<Texture2D> Image;
+
 	public Rectangle? FrameWhenNotSelected;
+
 	public Rectangle? FrameWehnSelected;
 
 	public void Draw(SpriteBatch spriteBatch, Vector2 anchorPosition)
 	{
 		Rectangle r = Image.Frame();
 		if (FrameWhenNotSelected.HasValue)
+		{
 			r = FrameWhenNotSelected.Value;
-
+		}
 		Vector2 vector = r.Size();
 		Vector2 vector2 = anchorPosition - vector / 2f;
 		bool flag = false;
-		if (Main.MouseScreen.Between(vector2, vector2 + vector)) {
+		if (Main.MouseScreen.Between(vector2, vector2 + vector))
+		{
 			Main.LocalPlayer.mouseInterface = true;
 			flag = true;
 			DrawTooltip();
 			TryClicking();
 		}
-
 		Rectangle? rectangle = (flag ? FrameWehnSelected : FrameWhenNotSelected);
 		Rectangle rectangle2 = Image.Frame();
 		if (rectangle.HasValue)
+		{
 			rectangle2 = rectangle.Value;
-
+		}
 		Texture2D value = Image.Value;
 		spriteBatch.Draw(value, anchorPosition, rectangle2, Color.White, 0f, rectangle2.Size() / 2f, 1f, SpriteEffects.None, 0f);
 	}
@@ -46,7 +53,7 @@ public class TitleLinkButton
 	private void DrawTooltip()
 	{
 		Item fakeItem = _fakeItem;
-		fakeItem.SetDefaults(0, noMatCheck: true);
+		fakeItem.SetDefaults(0);
 		string textValue = Language.GetTextValue(TooltipTextKey);
 		fakeItem.SetNameOverride(textValue);
 		fakeItem.type = 1;
@@ -60,7 +67,8 @@ public class TitleLinkButton
 
 	private void TryClicking()
 	{
-		if (!PlayerInput.IgnoreMouseInterface && Main.mouseLeft && Main.mouseLeftRelease) {
+		if (!PlayerInput.IgnoreMouseInterface && Main.mouseLeft && Main.mouseLeftRelease)
+		{
 			SoundEngine.PlaySound(10);
 			Main.mouseLeftRelease = false;
 			OpenLink();
@@ -69,10 +77,12 @@ public class TitleLinkButton
 
 	private void OpenLink()
 	{
-		try {
+		try
+		{
 			Platform.Get<IPathService>().OpenURL(LinkUrl);
 		}
-		catch {
+		catch
+		{
 			Console.WriteLine("Failed to open link?!");
 		}
 	}

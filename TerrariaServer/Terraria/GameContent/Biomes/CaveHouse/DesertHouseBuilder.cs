@@ -23,6 +23,7 @@ public class DesertHouseBuilder : HouseBuilder
 		base.ChairStyle = 43;
 		base.ChestStyle = 10;
 		base.UsesContainers2 = true;
+		PotentiallyConvertToSeedHouse();
 	}
 
 	protected override void AgeRoom(Rectangle room)

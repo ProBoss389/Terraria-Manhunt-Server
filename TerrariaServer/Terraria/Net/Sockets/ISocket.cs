@@ -14,8 +14,6 @@ public interface ISocket
 
 	bool IsDataAvailable();
 
-	void SendQueuedPackets();
-
 	bool StartListening(SocketConnectionAccepted callback);
 
 	void StopListening();

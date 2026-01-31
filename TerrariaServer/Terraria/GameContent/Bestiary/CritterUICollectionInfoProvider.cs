@@ -13,10 +13,14 @@ public class CritterUICollectionInfoProvider : IBestiaryUICollectionInfoProvider
 
 	public BestiaryUICollectionInfo GetEntryUICollectionInfo()
 	{
-		BestiaryUICollectionInfo result = default(BestiaryUICollectionInfo);
-		result.UnlockState = (Main.BestiaryTracker.Sights.GetWasNearbyBefore(_persistentIdentifierToCheck) ? BestiaryEntryUnlockState.CanShowDropsWithDropRates_4 : BestiaryEntryUnlockState.NotKnownAtAll_0);
-		return result;
+		return new BestiaryUICollectionInfo
+		{
+			UnlockState = (Main.BestiaryTracker.Sights.GetWasNearbyBefore(_persistentIdentifierToCheck) ? BestiaryEntryUnlockState.CanShowDropsWithDropRates_4 : BestiaryEntryUnlockState.NotKnownAtAll_0)
+		};
 	}
 
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
 }

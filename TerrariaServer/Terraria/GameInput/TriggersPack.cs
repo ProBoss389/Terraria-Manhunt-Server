@@ -5,8 +5,11 @@ namespace Terraria.GameInput;
 public class TriggersPack
 {
 	public TriggersSet Current = new TriggersSet();
+
 	public TriggersSet Old = new TriggersSet();
+
 	public TriggersSet JustPressed = new TriggersSet();
+
 	public TriggersSet JustReleased = new TriggersSet();
 
 	public void Initialize()
@@ -32,7 +35,8 @@ public class TriggersPack
 	public void CompareDiffs(TriggersSet Bearer, TriggersSet oldset, TriggersSet newset)
 	{
 		Bearer.Reset();
-		foreach (string item in Bearer.KeyStatus.Keys.ToList()) {
+		foreach (string item in Bearer.KeyStatus.Keys.ToList())
+		{
 			Bearer.KeyStatus[item] = newset.KeyStatus[item] && !oldset.KeyStatus[item];
 		}
 	}

@@ -10,5 +10,8 @@ public class LegacyGameInterfaceLayer : GameInterfaceLayer
 		_drawMethod = drawMethod;
 	}
 
-	protected override bool DrawSelf() => _drawMethod();
+	protected override bool DrawSelf()
+	{
+		return _drawMethod();
+	}
 }

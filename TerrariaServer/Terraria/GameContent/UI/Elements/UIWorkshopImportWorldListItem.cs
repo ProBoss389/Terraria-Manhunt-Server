@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Audio;
 using Terraria.GameContent.UI.States;
+using Terraria.ID;
 using Terraria.IO;
 using Terraria.Localization;
 using Terraria.Social;
@@ -13,12 +14,17 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIWorkshopImportWorldListItem : AWorldListItem
 {
 	private Asset<Texture2D> _dividerTexture;
+
 	private Asset<Texture2D> _workshopIconTexture;
+
 	private Asset<Texture2D> _innerPanelTexture;
+
 	private UIElement _worldIcon;
+
 	private UIText _buttonLabel;
-	private Asset<Texture2D> _buttonImportTexture;
+
 	private int _orderInList;
+
 	public UIState _ownerState;
 
 	public UIWorkshopImportWorldListItem(UIState ownerState, WorldFileData data, int orderInList)
@@ -33,7 +39,7 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 		_worldIcon.OnLeftDoubleClick += ImportButtonClick_ImportWorldToLocalFiles;
 		Append(_worldIcon);
 		float num = 4f;
-		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/ButtonPlay"));
+		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/ButtonPlay", AssetRequestMode.ImmediateLoad));
 		uIImageButton.VAlign = 1f;
 		uIImageButton.Left.Set(num, 0f);
 		uIImageButton.OnLeftClick += ImportButtonClick_ImportWorldToLocalFiles;
@@ -52,8 +58,8 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 
 	private void LoadTextures()
 	{
-		_dividerTexture = Main.Assets.Request<Texture2D>("Images/UI/Divider");
-		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground");
+		_dividerTexture = Main.Assets.Request<Texture2D>("Images/UI/Divider", AssetRequestMode.ImmediateLoad);
+		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground", AssetRequestMode.ImmediateLoad);
 		_workshopIconTexture = TextureAssets.Extra[243];
 	}
 
@@ -89,13 +95,12 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 
 	private void ImportButtonClick_ImportWorldToLocalFiles(UIMouseEvent evt, UIElement listeningElement)
 	{
-		if (listeningElement == evt.Target) {
+		if (listeningElement == evt.Target && _data.IsValid)
+		{
 			SoundEngine.PlaySound(10);
 			Main.clrInput();
-			UIVirtualKeyboard uIVirtualKeyboard = new UIVirtualKeyboard(Language.GetTextValue("Workshop.EnterNewNameForImportedWorld"), _data.Name, OnFinishedSettingName, GoToMainMenu, 0, allowEmpty: true);
-			uIVirtualKeyboard.SetMaxInputLength(27);
-			uIVirtualKeyboard.Text = _data.Name;
-			Main.MenuUI.SetState(uIVirtualKeyboard);
+			UIVirtualKeyboard state = new UIVirtualKeyboard(Language.GetTextValue("Workshop.EnterNewNameForImportedWorld"), _data.Name, OnFinishedSettingName, GoBackHere, 0, allowEmpty: true, 27);
+			Main.MenuUI.SetState(state);
 		}
 	}
 
@@ -103,20 +108,24 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 	{
 		string newDisplayName = name.Trim();
 		if (SocialAPI.Workshop != null)
-			SocialAPI.Workshop.ImportDownloadedWorldToLocalSaves(_data, null, newDisplayName);
+		{
+			SocialAPI.Workshop.ImportDownloadedWorldToLocalSaves(_data, newDisplayName, GoBackHere);
+		}
 	}
 
-	private void GoToMainMenu()
+	private void GoBackHere()
 	{
 		SoundEngine.PlaySound(11);
-		Main.menuMode = 0;
+		Main.menuMode = 888;
+		Main.MenuUI.SetState(_ownerState);
 	}
 
 	public override int CompareTo(object obj)
 	{
 		if (obj is UIWorkshopImportWorldListItem uIWorkshopImportWorldListItem)
+		{
 			return _orderInList.CompareTo(uIWorkshopImportWorldListItem._orderInList);
-
+		}
 		return base.CompareTo(obj);
 	}
 
@@ -145,11 +154,18 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 		CalculatedStyle innerDimensions = GetInnerDimensions();
 		CalculatedStyle dimensions = _worldIcon.GetDimensions();
 		float num = dimensions.X + dimensions.Width;
-		Color color = (_data.IsValid ? Color.White : Color.Gray);
-		string worldName = _data.GetWorldName(allowCropping: true);
-		if (worldName != null)
-			Utils.DrawBorderString(spriteBatch, worldName, new Vector2(num + 6f, dimensions.Y - 2f), color);
-
+		Color color = Color.White;
+		string text = _data.GetWorldName(allowCropping: true);
+		if (!_data.IsValid)
+		{
+			color = Color.Gray;
+			string name = StatusID.Search.GetName(_data.LoadStatus);
+			text = "(" + name + ") " + text;
+		}
+		if (text != null)
+		{
+			Utils.DrawBorderString(spriteBatch, text, new Vector2(num + 6f, dimensions.Y - 2f), color);
+		}
 		spriteBatch.Draw(_workshopIconTexture.Value, new Vector2(GetDimensions().X + GetDimensions().Width - (float)_workshopIconTexture.Width() - 3f, GetDimensions().Y + 2f), _workshopIconTexture.Frame(), Color.White);
 		spriteBatch.Draw(_dividerTexture.Value, new Vector2(num, innerDimensions.Y + 21f), null, Color.White, 0f, Vector2.Zero, new Vector2((GetDimensions().X + GetDimensions().Width - num) / 8f, 1f), SpriteEffects.None, 0f);
 		Vector2 vector = new Vector2(num + 6f, innerDimensions.Y + 29f);
@@ -162,11 +178,13 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 		float x2 = num2 * 0.5f - x * 0.5f;
 		Utils.DrawBorderString(spriteBatch, expertText, vector + new Vector2(x2, 3f), gameModeColor);
 		vector.X += num2 + 5f;
-		if (_data._worldSizeName != null) {
+		if (_data._worldSizeName != null)
+		{
 			float num3 = 150f;
 			if (!GameCulture.FromCultureName(GameCulture.CultureName.English).IsActive)
+			{
 				num3 += 40f;
-
+			}
 			DrawPanel(spriteBatch, vector, num3);
 			string textValue = Language.GetTextValue("UI.WorldSizeFormat", _data.WorldSizeName);
 			float x3 = FontAssets.MouseText.Value.MeasureString(textValue).X;
@@ -174,7 +192,6 @@ public class UIWorkshopImportWorldListItem : AWorldListItem
 			Utils.DrawBorderString(spriteBatch, textValue, vector + new Vector2(x4, 3f), Color.White);
 			vector.X += num3 + 5f;
 		}
-
 		float num4 = innerDimensions.X + innerDimensions.Width - vector.X;
 		DrawPanel(spriteBatch, vector, num4);
 		string arg = ((!GameCulture.FromCultureName(GameCulture.CultureName.English).IsActive) ? _data.CreationTime.ToShortDateString() : _data.CreationTime.ToString("d MMMM yyyy"));

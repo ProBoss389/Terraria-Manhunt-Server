@@ -4,5 +4,10 @@ namespace Terraria.WorldBuilding;
 
 public abstract class GenStructure : GenBase
 {
-	public abstract bool Place(Point origin, StructureMap structures);
+	public virtual bool Place(Point origin, StructureMap structures)
+	{
+		return Place(origin, structures, null);
+	}
+
+	public abstract bool Place(Point origin, StructureMap structures, GenerationProgress progress);
 }

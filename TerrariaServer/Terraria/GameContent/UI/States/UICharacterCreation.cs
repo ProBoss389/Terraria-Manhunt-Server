@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using ReLogic.Content;
 using ReLogic.OS;
 using Terraria.Audio;
 using Terraria.GameContent.Creative;
@@ -18,7 +20,7 @@ using Terraria.UI.Gamepad;
 
 namespace Terraria.GameContent.UI.States;
 
-public class UICharacterCreation : UIState
+public class UICharacterCreation : UIState, IHaveBackButtonCommand
 {
 	private enum CategoryId
 	{
@@ -42,95 +44,181 @@ public class UICharacterCreation : UIState
 		Luminance
 	}
 
-	private int[] _validClothStyles = new int[10] {
-		0,
-		2,
-		1,
-		3,
-		8,
-		4,
-		6,
-		5,
-		7,
-		9
+	private struct ArmorAssignments
+	{
+		public int HeadItem;
+
+		public int BodyItem;
+
+		public int LegItem;
+
+		public int Accessory1Item;
+	}
+
+	private int[] _validClothStyles = new int[10] { 0, 2, 1, 3, 8, 9, 7, 5, 6, 4 };
+
+	private Dictionary<int, int> _defaultHairstylesForClothStyle = new Dictionary<int, int>
+	{
+		{ 0, 0 },
+		{ 2, 1 },
+		{ 1, 12 },
+		{ 3, 2 },
+		{ 8, 28 },
+		{ 9, 68 },
+		{ 7, 18 },
+		{ 5, 22 },
+		{ 6, 81 },
+		{ 4, 5 }
 	};
+
+	private int[] _validVoiceStyles = new int[3] { 1, 2, 3 };
+
 	private readonly Player _player;
+
 	private UIColoredImageButton[] _colorPickers;
+
 	private CategoryId _selectedPicker;
+
 	private Vector3 _currentColorHSL;
+
 	private UIColoredImageButton _clothingStylesCategoryButton;
+
 	private UIColoredImageButton _hairStylesCategoryButton;
+
 	private UIColoredImageButton _charInfoCategoryButton;
+
 	private UIElement _topContainer;
+
 	private UIElement _middleContainer;
+
 	private UIElement _hslContainer;
+
 	private UIElement _hairstylesContainer;
+
 	private UIElement _clothStylesContainer;
+
 	private UIElement _infoContainer;
+
 	private UIText _hslHexText;
+
 	private UIText _difficultyDescriptionText;
+
 	private UIElement _copyHexButton;
+
 	private UIElement _pasteHexButton;
+
 	private UIElement _randomColorButton;
+
 	private UIElement _copyTemplateButton;
+
 	private UIElement _pasteTemplateButton;
+
 	private UIElement _randomizePlayerButton;
-	private UIColoredImageButton _genderMale;
-	private UIColoredImageButton _genderFemale;
+
+	private UIElement _pitchSlider;
+
+	private UIElement _voiceNext;
+
+	private UIElement _voicePrevious;
+
+	private UIElement _voicePlay;
+
+	private float _pitchAmount;
+
+	private UIElement[] _previewArmorButton = new UIElement[0];
+
 	private UICharacterNameButton _charName;
+
 	private UIText _helpGlyphLeft;
+
 	private UIText _helpGlyphRight;
+
+	private bool _oldMaleForVoiceAutoSwitch = true;
+
+	private int? _lastSelectedHairstyle;
+
+	private UIImageFramed[] _characterPreviewLayers = new UIImageFramed[7];
+
 	public const int MAX_NAME_LENGTH = 20;
+
+	private bool _playedVoicePreviewThisFrame;
+
+	private ArmorAssignments _maleArmor;
+
+	private ArmorAssignments _femaleArmor;
+
+	private GameTipsDisplay _tips;
+
+	public static UIState BackupConfirmationState;
+
+	private static bool dirty;
+
+	private string initialState;
+
+	private bool _pitchChanged;
+
+	private int _pitchChangedCooldown;
+
 	private UIGamepadHelper _helper;
+
 	private List<int> _foundPoints = new List<int>();
 
 	public UICharacterCreation(Player player)
 	{
 		_player = player;
 		_player.difficulty = 0;
+		_tips = new GameTipsDisplay(new CharacterCreationTipsProvider());
 		BuildPage();
+		initialState = GetPlayerTemplateValues();
+		dirty = false;
+	}
+
+	public override void Update(GameTime gameTime)
+	{
+		_playedVoicePreviewThisFrame = false;
+		base.Update(gameTime);
 	}
 
 	private void BuildPage()
 	{
 		RemoveAllChildren();
 		int num = 4;
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = StyleDimension.FromPixels(500f),
 			Height = StyleDimension.FromPixels(380 + num),
 			Top = StyleDimension.FromPixels(220f),
 			HAlign = 0.5f,
 			VAlign = 0f
 		};
-
 		uIElement.SetPadding(0f);
 		Append(uIElement);
-		UIPanel uIPanel = new UIPanel {
+		UIPanel uIPanel = new UIPanel
+		{
 			Width = StyleDimension.FromPercent(1f),
 			Height = StyleDimension.FromPixels(uIElement.Height.Pixels - 150f - (float)num),
 			Top = StyleDimension.FromPixels(50f),
 			BackgroundColor = new Color(33, 43, 79) * 0.8f
 		};
-
 		uIPanel.SetPadding(0f);
 		uIElement.Append(uIPanel);
 		MakeBackAndCreatebuttons(uIElement);
 		MakeCharPreview(uIPanel);
-		UIElement uIElement2 = new UIElement {
+		UIElement uIElement2 = new UIElement
+		{
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(50f, 0f)
 		};
-
 		uIElement2.SetPadding(0f);
 		uIElement2.PaddingTop = 4f;
 		uIElement2.PaddingBottom = 0f;
 		uIPanel.Append(uIElement2);
-		UIElement uIElement3 = new UIElement {
+		UIElement uIElement3 = new UIElement
+		{
 			Top = StyleDimension.FromPixelsAndPercent(uIElement2.Height.Pixels + 6f, 0f),
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(uIPanel.Height.Pixels - 70f, 0f)
 		};
-
 		uIElement3.SetPadding(0f);
 		uIElement3.PaddingTop = 3f;
 		uIElement3.PaddingBottom = 0f;
@@ -148,165 +236,497 @@ public class UICharacterCreation : UIState
 	private void MakeCharPreview(UIPanel container)
 	{
 		float num = 70f;
-		for (float num2 = 0f; num2 <= 1f; num2 += 1f) {
-			UICharacter element = new UICharacter(_player, animated: true, hasBackPanel: false, 1.5f) {
+		for (float num2 = 0f; num2 < 1f; num2 += 1f)
+		{
+			UICharacter uICharacter = new UICharacter(_player, animated: true, hasBackPanel: false, 1.5f)
+			{
 				Width = StyleDimension.FromPixels(80f),
 				Height = StyleDimension.FromPixelsAndPercent(80f, 0f),
 				Top = StyleDimension.FromPixelsAndPercent(0f - num, 0f),
 				VAlign = 0f,
 				HAlign = 0.5f
 			};
-
-			container.Append(element);
+			uICharacter.PrepareAction = PreparePreview_Main;
+			container.Append(uICharacter);
 		}
 	}
 
 	private void MakeHairsylesMenu(UIElement middleInnerPanel)
 	{
 		Main.Hairstyles.UpdateUnlocks();
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			Top = StyleDimension.FromPixels(6f)
 		};
-
 		middleInnerPanel.Append(uIElement);
 		uIElement.SetPadding(0f);
-		UIList uIList = new UIList {
+		UIList uIList = new UIList
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-18f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(-6f, 1f)
 		};
-
 		uIList.SetPadding(4f);
 		uIElement.Append(uIList);
-		UIScrollbar uIScrollbar = new UIScrollbar {
+		UIScrollbar uIScrollbar = new UIScrollbar
+		{
 			HAlign = 1f,
 			Height = StyleDimension.FromPixelsAndPercent(-30f, 1f),
 			Top = StyleDimension.FromPixels(10f)
 		};
-
 		uIScrollbar.SetView(100f, 1000f);
 		uIList.SetScrollbar(uIScrollbar);
 		uIElement.Append(uIScrollbar);
 		int count = Main.Hairstyles.AvailableHairstyles.Count;
-		UIElement uIElement2 = new UIElement {
+		UIElement uIElement2 = new UIElement
+		{
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(48 * (count / 10 + ((count % 10 != 0) ? 1 : 0)), 0f)
 		};
-
 		uIList.Add(uIElement2);
 		uIElement2.SetPadding(0f);
-		for (int i = 0; i < count; i++) {
-			UIHairStyleButton uIHairStyleButton = new UIHairStyleButton(_player, Main.Hairstyles.AvailableHairstyles[i]) {
+		for (int i = 0; i < count; i++)
+		{
+			UIHairStyleButton uIHairStyleButton = new UIHairStyleButton(_player, Main.Hairstyles.AvailableHairstyles[i])
+			{
 				Left = StyleDimension.FromPixels((float)(i % 10) * 46f + 6f),
 				Top = StyleDimension.FromPixels((float)(i / 10) * 48f + 1f)
 			};
-
 			uIHairStyleButton.SetSnapPoint("Middle", i);
 			uIHairStyleButton.SkipRenderingContent(i);
+			uIHairStyleButton.OnLeftMouseDown += RecordThatHairWasSelected;
 			uIElement2.Append(uIHairStyleButton);
 		}
-
 		_hairstylesContainer = uIElement;
+	}
+
+	private void RecordThatHairWasSelected(UIMouseEvent evt, UIElement listeningElement)
+	{
+		_lastSelectedHairstyle = _player.hair;
 	}
 
 	private void MakeClothStylesMenu(UIElement middleInnerPanel)
 	{
-		UIElement uIElement = new UIElement {
-			Width = StyleDimension.FromPixelsAndPercent(-10f, 1f),
+		UIElement uIElement = new UIElement
+		{
+			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		middleInnerPanel.Append(uIElement);
 		uIElement.SetPadding(0f);
-		int num = 15;
-		for (int i = 0; i < _validClothStyles.Length; i++) {
-			int num2 = 0;
-			if (i >= _validClothStyles.Length / 2)
-				num2 = 20;
-
-			UIClothStyleButton uIClothStyleButton = new UIClothStyleButton(_player, _validClothStyles[i]) {
-				Left = StyleDimension.FromPixels((float)i * 46f + (float)num2 + 6f),
+		int num = 0;
+		for (int i = 0; i < _validClothStyles.Length; i++)
+		{
+			int num2 = 19;
+			num2 = ((i < _validClothStyles.Length / 2) ? (num2 - 8) : (num2 + 10));
+			UIClothStyleButton uIClothStyleButton = new UIClothStyleButton(_player, _validClothStyles[i], PreparePreview_ClothStyle)
+			{
+				Left = StyleDimension.FromPixels((float)i * 46f + (float)num2),
 				Top = StyleDimension.FromPixels(num)
 			};
-
 			uIClothStyleButton.OnLeftMouseDown += Click_CharClothStyle;
 			uIClothStyleButton.SetSnapPoint("Middle", i);
 			uIElement.Append(uIClothStyleButton);
 		}
-
-		for (int j = 0; j < 2; j++) {
-			int num3 = 0;
-			if (j >= 1)
-				num3 = 20;
-
-			UIHorizontalSeparator element = new UIHorizontalSeparator {
-				Left = StyleDimension.FromPixels((float)j * 230f + (float)num3 + 6f),
-				Top = StyleDimension.FromPixels(num + 86),
-				Width = StyleDimension.FromPixelsAndPercent(230f, 0f),
-				Color = Color.Lerp(Color.White, new Color(63, 65, 151, 255), 0.85f) * 0.9f
-			};
-
-			uIElement.Append(element);
-			UIColoredImageButton uIColoredImageButton = CreatePickerWithoutClick(CategoryId.Clothing, "Images/UI/CharCreation/" + ((j == 0) ? "ClothStyleMale" : "ClothStyleFemale"), 0f, 0f);
-			uIColoredImageButton.Top = StyleDimension.FromPixelsAndPercent(num + 92, 0f);
-			uIColoredImageButton.Left = StyleDimension.FromPixels((float)j * 230f + 92f + (float)num3 + 6f);
-			uIColoredImageButton.HAlign = 0f;
-			uIColoredImageButton.VAlign = 0f;
-			uIElement.Append(uIColoredImageButton);
-			if (j == 0) {
-				uIColoredImageButton.OnLeftMouseDown += Click_CharGenderMale;
-				_genderMale = uIColoredImageButton;
-			}
-			else {
-				uIColoredImageButton.OnLeftMouseDown += Click_CharGenderFemale;
-				_genderFemale = uIColoredImageButton;
-			}
-
-			uIColoredImageButton.SetSnapPoint("Low", j * 4);
-		}
-
-		UIElement uIElement2 = new UIElement {
-			Width = StyleDimension.FromPixels(130f),
+		int num3 = 15;
+		int num4 = 60;
+		UIElement uIElement2 = new UIElement
+		{
+			Width = StyleDimension.FromPixels(170f),
 			Height = StyleDimension.FromPixels(50f),
-			HAlign = 0.5f,
-			VAlign = 1f
+			HAlign = 0f,
+			Left = new StyleDimension((float)num4 - 34f, 0.5f),
+			VAlign = 1f,
+			Top = StyleDimension.FromPixels(-num3 - 7)
 		};
-
 		uIElement.Append(uIElement2);
-		UIColoredImageButton uIColoredImageButton2 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Copy"), isSmall: true) {
+		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/Item_" + (short)271, AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
 			VAlign = 0.5f,
 			HAlign = 0f,
 			Left = StyleDimension.FromPixelsAndPercent(0f, 0f)
 		};
-
-		uIColoredImageButton2.OnLeftMouseDown += Click_CopyPlayerTemplate;
-		uIElement2.Append(uIColoredImageButton2);
-		_copyTemplateButton = uIColoredImageButton2;
-		UIColoredImageButton uIColoredImageButton3 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Paste"), isSmall: true) {
+		uIColoredImageButton.SetColor(_player.hairColor);
+		uIColoredImageButton.OnLeftMouseDown += EquipArmorNone;
+		uIElement2.Append(uIColoredImageButton);
+		UIColoredImageButton uIColoredImageButton2 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/Item_" + (short)5660, AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f
 		};
-
-		uIColoredImageButton3.OnLeftMouseDown += Click_PastePlayerTemplate;
+		uIColoredImageButton2.OnLeftMouseDown += EquipArmorHallowed;
+		uIElement2.Append(uIColoredImageButton2);
+		UIColoredImageButton uIColoredImageButton3 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/Item_" + (short)91, AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
+			VAlign = 0.5f,
+			HAlign = 0.25f
+		};
+		uIColoredImageButton3.OnLeftMouseDown += EquipArmorSilver;
 		uIElement2.Append(uIColoredImageButton3);
-		_pasteTemplateButton = uIColoredImageButton3;
-		UIColoredImageButton uIColoredImageButton4 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Randomize"), isSmall: true) {
+		UIColoredImageButton uIColoredImageButton4 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/Item_" + (short)239, AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
+			VAlign = 0.5f,
+			HAlign = 0.75f
+		};
+		uIColoredImageButton4.OnLeftMouseDown += EquipArmorFormal;
+		uIElement2.Append(uIColoredImageButton4);
+		UIColoredImageButton uIColoredImageButton5 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/Item_" + (short)237, AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
 			VAlign = 0.5f,
 			HAlign = 1f
 		};
-
-		uIColoredImageButton4.OnLeftMouseDown += Click_RandomizePlayer;
-		uIElement2.Append(uIColoredImageButton4);
-		_randomizePlayerButton = uIColoredImageButton4;
-		uIColoredImageButton2.SetSnapPoint("Low", 1);
-		uIColoredImageButton3.SetSnapPoint("Low", 2);
-		uIColoredImageButton4.SetSnapPoint("Low", 3);
+		uIColoredImageButton5.OnLeftMouseDown += EquipArmorSwimming;
+		uIElement2.Append(uIColoredImageButton5);
+		_previewArmorButton = new UIElement[5];
+		_previewArmorButton[0] = uIColoredImageButton;
+		_previewArmorButton[1] = uIColoredImageButton2;
+		_previewArmorButton[2] = uIColoredImageButton3;
+		_previewArmorButton[3] = uIColoredImageButton4;
+		_previewArmorButton[4] = uIColoredImageButton5;
+		_previewArmorButton[0].SetSnapPoint("Preview", 0);
+		_previewArmorButton[2].SetSnapPoint("Preview", 1);
+		_previewArmorButton[1].SetSnapPoint("Preview", 2);
+		_previewArmorButton[3].SetSnapPoint("Preview", 3);
+		_previewArmorButton[4].SetSnapPoint("Preview", 4);
+		UIElement uIElement3 = new UIElement
+		{
+			Width = StyleDimension.FromPixels(100f),
+			Height = StyleDimension.FromPixels(50f),
+			HAlign = 0f,
+			Left = new StyleDimension(num4, 0.5f),
+			VAlign = 1f,
+			Top = StyleDimension.FromPixels(-num3 + 38 - 9)
+		};
+		uIElement.Append(uIElement3);
+		UIColoredImageButton uIColoredImageButton6 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Copy", AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
+			VAlign = 0.5f,
+			HAlign = 0f,
+			Left = StyleDimension.FromPixelsAndPercent(0f, 0f)
+		};
+		uIColoredImageButton6.OnLeftMouseDown += Click_CopyPlayerTemplate;
+		uIElement3.Append(uIColoredImageButton6);
+		_copyTemplateButton = uIColoredImageButton6;
+		UIColoredImageButton uIColoredImageButton7 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Paste", AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
+			VAlign = 0.5f,
+			HAlign = 0.5f
+		};
+		uIColoredImageButton7.OnLeftMouseDown += Click_PastePlayerTemplate;
+		uIElement3.Append(uIColoredImageButton7);
+		_pasteTemplateButton = uIColoredImageButton7;
+		UIColoredImageButton uIColoredImageButton8 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Randomize", AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
+			VAlign = 0.5f,
+			HAlign = 1f
+		};
+		uIColoredImageButton8.OnLeftMouseDown += Click_RandomizePlayer;
+		uIElement3.Append(uIColoredImageButton8);
+		_randomizePlayerButton = uIColoredImageButton8;
+		UIElement uIElement4 = new UIElement
+		{
+			Width = StyleDimension.FromPixels(90f),
+			Height = StyleDimension.FromPixels(50f),
+			HAlign = 1f,
+			Left = new StyleDimension(-num4, -0.5f),
+			VAlign = 1f,
+			Top = StyleDimension.FromPixels(-num3)
+		};
+		uIElement.Append(uIElement4);
+		UIHorizontalSeparator element = new UIHorizontalSeparator
+		{
+			Width = StyleDimension.FromPixelsAndPercent(-38f, 1f),
+			HAlign = 0.5f,
+			VAlign = 1f,
+			Top = StyleDimension.FromPixelsAndPercent(-52 - num3, 0f),
+			Left = new StyleDimension(-3f, 0f),
+			Color = Color.Lerp(Color.White, new Color(63, 65, 151, 255), 0.85f) * 0.9f
+		};
+		uIElement.Append(element);
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/TexturePackButtons", AssetRequestMode.ImmediateLoad);
+		Asset<Texture2D> asset2 = Main.Assets.Request<Texture2D>("Images/UI/TexturePackButtonsOutline", AssetRequestMode.ImmediateLoad);
+		UIImageButton uIImageButton = new UIImageButton(asset, asset.Frame(2, 2, 0, 1))
+		{
+			VAlign = 0.5f,
+			HAlign = 0f,
+			Left = StyleDimension.FromPixelsAndPercent(0f, 0f),
+			BorderColor = Main.OurFavoriteColor
+		};
+		uIImageButton.SetVisibility(1f, 1f);
+		uIImageButton.SetHoverImage(asset2, asset2.Frame(2, 2, 0, 1));
+		uIImageButton.OnLeftMouseDown += Click_VoiceCycleBack;
+		uIElement4.Append(uIImageButton);
+		UIImageButton uIImageButton2 = new UIImageButton(asset, asset.Frame(2, 2, 1, 1))
+		{
+			VAlign = 0.5f,
+			HAlign = 1f,
+			Left = StyleDimension.FromPixelsAndPercent(0f, 0f),
+			BorderColor = Main.OurFavoriteColor
+		};
+		uIImageButton2.SetVisibility(1f, 1f);
+		uIImageButton2.SetHoverImage(asset2, asset2.Frame(2, 2, 1, 1));
+		uIImageButton2.OnLeftMouseDown += Click_VoiceCycleForward;
+		uIElement4.Append(uIImageButton2);
+		UIColoredImageButton uIColoredImageButton9 = new UIColoredImageButton(null)
+		{
+			VAlign = 0.5f,
+			HAlign = 0.5f,
+			Left = StyleDimension.FromPixelsAndPercent(0f, 0f),
+			Width = StyleDimension.FromPixels(52f),
+			Height = StyleDimension.FromPixels(52f)
+		};
+		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Voice", AssetRequestMode.ImmediateLoad))
+		{
+			VAlign = 0.5f,
+			HAlign = 0.5f,
+			IgnoresMouseInteraction = true,
+			Color = Main.OurFavoriteColor
+		};
+		uIImage.OnUpdate += voiceIcon_OnUpdate;
+		uIColoredImageButton9.Append(uIImage);
+		UIText uIText = new UIText("", 0.85f)
+		{
+			VAlign = 1f,
+			HAlign = 1f,
+			TextOriginX = 0.5f,
+			TextOriginY = 1f,
+			Top = StyleDimension.FromPixels(-6f),
+			Left = StyleDimension.FromPixels(-12f),
+			ShadowColor = Color.Black * 0.3f
+		};
+		uIText.OnUpdate += voiceNumber_OnUpdate;
+		uIColoredImageButton9.Append(uIText);
+		uIColoredImageButton9.OnLeftMouseDown += Click_VoicePlay;
+		uIElement4.Append(uIColoredImageButton9);
+		UIColoredSlider uIColoredSlider = new UIColoredSlider(LocalizedText.Empty, GetPitchSlider, SetPitchSlider_Keyboard, SetPitchSlider_GamePad, GetVoicePitchColorAt, Color.Transparent)
+		{
+			VAlign = 1f,
+			HAlign = 0.5f,
+			Width = StyleDimension.FromPixelsAndPercent(187f, 0f),
+			Top = StyleDimension.FromPixels(-10f),
+			Left = StyleDimension.FromPixels(55f)
+		};
+		uIColoredSlider.OnLeftMouseDown += Click_VoicePitch;
+		uIColoredSlider.OnUpdate += PitchSliderUpdate;
+		uIColoredSlider.SetSnapPoint("pitch", 0, null, new Vector2(-93f, 16f));
+		uIElement4.Append(uIColoredSlider);
+		_pitchSlider = uIColoredSlider;
+		uIImageButton.SetSnapPoint("Low", 1);
+		uIColoredImageButton9.SetSnapPoint("Low", 2);
+		uIImageButton2.SetSnapPoint("Low", 3);
+		_voicePrevious = uIImageButton;
+		_voiceNext = uIImageButton2;
+		_voicePlay = uIColoredImageButton9;
+		uIColoredImageButton6.SetSnapPoint("Low", 4);
+		uIColoredImageButton7.SetSnapPoint("Low", 5);
+		uIColoredImageButton8.SetSnapPoint("Low", 6);
 		_clothStylesContainer = uIElement;
+	}
+
+	private void EquipArmorNone(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_femaleArmor = (_maleArmor = default(ArmorAssignments));
+	}
+
+	private void EquipArmorGold(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_femaleArmor = (_maleArmor = new ArmorAssignments
+		{
+			HeadItem = 92,
+			BodyItem = 83,
+			LegItem = 79
+		});
+	}
+
+	private void EquipArmorSilver(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_femaleArmor = (_maleArmor = new ArmorAssignments
+		{
+			HeadItem = 91,
+			BodyItem = 82,
+			LegItem = 78
+		});
+	}
+
+	private void EquipArmorFuneral(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_femaleArmor = (_maleArmor = new ArmorAssignments
+		{
+			HeadItem = 4704,
+			BodyItem = 4705,
+			LegItem = 4706
+		});
+	}
+
+	private void EquipArmorHallowed(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_femaleArmor = (_maleArmor = new ArmorAssignments
+		{
+			HeadItem = 5660,
+			BodyItem = 551,
+			LegItem = 552
+		});
+	}
+
+	private void EquipArmorFormal(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_maleArmor = new ArmorAssignments
+		{
+			HeadItem = 239,
+			BodyItem = 240,
+			LegItem = 241
+		};
+		_femaleArmor = new ArmorAssignments
+		{
+			HeadItem = 3478,
+			BodyItem = 3479,
+			LegItem = 0
+		};
+	}
+
+	private void EquipArmorSwimming(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		_maleArmor = new ArmorAssignments
+		{
+			HeadItem = 237,
+			BodyItem = 3785,
+			LegItem = 5649
+		};
+		_femaleArmor = new ArmorAssignments
+		{
+			HeadItem = 237,
+			BodyItem = 5646,
+			LegItem = 5647,
+			Accessory1Item = 208
+		};
+	}
+
+	private void PreparePreview_Main()
+	{
+		_player.direction = 1;
+		TryAutoAssigningHair();
+		UpdatePreviewItems();
+	}
+
+	private void PreparePreview_ClothStyle()
+	{
+		_player.direction = (_player.Male ? 1 : (-1));
+		TryAutoAssigningHair();
+		UpdatePreviewItems();
+	}
+
+	private void TryAutoAssigningHair()
+	{
+		if (!_lastSelectedHairstyle.HasValue && _defaultHairstylesForClothStyle.TryGetValue(_player.skinVariant, out var value))
+		{
+			_player.hair = value;
+		}
+	}
+
+	private void UpdatePreviewItems()
+	{
+		ArmorAssignments armorAssignments = _femaleArmor;
+		if (_player.Male)
+		{
+			armorAssignments = _maleArmor;
+		}
+		_player.armor[0].SetDefaults(armorAssignments.HeadItem);
+		_player.armor[1].SetDefaults(armorAssignments.BodyItem);
+		_player.armor[2].SetDefaults(armorAssignments.LegItem);
+	}
+
+	private void PitchSliderUpdate(UIElement affectedElement)
+	{
+		if (_pitchChanged && --_pitchChangedCooldown <= 0)
+		{
+			_pitchChanged = false;
+			PlayVoicePreview();
+		}
+	}
+
+	private void PitchChanged()
+	{
+		_pitchChanged = true;
+		_pitchChangedCooldown = 3;
+	}
+
+	private void SetPitchSlider_GamePad()
+	{
+		if (PlayerInput.UsingGamepad)
+		{
+			float pitchAmount = _pitchAmount;
+			float num = UILinksInitializer.HandleSliderHorizontalInput(Utils.Remap(_pitchAmount, -1f, 1f, 0f, 1f), 0f, 1f, PlayerInput.CurrentProfile.InterfaceDeadzoneX, 0.35f);
+			_pitchAmount = Utils.Remap(num, 0f, 1f, -1f, 1f);
+			num = RemapPitchSliderKnob(num);
+			_player.voicePitchOffset = Utils.Remap(num, 0f, 1f, -1f, 1f);
+			if (pitchAmount != _pitchAmount)
+			{
+				PitchChanged();
+			}
+		}
+	}
+
+	private float RemapPitchSliderKnob(float pitchSliderValue)
+	{
+		int num = 20;
+		return (float)Math.Round(pitchSliderValue * (float)num) / (float)num;
+	}
+
+	private void SetPitchSlider_Keyboard(float amount)
+	{
+		amount = RemapPitchSliderKnob(amount);
+		float voicePitchOffset = _player.voicePitchOffset;
+		_pitchAmount = (_player.voicePitchOffset = Utils.Remap(amount, 0f, 1f, -1f, 1f));
+		_pitchChangedCooldown = 3;
+		if (voicePitchOffset != _player.voicePitchOffset)
+		{
+			PitchChanged();
+		}
+	}
+
+	private float GetPitchSlider()
+	{
+		return Utils.Remap(RemapPitchSliderKnob(_pitchAmount), -1f, 1f, 0f, 1f);
+	}
+
+	private Color GetVoicePitchColorAt(float x)
+	{
+		float fromValue = (x * 4f + 0.5f) % 1f;
+		float num = Utils.Remap(fromValue, 0f, 0.5f, 0f, 1f) * Utils.Remap(fromValue, 0.5f, 1f, 1f, 0f);
+		float amount = num * num * num * num * num;
+		return Color.Lerp(new Color(90, 90, 120), Color.White, amount);
+	}
+
+	private void voiceNumber_OnUpdate(UIElement affectedElement)
+	{
+		int num = 0;
+		int[] variantOrder = PlayerVoiceID.VariantOrder;
+		for (int i = 0; i < variantOrder.Length; i++)
+		{
+			if (variantOrder[i] == _player.voiceVariant)
+			{
+				num = i;
+				break;
+			}
+		}
+		(affectedElement as UIText).SetText((num + 1).ToString());
+	}
+
+	private void voiceIcon_OnUpdate(UIElement affectedElement)
+	{
+		(affectedElement as UIImage).Color = PlayerVoiceID.Sets.Colors[_player.voiceVariant];
 	}
 
 	private void MakeCategoriesBar(UIElement categoryContainer)
@@ -321,14 +741,27 @@ public class UICharacterCreation : UIState
 		categoryContainer.Append(CreateColorPicker(CategoryId.Undershirt, "Images/UI/CharCreation/ColorUndershirt", xPositionStart, xPositionPerId));
 		categoryContainer.Append(CreateColorPicker(CategoryId.Pants, "Images/UI/CharCreation/ColorPants", xPositionStart, xPositionPerId));
 		categoryContainer.Append(CreateColorPicker(CategoryId.Shoes, "Images/UI/CharCreation/ColorShoes", xPositionStart, xPositionPerId));
-		_colorPickers[4].SetMiddleTexture(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/ColorEyeBack"));
+		_colorPickers[4].SetMiddleTexture(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/ColorEyeBack", AssetRequestMode.ImmediateLoad));
 		_clothingStylesCategoryButton = CreatePickerWithoutClick(CategoryId.Clothing, "Images/UI/CharCreation/ClothStyleMale", xPositionStart, xPositionPerId);
 		_clothingStylesCategoryButton.OnLeftMouseDown += Click_ClothStyles;
 		_clothingStylesCategoryButton.SetSnapPoint("Top", 1);
 		categoryContainer.Append(_clothingStylesCategoryButton);
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/ColorCharacter", AssetRequestMode.ImmediateLoad);
+		_clothingStylesCategoryButton.SetColor(Color.Transparent);
+		for (int i = 0; i < _characterPreviewLayers.Length; i++)
+		{
+			UIImageFramed uIImageFramed = new UIImageFramed(asset, asset.Frame(1, 7, 0, i))
+			{
+				HAlign = 0.5f,
+				VAlign = 0.5f
+			};
+			_characterPreviewLayers[i] = uIImageFramed;
+			_clothingStylesCategoryButton.Append(uIImageFramed);
+			_clothingStylesCategoryButton.OnUpdate += _clothingStylesCategoryButton_OnUpdate;
+		}
 		_hairStylesCategoryButton = CreatePickerWithoutClick(CategoryId.HairStyle, "Images/UI/CharCreation/HairStyle_Hair", xPositionStart, xPositionPerId);
 		_hairStylesCategoryButton.OnLeftMouseDown += Click_HairStyles;
-		_hairStylesCategoryButton.SetMiddleTexture(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/HairStyle_Arrow"));
+		_hairStylesCategoryButton.SetMiddleTexture(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/HairStyle_Arrow", AssetRequestMode.ImmediateLoad));
 		_hairStylesCategoryButton.SetSnapPoint("Top", 2);
 		categoryContainer.Append(_hairStylesCategoryButton);
 		_charInfoCategoryButton = CreatePickerWithoutClick(CategoryId.CharInfo, "Images/UI/CharCreation/CharInfo", xPositionStart, xPositionPerId);
@@ -336,52 +769,64 @@ public class UICharacterCreation : UIState
 		_charInfoCategoryButton.SetSnapPoint("Top", 0);
 		categoryContainer.Append(_charInfoCategoryButton);
 		UpdateColorPickers();
-		UIHorizontalSeparator element = new UIHorizontalSeparator {
-			Width = StyleDimension.FromPixelsAndPercent(-20f, 1f),
+		UIHorizontalSeparator element = new UIHorizontalSeparator
+		{
+			Width = StyleDimension.FromPixelsAndPercent(-25f, 1f),
 			Top = StyleDimension.FromPixels(6f),
+			Left = new StyleDimension(-2.5f, 0f),
 			VAlign = 1f,
 			HAlign = 0.5f,
 			Color = Color.Lerp(Color.White, new Color(63, 65, 151, 255), 0.85f) * 0.9f
 		};
-
 		categoryContainer.Append(element);
 		int num = 21;
-		UIText uIText = new UIText(PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "HotbarMinus")) {
+		UIText uIText = new UIText(PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "HotbarMinus"))
+		{
 			Left = new StyleDimension(-num, 0f),
 			VAlign = 0.5f,
 			Top = new StyleDimension(-4f, 0f)
 		};
-
 		categoryContainer.Append(uIText);
-		UIText uIText2 = new UIText(PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "HotbarMinus")) {
+		UIText uIText2 = new UIText(PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "HotbarMinus"))
+		{
 			HAlign = 1f,
 			Left = new StyleDimension(12 + num, 0f),
 			VAlign = 0.5f,
 			Top = new StyleDimension(-4f, 0f)
 		};
-
 		categoryContainer.Append(uIText2);
 		_helpGlyphLeft = uIText;
 		_helpGlyphRight = uIText2;
 		categoryContainer.OnUpdate += UpdateHelpGlyphs;
 	}
 
+	private void _clothingStylesCategoryButton_OnUpdate(UIElement affectedElement)
+	{
+		_characterPreviewLayers[0].Color = _player.hairColor;
+		_characterPreviewLayers[1].Color = _player.eyeColor;
+		_characterPreviewLayers[2].Color = _player.skinColor;
+		_characterPreviewLayers[3].Color = _player.shirtColor;
+		_characterPreviewLayers[4].Color = _player.underShirtColor;
+		_characterPreviewLayers[5].Color = _player.pantsColor;
+		_characterPreviewLayers[6].Color = _player.shoeColor;
+	}
+
 	private void UpdateHelpGlyphs(UIElement element)
 	{
 		string text = "";
 		string text2 = "";
-		if (PlayerInput.UsingGamepad) {
+		if (PlayerInput.UsingGamepad)
+		{
 			text = PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "HotbarMinus");
 			text2 = PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "HotbarPlus");
 		}
-
 		_helpGlyphLeft.SetText(text);
 		_helpGlyphRight.SetText(text2);
 	}
 
 	private UIColoredImageButton CreateColorPicker(CategoryId id, string texturePath, float xPositionStart, float xPositionPerId)
 	{
-		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>(texturePath));
+		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>(texturePath, AssetRequestMode.ImmediateLoad));
 		_colorPickers[(int)id] = uIColoredImageButton;
 		uIColoredImageButton.VAlign = 0f;
 		uIColoredImageButton.HAlign = 0f;
@@ -393,7 +838,7 @@ public class UICharacterCreation : UIState
 
 	private UIColoredImageButton CreatePickerWithoutClick(CategoryId id, string texturePath, float xPositionStart, float xPositionPerId)
 	{
-		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>(texturePath));
+		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>(texturePath, AssetRequestMode.ImmediateLoad));
 		uIColoredImageButton.VAlign = 0f;
 		uIColoredImageButton.HAlign = 0f;
 		uIColoredImageButton.Left.Set(xPositionStart + (float)id * xPositionPerId, 0.5f);
@@ -402,13 +847,13 @@ public class UICharacterCreation : UIState
 
 	private void MakeInfoMenu(UIElement parentContainer)
 	{
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			HAlign = 0.5f,
 			VAlign = 0f
 		};
-
 		uIElement.SetPadding(10f);
 		uIElement.PaddingBottom = 0f;
 		uIElement.PaddingTop = 0f;
@@ -423,56 +868,57 @@ public class UICharacterCreation : UIState
 		float num = 4f;
 		float num2 = 0f;
 		float num3 = 0.4f;
-		UIElement uIElement2 = new UIElement {
+		UIElement uIElement2 = new UIElement
+		{
 			HAlign = 0f,
 			VAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent(0f - num, num3),
 			Height = StyleDimension.FromPixelsAndPercent(-50f, 1f)
 		};
-
 		uIElement2.SetPadding(0f);
 		uIElement.Append(uIElement2);
-		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight")) {
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 1f,
 			VAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f - num3),
 			Left = StyleDimension.FromPixels(0f - num),
 			Height = StyleDimension.FromPixelsAndPercent(uIElement2.Height.Pixels, uIElement2.Height.Precent)
 		};
-
 		uISlicedImage.SetSliceDepths(10);
 		uISlicedImage.Color = Color.LightGray * 0.7f;
 		uIElement.Append(uISlicedImage);
 		float num4 = 4f;
-		UIDifficultyButton uIDifficultyButton = new UIDifficultyButton(_player, Lang.menu[26], Lang.menu[31], 0, Color.Cyan) {
+		UIDifficultyButton uIDifficultyButton = new UIDifficultyButton(_player, Lang.menu[26], Lang.menu[31], 0, Color.Cyan)
+		{
 			HAlign = 0f,
 			VAlign = 1f / (num4 - 1f),
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f - num2, 1f / num4)
 		};
-
-		UIDifficultyButton uIDifficultyButton2 = new UIDifficultyButton(_player, Lang.menu[25], Lang.menu[30], 1, Main.mcColor) {
+		UIDifficultyButton uIDifficultyButton2 = new UIDifficultyButton(_player, Lang.menu[25], Lang.menu[30], 1, Main.mcColor)
+		{
 			HAlign = 0f,
 			VAlign = 2f / (num4 - 1f),
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f - num2, 1f / num4)
 		};
-
-		UIDifficultyButton uIDifficultyButton3 = new UIDifficultyButton(_player, Lang.menu[24], Lang.menu[29], 2, Main.hcColor) {
+		UIDifficultyButton uIDifficultyButton3 = new UIDifficultyButton(_player, Lang.menu[24], Lang.menu[29], 2, Main.hcColor)
+		{
 			HAlign = 0f,
 			VAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f - num2, 1f / num4)
 		};
-
-		UIDifficultyButton uIDifficultyButton4 = new UIDifficultyButton(_player, Language.GetText("UI.Creative"), Language.GetText("UI.CreativeDescriptionPlayer"), 3, Main.creativeModeColor) {
+		UIDifficultyButton uIDifficultyButton4 = new UIDifficultyButton(_player, Language.GetText("UI.Creative"), Language.GetText("UI.CreativeDescriptionPlayer"), 3, Main.creativeModeColor)
+		{
 			HAlign = 0f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f - num2, 1f / num4)
 		};
-
-		UIText uIText = new UIText(Lang.menu[26]) {
+		UIText uIText = new UIText(Lang.menu[26])
+		{
 			HAlign = 0f,
 			VAlign = 0.5f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
@@ -480,7 +926,6 @@ public class UICharacterCreation : UIState
 			Top = StyleDimension.FromPixelsAndPercent(15f, 0f),
 			IsWrapped = true
 		};
-
 		uIText.PaddingLeft = 20f;
 		uIText.PaddingRight = 20f;
 		uISlicedImage.Append(uIText);
@@ -504,87 +949,87 @@ public class UICharacterCreation : UIState
 	private void UpdateDifficultyDescription(UIMouseEvent evt, UIElement listeningElement)
 	{
 		LocalizedText text = Lang.menu[31];
-		switch (_player.difficulty) {
-			case 0:
-				text = Lang.menu[31];
-				break;
-			case 1:
-				text = Lang.menu[30];
-				break;
-			case 2:
-				text = Lang.menu[29];
-				break;
-			case 3:
-				text = Language.GetText("UI.CreativeDescriptionPlayer");
-				break;
+		switch (_player.difficulty)
+		{
+		case 0:
+			text = Lang.menu[31];
+			break;
+		case 1:
+			text = Lang.menu[30];
+			break;
+		case 2:
+			text = Lang.menu[29];
+			break;
+		case 3:
+			text = Language.GetText("UI.CreativeDescriptionPlayer");
+			break;
 		}
-
 		_difficultyDescriptionText.SetText(text);
 	}
 
 	private void MakeHSLMenu(UIElement parentContainer)
 	{
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = StyleDimension.FromPixelsAndPercent(220f, 0f),
 			Height = StyleDimension.FromPixelsAndPercent(158f, 0f),
 			HAlign = 0.5f,
 			VAlign = 0f
 		};
-
 		uIElement.SetPadding(0f);
 		parentContainer.Append(uIElement);
-		UIElement uIElement2 = new UIPanel {
+		UIElement uIElement2 = new UIPanel
+		{
 			Width = StyleDimension.FromPixelsAndPercent(220f, 0f),
 			Height = StyleDimension.FromPixelsAndPercent(104f, 0f),
 			HAlign = 0.5f,
 			VAlign = 0f,
 			Top = StyleDimension.FromPixelsAndPercent(10f, 0f)
 		};
-
 		uIElement2.SetPadding(0f);
 		uIElement2.PaddingTop = 3f;
 		uIElement.Append(uIElement2);
 		uIElement2.Append(CreateHSLSlider(HSLSliderId.Hue));
 		uIElement2.Append(CreateHSLSlider(HSLSliderId.Saturation));
 		uIElement2.Append(CreateHSLSlider(HSLSliderId.Luminance));
-		UIPanel uIPanel = new UIPanel {
+		UIPanel uIPanel = new UIPanel
+		{
 			VAlign = 1f,
 			HAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent(100f, 0f),
 			Height = StyleDimension.FromPixelsAndPercent(32f, 0f)
 		};
-
-		UIText uIText = new UIText("FFFFFF") {
+		UIText uIText = new UIText("FFFFFF")
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f
 		};
-
 		uIPanel.Append(uIText);
 		uIElement.Append(uIPanel);
-		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Copy"), isSmall: true) {
+		UIColoredImageButton uIColoredImageButton = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Copy", AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
 			VAlign = 1f,
 			HAlign = 0f,
 			Left = StyleDimension.FromPixelsAndPercent(0f, 0f)
 		};
-
 		uIColoredImageButton.OnLeftMouseDown += Click_CopyHex;
 		uIElement.Append(uIColoredImageButton);
 		_copyHexButton = uIColoredImageButton;
-		UIColoredImageButton uIColoredImageButton2 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Paste"), isSmall: true) {
+		UIColoredImageButton uIColoredImageButton2 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Paste", AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
 			VAlign = 1f,
 			HAlign = 0f,
 			Left = StyleDimension.FromPixelsAndPercent(40f, 0f)
 		};
-
 		uIColoredImageButton2.OnLeftMouseDown += Click_PasteHex;
 		uIElement.Append(uIColoredImageButton2);
 		_pasteHexButton = uIColoredImageButton2;
-		UIColoredImageButton uIColoredImageButton3 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Randomize"), isSmall: true) {
+		UIColoredImageButton uIColoredImageButton3 = new UIColoredImageButton(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Randomize", AssetRequestMode.ImmediateLoad), isSmall: true)
+		{
 			VAlign = 1f,
 			HAlign = 0f,
 			Left = StyleDimension.FromPixelsAndPercent(80f, 0f)
 		};
-
 		uIColoredImageButton3.OnLeftMouseDown += Click_RandomizeSingleColor;
 		uIElement.Append(uIColoredImageButton3);
 		_randomColorButton = uIColoredImageButton3;
@@ -593,6 +1038,11 @@ public class UICharacterCreation : UIState
 		uIColoredImageButton.SetSnapPoint("Low", 0);
 		uIColoredImageButton2.SetSnapPoint("Low", 1);
 		uIColoredImageButton3.SetSnapPoint("Low", 2);
+	}
+
+	private void Click_VoicePitch(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
 	}
 
 	private UIColoredSlider CreateHSLSlider(HSLSliderId id)
@@ -609,20 +1059,21 @@ public class UICharacterCreation : UIState
 
 	private UIColoredSlider CreateHSLSliderButtonBase(HSLSliderId id)
 	{
-		switch (id) {
-			case HSLSliderId.Saturation:
-				return new UIColoredSlider(LocalizedText.Empty, () => GetHSLSliderPosition(HSLSliderId.Saturation), delegate (float x) {
-					UpdateHSLValue(HSLSliderId.Saturation, x);
-				}, UpdateHSL_S, (float x) => GetHSLSliderColorAt(HSLSliderId.Saturation, x), Color.Transparent);
-			case HSLSliderId.Luminance:
-				return new UIColoredSlider(LocalizedText.Empty, () => GetHSLSliderPosition(HSLSliderId.Luminance), delegate (float x) {
-					UpdateHSLValue(HSLSliderId.Luminance, x);
-				}, UpdateHSL_L, (float x) => GetHSLSliderColorAt(HSLSliderId.Luminance, x), Color.Transparent);
-			default:
-				return new UIColoredSlider(LocalizedText.Empty, () => GetHSLSliderPosition(HSLSliderId.Hue), delegate (float x) {
-					UpdateHSLValue(HSLSliderId.Hue, x);
-				}, UpdateHSL_H, (float x) => GetHSLSliderColorAt(HSLSliderId.Hue, x), Color.Transparent);
-		}
+		return id switch
+		{
+			HSLSliderId.Saturation => new UIColoredSlider(LocalizedText.Empty, () => GetHSLSliderPosition(HSLSliderId.Saturation), delegate(float x)
+			{
+				UpdateHSLValue(HSLSliderId.Saturation, x);
+			}, UpdateHSL_S, (float x) => GetHSLSliderColorAt(HSLSliderId.Saturation, x), Color.Transparent), 
+			HSLSliderId.Luminance => new UIColoredSlider(LocalizedText.Empty, () => GetHSLSliderPosition(HSLSliderId.Luminance), delegate(float x)
+			{
+				UpdateHSLValue(HSLSliderId.Luminance, x);
+			}, UpdateHSL_L, (float x) => GetHSLSliderColorAt(HSLSliderId.Luminance, x), Color.Transparent), 
+			_ => new UIColoredSlider(LocalizedText.Empty, () => GetHSLSliderPosition(HSLSliderId.Hue), delegate(float x)
+			{
+				UpdateHSLValue(HSLSliderId.Hue, x);
+			}, UpdateHSL_H, (float x) => GetHSLSliderColorAt(HSLSliderId.Hue, x), Color.Transparent), 
+		};
 	}
 
 	private void UpdateHSL_H()
@@ -645,79 +1096,75 @@ public class UICharacterCreation : UIState
 
 	private float GetHSLSliderPosition(HSLSliderId id)
 	{
-		switch (id) {
-			case HSLSliderId.Hue:
-				return _currentColorHSL.X;
-			case HSLSliderId.Saturation:
-				return _currentColorHSL.Y;
-			case HSLSliderId.Luminance:
-				return _currentColorHSL.Z;
-			default:
-				return 1f;
-		}
+		return id switch
+		{
+			HSLSliderId.Hue => _currentColorHSL.X, 
+			HSLSliderId.Saturation => _currentColorHSL.Y, 
+			HSLSliderId.Luminance => _currentColorHSL.Z, 
+			_ => 1f, 
+		};
 	}
 
 	private void UpdateHSLValue(HSLSliderId id, float value)
 	{
-		switch (id) {
-			case HSLSliderId.Hue:
-				_currentColorHSL.X = value;
-				break;
-			case HSLSliderId.Saturation:
-				_currentColorHSL.Y = value;
-				break;
-			case HSLSliderId.Luminance:
-				_currentColorHSL.Z = value;
-				break;
+		switch (id)
+		{
+		case HSLSliderId.Hue:
+			_currentColorHSL.X = value;
+			break;
+		case HSLSliderId.Saturation:
+			_currentColorHSL.Y = value;
+			break;
+		case HSLSliderId.Luminance:
+			_currentColorHSL.Z = value;
+			break;
 		}
-
 		Color color = ScaledHslToRgb(_currentColorHSL.X, _currentColorHSL.Y, _currentColorHSL.Z);
 		ApplyPendingColor(color);
 		_colorPickers[(int)_selectedPicker]?.SetColor(color);
 		if (_selectedPicker == CategoryId.HairColor)
+		{
 			_hairStylesCategoryButton.SetColor(color);
-
+		}
 		UpdateHexText(color);
 	}
 
 	private Color GetHSLSliderColorAt(HSLSliderId id, float pointAt)
 	{
-		switch (id) {
-			case HSLSliderId.Hue:
-				return ScaledHslToRgb(pointAt, 1f, 0.5f);
-			case HSLSliderId.Saturation:
-				return ScaledHslToRgb(_currentColorHSL.X, pointAt, _currentColorHSL.Z);
-			case HSLSliderId.Luminance:
-				return ScaledHslToRgb(_currentColorHSL.X, _currentColorHSL.Y, pointAt);
-			default:
-				return Color.White;
-		}
+		return id switch
+		{
+			HSLSliderId.Hue => ScaledHslToRgb(pointAt, 1f, 0.5f), 
+			HSLSliderId.Saturation => ScaledHslToRgb(_currentColorHSL.X, pointAt, _currentColorHSL.Z), 
+			HSLSliderId.Luminance => ScaledHslToRgb(_currentColorHSL.X, _currentColorHSL.Y, pointAt), 
+			_ => Color.White, 
+		};
 	}
 
 	private void ApplyPendingColor(Color pendingColor)
 	{
-		switch (_selectedPicker) {
-			case CategoryId.HairColor:
-				_player.hairColor = pendingColor;
-				break;
-			case CategoryId.Eye:
-				_player.eyeColor = pendingColor;
-				break;
-			case CategoryId.Skin:
-				_player.skinColor = pendingColor;
-				break;
-			case CategoryId.Shirt:
-				_player.shirtColor = pendingColor;
-				break;
-			case CategoryId.Undershirt:
-				_player.underShirtColor = pendingColor;
-				break;
-			case CategoryId.Pants:
-				_player.pantsColor = pendingColor;
-				break;
-			case CategoryId.Shoes:
-				_player.shoeColor = pendingColor;
-				break;
+		switch (_selectedPicker)
+		{
+		case CategoryId.HairColor:
+			_player.hairColor = pendingColor;
+			break;
+		case CategoryId.Eye:
+			_player.eyeColor = pendingColor;
+			break;
+		case CategoryId.Skin:
+			_player.skinColor = pendingColor;
+			break;
+		case CategoryId.Shirt:
+			_player.shirtColor = pendingColor;
+			break;
+		case CategoryId.Undershirt:
+			_player.underShirtColor = pendingColor;
+			break;
+		case CategoryId.Pants:
+			_player.pantsColor = pendingColor;
+			break;
+		case CategoryId.Shoes:
+			_player.shoeColor = pendingColor;
+			break;
 		}
 	}
 
@@ -726,31 +1173,34 @@ public class UICharacterCreation : UIState
 		_hslHexText.SetText(GetHexText(pendingColor));
 	}
 
-	private static string GetHexText(Color pendingColor) => "#" + pendingColor.Hex3().ToUpper();
+	private static string GetHexText(Color pendingColor)
+	{
+		return "#" + pendingColor.Hex3().ToUpper();
+	}
 
 	private void MakeBackAndCreatebuttons(UIElement outerContainer)
 	{
-		UITextPanel<LocalizedText> uITextPanel = new UITextPanel<LocalizedText>(Language.GetText("UI.Back"), 0.7f, large: true) {
+		UITextPanel<LocalizedText> uITextPanel = new UITextPanel<LocalizedText>(Language.GetText("UI.Back"), 0.7f, large: true)
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 0.5f),
 			Height = StyleDimension.FromPixels(50f),
 			VAlign = 1f,
 			HAlign = 0f,
 			Top = StyleDimension.FromPixels(-45f)
 		};
-
 		uITextPanel.OnMouseOver += FadedMouseOver;
 		uITextPanel.OnMouseOut += FadedMouseOut;
 		uITextPanel.OnLeftMouseDown += Click_GoBack;
 		uITextPanel.SetSnapPoint("Back", 0);
 		outerContainer.Append(uITextPanel);
-		UITextPanel<LocalizedText> uITextPanel2 = new UITextPanel<LocalizedText>(Language.GetText("UI.Create"), 0.7f, large: true) {
+		UITextPanel<LocalizedText> uITextPanel2 = new UITextPanel<LocalizedText>(Language.GetText("UI.Create"), 0.7f, large: true)
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 0.5f),
 			Height = StyleDimension.FromPixels(50f),
 			VAlign = 1f,
 			HAlign = 1f,
 			Top = StyleDimension.FromPixels(-45f)
 		};
-
 		uITextPanel2.OnMouseOver += FadedMouseOver;
 		uITextPanel2.OnMouseOut += FadedMouseOut;
 		uITextPanel2.OnLeftMouseDown += Click_NamingAndCreating;
@@ -760,8 +1210,21 @@ public class UICharacterCreation : UIState
 
 	private void Click_GoBack(UIMouseEvent evt, UIElement listeningElement)
 	{
+		GoBack();
+	}
+
+	private static void GoBack()
+	{
 		SoundEngine.PlaySound(11);
-		Main.OpenCharacterSelectUI();
+		if (dirty)
+		{
+			BackupConfirmationState = Main.MenuUI.CurrentState;
+			Main.menuMode = 40;
+		}
+		else
+		{
+			Main.OpenCharacterSelectUI();
+		}
 	}
 
 	private void FadedMouseOver(UIMouseEvent evt, UIElement listeningElement)
@@ -780,8 +1243,10 @@ public class UICharacterCreation : UIState
 	private void Click_ColorPicker(UIMouseEvent evt, UIElement listeningElement)
 	{
 		SoundEngine.PlaySound(12);
-		for (int i = 0; i < _colorPickers.Length; i++) {
-			if (_colorPickers[i] == evt.Target) {
+		for (int i = 0; i < _colorPickers.Length; i++)
+		{
+			if (_colorPickers[i] == evt.Target)
+			{
 				SelectColorPicker((CategoryId)i);
 				break;
 			}
@@ -795,7 +1260,6 @@ public class UICharacterCreation : UIState
 		_selectedPicker = CategoryId.Clothing;
 		_middleContainer.Append(_clothStylesContainer);
 		_clothingStylesCategoryButton.SetSelected(selected: true);
-		UpdateSelectedGender();
 	}
 
 	private void Click_HairStyles(UIMouseEvent evt, UIElement listeningElement)
@@ -818,30 +1282,56 @@ public class UICharacterCreation : UIState
 
 	private void Click_CharClothStyle(UIMouseEvent evt, UIElement listeningElement)
 	{
-		_clothingStylesCategoryButton.SetImageWithoutSettingSize(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/" + (_player.Male ? "ClothStyleMale" : "ClothStyleFemale")));
+		if (_maleArmor.HeadItem != 0 || _maleArmor.BodyItem != 0 || _maleArmor.LegItem != 0)
+		{
+			EquipArmorNone(evt, listeningElement);
+			return;
+		}
+		if (listeningElement is UIClothStyleButton { ClothStyleId: var clothStyleId })
+		{
+			_player.skinVariant = clothStyleId;
+		}
+		SoundEngine.PlaySound(12);
+		_clothingStylesCategoryButton.SetImageWithoutSettingSize(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/" + (_player.Male ? "ClothStyleMale" : "ClothStyleFemale"), AssetRequestMode.ImmediateLoad));
 		UpdateSelectedGender();
 	}
 
-	private void Click_CharGenderMale(UIMouseEvent evt, UIElement listeningElement)
+	private void TryChangingVoice()
 	{
-		SoundEngine.PlaySound(12);
-		_player.Male = true;
-		Click_CharClothStyle(evt, listeningElement);
-		UpdateSelectedGender();
-	}
-
-	private void Click_CharGenderFemale(UIMouseEvent evt, UIElement listeningElement)
-	{
-		SoundEngine.PlaySound(12);
-		_player.Male = false;
-		Click_CharClothStyle(evt, listeningElement);
-		UpdateSelectedGender();
+		if (_player.Male && _player.voiceVariant == 2)
+		{
+			_player.voiceVariant = 1;
+		}
+		if (!_player.Male && _player.voiceVariant == 1)
+		{
+			_player.voiceVariant = 2;
+		}
 	}
 
 	private void UpdateSelectedGender()
 	{
-		_genderMale.SetSelected(_player.Male);
-		_genderFemale.SetSelected(!_player.Male);
+		if (_oldMaleForVoiceAutoSwitch == _player.Male)
+		{
+			PlayVoicePreview();
+			return;
+		}
+		switch (_player.voiceVariant)
+		{
+		case 1:
+			if (_oldMaleForVoiceAutoSwitch)
+			{
+				_player.voiceVariant = 2;
+			}
+			break;
+		case 2:
+			if (!_oldMaleForVoiceAutoSwitch)
+			{
+				_player.voiceVariant = 1;
+			}
+			break;
+		}
+		_oldMaleForVoiceAutoSwitch = _player.Male;
+		PlayVoicePreview();
 	}
 
 	private void Click_CopyHex(UIMouseEvent evt, UIElement listeningElement)
@@ -854,7 +1344,8 @@ public class UICharacterCreation : UIState
 	{
 		SoundEngine.PlaySound(12);
 		string value = Platform.Get<IClipboard>().Value;
-		if (GetHexColor(value, out var hsl)) {
+		if (GetHexColor(value, out var hsl))
+		{
 			ApplyPendingColor(ScaledHslToRgb(hsl.X, hsl.Y, hsl.Z));
 			_currentColorHSL = hsl;
 			UpdateHexText(ScaledHslToRgb(hsl.X, hsl.Y, hsl.Z));
@@ -862,95 +1353,189 @@ public class UICharacterCreation : UIState
 		}
 	}
 
-	private void Click_CopyPlayerTemplate(UIMouseEvent evt, UIElement listeningElement)
+	private string GetPlayerTemplateValues()
 	{
-		SoundEngine.PlaySound(12);
-		string text = JsonConvert.SerializeObject(new Dictionary<string, object> {
+		string text = JsonConvert.SerializeObject(new Dictionary<string, object>
+		{
 			{ "version", 1 },
 			{ "hairStyle", _player.hair },
 			{ "clothingStyle", _player.skinVariant },
-			{ "hairColor", GetHexText(_player.hairColor) },
-			{ "eyeColor", GetHexText(_player.eyeColor) },
-			{ "skinColor", GetHexText(_player.skinColor) },
-			{ "shirtColor", GetHexText(_player.shirtColor) },
-			{ "underShirtColor", GetHexText(_player.underShirtColor) },
-			{ "pantsColor", GetHexText(_player.pantsColor) },
-			{ "shoeColor", GetHexText(_player.shoeColor) }
-		}, new JsonSerializerSettings {
+			{ "voiceStyle", _player.voiceVariant },
+			{ "voicePitch", _player.voicePitchOffset },
+			{
+				"hairColor",
+				GetHexText(_player.hairColor)
+			},
+			{
+				"eyeColor",
+				GetHexText(_player.eyeColor)
+			},
+			{
+				"skinColor",
+				GetHexText(_player.skinColor)
+			},
+			{
+				"shirtColor",
+				GetHexText(_player.shirtColor)
+			},
+			{
+				"underShirtColor",
+				GetHexText(_player.underShirtColor)
+			},
+			{
+				"pantsColor",
+				GetHexText(_player.pantsColor)
+			},
+			{
+				"shoeColor",
+				GetHexText(_player.shoeColor)
+			}
+		}, new JsonSerializerSettings
+		{
 			TypeNameHandling = TypeNameHandling.Auto,
 			MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
 			Formatting = Formatting.Indented
 		});
-
 		PlayerInput.PrettyPrintProfiles(ref text);
-		Platform.Get<IClipboard>().Value = text;
+		return text;
+	}
+
+	private void Click_CopyPlayerTemplate(UIMouseEvent evt, UIElement listeningElement)
+	{
+		SoundEngine.PlaySound(12);
+		Platform.Get<IClipboard>().Value = GetPlayerTemplateValues();
 	}
 
 	private void Click_PastePlayerTemplate(UIMouseEvent evt, UIElement listeningElement)
 	{
 		SoundEngine.PlaySound(12);
-		try {
+		try
+		{
 			string value = Platform.Get<IClipboard>().Value;
 			int num = value.IndexOf("{");
 			if (num == -1)
+			{
 				return;
-
+			}
 			value = value.Substring(num);
 			int num2 = value.LastIndexOf("}");
 			if (num2 == -1)
+			{
 				return;
-
+			}
 			value = value.Substring(0, num2 + 1);
 			Dictionary<string, object> dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(value);
 			if (dictionary == null)
+			{
 				return;
-
+			}
 			Dictionary<string, object> dictionary2 = new Dictionary<string, object>();
-			foreach (KeyValuePair<string, object> item in dictionary) {
+			foreach (KeyValuePair<string, object> item in dictionary)
+			{
 				dictionary2[item.Key.ToLower()] = item.Value;
 			}
-
 			if (dictionary2.TryGetValue("version", out var value2))
+			{
 				_ = (long)value2;
-
-			if (dictionary2.TryGetValue("hairstyle", out value2)) {
+			}
+			if (dictionary2.TryGetValue("hairstyle", out value2))
+			{
 				int num3 = (int)(long)value2;
 				if (Main.Hairstyles.AvailableHairstyles.Contains(num3))
+				{
 					_player.hair = num3;
+					_lastSelectedHairstyle = num3;
+				}
 			}
-
-			if (dictionary2.TryGetValue("clothingstyle", out value2)) {
+			if (dictionary2.TryGetValue("clothingstyle", out value2))
+			{
 				int num4 = (int)(long)value2;
 				if (_validClothStyles.Contains(num4))
+				{
 					_player.skinVariant = num4;
+				}
 			}
-
+			if (dictionary2.TryGetValue("voicestyle", out value2))
+			{
+				int num5 = (int)(long)value2;
+				if (_validVoiceStyles.Contains(num5))
+				{
+					_player.voiceVariant = num5;
+				}
+			}
+			if (dictionary2.TryGetValue("voicepitch", out value2))
+			{
+				float num6 = (float)(double)value2;
+				_player.voicePitchOffset = num6;
+				_pitchAmount = num6;
+			}
 			if (dictionary2.TryGetValue("haircolor", out value2) && GetHexColor((string)value2, out var hsl))
+			{
 				_player.hairColor = ScaledHslToRgb(hsl);
-
+			}
 			if (dictionary2.TryGetValue("eyecolor", out value2) && GetHexColor((string)value2, out hsl))
+			{
 				_player.eyeColor = ScaledHslToRgb(hsl);
-
+			}
 			if (dictionary2.TryGetValue("skincolor", out value2) && GetHexColor((string)value2, out hsl))
+			{
 				_player.skinColor = ScaledHslToRgb(hsl);
-
+			}
 			if (dictionary2.TryGetValue("shirtcolor", out value2) && GetHexColor((string)value2, out hsl))
+			{
 				_player.shirtColor = ScaledHslToRgb(hsl);
-
+			}
 			if (dictionary2.TryGetValue("undershirtcolor", out value2) && GetHexColor((string)value2, out hsl))
+			{
 				_player.underShirtColor = ScaledHslToRgb(hsl);
-
+			}
 			if (dictionary2.TryGetValue("pantscolor", out value2) && GetHexColor((string)value2, out hsl))
+			{
 				_player.pantsColor = ScaledHslToRgb(hsl);
-
+			}
 			if (dictionary2.TryGetValue("shoecolor", out value2) && GetHexColor((string)value2, out hsl))
+			{
 				_player.shoeColor = ScaledHslToRgb(hsl);
-
+			}
 			Click_CharClothStyle(null, null);
 			UpdateColorPickers();
 		}
-		catch {
+		catch
+		{
 		}
+	}
+
+	private void Click_VoicePlay(UIMouseEvent evt, UIElement listeningElement)
+	{
+		PlayVoicePreview();
+	}
+
+	private void PlayVoicePreview()
+	{
+		if (!_playedVoicePreviewThisFrame)
+		{
+			_playedVoicePreviewThisFrame = true;
+			Vector2 position = _player.position;
+			_player.position = new Vector2(-1f, -1f);
+			_player.PlayHurtSound();
+			_player.position = position;
+		}
+	}
+
+	private void Click_VoiceCycleBack(UIMouseEvent evt, UIElement listeningElement)
+	{
+		Main.CycleVoiceStyle(_player, -1);
+		PlayVoicePreview();
+	}
+
+	private void Click_VoiceCycleForward(UIMouseEvent evt, UIElement listeningElement)
+	{
+		Main.CycleVoiceStyle(_player, 1);
+		PlayVoicePreview();
+	}
+
+	private void Update_VoiceIconColor()
+	{
 	}
 
 	private void Click_RandomizePlayer(UIMouseEvent evt, UIElement listeningElement)
@@ -959,15 +1544,17 @@ public class UICharacterCreation : UIState
 		Player player = _player;
 		int index = Main.rand.Next(Main.Hairstyles.AvailableHairstyles.Count);
 		player.hair = Main.Hairstyles.AvailableHairstyles[index];
+		_lastSelectedHairstyle = player.hair;
 		player.eyeColor = ScaledHslToRgb(GetRandomColorVector());
-		while (player.eyeColor.R + player.eyeColor.G + player.eyeColor.B > 300) {
+		while (player.eyeColor.R + player.eyeColor.G + player.eyeColor.B > 300)
+		{
 			player.eyeColor = ScaledHslToRgb(GetRandomColorVector());
 		}
-
 		float num = (float)Main.rand.Next(60, 120) * 0.01f;
 		if (num > 1f)
+		{
 			num = 1f;
-
+		}
 		player.skinColor.R = (byte)((float)Main.rand.Next(240, 255) * num);
 		player.skinColor.G = (byte)((float)Main.rand.Next(110, 140) * num);
 		player.skinColor.B = (byte)((float)Main.rand.Next(75, 110) * num);
@@ -977,83 +1564,89 @@ public class UICharacterCreation : UIState
 		player.pantsColor = ScaledHslToRgb(GetRandomColorVector());
 		player.shoeColor = ScaledHslToRgb(GetRandomColorVector());
 		player.skinVariant = _validClothStyles[Main.rand.Next(_validClothStyles.Length)];
-		switch (player.hair + 1) {
-			case 5:
-			case 6:
-			case 7:
-			case 10:
-			case 12:
-			case 19:
-			case 22:
-			case 23:
-			case 26:
-			case 27:
-			case 30:
-			case 33:
-			case 34:
-			case 35:
-			case 37:
-			case 38:
-			case 39:
-			case 40:
-			case 41:
-			case 44:
-			case 45:
-			case 46:
-			case 47:
-			case 48:
-			case 49:
-			case 51:
-			case 56:
-			case 65:
-			case 66:
-			case 67:
-			case 68:
-			case 69:
-			case 70:
-			case 71:
-			case 72:
-			case 73:
-			case 74:
-			case 79:
-			case 80:
-			case 81:
-			case 82:
-			case 84:
-			case 85:
-			case 86:
-			case 87:
-			case 88:
-			case 90:
-			case 91:
-			case 92:
-			case 93:
-			case 95:
-			case 96:
-			case 98:
-			case 100:
-			case 102:
-			case 104:
-			case 107:
-			case 108:
-			case 113:
-			case 124:
-			case 126:
-			case 133:
-			case 134:
-			case 135:
-			case 144:
-			case 146:
-			case 147:
-			case 163:
-			case 165:
-				player.Male = false;
-				break;
-			default:
-				player.Male = true;
-				break;
+		player.voiceVariant = (player.Male ? 1 : 2);
+		if (Main.rand.Next(2) == 0)
+		{
+			player.voiceVariant = 3;
 		}
-
+		switch (player.hair + 1)
+		{
+		case 5:
+		case 6:
+		case 7:
+		case 10:
+		case 12:
+		case 19:
+		case 22:
+		case 23:
+		case 26:
+		case 27:
+		case 30:
+		case 33:
+		case 34:
+		case 35:
+		case 37:
+		case 38:
+		case 39:
+		case 40:
+		case 41:
+		case 44:
+		case 45:
+		case 46:
+		case 47:
+		case 48:
+		case 49:
+		case 51:
+		case 56:
+		case 65:
+		case 66:
+		case 67:
+		case 68:
+		case 69:
+		case 70:
+		case 71:
+		case 72:
+		case 73:
+		case 74:
+		case 79:
+		case 80:
+		case 81:
+		case 82:
+		case 84:
+		case 85:
+		case 86:
+		case 87:
+		case 88:
+		case 90:
+		case 91:
+		case 92:
+		case 93:
+		case 95:
+		case 96:
+		case 98:
+		case 100:
+		case 102:
+		case 104:
+		case 107:
+		case 108:
+		case 113:
+		case 124:
+		case 126:
+		case 133:
+		case 134:
+		case 135:
+		case 144:
+		case 146:
+		case 147:
+		case 163:
+		case 165:
+			player.Male = false;
+			break;
+		default:
+			player.Male = true;
+			break;
+		}
+		_femaleArmor = (_maleArmor = default(ArmorAssignments));
 		Click_CharClothStyle(null, null);
 		UpdateSelectedGender();
 		UpdateColorPickers();
@@ -1064,22 +1657,22 @@ public class UICharacterCreation : UIState
 		SoundEngine.PlaySound(10);
 		_player.name = "";
 		Main.clrInput();
-		UIVirtualKeyboard uIVirtualKeyboard = new UIVirtualKeyboard(Lang.menu[45].Value, "", OnFinishedNaming, OnCanceledNaming, 0, allowEmpty: true);
-		uIVirtualKeyboard.SetMaxInputLength(20);
-		Main.MenuUI.SetState(uIVirtualKeyboard);
+		UIVirtualKeyboard state = new UIVirtualKeyboard(Lang.menu[45].Value, "", OnFinishedNaming, OnCanceledNaming, 0, allowEmpty: true);
+		Main.MenuUI.SetState(state);
 	}
 
 	private void Click_NamingAndCreating(UIMouseEvent evt, UIElement listeningElement)
 	{
 		SoundEngine.PlaySound(10);
-		if (string.IsNullOrEmpty(_player.name)) {
+		if (string.IsNullOrEmpty(_player.name))
+		{
 			_player.name = "";
 			Main.clrInput();
-			UIVirtualKeyboard uIVirtualKeyboard = new UIVirtualKeyboard(Lang.menu[45].Value, "", OnFinishedNamingAndCreating, OnCanceledNaming);
-			uIVirtualKeyboard.SetMaxInputLength(20);
-			Main.MenuUI.SetState(uIVirtualKeyboard);
+			UIVirtualKeyboard state = new UIVirtualKeyboard(Lang.menu[45].Value, "", OnFinishedNamingAndCreating, OnCanceledNaming);
+			Main.MenuUI.SetState(state);
 		}
-		else {
+		else
+		{
 			FinishCreatingCharacter();
 		}
 	}
@@ -1106,6 +1699,7 @@ public class UICharacterCreation : UIState
 
 	private void FinishCreatingCharacter()
 	{
+		TryAutoAssigningHair();
 		SetupPlayerStatsAndInventoryBasedOnDifficulty();
 		PlayerFileData.CreateAndSave(_player);
 		Main.LoadPlayers();
@@ -1114,9 +1708,12 @@ public class UICharacterCreation : UIState
 
 	private void SetupPlayerStatsAndInventoryBasedOnDifficulty()
 	{
+		_femaleArmor = (_maleArmor = default(ArmorAssignments));
+		UpdatePreviewItems();
 		int num = 0;
 		byte difficulty = _player.difficulty;
-		if (difficulty == 3) {
+		if (difficulty == 3)
+		{
 			_player.statLife = (_player.statLifeMax = 100);
 			_player.statMana = (_player.statManaMax = 20);
 			_player.inventory[num].SetDefaults(6);
@@ -1137,12 +1734,15 @@ public class UICharacterCreation : UIState
 			_player.inventory[num++].SetDefaults(84);
 			_player.armor[3].SetDefaults(4978);
 			_player.armor[3].Prefix(-1);
-			if (_player.name == "Wolf Pet" || _player.name == "Wolfpet")
+			string text = _player.name.ToLower();
+			if (text == "wolf pet" || text == "wolfpet")
+			{
 				_player.miscEquips[3].SetDefaults(5130);
-
+			}
 			_player.AddBuff(216, 3600);
 		}
-		else {
+		else
+		{
 			_player.inventory[num].SetDefaults(3507);
 			_player.inventory[num++].Prefix(-1);
 			_player.inventory[num].SetDefaults(3509);
@@ -1150,10 +1750,10 @@ public class UICharacterCreation : UIState
 			_player.inventory[num].SetDefaults(3506);
 			_player.inventory[num++].Prefix(-1);
 		}
-
 		if (Main.runningCollectorsEdition)
+		{
 			_player.inventory[num++].SetDefaults(603);
-
+		}
 		_player.savedPerPlayerFieldsThatArentInThePlayerClass = new Player.SavedPlayerDataWithAnnoyingRules();
 		CreativePowerManager.Instance.ResetDataForNewPlayer(_player);
 	}
@@ -1161,16 +1761,17 @@ public class UICharacterCreation : UIState
 	private bool GetHexColor(string hexString, out Vector3 hsl)
 	{
 		if (hexString.StartsWith("#"))
+		{
 			hexString = hexString.Substring(1);
-
-		if (hexString.Length <= 6 && uint.TryParse(hexString, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var result)) {
-			uint b = result & 0xFFu;
-			uint g = (result >> 8) & 0xFFu;
-			uint r = (result >> 16) & 0xFFu;
+		}
+		if (hexString.Length <= 6 && uint.TryParse(hexString, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var result))
+		{
+			uint b = result & 0xFF;
+			uint g = (result >> 8) & 0xFF;
+			uint r = (result >> 16) & 0xFF;
 			hsl = RgbToScaledHsl(new Color((int)r, (int)g, (int)b));
 			return true;
 		}
-
 		hsl = Vector3.Zero;
 		return false;
 	}
@@ -1185,15 +1786,18 @@ public class UICharacterCreation : UIState
 		UpdateColorPickers();
 	}
 
-	private static Vector3 GetRandomColorVector() => new Vector3(Main.rand.NextFloat(), Main.rand.NextFloat(), Main.rand.NextFloat());
+	private static Vector3 GetRandomColorVector()
+	{
+		return new Vector3(Main.rand.NextFloat(), Main.rand.NextFloat(), Main.rand.NextFloat());
+	}
 
 	private void UnselectAllCategories()
 	{
 		UIColoredImageButton[] colorPickers = _colorPickers;
-		for (int i = 0; i < colorPickers.Length; i++) {
+		for (int i = 0; i < colorPickers.Length; i++)
+		{
 			colorPickers[i]?.SetSelected(selected: false);
 		}
-
 		_clothingStylesCategoryButton.SetSelected(selected: false);
 		_hairStylesCategoryButton.SetSelected(selected: false);
 		_charInfoCategoryButton.SetSelected(selected: false);
@@ -1206,50 +1810,52 @@ public class UICharacterCreation : UIState
 	private void SelectColorPicker(CategoryId selection)
 	{
 		_selectedPicker = selection;
-		switch (selection) {
-			case CategoryId.CharInfo:
-				Click_CharInfo(null, null);
-				return;
-			case CategoryId.Clothing:
-				Click_ClothStyles(null, null);
-				return;
-			case CategoryId.HairStyle:
-				Click_HairStyles(null, null);
-				return;
+		switch (selection)
+		{
+		case CategoryId.CharInfo:
+			Click_CharInfo(null, null);
+			return;
+		case CategoryId.Clothing:
+			Click_ClothStyles(null, null);
+			return;
+		case CategoryId.HairStyle:
+			Click_HairStyles(null, null);
+			return;
 		}
-
 		UnselectAllCategories();
 		_middleContainer.Append(_hslContainer);
-		for (int i = 0; i < _colorPickers.Length; i++) {
+		for (int i = 0; i < _colorPickers.Length; i++)
+		{
 			if (_colorPickers[i] != null)
+			{
 				_colorPickers[i].SetSelected(i == (int)selection);
+			}
 		}
-
 		Vector3 currentColorHSL = Vector3.One;
-		switch (_selectedPicker) {
-			case CategoryId.HairColor:
-				currentColorHSL = RgbToScaledHsl(_player.hairColor);
-				break;
-			case CategoryId.Eye:
-				currentColorHSL = RgbToScaledHsl(_player.eyeColor);
-				break;
-			case CategoryId.Skin:
-				currentColorHSL = RgbToScaledHsl(_player.skinColor);
-				break;
-			case CategoryId.Shirt:
-				currentColorHSL = RgbToScaledHsl(_player.shirtColor);
-				break;
-			case CategoryId.Undershirt:
-				currentColorHSL = RgbToScaledHsl(_player.underShirtColor);
-				break;
-			case CategoryId.Pants:
-				currentColorHSL = RgbToScaledHsl(_player.pantsColor);
-				break;
-			case CategoryId.Shoes:
-				currentColorHSL = RgbToScaledHsl(_player.shoeColor);
-				break;
+		switch (_selectedPicker)
+		{
+		case CategoryId.HairColor:
+			currentColorHSL = RgbToScaledHsl(_player.hairColor);
+			break;
+		case CategoryId.Eye:
+			currentColorHSL = RgbToScaledHsl(_player.eyeColor);
+			break;
+		case CategoryId.Skin:
+			currentColorHSL = RgbToScaledHsl(_player.skinColor);
+			break;
+		case CategoryId.Shirt:
+			currentColorHSL = RgbToScaledHsl(_player.shirtColor);
+			break;
+		case CategoryId.Undershirt:
+			currentColorHSL = RgbToScaledHsl(_player.underShirtColor);
+			break;
+		case CategoryId.Pants:
+			currentColorHSL = RgbToScaledHsl(_player.pantsColor);
+			break;
+		case CategoryId.Shoes:
+			currentColorHSL = RgbToScaledHsl(_player.shoeColor);
+			break;
 		}
-
 		_currentColorHSL = currentColorHSL;
 		UpdateHexText(ScaledHslToRgb(currentColorHSL.X, currentColorHSL.Y, currentColorHSL.Z));
 	}
@@ -1272,41 +1878,152 @@ public class UICharacterCreation : UIState
 		base.Draw(spriteBatch);
 		string text = null;
 		if (_copyHexButton.IsMouseHovering)
+		{
 			text = Language.GetTextValue("UI.CopyColorToClipboard");
-
+		}
 		if (_pasteHexButton.IsMouseHovering)
+		{
 			text = Language.GetTextValue("UI.PasteColorFromClipboard");
-
+		}
 		if (_randomColorButton.IsMouseHovering)
+		{
 			text = Language.GetTextValue("UI.RandomizeColor");
-
+		}
 		if (_copyTemplateButton.IsMouseHovering)
+		{
 			text = Language.GetTextValue("UI.CopyPlayerToClipboard");
-
+		}
 		if (_pasteTemplateButton.IsMouseHovering)
+		{
 			text = Language.GetTextValue("UI.PastePlayerFromClipboard");
-
+		}
 		if (_randomizePlayerButton.IsMouseHovering)
+		{
 			text = Language.GetTextValue("UI.RandomizePlayer");
-
-		if (text != null) {
+		}
+		if (_previewArmorButton[0].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PreviewArmorNone");
+		}
+		if (_previewArmorButton[1].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PreviewArmorHallowed");
+		}
+		if (_previewArmorButton[2].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PreviewArmorSilver");
+		}
+		if (_previewArmorButton[3].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PreviewArmorFormal");
+		}
+		if (_previewArmorButton[4].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PreviewArmorSwimming");
+		}
+		if (UISliderBase.CurrentAimedSlider == _pitchSlider)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateVoicePitch");
+		}
+		if (_voicePrevious.IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateVoicePrev");
+		}
+		if (_voiceNext.IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateVoiceNext");
+		}
+		if (_voicePlay.IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateVoicePlay");
+		}
+		if (_charInfoCategoryButton.IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryInfo");
+		}
+		if (_clothingStylesCategoryButton.IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryBodyStyle");
+		}
+		if (_hairStylesCategoryButton.IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryHairStyle");
+		}
+		if (_colorPickers[3].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryHairColor");
+		}
+		if (_colorPickers[4].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryEyeColor");
+		}
+		if (_colorPickers[5].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategorySkinColor");
+		}
+		if (_colorPickers[6].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryShirtColor");
+		}
+		if (_colorPickers[7].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryUndershirtColor");
+		}
+		if (_colorPickers[8].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryPantsColor");
+		}
+		if (_colorPickers[9].IsMouseHovering)
+		{
+			text = Language.GetTextValue("UI.PlayerCreateCategoryShoesColor");
+		}
+		if (text != null)
+		{
 			float x = FontAssets.MouseText.Value.MeasureString(text).X;
 			Vector2 vector = new Vector2(Main.mouseX, Main.mouseY) + new Vector2(16f);
 			if (vector.Y > (float)(Main.screenHeight - 30))
+			{
 				vector.Y = Main.screenHeight - 30;
-
+			}
 			if (vector.X > (float)Main.screenWidth - x)
+			{
 				vector.X = Main.screenWidth - 460;
-
+			}
 			Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value, text, vector.X, vector.Y, new Color(Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor), Color.Black, Vector2.Zero);
 		}
-
 		SetupGamepadPoints(spriteBatch);
+		_tips.Update();
+		int num = Main.screenHeight - 560;
+		if (num < 0)
+		{
+			num = 0;
+		}
+		int num2 = 150;
+		if (num < 300)
+		{
+			num2 = num / 2;
+		}
+		if (num > 30)
+		{
+			_tips.TipOffsetY = -num2;
+			_tips.Draw();
+		}
+		if (!dirty)
+		{
+			if (!string.IsNullOrEmpty(_player.name))
+			{
+				dirty = true;
+			}
+			if (GetPlayerTemplateValues() != initialState)
+			{
+				dirty = true;
+			}
+		}
 	}
 
 	private void SetupGamepadPoints(SpriteBatch spriteBatch)
 	{
-		UILinkPointNavigator.Shortcuts.BackButtonCommand = 1;
+		UILinkPointNavigator.Shortcuts.BackButtonCommand = 7;
 		int num = 3000;
 		int num2 = num + 20;
 		int num3 = num;
@@ -1328,193 +2045,255 @@ public class UICharacterCreation : UIState
 		_foundPoints.Add(uILinkPoint2.ID);
 		List<SnapPoint> list = snapPoints.Where((SnapPoint a) => a.Name == "Top").ToList();
 		list.Sort(SortPoints);
-		for (int i = 0; i < list.Count; i++) {
+		for (int num4 = 0; num4 < list.Count; num4++)
+		{
 			UILinkPoint uILinkPoint3 = UILinkPointNavigator.Points[num3];
 			uILinkPoint3.Unlink();
-			UILinkPointNavigator.SetPosition(num3, list[i].Position);
+			UILinkPointNavigator.SetPosition(num3, list[num4].Position);
 			uILinkPoint3.Left = num3 - 1;
 			uILinkPoint3.Right = num3 + 1;
 			uILinkPoint3.Down = num2;
-			if (i == 0)
+			if (num4 == 0)
+			{
 				uILinkPoint3.Left = -3;
-
-			if (i == list.Count - 1)
+			}
+			if (num4 == list.Count - 1)
+			{
 				uILinkPoint3.Right = -4;
-
+			}
 			if (_selectedPicker == CategoryId.HairStyle || _selectedPicker == CategoryId.Clothing)
-				uILinkPoint3.Down = num2 + i;
-
+			{
+				uILinkPoint3.Down = num2 + num4;
+			}
 			_foundPoints.Add(num3);
 			num3++;
 		}
-
 		List<SnapPoint> list2 = snapPoints.Where((SnapPoint a) => a.Name == "Middle").ToList();
 		list2.Sort(SortPoints);
 		num3 = num2;
-		switch (_selectedPicker) {
-			case CategoryId.CharInfo: {
-				for (int l = 0; l < list2.Count; l++) {
-					UILinkPoint andSet3 = GetAndSet(num3, list2[l]);
-					andSet3.Up = andSet3.ID - 1;
-					andSet3.Down = andSet3.ID + 1;
-					if (l == 0)
-						andSet3.Up = num + 2;
-
-					if (l == list2.Count - 1) {
-						andSet3.Down = uILinkPoint.ID;
-						uILinkPoint.Up = andSet3.ID;
-						uILinkPoint2.Up = andSet3.ID;
-					}
-
-					_foundPoints.Add(num3);
-					num3++;
+		switch (_selectedPicker)
+		{
+		case CategoryId.CharInfo:
+		{
+			for (int num13 = 0; num13 < list2.Count; num13++)
+			{
+				UILinkPoint andSet7 = GetAndSet(num3, list2[num13]);
+				andSet7.Up = andSet7.ID - 1;
+				andSet7.Down = andSet7.ID + 1;
+				if (num13 == 0)
+				{
+					andSet7.Up = num + 2;
 				}
-
-				break;
+				if (num13 == list2.Count - 1)
+				{
+					andSet7.Down = uILinkPoint.ID;
+					uILinkPoint.Up = andSet7.ID;
+					uILinkPoint2.Up = andSet7.ID;
+				}
+				_foundPoints.Add(num3);
+				num3++;
 			}
-			case CategoryId.HairStyle: {
-				if (list2.Count == 0)
-					break;
-
-				_helper.CullPointsOutOfElementArea(spriteBatch, list2, _hairstylesContainer);
-				SnapPoint snapPoint3 = list2[list2.Count - 1];
-				_ = snapPoint3.Id / 10;
-				_ = snapPoint3.Id % 10;
-				int count = Main.Hairstyles.AvailableHairstyles.Count;
-				for (int m = 0; m < list2.Count; m++) {
-					SnapPoint snapPoint4 = list2[m];
-					UILinkPoint andSet4 = GetAndSet(num3, snapPoint4);
-					andSet4.Left = andSet4.ID - 1;
-					if (snapPoint4.Id == 0)
-						andSet4.Left = -3;
-
-					andSet4.Right = andSet4.ID + 1;
-					if (snapPoint4.Id == count - 1)
-						andSet4.Right = -4;
-
-					andSet4.Up = andSet4.ID - 10;
-					if (m < 10)
-						andSet4.Up = num + 2 + m;
-
-					andSet4.Down = andSet4.ID + 10;
-					if (snapPoint4.Id + 10 > snapPoint3.Id) {
-						if (snapPoint4.Id % 10 < 5)
-							andSet4.Down = uILinkPoint.ID;
-						else
-							andSet4.Down = uILinkPoint2.ID;
-					}
-
-					if (m == list2.Count - 1) {
-						uILinkPoint.Up = andSet4.ID;
-						uILinkPoint2.Up = andSet4.ID;
-					}
-
-					_foundPoints.Add(num3);
-					num3++;
-				}
-
-				break;
-			}
-			default: {
-				List<SnapPoint> list4 = snapPoints.Where((SnapPoint a) => a.Name == "Low").ToList();
-				list4.Sort(SortPoints);
-				num3 = num2 + 20;
-				for (int n = 0; n < list4.Count; n++) {
-					UILinkPoint andSet5 = GetAndSet(num3, list4[n]);
-					andSet5.Up = num2 + 2;
-					andSet5.Down = uILinkPoint.ID;
-					andSet5.Left = andSet5.ID - 1;
-					andSet5.Right = andSet5.ID + 1;
-					if (n == 0) {
-						andSet5.Left = andSet5.ID + 2;
-						uILinkPoint.Up = andSet5.ID;
-					}
-
-					if (n == list4.Count - 1) {
-						andSet5.Right = andSet5.ID - 2;
-						uILinkPoint2.Up = andSet5.ID;
-					}
-
-					_foundPoints.Add(num3);
-					num3++;
-				}
-
-				num3 = num2;
-				for (int num4 = 0; num4 < list2.Count; num4++) {
-					UILinkPoint andSet6 = GetAndSet(num3, list2[num4]);
-					andSet6.Up = andSet6.ID - 1;
-					andSet6.Down = andSet6.ID + 1;
-					if (num4 == 0)
-						andSet6.Up = num + 2 + 5;
-
-					if (num4 == list2.Count - 1)
-						andSet6.Down = num2 + 20 + 2;
-
-					_foundPoints.Add(num3);
-					num3++;
-				}
-
-				break;
-			}
-			case CategoryId.Clothing: {
-				List<SnapPoint> list3 = snapPoints.Where((SnapPoint a) => a.Name == "Low").ToList();
-				list3.Sort(SortPoints);
-				int down = -2;
-				int down2 = -2;
-				num3 = num2 + 20;
-				for (int j = 0; j < list3.Count; j++) {
-					UILinkPoint andSet = GetAndSet(num3, list3[j]);
-					andSet.Up = num2 + j + 2;
-					andSet.Down = uILinkPoint.ID;
-					if (j >= 3) {
-						andSet.Up++;
-						andSet.Down = uILinkPoint2.ID;
-					}
-
-					andSet.Left = andSet.ID - 1;
-					andSet.Right = andSet.ID + 1;
-					if (j == 0) {
-						down = andSet.ID;
-						andSet.Left = andSet.ID + 4;
-						uILinkPoint.Up = andSet.ID;
-					}
-
-					if (j == list3.Count - 1) {
-						down2 = andSet.ID;
-						andSet.Right = andSet.ID - 4;
-						uILinkPoint2.Up = andSet.ID;
-					}
-
-					_foundPoints.Add(num3);
-					num3++;
-				}
-
-				num3 = num2;
-				for (int k = 0; k < list2.Count; k++) {
-					UILinkPoint andSet2 = GetAndSet(num3, list2[k]);
-					andSet2.Up = num + 2 + k;
-					andSet2.Left = andSet2.ID - 1;
-					andSet2.Right = andSet2.ID + 1;
-					if (k == 0)
-						andSet2.Left = andSet2.ID + 9;
-
-					if (k == list2.Count - 1)
-						andSet2.Right = andSet2.ID - 9;
-
-					andSet2.Down = down;
-					if (k >= 5)
-						andSet2.Down = down2;
-
-					_foundPoints.Add(num3);
-					num3++;
-				}
-
-				break;
-			}
+			break;
 		}
-
+		case CategoryId.HairStyle:
+		{
+			if (list2.Count == 0)
+			{
+				break;
+			}
+			_helper.CullPointsOutOfElementArea(spriteBatch, list2, _hairstylesContainer);
+			SnapPoint snapPoint3 = list2[list2.Count - 1];
+			_ = snapPoint3.Id / 10;
+			_ = snapPoint3.Id % 10;
+			int count = Main.Hairstyles.AvailableHairstyles.Count;
+			for (int num12 = 0; num12 < list2.Count; num12++)
+			{
+				SnapPoint snapPoint4 = list2[num12];
+				UILinkPoint andSet6 = GetAndSet(num3, snapPoint4);
+				andSet6.Left = andSet6.ID - 1;
+				if (snapPoint4.Id == 0)
+				{
+					andSet6.Left = -3;
+				}
+				andSet6.Right = andSet6.ID + 1;
+				if (snapPoint4.Id == count - 1)
+				{
+					andSet6.Right = -4;
+				}
+				andSet6.Up = andSet6.ID - 10;
+				if (num12 < 10)
+				{
+					andSet6.Up = num + 2 + num12;
+				}
+				andSet6.Down = andSet6.ID + 10;
+				if (snapPoint4.Id + 10 > snapPoint3.Id)
+				{
+					if (snapPoint4.Id % 10 < 5)
+					{
+						andSet6.Down = uILinkPoint.ID;
+					}
+					else
+					{
+						andSet6.Down = uILinkPoint2.ID;
+					}
+				}
+				if (num12 == list2.Count - 1)
+				{
+					uILinkPoint.Up = andSet6.ID;
+					uILinkPoint2.Up = andSet6.ID;
+				}
+				_foundPoints.Add(num3);
+				num3++;
+			}
+			break;
+		}
+		default:
+		{
+			List<SnapPoint> list5 = snapPoints.Where((SnapPoint a) => a.Name == "Low").ToList();
+			list5.Sort(SortPoints);
+			num3 = num2 + 20;
+			for (int num10 = 0; num10 < list5.Count; num10++)
+			{
+				UILinkPoint andSet4 = GetAndSet(num3, list5[num10]);
+				andSet4.Up = num2 + 2;
+				andSet4.Down = uILinkPoint.ID;
+				andSet4.Left = andSet4.ID - 1;
+				andSet4.Right = andSet4.ID + 1;
+				if (num10 == 0)
+				{
+					andSet4.Left = andSet4.ID + 2;
+					uILinkPoint.Up = andSet4.ID;
+				}
+				if (num10 == list5.Count - 1)
+				{
+					andSet4.Right = andSet4.ID - 2;
+					uILinkPoint2.Up = andSet4.ID;
+				}
+				_foundPoints.Add(num3);
+				num3++;
+			}
+			num3 = num2;
+			for (int num11 = 0; num11 < list2.Count; num11++)
+			{
+				UILinkPoint andSet5 = GetAndSet(num3, list2[num11]);
+				andSet5.Up = andSet5.ID - 1;
+				andSet5.Down = andSet5.ID + 1;
+				if (num11 == 0)
+				{
+					andSet5.Up = num + 2 + 5;
+				}
+				if (num11 == list2.Count - 1)
+				{
+					andSet5.Down = num2 + 20 + 2;
+				}
+				_foundPoints.Add(num3);
+				num3++;
+			}
+			break;
+		}
+		case CategoryId.Clothing:
+		{
+			List<SnapPoint> list3 = snapPoints.Where((SnapPoint a) => a.Name == "Preview").ToList();
+			list3.Sort(SortPoints);
+			List<SnapPoint> list4 = snapPoints.Where((SnapPoint a) => a.Name == "Low").ToList();
+			list4.Sort(SortPoints);
+			int down = -2;
+			SnapPoint point = null;
+			UILinkPoint uILinkPoint4 = null;
+			if (_pitchSlider.GetSnapPoint(out point))
+			{
+				uILinkPoint4 = GetAndSet(num2 + 40, point);
+				_foundPoints.Add(uILinkPoint4.ID);
+			}
+			uILinkPoint4.Down = uILinkPoint.ID;
+			int num5 = num2 + 20;
+			num3 = num2 + 20;
+			int num6 = num3 + list4.Count;
+			UILinkPoint uILinkPoint5 = null;
+			for (int num7 = 0; num7 < list4.Count; num7++)
+			{
+				UILinkPoint andSet = GetAndSet(num3, list4[num7]);
+				andSet.Up = num2 + num7 + 2;
+				andSet.Down = uILinkPoint4.ID;
+				if (num7 >= 3)
+				{
+					andSet.Up = num6 + (num7 - 3) + 1;
+					andSet.Down = uILinkPoint2.ID;
+				}
+				andSet.Left = andSet.ID - 1;
+				andSet.Right = andSet.ID + 1;
+				if (num7 == 0)
+				{
+					down = andSet.ID;
+					andSet.Left = andSet.ID + 5;
+					uILinkPoint.Up = andSet.ID;
+				}
+				if (num7 == list4.Count - 1)
+				{
+					_ = andSet.ID;
+					andSet.Right = andSet.ID - 5;
+					uILinkPoint2.Up = andSet.ID;
+				}
+				if (num7 == 1)
+				{
+					uILinkPoint5 = andSet;
+				}
+				_foundPoints.Add(num3);
+				num3++;
+			}
+			for (int num8 = 0; num8 < list3.Count; num8++)
+			{
+				UILinkPoint andSet2 = GetAndSet(num3, list3[num8]);
+				andSet2.Up = num2 + num8 + 5;
+				andSet2.Down = num5 + ((int)MathHelper.Clamp(num8, 1f, 4f) - 1) + 3;
+				andSet2.Left = andSet2.ID - 1;
+				andSet2.Right = andSet2.ID + 1;
+				if (num8 == 0)
+				{
+					andSet2.Left = num5 + 2;
+				}
+				if (num8 == list3.Count - 1)
+				{
+					andSet2.Right = num5;
+				}
+				_foundPoints.Add(num3);
+				num3++;
+			}
+			if (list4.Count > 1)
+			{
+				uILinkPoint4.Up = uILinkPoint5.ID;
+			}
+			uILinkPoint.Up = uILinkPoint4.ID;
+			num3 = num2;
+			for (int num9 = 0; num9 < list2.Count; num9++)
+			{
+				UILinkPoint andSet3 = GetAndSet(num3, list2[num9]);
+				andSet3.Up = num + 2 + num9;
+				andSet3.Left = andSet3.ID - 1;
+				andSet3.Right = andSet3.ID + 1;
+				if (num9 == 0)
+				{
+					andSet3.Left = andSet3.ID + 9;
+				}
+				if (num9 == list2.Count - 1)
+				{
+					andSet3.Right = andSet3.ID - 9;
+				}
+				andSet3.Down = down;
+				if (num9 >= 5)
+				{
+					andSet3.Down = num6 + num9 - 5;
+				}
+				_foundPoints.Add(num3);
+				num3++;
+			}
+			break;
+		}
+		}
 		if (PlayerInput.UsingGamepadUI && !_foundPoints.Contains(UILinkPointNavigator.CurrentPoint))
+		{
 			MoveToVisuallyClosestPoint();
+		}
 	}
 
 	private void MoveToVisuallyClosestPoint()
@@ -1522,24 +2301,30 @@ public class UICharacterCreation : UIState
 		Dictionary<int, UILinkPoint> points = UILinkPointNavigator.Points;
 		Vector2 mouseScreen = Main.MouseScreen;
 		UILinkPoint uILinkPoint = null;
-		foreach (int foundPoint in _foundPoints) {
+		foreach (int foundPoint in _foundPoints)
+		{
 			if (!points.TryGetValue(foundPoint, out var value))
+			{
 				return;
-
+			}
 			if (uILinkPoint == null || Vector2.Distance(mouseScreen, uILinkPoint.Position) > Vector2.Distance(mouseScreen, value.Position))
+			{
 				uILinkPoint = value;
+			}
 		}
-
 		if (uILinkPoint != null)
+		{
 			UILinkPointNavigator.ChangePoint(uILinkPoint.ID);
+		}
 	}
 
 	public void TryMovingCategory(int direction)
 	{
 		int num = (int)(_selectedPicker + direction) % 10;
 		if (num < 0)
+		{
 			num += 10;
-
+		}
 		SelectColorPicker((CategoryId)num);
 	}
 
@@ -1551,15 +2336,46 @@ public class UICharacterCreation : UIState
 		return uILinkPoint;
 	}
 
-	private bool PointWithName(SnapPoint a, string comp) => a.Name == comp;
-	private int SortPoints(SnapPoint a, SnapPoint b) => a.Id.CompareTo(b.Id);
-	private static Color ScaledHslToRgb(Vector3 hsl) => ScaledHslToRgb(hsl.X, hsl.Y, hsl.Z);
-	private static Color ScaledHslToRgb(float hue, float saturation, float luminosity) => Main.hslToRgb(hue, saturation, luminosity * 0.85f + 0.15f);
+	private bool PointWithName(SnapPoint a, string comp)
+	{
+		return a.Name == comp;
+	}
+
+	private int SortPoints(SnapPoint a, SnapPoint b)
+	{
+		return a.Id.CompareTo(b.Id);
+	}
+
+	private static Color ScaledHslToRgb(Vector3 hsl)
+	{
+		return ScaledHslToRgb(hsl.X, hsl.Y, hsl.Z);
+	}
+
+	private static Color ScaledHslToRgb(float hue, float saturation, float luminosity)
+	{
+		return Main.hslToRgb(hue, saturation, luminosity * 0.85f + 0.15f);
+	}
 
 	private static Vector3 RgbToScaledHsl(Color color)
 	{
 		Vector3 value = Main.rgbToHsl(color);
 		value.Z = (value.Z - 0.15f) / 0.85f;
 		return Vector3.Clamp(value, Vector3.Zero, Vector3.One);
+	}
+
+	public void HandleBackButtonUsage()
+	{
+		if (_selectedPicker != CategoryId.CharInfo)
+		{
+			SoundEngine.PlaySound(12);
+			UnselectAllCategories();
+			_selectedPicker = CategoryId.CharInfo;
+			_middleContainer.Append(_infoContainer);
+			_charInfoCategoryButton.SetSelected(selected: true);
+		}
+		else
+		{
+			GoBack();
+		}
 	}
 }

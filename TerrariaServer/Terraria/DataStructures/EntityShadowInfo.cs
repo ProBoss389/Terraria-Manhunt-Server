@@ -5,10 +5,15 @@ namespace Terraria.DataStructures;
 public struct EntityShadowInfo
 {
 	public Vector2 Position;
+
 	public float Rotation;
+
 	public Vector2 Origin;
+
 	public int Direction;
+
 	public int GravityDirection;
+
 	public int BodyFrameIndex;
 
 	public Vector2 HeadgearOffset => Main.OffsetsPlayerHeadgear[BodyFrameIndex];

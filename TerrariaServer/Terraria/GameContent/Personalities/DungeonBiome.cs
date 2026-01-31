@@ -7,5 +7,8 @@ public class DungeonBiome : AShoppingBiome
 		base.NameKey = "Dungeon";
 	}
 
-	public override bool IsInBiome(Player player) => player.ZoneDungeon;
+	public override bool IsInBiome(Player player)
+	{
+		return player.ZoneDungeon;
+	}
 }

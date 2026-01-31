@@ -2,15 +2,13 @@ namespace Terraria;
 
 public struct ShoppingSettings
 {
-	public double PriceAdjustment;
+	public float PriceAdjustment;
+
 	public string HappinessReport;
 
-	public static ShoppingSettings NotInShop {
-		get {
-			ShoppingSettings result = default(ShoppingSettings);
-			result.PriceAdjustment = 1.0;
-			result.HappinessReport = "";
-			return result;
-		}
-	}
+	public static ShoppingSettings NotInShop => new ShoppingSettings
+	{
+		PriceAdjustment = 1f,
+		HappinessReport = ""
+	};
 }

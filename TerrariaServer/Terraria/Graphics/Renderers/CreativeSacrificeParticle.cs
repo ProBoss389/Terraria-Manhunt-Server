@@ -7,13 +7,21 @@ namespace Terraria.Graphics.Renderers;
 public class CreativeSacrificeParticle : IParticle
 {
 	public Vector2 AccelerationPerFrame;
+
 	public Vector2 Velocity;
+
 	public Vector2 LocalPosition;
+
 	public float ScaleOffsetPerFrame;
+
 	public float StopWhenBelowXScale;
+
 	private Asset<Texture2D> _texture;
+
 	private Rectangle _frame;
+
 	private Vector2 _origin;
+
 	private float _scale;
 
 	public bool ShouldBeRemovedFromRenderer { get; private set; }
@@ -36,7 +44,9 @@ public class CreativeSacrificeParticle : IParticle
 		LocalPosition += Velocity;
 		_scale += ScaleOffsetPerFrame;
 		if (_scale <= StopWhenBelowXScale)
+		{
 			ShouldBeRemovedFromRenderer = true;
+		}
 	}
 
 	public void Draw(ref ParticleRendererSettings settings, SpriteBatch spritebatch)

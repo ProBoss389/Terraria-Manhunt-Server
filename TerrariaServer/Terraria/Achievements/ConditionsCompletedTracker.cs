@@ -21,9 +21,12 @@ public class ConditionsCompletedTracker : ConditionIntTracker
 
 	protected override void Load()
 	{
-		for (int i = 0; i < _conditions.Count; i++) {
+		for (int i = 0; i < _conditions.Count; i++)
+		{
 			if (_conditions[i].IsCompleted)
+			{
 				_value++;
+			}
 		}
 	}
 }

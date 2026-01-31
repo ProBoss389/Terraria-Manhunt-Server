@@ -7,6 +7,7 @@ namespace Terraria.GameContent.RGB;
 public class WallOfFleshShader : ChromaShader
 {
 	private readonly Vector4 _primaryColor;
+
 	private readonly Vector4 _secondaryColor;
 
 	public WallOfFleshShader(Color primaryColor, Color secondaryColor)
@@ -15,13 +16,15 @@ public class WallOfFleshShader : ChromaShader
 		_secondaryColor = secondaryColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
+	[RgbProcessor(new EffectDetailLevel[]
+	{
 		EffectDetailLevel.High,
 		EffectDetailLevel.Low
 	})]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			Vector4 secondaryColor = _secondaryColor;
 			float dynamicNoise = NoiseHelper.GetDynamicNoise(canvasPositionOfIndex * 0.3f, time / 5f);

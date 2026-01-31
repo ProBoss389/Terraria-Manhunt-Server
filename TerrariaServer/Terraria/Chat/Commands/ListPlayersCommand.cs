@@ -12,8 +12,8 @@ public class ListPlayersCommand : IChatCommand
 	public void ProcessIncomingMessage(string text, byte clientId)
 	{
 		ChatHelper.SendChatMessageToClient(NetworkText.FromLiteral(string.Join(", ", from player in Main.player
-																					 where player.active
-																					 select player.name)), RESPONSE_COLOR, clientId);
+			where player.active
+			select player.name)), RESPONSE_COLOR, clientId);
 	}
 
 	public void ProcessOutgoingMessage(ChatMessage message)

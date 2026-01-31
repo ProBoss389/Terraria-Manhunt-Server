@@ -18,8 +18,9 @@ public struct ChatCommandId
 	{
 		ChatCommandAttribute cacheableAttribute = AttributeUtilities.GetCacheableAttribute<T, ChatCommandAttribute>();
 		if (cacheableAttribute != null)
+		{
 			return new ChatCommandId(cacheableAttribute.Name);
-
+		}
 		return new ChatCommandId(null);
 	}
 
@@ -28,6 +29,13 @@ public struct ChatCommandId
 		writer.Write(_name ?? "");
 	}
 
-	public static ChatCommandId Deserialize(BinaryReader reader) => new ChatCommandId(reader.ReadString());
-	public int GetMaxSerializedSize() => 4 + Encoding.UTF8.GetByteCount(_name ?? "");
+	public static ChatCommandId Deserialize(BinaryReader reader)
+	{
+		return new ChatCommandId(reader.ReadString());
+	}
+
+	public int GetMaxSerializedSize()
+	{
+		return 4 + Encoding.UTF8.GetByteCount(_name ?? "");
+	}
 }

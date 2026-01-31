@@ -13,6 +13,32 @@ public class Camera
 
 	public Vector2 ScaledSize => UnscaledSize - GameViewMatrix.Translation * 2f;
 
+	public float BiggerScaledAxis
+	{
+		get
+		{
+			Vector2 scaledSize = ScaledSize;
+			if (!(scaledSize.X > scaledSize.Y))
+			{
+				return scaledSize.Y;
+			}
+			return scaledSize.X;
+		}
+	}
+
+	public float SmallerScaledAxis
+	{
+		get
+		{
+			Vector2 scaledSize = ScaledSize;
+			if (!(scaledSize.X < scaledSize.Y))
+			{
+				return scaledSize.Y;
+			}
+			return scaledSize.X;
+		}
+	}
+
 	public RasterizerState Rasterizer => Main.Rasterizer;
 
 	public SamplerState Sampler => Main.DefaultSamplerState;

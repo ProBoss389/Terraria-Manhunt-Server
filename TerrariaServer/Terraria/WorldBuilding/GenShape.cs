@@ -5,6 +5,7 @@ namespace Terraria.WorldBuilding;
 public abstract class GenShape : GenBase
 {
 	private ShapeData _outputData;
+
 	protected bool _quitOnFail;
 
 	public abstract bool Perform(Point origin, GenAction action);
@@ -12,8 +13,9 @@ public abstract class GenShape : GenBase
 	protected bool UnitApply(GenAction action, Point origin, int x, int y, params object[] args)
 	{
 		if (_outputData != null)
+		{
 			_outputData.Add(x - origin.X, y - origin.Y);
-
+		}
 		return action.Apply(origin, x, y, args);
 	}
 

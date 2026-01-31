@@ -7,6 +7,7 @@ namespace Terraria.GameContent.RGB;
 public class DesertShader : ChromaShader
 {
 	private readonly Vector4 _baseColor;
+
 	private readonly Vector4 _sandColor;
 
 	public DesertShader(Color baseColor, Color sandColor)
@@ -15,13 +16,15 @@ public class DesertShader : ChromaShader
 		_sandColor = sandColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
+	[RgbProcessor(new EffectDetailLevel[]
+	{
 		EffectDetailLevel.Low,
 		EffectDetailLevel.High
 	})]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			fragment.GetGridPositionOfIndex(i);
 			canvasPositionOfIndex.Y += (float)Math.Sin(canvasPositionOfIndex.X * 2f + time * 2f) * 0.2f;

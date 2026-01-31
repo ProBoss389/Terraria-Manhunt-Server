@@ -45,13 +45,22 @@ public static class CrashDump
 	private struct MiniDumpExceptionInformation
 	{
 		public uint ThreadId;
+
 		public IntPtr ExceptionPointers;
+
 		[MarshalAs(UnmanagedType.Bool)]
 		public bool ClientPointers;
 	}
 
-	public static bool WriteException(Options options, string outputDirectory = ".") => Write(options, ExceptionInfo.Present, outputDirectory);
-	public static bool Write(Options options, string outputDirectory = ".") => Write(options, ExceptionInfo.None, outputDirectory);
+	public static bool WriteException(Options options, string outputDirectory = ".")
+	{
+		return Write(options, ExceptionInfo.Present, outputDirectory);
+	}
+
+	public static bool Write(Options options, string outputDirectory = ".")
+	{
+		return Write(options, ExceptionInfo.None, outputDirectory);
+	}
 
 	private static string CreateDumpName()
 	{
@@ -62,12 +71,14 @@ public static class CrashDump
 	private static bool Write(Options options, ExceptionInfo exceptionInfo, string outputDirectory)
 	{
 		if (!Platform.IsWindows)
+		{
 			return false;
-
+		}
 		string path = Path.Combine(outputDirectory, CreateDumpName());
 		if (!Utils.TryCreatingDirectory(outputDirectory))
+		{
 			return false;
-
+		}
 		using FileStream fileStream = File.Create(path);
 		return Write(fileStream.SafeFileHandle, options, exceptionInfo);
 	}
@@ -75,8 +86,9 @@ public static class CrashDump
 	private static bool Write(SafeHandle fileHandle, Options options, ExceptionInfo exceptionInfo)
 	{
 		if (!Platform.IsWindows)
+		{
 			return false;
-
+		}
 		Process currentProcess = Process.GetCurrentProcess();
 		IntPtr handle = currentProcess.Handle;
 		uint id = (uint)currentProcess.Id;
@@ -85,12 +97,14 @@ public static class CrashDump
 		expParam.ClientPointers = false;
 		expParam.ExceptionPointers = IntPtr.Zero;
 		if (exceptionInfo == ExceptionInfo.Present)
+		{
 			expParam.ExceptionPointers = Marshal.GetExceptionPointers();
-
+		}
 		bool flag = false;
 		if (expParam.ExceptionPointers == IntPtr.Zero)
+		{
 			return MiniDumpWriteDump(handle, id, fileHandle, (uint)options, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
-
+		}
 		return MiniDumpWriteDump(handle, id, fileHandle, (uint)options, ref expParam, IntPtr.Zero, IntPtr.Zero);
 	}
 

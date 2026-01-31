@@ -7,9 +7,13 @@ namespace Terraria.GameContent.UI.Minimap;
 public class MinimapFrameTemplate
 {
 	private string name;
+
 	private Vector2 frameOffset;
+
 	private Vector2 resetPosition;
+
 	private Vector2 zoomInPosition;
+
 	private Vector2 zoomOutPosition;
 
 	public MinimapFrameTemplate(string name, Vector2 frameOffset, Vector2 resetPosition, Vector2 zoomInPosition, Vector2 zoomOutPosition)
@@ -32,5 +36,8 @@ public class MinimapFrameTemplate
 		return minimapFrame;
 	}
 
-	private static Asset<T> LoadAsset<T>(string assetName, AssetRequestMode mode) where T : class => Main.Assets.Request<T>(assetName, mode);
+	private static Asset<T> LoadAsset<T>(string assetName, AssetRequestMode mode) where T : class
+	{
+		return Main.Assets.Request<T>(assetName, mode);
+	}
 }

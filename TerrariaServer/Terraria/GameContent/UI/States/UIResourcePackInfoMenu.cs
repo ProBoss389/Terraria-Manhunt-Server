@@ -15,12 +15,19 @@ namespace Terraria.GameContent.UI.States;
 public class UIResourcePackInfoMenu : UIState
 {
 	private UIResourcePackSelectionMenu _resourceMenu;
+
 	private ResourcePack _pack;
+
 	private UIElement _container;
+
 	private UIList _list;
+
 	private UIScrollbar _scrollbar;
+
 	private bool _isScrollbarAttached;
+
 	private const string _backPointName = "GoBack";
+
 	private UIGamepadHelper _helper;
 
 	public UIResourcePackInfoMenu(UIResourcePackSelectionMenu parent, ResourcePack pack)
@@ -46,61 +53,62 @@ public class UIResourcePackInfoMenu : UIState
 		uIPanel.Height.Set(-110f, 1f);
 		uIPanel.BackgroundColor = new Color(33, 43, 79) * 0.8f;
 		uIElement.Append(uIPanel);
-		UIElement uIElement2 = new UIElement {
+		UIElement uIElement2 = new UIElement
+		{
 			Width = StyleDimension.Fill,
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f)
 		};
-
 		uIPanel.Append(uIElement2);
-		UIElement uIElement3 = new UIElement {
+		UIElement uIElement3 = new UIElement
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(52f, 0f)
 		};
-
 		uIElement3.SetPadding(0f);
 		uIElement2.Append(uIElement3);
-		UIText uIText = new UIText(_pack.Name, 0.7f, large: true) {
+		UIText uIText = new UIText(_pack.Name, 0.7f, large: true)
+		{
 			TextColor = Color.Gold
 		};
-
 		uIText.HAlign = 0.5f;
 		uIText.VAlign = 0f;
 		uIElement3.Append(uIText);
-		UIText uIText2 = new UIText(Language.GetTextValue("UI.Author", _pack.Author), 0.9f) {
+		UIText uIText2 = new UIText(Language.GetTextValue("UI.Author", _pack.Author), 0.9f)
+		{
 			HAlign = 0f,
 			VAlign = 1f
 		};
-
 		uIText2.Top.Set(-6f, 0f);
 		uIElement3.Append(uIText2);
-		UIText uIText3 = new UIText(Language.GetTextValue("UI.Version", _pack.Version.GetFormattedVersion()), 0.9f) {
+		UIText uIText3 = new UIText(Language.GetTextValue("UI.Version", _pack.Version.GetFormattedVersion()), 0.9f)
+		{
 			HAlign = 1f,
 			VAlign = 1f,
 			TextColor = Color.Silver
 		};
-
 		uIText3.Top.Set(-6f, 0f);
 		uIElement3.Append(uIText3);
-		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Divider");
-		UIImage uIImage = new UIImage(asset) {
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Divider", AssetRequestMode.ImmediateLoad);
+		UIImage uIImage = new UIImage(asset)
+		{
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixels(asset.Height()),
 			ScaleToFit = true
 		};
-
 		uIImage.Top.Set(52f, 0f);
 		uIImage.SetPadding(6f);
 		uIElement2.Append(uIImage);
-		UIElement uIElement4 = new UIElement {
+		UIElement uIElement4 = new UIElement
+		{
 			HAlign = 0.5f,
 			VAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(-74f, 1f)
 		};
-
 		uIElement2.Append(uIElement4);
 		_container = uIElement4;
-		UIText item = new UIText(_pack.Description) {
+		UIText item = new UIText(_pack.Description)
+		{
 			HAlign = 0.5f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
@@ -108,15 +116,14 @@ public class UIResourcePackInfoMenu : UIState
 			IsWrapped = true,
 			WrappedTextBottomPadding = 0f
 		};
-
-		UIList uIList = new UIList {
+		UIList uIList = new UIList
+		{
 			HAlign = 0.5f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			PaddingRight = 20f
 		};
-
 		uIList.ListPadding = 5f;
 		uIList.Add(item);
 		uIElement4.Append(uIList);
@@ -142,19 +149,21 @@ public class UIResourcePackInfoMenu : UIState
 
 	public override void Recalculate()
 	{
-		if (_scrollbar != null) {
-			if (_isScrollbarAttached && !_scrollbar.CanScroll) {
+		if (_scrollbar != null)
+		{
+			if (_isScrollbarAttached && !_scrollbar.CanScroll)
+			{
 				_container.RemoveChild(_scrollbar);
 				_isScrollbarAttached = false;
 				_list.Width.Set(0f, 1f);
 			}
-			else if (!_isScrollbarAttached && _scrollbar.CanScroll) {
+			else if (!_isScrollbarAttached && _scrollbar.CanScroll)
+			{
 				_container.Append(_scrollbar);
 				_isScrollbarAttached = true;
 				_list.Width.Set(-25f, 1f);
 			}
 		}
-
 		base.Recalculate();
 	}
 
@@ -188,13 +197,15 @@ public class UIResourcePackInfoMenu : UIState
 		int num = 3000;
 		int idRangeEndExclusive = num;
 		List<SnapPoint> snapPoints = GetSnapPoints();
-		for (int i = 0; i < snapPoints.Count; i++) {
+		for (int i = 0; i < snapPoints.Count; i++)
+		{
 			SnapPoint snapPoint = snapPoints[i];
 			string name = snapPoint.Name;
 			if (name == "GoBack")
+			{
 				_helper.MakeLinkPointFromSnapPoint(idRangeEndExclusive++, snapPoint);
+			}
 		}
-
 		_helper.MoveToVisuallyClosestPoint(num, idRangeEndExclusive);
 	}
 }

@@ -14,7 +14,8 @@ public class AsyncTaskHelper
 
 	public void RunAsyncTaskAndReply(Action task, Action replay)
 	{
-		Task.Factory.StartNew(delegate {
+		Task.Factory.StartNew(delegate
+		{
 			task();
 			_currentThreadRunner.Run(replay);
 		});

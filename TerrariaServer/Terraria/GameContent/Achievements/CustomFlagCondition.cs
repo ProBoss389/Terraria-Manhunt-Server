@@ -9,5 +9,8 @@ public class CustomFlagCondition : AchievementCondition
 	{
 	}
 
-	public static AchievementCondition Create(string name) => new CustomFlagCondition(name);
+	public static AchievementCondition Create(string name)
+	{
+		return new CustomFlagCondition(name);
+	}
 }

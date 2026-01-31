@@ -7,7 +7,9 @@ namespace Terraria.GameContent.RGB;
 public class LavaIndicatorShader : ChromaShader
 {
 	private readonly Vector4 _backgroundColor;
+
 	private readonly Vector4 _primaryColor;
+
 	private readonly Vector4 _secondaryColor;
 
 	public LavaIndicatorShader(Color backgroundColor, Color primaryColor, Color secondaryColor)
@@ -17,12 +19,11 @@ public class LavaIndicatorShader : ChromaShader
 		_secondaryColor = secondaryColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.Low
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.Low })]
 	private void ProcessLowDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			float staticNoise = NoiseHelper.GetStaticNoise(fragment.GetCanvasPositionOfIndex(i) * 0.3f + new Vector2(12.5f, time * 0.2f));
 			staticNoise = Math.Max(0f, 1f - staticNoise * staticNoise * 4f * staticNoise);
 			staticNoise = MathHelper.Clamp(staticNoise, 0f, 1f);
@@ -31,19 +32,19 @@ public class LavaIndicatorShader : ChromaShader
 		}
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.High
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.High })]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			Vector4 vector = _backgroundColor;
 			float dynamicNoise = NoiseHelper.GetDynamicNoise(canvasPositionOfIndex * 0.2f, time * 0.5f);
 			float num = 0.4f;
 			num += dynamicNoise * 0.4f;
 			float num2 = 1.1f - canvasPositionOfIndex.Y;
-			if (num2 < num) {
+			if (num2 < num)
+			{
 				float staticNoise = NoiseHelper.GetStaticNoise(canvasPositionOfIndex * 0.3f + new Vector2(12.5f, time * 0.2f));
 				staticNoise = Math.Max(0f, 1f - staticNoise * staticNoise * 4f * staticNoise);
 				staticNoise = MathHelper.Clamp(staticNoise, 0f, 1f);
@@ -51,7 +52,6 @@ public class LavaIndicatorShader : ChromaShader
 				float amount = 1f - MathHelper.Clamp((num2 - num + 0.2f) / 0.2f, 0f, 1f);
 				vector = Vector4.Lerp(vector, value, amount);
 			}
-
 			fragment.SetColor(i, vector);
 		}
 	}

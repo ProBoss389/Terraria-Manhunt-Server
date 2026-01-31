@@ -15,7 +15,7 @@ public class NetTeleportPylonModule : NetModule
 
 	public static NetPacket SerializePylonWasAddedOrRemoved(TeleportPylonInfo info, SubPacketType packetType)
 	{
-		NetPacket result = NetModule.CreatePacket<NetTeleportPylonModule>(6);
+		NetPacket result = NetModule.CreatePacket<NetTeleportPylonModule>();
 		result.Writer.Write((byte)packetType);
 		result.Writer.Write(info.PositionInTiles.X);
 		result.Writer.Write(info.PositionInTiles.Y);
@@ -25,7 +25,7 @@ public class NetTeleportPylonModule : NetModule
 
 	public static NetPacket SerializeUseRequest(TeleportPylonInfo info)
 	{
-		NetPacket result = NetModule.CreatePacket<NetTeleportPylonModule>(6);
+		NetPacket result = NetModule.CreatePacket<NetTeleportPylonModule>();
 		result.Writer.Write((byte)2);
 		result.Writer.Write(info.PositionInTiles.X);
 		result.Writer.Write(info.PositionInTiles.Y);
@@ -35,36 +35,47 @@ public class NetTeleportPylonModule : NetModule
 
 	public override bool Deserialize(BinaryReader reader, int userId)
 	{
-		switch (reader.ReadByte()) {
-			case 0: {
-				if (Main.dedServ)
-					return false;
-
-				TeleportPylonInfo info3 = default(TeleportPylonInfo);
-				info3.PositionInTiles = new Point16(reader.ReadInt16(), reader.ReadInt16());
-				info3.TypeOfPylon = (TeleportPylonType)reader.ReadByte();
-				Main.PylonSystem.AddForClient(info3);
-				break;
+		switch ((SubPacketType)reader.ReadByte())
+		{
+		case SubPacketType.PylonWasAdded:
+		{
+			if (Main.dedServ)
+			{
+				return false;
 			}
-			case 1: {
-				if (Main.dedServ)
-					return false;
-
-				TeleportPylonInfo info2 = default(TeleportPylonInfo);
-				info2.PositionInTiles = new Point16(reader.ReadInt16(), reader.ReadInt16());
-				info2.TypeOfPylon = (TeleportPylonType)reader.ReadByte();
-				Main.PylonSystem.RemoveForClient(info2);
-				break;
-			}
-			case 2: {
-				TeleportPylonInfo info = default(TeleportPylonInfo);
-				info.PositionInTiles = new Point16(reader.ReadInt16(), reader.ReadInt16());
-				info.TypeOfPylon = (TeleportPylonType)reader.ReadByte();
-				Main.PylonSystem.HandleTeleportRequest(info, userId);
-				break;
-			}
+			TeleportPylonInfo info3 = new TeleportPylonInfo
+			{
+				PositionInTiles = new Point16(reader.ReadInt16(), reader.ReadInt16()),
+				TypeOfPylon = (TeleportPylonType)reader.ReadByte()
+			};
+			Main.PylonSystem.AddForClient(info3);
+			break;
 		}
-
+		case SubPacketType.PylonWasRemoved:
+		{
+			if (Main.dedServ)
+			{
+				return false;
+			}
+			TeleportPylonInfo info2 = new TeleportPylonInfo
+			{
+				PositionInTiles = new Point16(reader.ReadInt16(), reader.ReadInt16()),
+				TypeOfPylon = (TeleportPylonType)reader.ReadByte()
+			};
+			Main.PylonSystem.RemoveForClient(info2);
+			break;
+		}
+		case SubPacketType.PlayerRequestsTeleport:
+		{
+			TeleportPylonInfo info = new TeleportPylonInfo
+			{
+				PositionInTiles = new Point16(reader.ReadInt16(), reader.ReadInt16()),
+				TypeOfPylon = (TeleportPylonType)reader.ReadByte()
+			};
+			Main.PylonSystem.HandleTeleportRequest(info, userId);
+			break;
+		}
+		}
 		return true;
 	}
 }

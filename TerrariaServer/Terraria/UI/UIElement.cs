@@ -16,40 +16,74 @@ public class UIElement : IComparable
 
 	public delegate void ElementEvent(UIElement affectedElement);
 
+	public delegate void DrawEvent(UIElement affectedElement, SpriteBatch sb);
+
 	public delegate void UIElementAction(UIElement element);
 
 	protected readonly List<UIElement> Elements = new List<UIElement>();
+
 	public StyleDimension Top;
+
 	public StyleDimension Left;
+
 	public StyleDimension Width;
+
 	public StyleDimension Height;
+
 	public StyleDimension MaxWidth = StyleDimension.Fill;
+
 	public StyleDimension MaxHeight = StyleDimension.Fill;
+
 	public StyleDimension MinWidth = StyleDimension.Empty;
+
 	public StyleDimension MinHeight = StyleDimension.Empty;
+
 	private bool _isInitialized;
+
 	public bool IgnoresMouseInteraction;
+
+	public bool PassThroughMouseInteraction;
+
 	public bool OverflowHidden;
+
 	public SamplerState OverrideSamplerState;
+
 	public float PaddingTop;
+
 	public float PaddingLeft;
+
 	public float PaddingRight;
+
 	public float PaddingBottom;
+
 	public float MarginTop;
+
 	public float MarginLeft;
+
 	public float MarginRight;
+
 	public float MarginBottom;
+
 	public float HAlign;
+
 	public float VAlign;
+
 	private CalculatedStyle _innerDimensions;
+
 	private CalculatedStyle _dimensions;
+
 	private CalculatedStyle _outerDimensions;
-	private static readonly RasterizerState OverflowHiddenRasterizerState = new RasterizerState {
+
+	private static readonly RasterizerState OverflowHiddenRasterizerState = new RasterizerState
+	{
 		CullMode = CullMode.None,
 		ScissorTestEnable = true
 	};
+
 	public bool UseImmediateMode;
+
 	private SnapPoint _snapPoint;
+
 	private static int _idCounter = 0;
 
 	public UIElement Parent { get; private set; }
@@ -61,17 +95,30 @@ public class UIElement : IComparable
 	public bool IsMouseHovering { get; private set; }
 
 	public event MouseEvent OnLeftMouseDown;
+
 	public event MouseEvent OnLeftMouseUp;
+
 	public event MouseEvent OnLeftClick;
+
 	public event MouseEvent OnLeftDoubleClick;
+
 	public event MouseEvent OnRightMouseDown;
+
 	public event MouseEvent OnRightMouseUp;
+
 	public event MouseEvent OnRightClick;
+
 	public event MouseEvent OnRightDoubleClick;
+
 	public event MouseEvent OnMouseOver;
+
 	public event MouseEvent OnMouseOut;
+
 	public event ScrollWheelEvent OnScrollWheel;
+
 	public event ElementEvent OnUpdate;
+
+	public event DrawEvent OnDraw;
 
 	public UIElement()
 	{
@@ -81,11 +128,13 @@ public class UIElement : IComparable
 	public void SetSnapPoint(string name, int id, Vector2? anchor = null, Vector2? offset = null)
 	{
 		if (!anchor.HasValue)
+		{
 			anchor = new Vector2(0.5f);
-
+		}
 		if (!offset.HasValue)
+		{
 			offset = Vector2.Zero;
-
+		}
 		_snapPoint = new SnapPoint(name, id, anchor.Value, offset.Value);
 	}
 
@@ -93,15 +142,17 @@ public class UIElement : IComparable
 	{
 		point = _snapPoint;
 		if (_snapPoint != null)
+		{
 			_snapPoint.Calculate(this);
-
+		}
 		return _snapPoint != null;
 	}
 
 	public virtual void ExecuteRecursively(UIElementAction action)
 	{
 		action(this);
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			element.ExecuteRecursively(action);
 		}
 	}
@@ -112,7 +163,8 @@ public class UIElement : IComparable
 
 	protected virtual void DrawChildren(SpriteBatch spriteBatch)
 	{
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			element.Draw(spriteBatch);
 		}
 	}
@@ -128,7 +180,9 @@ public class UIElement : IComparable
 	public void Remove()
 	{
 		if (Parent != null)
+		{
 			Parent.RemoveChild(this);
+		}
 	}
 
 	public void RemoveChild(UIElement child)
@@ -139,41 +193,47 @@ public class UIElement : IComparable
 
 	public void RemoveAllChildren()
 	{
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			element.Parent = null;
 		}
-
 		Elements.Clear();
 	}
 
 	public virtual void Draw(SpriteBatch spriteBatch)
 	{
+		if (this.OnDraw != null)
+		{
+			this.OnDraw(this, spriteBatch);
+		}
 		bool overflowHidden = OverflowHidden;
 		bool useImmediateMode = UseImmediateMode;
 		RasterizerState rasterizerState = spriteBatch.GraphicsDevice.RasterizerState;
 		Rectangle scissorRectangle = spriteBatch.GraphicsDevice.ScissorRectangle;
 		SamplerState anisotropicClamp = SamplerState.AnisotropicClamp;
-		if (useImmediateMode || OverrideSamplerState != null) {
+		if (useImmediateMode || OverrideSamplerState != null)
+		{
 			spriteBatch.End();
 			spriteBatch.Begin(useImmediateMode ? SpriteSortMode.Immediate : SpriteSortMode.Deferred, BlendState.AlphaBlend, (OverrideSamplerState != null) ? OverrideSamplerState : anisotropicClamp, DepthStencilState.None, OverflowHiddenRasterizerState, null, Main.UIScaleMatrix);
 			DrawSelf(spriteBatch);
 			spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, anisotropicClamp, DepthStencilState.None, OverflowHiddenRasterizerState, null, Main.UIScaleMatrix);
 		}
-		else {
+		else
+		{
 			DrawSelf(spriteBatch);
 		}
-
-		if (overflowHidden) {
+		if (overflowHidden)
+		{
 			spriteBatch.End();
 			Rectangle clippingRectangle = GetClippingRectangle(spriteBatch);
 			spriteBatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
 			spriteBatch.GraphicsDevice.RasterizerState = OverflowHiddenRasterizerState;
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, anisotropicClamp, DepthStencilState.None, OverflowHiddenRasterizerState, null, Main.UIScaleMatrix);
 		}
-
 		DrawChildren(spriteBatch);
-		if (overflowHidden) {
+		if (overflowHidden)
+		{
 			spriteBatch.End();
 			spriteBatch.GraphicsDevice.ScissorRectangle = scissorRectangle;
 			spriteBatch.GraphicsDevice.RasterizerState = rasterizerState;
@@ -184,9 +244,11 @@ public class UIElement : IComparable
 	public virtual void Update(GameTime gameTime)
 	{
 		if (this.OnUpdate != null)
+		{
 			this.OnUpdate(this);
-
-		foreach (UIElement element in Elements) {
+		}
+		foreach (UIElement element in Elements)
+		{
 			element.Update(gameTime);
 		}
 	}
@@ -216,12 +278,13 @@ public class UIElement : IComparable
 	{
 		List<SnapPoint> list = new List<SnapPoint>();
 		if (GetSnapPoint(out var point))
+		{
 			list.Add(point);
-
-		foreach (UIElement element in Elements) {
+		}
+		foreach (UIElement element in Elements)
+		{
 			list.AddRange(element.GetSnapPoints());
 		}
-
 		return list;
 	}
 
@@ -229,8 +292,9 @@ public class UIElement : IComparable
 	{
 		CalculatedStyle parentDimensions = ((Parent == null) ? UserInterface.ActiveInstance.GetDimensions() : Parent.GetInnerDimensions());
 		if (Parent != null && Parent is UIList)
+		{
 			parentDimensions.Height = float.MaxValue;
-
+		}
 		CalculatedStyle calculatedStyle = (_outerDimensions = GetDimensionsBasedOnParentDimensions(parentDimensions));
 		calculatedStyle.X += MarginLeft;
 		calculatedStyle.Y += MarginTop;
@@ -266,35 +330,46 @@ public class UIElement : IComparable
 	public UIElement GetElementAt(Vector2 point)
 	{
 		UIElement uIElement = null;
-		for (int num = Elements.Count - 1; num >= 0; num--) {
+		for (int num = Elements.Count - 1; num >= 0; num--)
+		{
 			UIElement uIElement2 = Elements[num];
-			if (!uIElement2.IgnoresMouseInteraction && uIElement2.ContainsPoint(point)) {
+			if (!uIElement2.IgnoresMouseInteraction && uIElement2.ContainsPoint(point))
+			{
 				uIElement = uIElement2;
-				break;
+				if (!uIElement2.PassThroughMouseInteraction)
+				{
+					break;
+				}
 			}
 		}
-
 		if (uIElement != null)
+		{
 			return uIElement.GetElementAt(point);
-
+		}
 		if (IgnoresMouseInteraction)
+		{
 			return null;
-
+		}
 		if (ContainsPoint(point))
+		{
 			return this;
-
+		}
 		return null;
 	}
 
 	public virtual bool ContainsPoint(Vector2 point)
 	{
 		if (point.X > _dimensions.X && point.Y > _dimensions.Y && point.X < _dimensions.X + _dimensions.Width)
+		{
 			return point.Y < _dimensions.Y + _dimensions.Height;
-
+		}
 		return false;
 	}
 
-	public virtual Rectangle GetViewCullingArea() => _dimensions.ToRectangle();
+	public virtual Rectangle GetViewCullingArea()
+	{
+		return _dimensions.ToRectangle();
+	}
 
 	public void SetPadding(float pixels)
 	{
@@ -306,14 +381,26 @@ public class UIElement : IComparable
 
 	public virtual void RecalculateChildren()
 	{
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			element.Recalculate();
 		}
 	}
 
-	public CalculatedStyle GetInnerDimensions() => _innerDimensions;
-	public CalculatedStyle GetDimensions() => _dimensions;
-	public CalculatedStyle GetOuterDimensions() => _outerDimensions;
+	public CalculatedStyle GetInnerDimensions()
+	{
+		return _innerDimensions;
+	}
+
+	public CalculatedStyle GetDimensions()
+	{
+		return _dimensions;
+	}
+
+	public CalculatedStyle GetOuterDimensions()
+	{
+		return _outerDimensions;
+	}
 
 	public void CopyStyle(UIElement element)
 	{
@@ -337,111 +424,146 @@ public class UIElement : IComparable
 	public virtual void LeftMouseDown(UIMouseEvent evt)
 	{
 		if (this.OnLeftMouseDown != null)
+		{
 			this.OnLeftMouseDown(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.LeftMouseDown(evt);
+		}
 	}
 
 	public virtual void LeftMouseUp(UIMouseEvent evt)
 	{
 		if (this.OnLeftMouseUp != null)
+		{
 			this.OnLeftMouseUp(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.LeftMouseUp(evt);
+		}
 	}
 
 	public virtual void LeftClick(UIMouseEvent evt)
 	{
 		if (this.OnLeftClick != null)
+		{
 			this.OnLeftClick(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.LeftClick(evt);
+		}
 	}
 
 	public virtual void LeftDoubleClick(UIMouseEvent evt)
 	{
 		if (this.OnLeftDoubleClick != null)
+		{
 			this.OnLeftDoubleClick(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.LeftDoubleClick(evt);
+		}
 	}
 
 	public virtual void RightMouseDown(UIMouseEvent evt)
 	{
 		if (this.OnRightMouseDown != null)
+		{
 			this.OnRightMouseDown(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.RightMouseDown(evt);
+		}
 	}
 
 	public virtual void RightMouseUp(UIMouseEvent evt)
 	{
 		if (this.OnRightMouseUp != null)
+		{
 			this.OnRightMouseUp(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.RightMouseUp(evt);
+		}
 	}
 
 	public virtual void RightClick(UIMouseEvent evt)
 	{
 		if (this.OnRightClick != null)
+		{
 			this.OnRightClick(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.RightClick(evt);
+		}
 	}
 
 	public virtual void RightDoubleClick(UIMouseEvent evt)
 	{
 		if (this.OnRightDoubleClick != null)
+		{
 			this.OnRightDoubleClick(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.RightDoubleClick(evt);
+		}
 	}
 
 	public virtual void MouseOver(UIMouseEvent evt)
 	{
 		IsMouseHovering = true;
 		if (this.OnMouseOver != null)
+		{
 			this.OnMouseOver(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.MouseOver(evt);
+		}
 	}
 
 	public virtual void MouseOut(UIMouseEvent evt)
 	{
 		IsMouseHovering = false;
 		if (this.OnMouseOut != null)
+		{
 			this.OnMouseOut(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.MouseOut(evt);
+		}
 	}
 
 	public virtual void ScrollWheel(UIScrollWheelEvent evt)
 	{
 		if (this.OnScrollWheel != null)
+		{
 			this.OnScrollWheel(evt, this);
-
+		}
 		if (Parent != null)
+		{
 			Parent.ScrollWheel(evt);
+		}
 	}
 
 	public void Activate()
 	{
 		if (!_isInitialized)
+		{
 			Initialize();
-
+		}
 		OnActivate();
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			element.Activate();
 		}
 	}
@@ -454,15 +576,17 @@ public class UIElement : IComparable
 	public void DrawDebugHitbox(BasicDebugDrawer drawer, float colorIntensity = 0f)
 	{
 		if (IsMouseHovering)
+		{
 			colorIntensity += 0.1f;
-
+		}
 		Color color = Main.hslToRgb(colorIntensity, colorIntensity, 0.5f);
 		CalculatedStyle innerDimensions = GetInnerDimensions();
 		drawer.DrawLine(innerDimensions.Position(), innerDimensions.Position() + new Vector2(innerDimensions.Width, 0f), 2f, color);
 		drawer.DrawLine(innerDimensions.Position() + new Vector2(innerDimensions.Width, 0f), innerDimensions.Position() + new Vector2(innerDimensions.Width, innerDimensions.Height), 2f, color);
 		drawer.DrawLine(innerDimensions.Position() + new Vector2(innerDimensions.Width, innerDimensions.Height), innerDimensions.Position() + new Vector2(0f, innerDimensions.Height), 2f, color);
 		drawer.DrawLine(innerDimensions.Position() + new Vector2(0f, innerDimensions.Height), innerDimensions.Position(), 2f, color);
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			_ = element;
 		}
 	}
@@ -470,7 +594,8 @@ public class UIElement : IComparable
 	public void Deactivate()
 	{
 		OnDeactivate();
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			element.Deactivate();
 		}
 	}
@@ -489,5 +614,8 @@ public class UIElement : IComparable
 	{
 	}
 
-	public virtual int CompareTo(object obj) => 0;
+	public virtual int CompareTo(object obj)
+	{
+		return 0;
+	}
 }

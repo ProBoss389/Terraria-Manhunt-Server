@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ID;
 using Terraria.IO;
 using Terraria.Social;
+using Terraria.Testing;
 using Terraria.Utilities;
 
 namespace Terraria.Map;
@@ -16,53 +17,60 @@ public static class MapHelper
 	private struct OldMapHelper
 	{
 		public byte misc;
+
 		public byte misc2;
 
 		public bool active()
 		{
 			if ((misc & 1) == 1)
+			{
 				return true;
-
+			}
 			return false;
 		}
 
 		public bool water()
 		{
 			if ((misc & 2) == 2)
+			{
 				return true;
-
+			}
 			return false;
 		}
 
 		public bool lava()
 		{
 			if ((misc & 4) == 4)
+			{
 				return true;
-
+			}
 			return false;
 		}
 
 		public bool honey()
 		{
 			if ((misc2 & 0x40) == 64)
+			{
 				return true;
-
+			}
 			return false;
 		}
 
 		public bool changed()
 		{
 			if ((misc & 8) == 8)
+			{
 				return true;
-
+			}
 			return false;
 		}
 
 		public bool wall()
 		{
 			if ((misc & 0x10) == 16)
+			{
 				return true;
-
+			}
 			return false;
 		}
 
@@ -70,85 +78,145 @@ public static class MapHelper
 		{
 			byte b = 0;
 			if ((misc & 0x20) == 32)
-				b = (byte)(b + 1);
-
+			{
+				b++;
+			}
 			if ((misc & 0x40) == 64)
-				b = (byte)(b + 2);
-
+			{
+				b += 2;
+			}
 			if ((misc & 0x80) == 128)
-				b = (byte)(b + 4);
-
+			{
+				b += 4;
+			}
 			if ((misc2 & 1) == 1)
-				b = (byte)(b + 8);
-
+			{
+				b += 8;
+			}
 			return b;
 		}
 
-		public byte color() => (byte)((misc2 & 0x1E) >> 1);
+		public byte color()
+		{
+			return (byte)((misc2 & 0x1E) >> 1);
+		}
 	}
 
 	public const int drawLoopMilliseconds = 5;
+
 	private const int HeaderEmpty = 0;
+
 	private const int HeaderTile = 1;
+
 	private const int HeaderWall = 2;
+
 	private const int HeaderWater = 3;
+
 	private const int HeaderLava = 4;
+
 	private const int HeaderHoney = 5;
+
 	private const int HeaderHeavenAndHell = 6;
+
 	private const int HeaderBackground = 7;
+
 	private const int Header2_ReadHeader3Bit = 1;
+
 	private const int Header2Color1 = 2;
+
 	private const int Header2Color2 = 4;
+
 	private const int Header2Color3 = 8;
+
 	private const int Header2Color4 = 16;
+
 	private const int Header2Color5 = 32;
+
 	private const int Header2ShimmerBit = 64;
+
 	private const int Header2_UnusedBit8 = 128;
+
 	private const int Header3_ReservedForHeader4Bit = 1;
+
 	private const int Header3_UnusudBit2 = 2;
+
 	private const int Header3_UnusudBit3 = 4;
+
 	private const int Header3_UnusudBit4 = 8;
+
 	private const int Header3_UnusudBit5 = 16;
+
 	private const int Header3_UnusudBit6 = 32;
+
 	private const int Header3_UnusudBit7 = 64;
+
 	private const int Header3_UnusudBit8 = 128;
-	private const int maxTileOptions = 12;
-	private const int maxWallOptions = 2;
+
+	public const int maxTileOptions = 13;
+
+	public const int maxWallOptions = 2;
+
 	private const int maxLiquidTypes = 4;
+
 	private const int maxSkyGradients = 256;
+
 	private const int maxDirtGradients = 256;
+
 	private const int maxRockGradients = 256;
-	public static int maxUpdateTile = 1000;
-	public static int numUpdateTile = 0;
-	public static short[] updateTileX = new short[maxUpdateTile];
-	public static short[] updateTileY = new short[maxUpdateTile];
+
 	private static object IOLock = new object();
+
 	public static int[] tileOptionCounts;
+
 	public static int[] wallOptionCounts;
+
 	public static ushort[] tileLookup;
+
 	public static ushort[] wallLookup;
+
 	private static ushort tilePosition;
+
 	private static ushort wallPosition;
+
 	private static ushort liquidPosition;
+
 	private static ushort skyPosition;
+
 	private static ushort dirtPosition;
+
 	private static ushort rockPosition;
+
 	private static ushort hellPosition;
+
 	private static Color[] colorLookup;
+
 	private static ushort[] snowTypes;
+
 	private static ushort wallRangeStart;
+
 	private static ushort wallRangeEnd;
+
+	public static Rectangle sceneArea;
+
+	public static float sceneSnowiness;
+
 	public static bool noStatusText = false;
+
+	public const int MapChunkSize = 64;
+
+	private static ZlibCodec zlibDecompress = new ZlibCodec(CompressionMode.Decompress);
 
 	public static void Initialize()
 	{
 		Color[][] array = new Color[TileID.Count][];
-		for (int i = 0; i < TileID.Count; i++) {
-			array[i] = new Color[12];
+		for (int i = 0; i < TileID.Count; i++)
+		{
+			array[i] = new Color[13];
 		}
-
 		array[656][0] = new Color(21, 124, 212);
+		array[701][0] = array[656][0];
 		array[624][0] = new Color(210, 91, 77);
+		array[700][0] = array[624][0];
 		array[621][0] = new Color(250, 250, 250);
 		array[622][0] = new Color(235, 235, 249);
 		array[518][0] = new Color(26, 196, 84);
@@ -199,6 +267,12 @@ public static class MapHelper
 		array[130][0] = color;
 		array[138][0] = color;
 		array[664][0] = color;
+		array[711][0] = color;
+		array[712][0] = color;
+		array[713][0] = color;
+		array[714][0] = color;
+		array[715][0] = color;
+		array[716][0] = color;
 		array[273][0] = color;
 		array[283][0] = color;
 		array[618][0] = color;
@@ -270,6 +344,7 @@ public static class MapHelper
 		array[120][0] = color;
 		array[60][0] = new Color(143, 215, 29);
 		array[61][0] = new Color(135, 196, 26);
+		array[703][0] = array[61][0];
 		array[74][0] = new Color(96, 197, 27);
 		array[62][0] = new Color(121, 176, 24);
 		array[233][0] = new Color(107, 182, 29);
@@ -384,18 +459,18 @@ public static class MapHelper
 		array[537][0] = new Color(0, 197, 208);
 		array[540][0] = new Color(208, 0, 126);
 		array[626][0] = new Color(220, 12, 237);
-		for (int j = 0; j < array[628].Length; j++) {
+		for (int j = 0; j < array[628].Length; j++)
+		{
 			array[628][j] = array[627][j];
 		}
-
-		for (int k = 0; k < array[692].Length; k++) {
+		for (int k = 0; k < array[692].Length; k++)
+		{
 			array[692][k] = array[627][k];
 		}
-
-		for (int l = 0; l < array[160].Length; l++) {
+		for (int l = 0; l < array[160].Length; l++)
+		{
 			array[160][l] = array[627][l];
 		}
-
 		array[184][0] = new Color(29, 106, 88);
 		array[184][1] = new Color(94, 100, 36);
 		array[184][2] = new Color(96, 44, 40);
@@ -438,6 +513,7 @@ public static class MapHelper
 		array[234][0] = new Color(53, 44, 41);
 		array[235][0] = new Color(214, 184, 46);
 		array[236][0] = new Color(149, 232, 87);
+		array[702][0] = array[236][0];
 		array[237][0] = new Color(255, 241, 51);
 		array[238][0] = new Color(225, 128, 206);
 		array[655][0] = new Color(225, 128, 206);
@@ -497,6 +573,7 @@ public static class MapHelper
 		array[643][0] = color;
 		array[644][0] = color;
 		array[645][0] = color;
+		array[710][0] = color;
 		array[358][0] = color;
 		array[359][0] = color;
 		array[360][0] = color;
@@ -592,6 +669,7 @@ public static class MapHelper
 		array[469][0] = color;
 		array[486][0] = color;
 		array[488][0] = new Color(127, 92, 69);
+		array[704][0] = array[488][0];
 		array[487][0] = color;
 		array[487][1] = color;
 		array[15][0] = color;
@@ -669,6 +747,8 @@ public static class MapHelper
 		array[16][0] = new Color(140, 130, 116);
 		array[26][0] = new Color(119, 101, 125);
 		array[26][1] = new Color(214, 127, 133);
+		array[695][0] = array[26][0];
+		array[695][1] = array[26][1];
 		array[36][0] = new Color(230, 89, 92);
 		array[28][0] = new Color(151, 79, 80);
 		array[28][1] = new Color(90, 139, 140);
@@ -679,17 +759,22 @@ public static class MapHelper
 		array[28][6] = new Color(138, 172, 67);
 		array[28][7] = new Color(226, 122, 47);
 		array[28][8] = new Color(198, 87, 93);
-		for (int m = 0; m < array[653].Length; m++) {
+		for (int m = 0; m < array[653].Length; m++)
+		{
 			array[653][m] = array[28][m];
 		}
-
 		array[29][0] = new Color(175, 105, 128);
 		array[51][0] = new Color(192, 202, 203);
+		array[697][0] = array[51][0];
+		array[698][0] = new Color(200, 200, 200);
 		array[31][0] = new Color(141, 120, 168);
 		array[31][1] = new Color(212, 105, 105);
+		array[696][0] = array[31][0];
+		array[696][1] = array[31][1];
 		array[32][0] = new Color(151, 135, 183);
 		array[42][0] = new Color(251, 235, 127);
 		array[50][0] = new Color(170, 48, 114);
+		array[707][0] = array[50][0];
 		array[85][0] = new Color(192, 192, 192);
 		array[69][0] = new Color(190, 150, 92);
 		array[77][0] = new Color(238, 85, 70);
@@ -810,6 +895,11 @@ public static class MapHelper
 		array[165][1] = new Color(100, 100, 100);
 		array[165][2] = new Color(152, 152, 152);
 		array[165][3] = new Color(227, 125, 22);
+		for (int n = 0; n < array[693].Length; n++)
+		{
+			array[693][n] = array[165][n];
+			array[694][n] = array[165][n];
+		}
 		array[178][0] = new Color(208, 94, 201);
 		array[178][1] = new Color(233, 146, 69);
 		array[178][2] = new Color(71, 146, 251);
@@ -864,26 +954,31 @@ public static class MapHelper
 		array[185][10] = color;
 		array[186][10] = color;
 		array[187][10] = color;
+		color = array[53][0];
+		array[185][11] = color;
+		array[186][11] = color;
+		array[187][11] = color;
 		Color[] array2 = array[647];
-		for (int n = 0; n < array2.Length; n++) {
-			array2[n] = array[186][n];
+		for (int num = 0; num < array2.Length; num++)
+		{
+			array2[num] = array[186][num];
 		}
-
 		array2 = array[648];
-		for (int num = 0; num < array2.Length; num++) {
-			array2[num] = array[187][num];
+		for (int num2 = 0; num2 < array2.Length; num2++)
+		{
+			array2[num2] = array[187][num2];
 		}
-
+		array[706][0] = array[648][4];
 		array2 = array[650];
-		for (int num2 = 0; num2 < array2.Length; num2++) {
-			array2[num2] = array[185][num2];
-		}
-
-		array2 = array[649];
-		for (int num3 = 0; num3 < array2.Length; num3++) {
+		for (int num3 = 0; num3 < array2.Length; num3++)
+		{
 			array2[num3] = array[185][num3];
 		}
-
+		array2 = array[649];
+		for (int num4 = 0; num4 < array2.Length; num4++)
+		{
+			array2[num4] = array[185][num4];
+		}
 		array[227][0] = new Color(74, 197, 155);
 		array[227][1] = new Color(54, 153, 88);
 		array[227][2] = new Color(63, 126, 207);
@@ -933,6 +1028,7 @@ public static class MapHelper
 		array[352][0] = new Color(238, 97, 94);
 		array[354][0] = new Color(141, 107, 89);
 		array[355][0] = new Color(141, 107, 89);
+		array[699][0] = new Color(141, 107, 89);
 		array[463][0] = new Color(155, 214, 240);
 		array[491][0] = new Color(60, 20, 160);
 		array[464][0] = new Color(233, 183, 128);
@@ -989,6 +1085,12 @@ public static class MapHelper
 		array[432][0] = new Color(242, 221, 100);
 		array[433][0] = new Color(224, 100, 242);
 		array[434][0] = new Color(197, 193, 216);
+		array[727][0] = new Color(119, 22, 52);
+		array[728][0] = new Color(23, 119, 79);
+		array[729][0] = new Color(23, 54, 119);
+		array[730][0] = new Color(119, 68, 23);
+		array[731][0] = new Color(74, 23, 119);
+		array[732][0] = new Color(78, 82, 109);
 		array[427][0] = new Color(183, 53, 62);
 		array[435][0] = new Color(54, 183, 111);
 		array[436][0] = new Color(54, 109, 183);
@@ -1025,6 +1127,12 @@ public static class MapHelper
 		array[657][0] = new Color(35, 205, 215);
 		array[658][0] = new Color(200, 105, 230);
 		array[412][0] = new Color(75, 139, 166);
+		array[720][0] = new Color(164, 175, 175);
+		array[721][0] = new Color(77, 176, 144);
+		array[725][0] = new Color(229, 65, 65);
+		array[733][0] = new Color(115, 69, 27);
+		array[751][0] = Color.Gray;
+		array[752][0] = Color.Gray;
 		array[443][0] = new Color(144, 148, 144);
 		array[442][0] = new Color(3, 144, 201);
 		array[444][0] = new Color(191, 176, 124);
@@ -1049,6 +1157,9 @@ public static class MapHelper
 		array[458][0] = new Color(211, 198, 111);
 		array[459][0] = new Color(190, 223, 232);
 		array[460][0] = new Color(141, 163, 181);
+		array[717][0] = new Color(126, 102, 118);
+		array[718][0] = new Color(245, 215, 196);
+		array[719][0] = new Color(223, 255, 255);
 		array[462][0] = new Color(231, 178, 28);
 		array[467][0] = new Color(129, 56, 121);
 		array[467][1] = new Color(255, 249, 59);
@@ -1062,11 +1173,13 @@ public static class MapHelper
 		array[467][9] = new Color(190, 200, 200);
 		array[467][10] = new Color(230, 170, 100);
 		array[467][11] = new Color(165, 168, 26);
-		for (int num4 = 0; num4 < 12; num4++) {
-			array[468][num4] = array[467][num4];
+		array[467][12] = array[21][0];
+		for (int num5 = 0; num5 < 13; num5++)
+		{
+			array[468][num5] = array[467][num5];
 		}
-
 		array[472][0] = new Color(190, 160, 140);
+		array[726][0] = new Color(30, 30, 36);
 		array[473][0] = new Color(85, 114, 123);
 		array[474][0] = new Color(116, 94, 97);
 		array[478][0] = new Color(108, 34, 35);
@@ -1098,6 +1211,10 @@ public static class MapHelper
 		array[530][1] = new Color(23, 154, 209);
 		array[530][2] = new Color(238, 97, 94);
 		array[530][3] = new Color(113, 108, 205);
+		array[705][0] = array[530][0];
+		array[705][1] = array[530][1];
+		array[705][2] = array[530][2];
+		array[705][3] = array[530][3];
 		array[546][0] = new Color(60, 60, 60);
 		array[557][0] = new Color(60, 60, 60);
 		array[547][0] = new Color(120, 110, 100);
@@ -1117,6 +1234,8 @@ public static class MapHelper
 		array[597][6] = new Color(142, 227, 234);
 		array[597][7] = new Color(98, 111, 223);
 		array[597][8] = new Color(241, 233, 158);
+		array[597][9] = new Color(238, 85, 70);
+		array[597][10] = new Color(247, 228, 254);
 		array[617][0] = new Color(233, 207, 94);
 		Color color3 = new Color(250, 100, 50);
 		array[548][1] = color3;
@@ -1127,18 +1246,40 @@ public static class MapHelper
 		array[662][0] = new Color(208, 80, 80);
 		array[666][0] = new Color(115, 60, 40);
 		array[667][0] = new Color(247, 228, 254);
-		Color[] array3 = new Color[4] {
+		array[708][0] = new Color(237, 218, 244);
+		array[709][0] = new Color(247, 228, 254);
+		array[722][0] = new Color(185, 190, 20);
+		array[723][0] = new Color(185, 190, 20);
+		array[724][0] = new Color(185, 190, 20);
+		array[734][0] = new Color(160, 115, 80);
+		array[735][0] = new Color(235, 200, 20);
+		array[736][0] = new Color(240, 130, 160);
+		array[737][0] = new Color(65, 75, 65);
+		array[738][0] = new Color(210, 170, 215);
+		array[739][0] = new Color(90, 125, 235);
+		array[740][0] = Color.LightGray;
+		array[741][0] = new Color(160, 90, 50);
+		array[742][0] = new Color(26, 141, 204);
+		array[743][0] = new Color(227, 227, 227);
+		array[744][0] = new Color(106, 103, 96);
+		array[745][0] = new Color(120, 114, 108);
+		array[746][0] = new Color(122, 78, 21);
+		array[747][0] = new Color(231, 178, 28);
+		array[748][0] = new Color(2, 114, 206);
+		array[749][0] = array[138][0] * 0.95f;
+		array[750][0] = array[48][0] * 0.95f;
+		Color[] array3 = new Color[4]
+		{
 			new Color(9, 61, 191),
 			new Color(253, 32, 3),
 			new Color(254, 194, 20),
 			new Color(161, 127, 255)
 		};
-
 		Color[][] array4 = new Color[WallID.Count][];
-		for (int num5 = 0; num5 < WallID.Count; num5++) {
-			array4[num5] = new Color[2];
+		for (int num6 = 0; num6 < WallID.Count; num6++)
+		{
+			array4[num6] = new Color[2];
 		}
-
 		array4[158][0] = new Color(107, 49, 154);
 		array4[163][0] = new Color(154, 148, 49);
 		array4[162][0] = new Color(49, 49, 154);
@@ -1179,6 +1320,8 @@ public static class MapHelper
 		array4[44][0] = color;
 		array4[346][0] = color;
 		array4[5][0] = color;
+		array4[349][0] = color;
+		array4[350][0] = new Color(0, 255, 0);
 		color = new Color(88, 61, 46);
 		array4[2][0] = color;
 		array4[16][0] = color;
@@ -1490,120 +1633,145 @@ public static class MapHelper
 		array4[320][0] = new Color(75, 30, 15);
 		array4[321][0] = new Color(91, 108, 130);
 		array4[322][0] = new Color(91, 108, 130);
+		array4[347][0] = new Color(100, 65, 130);
+		array4[348][0] = new Color(120, 75, 75);
+		float num7 = 0.5f;
+		array4[351][0] = array[734][0] * num7;
+		array4[352][0] = array[735][0] * num7;
+		array4[353][0] = array[170][0] * num7;
+		array4[354][0] = array[736][0] * num7;
+		array4[355][0] = array[737][0] * num7;
+		array4[356][0] = array[738][0] * num7;
+		array4[357][0] = array[739][0] * num7;
+		array4[358][0] = array[741][0] * num7;
+		array4[359][0] = array[742][0] * num7;
+		array4[360][0] = new Color(73, 93, 116);
+		array4[361][0] = array[744][0] * num7;
+		array4[362][0] = array[745][0] * num7;
+		array4[363][0] = array[746][0] * num7;
+		array4[364][0] = array[747][0] * num7;
+		array4[365][0] = array[748][0] * num7;
+		array4[366][0] = array[749][0] * num7;
 		Color[] array5 = new Color[256];
 		Color color5 = new Color(50, 40, 255);
 		Color color6 = new Color(145, 185, 255);
-		for (int num6 = 0; num6 < array5.Length; num6++) {
-			float num7 = (float)num6 / (float)array5.Length;
-			float num8 = 1f - num7;
-			array5[num6] = new Color((byte)((float)(int)color5.R * num8 + (float)(int)color6.R * num7), (byte)((float)(int)color5.G * num8 + (float)(int)color6.G * num7), (byte)((float)(int)color5.B * num8 + (float)(int)color6.B * num7));
+		for (int num8 = 0; num8 < array5.Length; num8++)
+		{
+			float num9 = (float)num8 / (float)array5.Length;
+			float num10 = 1f - num9;
+			array5[num8] = new Color((byte)((float)(int)color5.R * num10 + (float)(int)color6.R * num9), (byte)((float)(int)color5.G * num10 + (float)(int)color6.G * num9), (byte)((float)(int)color5.B * num10 + (float)(int)color6.B * num9));
 		}
-
 		Color[] array6 = new Color[256];
 		Color color7 = new Color(88, 61, 46);
 		Color color8 = new Color(37, 78, 123);
-		for (int num9 = 0; num9 < array6.Length; num9++) {
-			float num10 = (float)num9 / 255f;
-			float num11 = 1f - num10;
-			array6[num9] = new Color((byte)((float)(int)color7.R * num11 + (float)(int)color8.R * num10), (byte)((float)(int)color7.G * num11 + (float)(int)color8.G * num10), (byte)((float)(int)color7.B * num11 + (float)(int)color8.B * num10));
+		for (int num11 = 0; num11 < array6.Length; num11++)
+		{
+			float num12 = (float)num11 / 255f;
+			float num13 = 1f - num12;
+			array6[num11] = new Color((byte)((float)(int)color7.R * num13 + (float)(int)color8.R * num12), (byte)((float)(int)color7.G * num13 + (float)(int)color8.G * num12), (byte)((float)(int)color7.B * num13 + (float)(int)color8.B * num12));
 		}
-
 		Color[] array7 = new Color[256];
 		Color color9 = new Color(74, 67, 60);
 		color8 = new Color(53, 70, 97);
-		for (int num12 = 0; num12 < array7.Length; num12++) {
-			float num13 = (float)num12 / 255f;
-			float num14 = 1f - num13;
-			array7[num12] = new Color((byte)((float)(int)color9.R * num14 + (float)(int)color8.R * num13), (byte)((float)(int)color9.G * num14 + (float)(int)color8.G * num13), (byte)((float)(int)color9.B * num14 + (float)(int)color8.B * num13));
+		for (int num14 = 0; num14 < array7.Length; num14++)
+		{
+			float num15 = (float)num14 / 255f;
+			float num16 = 1f - num15;
+			array7[num14] = new Color((byte)((float)(int)color9.R * num16 + (float)(int)color8.R * num15), (byte)((float)(int)color9.G * num16 + (float)(int)color8.G * num15), (byte)((float)(int)color9.B * num16 + (float)(int)color8.B * num15));
 		}
-
 		Color color10 = new Color(50, 44, 38);
-		int num15 = 0;
+		int num17 = 0;
 		tileOptionCounts = new int[TileID.Count];
-		for (int num16 = 0; num16 < TileID.Count; num16++) {
-			Color[] array8 = array[num16];
-			int num17;
-			for (num17 = 0; num17 < 12 && !(array8[num17] == Color.Transparent); num17++) {
-			}
-
-			tileOptionCounts[num16] = num17;
-			num15 += num17;
-		}
-
-		wallOptionCounts = new int[WallID.Count];
-		for (int num18 = 0; num18 < WallID.Count; num18++) {
-			Color[] array9 = array4[num18];
+		for (int num18 = 0; num18 < TileID.Count; num18++)
+		{
+			Color[] array8 = array[num18];
 			int num19;
-			for (num19 = 0; num19 < 2 && !(array9[num19] == Color.Transparent); num19++) {
+			for (num19 = 0; num19 < 13 && !(array8[num19] == Color.Transparent); num19++)
+			{
 			}
-
-			wallOptionCounts[num18] = num19;
-			num15 += num19;
+			tileOptionCounts[num18] = num19;
+			num17 += num19;
 		}
-
-		num15 += 774;
-		colorLookup = new Color[num15];
+		wallOptionCounts = new int[WallID.Count];
+		for (int num20 = 0; num20 < WallID.Count; num20++)
+		{
+			Color[] array9 = array4[num20];
+			int num21;
+			for (num21 = 0; num21 < 2 && !(array9[num21] == Color.Transparent); num21++)
+			{
+			}
+			wallOptionCounts[num20] = num21;
+			num17 += num21;
+		}
+		num17 += 774;
+		colorLookup = new Color[num17];
 		colorLookup[0] = Color.Transparent;
-		ushort num20 = (tilePosition = 1);
+		ushort num22 = (tilePosition = 1);
 		tileLookup = new ushort[TileID.Count];
-		for (int num21 = 0; num21 < TileID.Count; num21++) {
-			if (tileOptionCounts[num21] > 0) {
-				_ = array[num21];
-				tileLookup[num21] = num20;
-				for (int num22 = 0; num22 < tileOptionCounts[num21]; num22++) {
-					colorLookup[num20] = array[num21][num22];
-					num20 = (ushort)(num20 + 1);
+		for (int num23 = 0; num23 < TileID.Count; num23++)
+		{
+			if (tileOptionCounts[num23] > 0)
+			{
+				_ = array[num23];
+				tileLookup[num23] = num22;
+				for (int num24 = 0; num24 < tileOptionCounts[num23]; num24++)
+				{
+					colorLookup[num22] = array[num23][num24];
+					num22++;
 				}
 			}
-			else {
-				tileLookup[num21] = 0;
+			else
+			{
+				tileLookup[num23] = 0;
 			}
 		}
-
-		wallPosition = num20;
+		wallPosition = num22;
 		wallLookup = new ushort[WallID.Count];
-		wallRangeStart = num20;
-		for (int num23 = 0; num23 < WallID.Count; num23++) {
-			if (wallOptionCounts[num23] > 0) {
-				_ = array4[num23];
-				wallLookup[num23] = num20;
-				for (int num24 = 0; num24 < wallOptionCounts[num23]; num24++) {
-					colorLookup[num20] = array4[num23][num24];
-					num20 = (ushort)(num20 + 1);
+		wallRangeStart = num22;
+		for (int num25 = 0; num25 < WallID.Count; num25++)
+		{
+			if (wallOptionCounts[num25] > 0)
+			{
+				_ = array4[num25];
+				wallLookup[num25] = num22;
+				for (int num26 = 0; num26 < wallOptionCounts[num25]; num26++)
+				{
+					colorLookup[num22] = array4[num25][num26];
+					num22++;
 				}
 			}
-			else {
-				wallLookup[num23] = 0;
+			else
+			{
+				wallLookup[num25] = 0;
 			}
 		}
-
-		wallRangeEnd = num20;
-		liquidPosition = num20;
-		for (int num25 = 0; num25 < 4; num25++) {
-			colorLookup[num20] = array3[num25];
-			num20 = (ushort)(num20 + 1);
+		wallRangeEnd = num22;
+		liquidPosition = num22;
+		for (int num27 = 0; num27 < 4; num27++)
+		{
+			colorLookup[num22] = array3[num27];
+			num22++;
 		}
-
-		skyPosition = num20;
-		for (int num26 = 0; num26 < 256; num26++) {
-			colorLookup[num20] = array5[num26];
-			num20 = (ushort)(num20 + 1);
+		skyPosition = num22;
+		for (int num28 = 0; num28 < 256; num28++)
+		{
+			colorLookup[num22] = array5[num28];
+			num22++;
 		}
-
-		dirtPosition = num20;
-		for (int num27 = 0; num27 < 256; num27++) {
-			colorLookup[num20] = array6[num27];
-			num20 = (ushort)(num20 + 1);
+		dirtPosition = num22;
+		for (int num29 = 0; num29 < 256; num29++)
+		{
+			colorLookup[num22] = array6[num29];
+			num22++;
 		}
-
-		rockPosition = num20;
-		for (int num28 = 0; num28 < 256; num28++) {
-			colorLookup[num20] = array7[num28];
-			num20 = (ushort)(num20 + 1);
+		rockPosition = num22;
+		for (int num30 = 0; num30 < 256; num30++)
+		{
+			colorLookup[num22] = array7[num30];
+			num22++;
 		}
-
-		hellPosition = num20;
-		colorLookup[num20] = color10;
+		hellPosition = num22;
+		colorLookup[num22] = color10;
 		snowTypes = new ushort[6];
 		snowTypes[0] = tileLookup[147];
 		snowTypes[1] = tileLookup[161];
@@ -1614,14 +1782,26 @@ public static class MapHelper
 		Lang.BuildMapAtlas();
 	}
 
-	public static void ResetMapData()
+	public static bool HasOption(int tileType, int option)
 	{
-		numUpdateTile = 0;
+		return option < tileOptionCounts[tileType];
 	}
 
-	public static bool HasOption(int tileType, int option) => option < tileOptionCounts[tileType];
-	public static int TileToLookup(int tileType, int option) => tileLookup[tileType] + option;
-	public static int LookupCount() => colorLookup.Length;
+	public static int TileToLookup(int tileType, int option)
+	{
+		return tileLookup[tileType] + option;
+	}
+
+	public static int LookupCount()
+	{
+		return colorLookup.Length;
+	}
+
+	public static void CaptureSceneState(SceneMetrics metrics)
+	{
+		sceneArea = Utils.CenteredRectangle(metrics.TileCenter, SceneMetrics.ZoneScanSize);
+		sceneSnowiness = (float)metrics.SnowTileCount / (float)SceneMetrics.SnowTileMax;
+	}
 
 	private static void MapColor(ushort type, ref Color oldColor, byte colorType)
 	{
@@ -1629,58 +1809,65 @@ public static class MapHelper
 		float num = (float)(int)oldColor.R / 255f;
 		float num2 = (float)(int)oldColor.G / 255f;
 		float num3 = (float)(int)oldColor.B / 255f;
-		if (num2 > num) {
+		if (num2 > num)
+		{
 			float num4 = num;
 			num = num2;
 			num2 = num4;
 		}
-
-		if (num3 > num) {
+		if (num3 > num)
+		{
 			float num5 = num;
 			num = num3;
 			num3 = num5;
 		}
-
-		switch (colorType) {
-			case 29: {
-				float num7 = num3 * 0.3f;
-				oldColor.R = (byte)((float)(int)color.R * num7);
-				oldColor.G = (byte)((float)(int)color.G * num7);
-				oldColor.B = (byte)((float)(int)color.B * num7);
-				break;
+		switch (colorType)
+		{
+		case 29:
+		{
+			float num7 = num3 * 0.3f;
+			oldColor.R = (byte)((float)(int)color.R * num7);
+			oldColor.G = (byte)((float)(int)color.G * num7);
+			oldColor.B = (byte)((float)(int)color.B * num7);
+			break;
+		}
+		case 30:
+			if (type >= wallRangeStart && type <= wallRangeEnd)
+			{
+				oldColor.R = (byte)((float)(255 - oldColor.R) * 0.5f);
+				oldColor.G = (byte)((float)(255 - oldColor.G) * 0.5f);
+				oldColor.B = (byte)((float)(255 - oldColor.B) * 0.5f);
 			}
-			case 30:
-				if (type >= wallRangeStart && type <= wallRangeEnd) {
-					oldColor.R = (byte)((float)(255 - oldColor.R) * 0.5f);
-					oldColor.G = (byte)((float)(255 - oldColor.G) * 0.5f);
-					oldColor.B = (byte)((float)(255 - oldColor.B) * 0.5f);
-				}
-				else {
-					oldColor.R = (byte)(255 - oldColor.R);
-					oldColor.G = (byte)(255 - oldColor.G);
-					oldColor.B = (byte)(255 - oldColor.B);
-				}
-				break;
-			default: {
-				float num6 = num;
-				oldColor.R = (byte)((float)(int)color.R * num6);
-				oldColor.G = (byte)((float)(int)color.G * num6);
-				oldColor.B = (byte)((float)(int)color.B * num6);
-				break;
+			else
+			{
+				oldColor.R = (byte)(255 - oldColor.R);
+				oldColor.G = (byte)(255 - oldColor.G);
+				oldColor.B = (byte)(255 - oldColor.B);
 			}
+			break;
+		default:
+		{
+			float num6 = num;
+			oldColor.R = (byte)((float)(int)color.R * num6);
+			oldColor.G = (byte)((float)(int)color.G * num6);
+			oldColor.B = (byte)((float)(int)color.B * num6);
+			break;
+		}
 		}
 	}
 
-	public static Color GetMapTileXnaColor(ref MapTile tile)
+	public static Color GetMapTileXnaColor(MapTile tile)
 	{
 		Color oldColor = colorLookup[tile.Type];
 		byte color = tile.Color;
 		if (color > 0)
+		{
 			MapColor(tile.Type, ref oldColor, color);
-
+		}
 		if (tile.Light == byte.MaxValue)
+		{
 			return oldColor;
-
+		}
 		float num = (float)(int)tile.Light / 255f;
 		oldColor.R = (byte)((float)(int)oldColor.R * num);
 		oldColor.G = (byte)((float)(int)oldColor.G * num);
@@ -1688,119 +1875,166 @@ public static class MapHelper
 		return oldColor;
 	}
 
-	public static MapTile CreateMapTile(int i, int j, byte Light)
+	public static bool IsBackground(int mapType)
+	{
+		return mapType >= skyPosition;
+	}
+
+	public static MapTile CreateMapTile(int i, int j, byte Light, int backgroundOverride = 0)
 	{
 		Tile tile = Main.tile[i, j];
 		if (tile == null)
+		{
 			return default(MapTile);
-
-		int num = 0;
-		int num2 = Light;
-		_ = Main.Map[i, j];
-		int num3 = 0;
+		}
+		int newColor = 0;
+		int newLight = Light;
+		int baseType = 0;
 		int baseOption = 0;
-		if (tile.active()) {
-			int num4 = tile.type;
-			num3 = tileLookup[num4];
-			bool flag = tile.invisibleBlock();
-			if (tile.fullbrightBlock() && !flag)
-				num2 = 255;
+		GetTileType(i, j, tile, ref newColor, ref newLight, ref baseType, ref baseOption);
+		if (baseType == 0)
+		{
+			GetWallType(i, j, tile, ref newColor, ref newLight, ref baseType, ref baseOption);
+		}
+		if (baseType == 0)
+		{
+			newColor = 0;
+			newLight = Light;
+			baseType = ((backgroundOverride == 0) ? GetBackgroundType(i, j, ref newLight) : backgroundOverride);
+		}
+		return MapTile.Create((ushort)(baseType + baseOption), (byte)newLight, (byte)newColor);
+	}
 
-			if (flag) {
-				num3 = 0;
+	private static void GetTileType(int i, int j, Tile tileCache, ref int newColor, ref int newLight, ref int baseType, ref int baseOption)
+	{
+		if ((DebugOptions.ShowUnbreakableWall && tileCache.wall == 350) || !tileCache.active())
+		{
+			return;
+		}
+		int num = tileCache.type;
+		baseType = tileLookup[num];
+		bool flag = tileCache.invisibleBlock();
+		if (tileCache.fullbrightBlock() && !flag)
+		{
+			newLight = 255;
+		}
+		if (flag)
+		{
+			baseType = 0;
+			return;
+		}
+		switch (num)
+		{
+		case 5:
+			if (WorldGen.IsThisAMushroomTree(i, j))
+			{
+				baseOption = 1;
 			}
-			else if (num4 == 5) {
-				if (WorldGen.IsThisAMushroomTree(i, j))
-					baseOption = 1;
-
-				num = tile.color();
+			newColor = tileCache.color();
+			return;
+		case 51:
+		case 697:
+			if ((i + j) % 2 == 0)
+			{
+				baseType = 0;
 			}
-			else {
-				switch (num4) {
-					case 51:
-						if ((i + j) % 2 == 0)
-							num3 = 0;
-						break;
-					case 19:
-						if (tile.frameY == 864)
-							num3 = 0;
-						break;
-					case 184:
-						if (tile.frameX / 22 == 10) {
-							num4 = 627;
-							num3 = tileLookup[num4];
-						}
-						break;
-				}
-
-				if (num3 != 0) {
-					GetTileBaseOption(i, j, num4, tile, ref baseOption);
-					num = ((num4 != 160) ? tile.color() : 0);
-				}
+			break;
+		case 19:
+			if (tileCache.frameY == 864)
+			{
+				baseType = 0;
+			}
+			break;
+		case 184:
+			if (tileCache.frameX / 22 == 10)
+			{
+				num = 627;
+				baseType = tileLookup[num];
+			}
+			break;
+		}
+		if (baseType != 0)
+		{
+			GetTileBaseOption(i, j, num, tileCache, ref baseOption);
+			if (num == 160)
+			{
+				newColor = 0;
+			}
+			else
+			{
+				newColor = tileCache.color();
 			}
 		}
+	}
 
-		if (num3 == 0) {
-			bool flag2 = tile.invisibleWall();
-			if (tile.wall > 0 && tile.fullbrightWall() && !flag2)
-				num2 = 255;
-
-			if (tile.liquid > 32) {
-				int num5 = tile.liquidType();
-				num3 = liquidPosition + num5;
-			}
-			else if (!tile.invisibleWall() && tile.wall > 0 && tile.wall < WallID.Count) {
-				int wall = tile.wall;
-				num3 = wallLookup[wall];
-				num = tile.wallColor();
-				switch (wall) {
-					case 21:
-					case 88:
-					case 89:
-					case 90:
-					case 91:
-					case 92:
-					case 93:
-					case 168:
-					case 241:
-						num = 0;
-						break;
-					case 27:
-						baseOption = i % 2;
-						break;
-					default:
-						baseOption = 0;
-						break;
-				}
+	private static void GetWallType(int i, int j, Tile tileCache, ref int newColor, ref int newLight, ref int baseType, ref int baseOption)
+	{
+		bool flag = tileCache.invisibleWall();
+		if (tileCache.wall > 0 && tileCache.fullbrightWall() && !flag)
+		{
+			newLight = 255;
+		}
+		if (tileCache.liquid > 32)
+		{
+			int num = tileCache.liquidType();
+			baseType = liquidPosition + num;
+		}
+		else if (!tileCache.invisibleWall() && tileCache.wall > 0 && tileCache.wall < WallID.Count)
+		{
+			int wall = tileCache.wall;
+			baseType = wallLookup[wall];
+			newColor = tileCache.wallColor();
+			switch (wall)
+			{
+			case 21:
+			case 88:
+			case 89:
+			case 90:
+			case 91:
+			case 92:
+			case 93:
+			case 168:
+			case 241:
+				newColor = 0;
+				break;
+			case 27:
+				baseOption = i % 2;
+				break;
+			default:
+				baseOption = 0;
+				break;
 			}
 		}
+	}
 
-		if (num3 == 0) {
-			if ((double)j < Main.worldSurface) {
-				if (Main.remixWorld) {
-					num2 = 5;
-					num3 = 100;
-				}
-				else {
-					int num6 = (byte)(255.0 * ((double)j / Main.worldSurface));
-					num3 = skyPosition + num6;
-					num2 = 255;
-					num = 0;
-				}
+	private static int GetBackgroundType(int i, int j, ref int newLight)
+	{
+		if ((double)j < Main.worldSurface)
+		{
+			if (Main.remixWorld)
+			{
+				newLight = 5;
+				return 100;
 			}
-			else if (j < Main.UnderworldLayer) {
-				num = 0;
-				byte b = 0;
-				float num7 = Main.screenPosition.X / 16f - 5f;
-				float num8 = (Main.screenPosition.X + (float)Main.screenWidth) / 16f + 5f;
-				float num9 = Main.screenPosition.Y / 16f - 5f;
-				float num10 = (Main.screenPosition.Y + (float)Main.screenHeight) / 16f + 5f;
-				if (((float)i < num7 || (float)i > num8 || (float)j < num9 || (float)j > num10) && i > 40 && i < Main.maxTilesX - 40 && j > 40 && j < Main.maxTilesY - 40) {
-					for (int k = i - 36; k <= i + 30; k += 10) {
-						for (int l = j - 36; l <= j + 30; l += 10) {
+			newLight = 255;
+			return CalcSkyGradient(skyPosition, 256, j);
+		}
+		if (j < Main.UnderworldLayer)
+		{
+			byte b = 0;
+			if (!WorldGen.generatingWorld)
+			{
+				if (!sceneArea.Contains(i, j))
+				{
+					for (int k = i - 36; k <= i + 30; k += 10)
+					{
+						for (int l = j - 36; l <= j + 30; l += 10)
+						{
 							int type = Main.Map[k, l].Type;
-							for (int m = 0; m < snowTypes.Length; m++) {
-								if (snowTypes[m] == type) {
+							for (int m = 0; m < snowTypes.Length; m++)
+							{
+								if (snowTypes[m] == type)
+								{
 									b = byte.MaxValue;
 									k = i + 31;
 									l = j + 31;
@@ -1810,694 +2044,980 @@ public static class MapHelper
 						}
 					}
 				}
-				else {
-					float num11 = (float)Main.SceneMetrics.SnowTileCount / (float)SceneMetrics.SnowTileMax;
-					num11 *= 255f;
-					if (num11 > 255f)
-						num11 = 255f;
-
-					b = (byte)num11;
+				else
+				{
+					b = (byte)(Utils.Clamp(sceneSnowiness, 0f, 1f) * 255f);
 				}
-
-				num3 = ((!((double)j < Main.rockLayer)) ? (rockPosition + b) : (dirtPosition + b));
 			}
-			else {
-				num3 = hellPosition;
+			if ((double)j < Main.rockLayer)
+			{
+				return dirtPosition + b;
 			}
+			return rockPosition + b;
 		}
+		return hellPosition;
+	}
 
-		return MapTile.Create((ushort)(num3 + baseOption), (byte)num2, (byte)num);
+	public static int CalcSkyGradient(ushort skyPosition, int maxSkyGradients, int j)
+	{
+		int num = (byte)((double)(maxSkyGradients - 1) * ((double)j / Main.worldSurface));
+		return skyPosition + num;
 	}
 
 	public static void GetTileBaseOption(int x, int y, int tileType, Tile tileCache, ref int baseOption)
 	{
-		switch (tileType) {
-			case 89:
-				switch (tileCache.frameX / 54) {
-					case 0:
-					case 21:
-					case 23:
-						baseOption = 0;
-						break;
-					case 43:
-						baseOption = 2;
-						break;
-					default:
-						baseOption = 1;
-						break;
-				}
-				break;
-			case 160:
-			case 627:
-			case 628:
-			case 692:
-				baseOption = (x + y) % 9;
-				break;
-			case 461:
-				if (Main.player[Main.myPlayer].ZoneCorrupt)
-					baseOption = 1;
-				else if (Main.player[Main.myPlayer].ZoneCrimson)
-					baseOption = 2;
-				else if (Main.player[Main.myPlayer].ZoneHallow)
-					baseOption = 3;
-				break;
-			case 80: {
-				WorldGen.GetCactusType(x, y, tileCache.frameX, tileCache.frameY, out var evil, out var good, out var crimson);
-				if (evil)
-					baseOption = 1;
-				else if (good)
-					baseOption = 2;
-				else if (crimson)
-					baseOption = 3;
-				else
-					baseOption = 0;
-
-				break;
-			}
-			case 529: {
-				int num2 = y + 1;
-				WorldGen.GetBiomeInfluence(x, x, num2, num2, out var corruptCount, out var crimsonCount, out var hallowedCount);
-				int num3 = corruptCount;
-				if (num3 < crimsonCount)
-					num3 = crimsonCount;
-
-				if (num3 < hallowedCount)
-					num3 = hallowedCount;
-
-				int num4 = 0;
-				num4 = ((corruptCount == 0 && crimsonCount == 0 && hallowedCount == 0) ? ((x < WorldGen.beachDistance || x > Main.maxTilesX - WorldGen.beachDistance) ? 1 : 0) : ((hallowedCount == num3) ? 2 : ((crimsonCount != num3) ? 4 : 3)));
-				baseOption = num4;
-				break;
-			}
-			case 530: {
-				int num8 = y - tileCache.frameY % 36 / 18 + 2;
-				int num9 = x - tileCache.frameX % 54 / 18;
-				WorldGen.GetBiomeInfluence(num9, num9 + 3, num8, num8, out var corruptCount2, out var crimsonCount2, out var hallowedCount2);
-				int num10 = corruptCount2;
-				if (num10 < crimsonCount2)
-					num10 = crimsonCount2;
-
-				if (num10 < hallowedCount2)
-					num10 = hallowedCount2;
-
-				int num11 = 0;
-				num11 = ((corruptCount2 != 0 || crimsonCount2 != 0 || hallowedCount2 != 0) ? ((hallowedCount2 == num10) ? 1 : ((crimsonCount2 != num10) ? 3 : 2)) : 0);
-				baseOption = num11;
-				break;
-			}
-			case 19: {
-				int num6 = tileCache.frameY / 18;
-				baseOption = 0;
-				if (num6 == 48)
-					baseOption = 1;
-
-				break;
-			}
-			case 15: {
-				int num13 = tileCache.frameY / 40;
-				baseOption = 0;
-				if (num13 == 1 || num13 == 20)
-					baseOption = 1;
-
-				break;
-			}
-			case 518:
-			case 519:
-				baseOption = tileCache.frameY / 18;
-				break;
-			case 4:
-				if (tileCache.frameX < 66)
-					baseOption = 1;
-				baseOption = 0;
-				break;
-			case 572:
-				baseOption = tileCache.frameY / 36;
-				break;
+		switch (tileType)
+		{
+		case 89:
+			switch (tileCache.frameX / 54)
+			{
+			case 0:
 			case 21:
-			case 441:
-				switch (tileCache.frameX / 36) {
-					case 1:
-					case 2:
-					case 10:
-					case 13:
-					case 15:
-						baseOption = 1;
-						break;
-					case 3:
-					case 4:
-						baseOption = 2;
-						break;
-					case 6:
-						baseOption = 3;
-						break;
-					case 11:
-					case 17:
-						baseOption = 4;
-						break;
-					default:
-						baseOption = 0;
-						break;
-				}
-				break;
-			case 467:
-			case 468: {
-				int num = tileCache.frameX / 36;
-				switch (num) {
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-						baseOption = num;
-						break;
-					case 12:
-					case 13:
-						baseOption = 10;
-						break;
-					case 14:
-						baseOption = 0;
-						break;
-					case 15:
-						baseOption = 10;
-						break;
-					case 16:
-						baseOption = 3;
-						break;
-					default:
-						baseOption = 0;
-						break;
-				}
-
-				break;
-			}
-			case 560: {
-				int num = tileCache.frameX / 36;
-				if ((uint)num <= 2u)
-					baseOption = num;
-				else
-					baseOption = 0;
-
-				break;
-			}
-			case 28:
-			case 653:
-				if (tileCache.frameY < 144)
-					baseOption = 0;
-				else if (tileCache.frameY < 252)
-					baseOption = 1;
-				else if (tileCache.frameY < 360 || (tileCache.frameY > 900 && tileCache.frameY < 1008))
-					baseOption = 2;
-				else if (tileCache.frameY < 468)
-					baseOption = 3;
-				else if (tileCache.frameY < 576)
-					baseOption = 4;
-				else if (tileCache.frameY < 684)
-					baseOption = 5;
-				else if (tileCache.frameY < 792)
-					baseOption = 6;
-				else if (tileCache.frameY < 898)
-					baseOption = 8;
-				else if (tileCache.frameY < 1006)
-					baseOption = 7;
-				else if (tileCache.frameY < 1114)
-					baseOption = 0;
-				else if (tileCache.frameY < 1222)
-					baseOption = 3;
-				else
-					baseOption = 7;
-				break;
-			case 27:
-				if (tileCache.frameY < 34)
-					baseOption = 1;
-				else
-					baseOption = 0;
-				break;
-			case 31:
-				if (tileCache.frameX >= 36)
-					baseOption = 1;
-				else
-					baseOption = 0;
-				break;
-			case 26:
-				if (tileCache.frameX >= 54)
-					baseOption = 1;
-				else
-					baseOption = 0;
-				break;
-			case 137:
-				switch (tileCache.frameY / 18) {
-					default:
-						baseOption = 0;
-						break;
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-						baseOption = 1;
-						break;
-					case 5:
-						baseOption = 2;
-						break;
-				}
-				break;
-			case 82:
-			case 83:
-			case 84:
-				if (tileCache.frameX < 18)
-					baseOption = 0;
-				else if (tileCache.frameX < 36)
-					baseOption = 1;
-				else if (tileCache.frameX < 54)
-					baseOption = 2;
-				else if (tileCache.frameX < 72)
-					baseOption = 3;
-				else if (tileCache.frameX < 90)
-					baseOption = 4;
-				else if (tileCache.frameX < 108)
-					baseOption = 5;
-				else
-					baseOption = 6;
-				break;
-			case 591:
-				baseOption = tileCache.frameX / 36;
-				break;
-			case 105:
-				if (tileCache.frameX >= 1548 && tileCache.frameX <= 1654)
-					baseOption = 1;
-				else if (tileCache.frameX >= 1656 && tileCache.frameX <= 1798)
-					baseOption = 2;
-				else
-					baseOption = 0;
-				break;
-			case 133:
-				if (tileCache.frameX < 52)
-					baseOption = 0;
-				else
-					baseOption = 1;
-				break;
-			case 134:
-				if (tileCache.frameX < 28)
-					baseOption = 0;
-				else
-					baseOption = 1;
-				break;
-			case 149:
-				baseOption = y % 3;
-				break;
-			case 165:
-				if (tileCache.frameX < 54)
-					baseOption = 0;
-				else if (tileCache.frameX < 106)
-					baseOption = 1;
-				else if (tileCache.frameX >= 216)
-					baseOption = 1;
-				else if (tileCache.frameX < 162)
-					baseOption = 2;
-				else
-					baseOption = 3;
-				break;
-			case 178:
-				if (tileCache.frameX < 18)
-					baseOption = 0;
-				else if (tileCache.frameX < 36)
-					baseOption = 1;
-				else if (tileCache.frameX < 54)
-					baseOption = 2;
-				else if (tileCache.frameX < 72)
-					baseOption = 3;
-				else if (tileCache.frameX < 90)
-					baseOption = 4;
-				else if (tileCache.frameX < 108)
-					baseOption = 5;
-				else
-					baseOption = 6;
-				break;
-			case 184:
-				if (tileCache.frameX < 22)
-					baseOption = 0;
-				else if (tileCache.frameX < 44)
-					baseOption = 1;
-				else if (tileCache.frameX < 66)
-					baseOption = 2;
-				else if (tileCache.frameX < 88)
-					baseOption = 3;
-				else if (tileCache.frameX < 110)
-					baseOption = 4;
-				else if (tileCache.frameX < 132)
-					baseOption = 5;
-				else if (tileCache.frameX < 154)
-					baseOption = 6;
-				else if (tileCache.frameX < 176)
-					baseOption = 7;
-				else if (tileCache.frameX < 198)
-					baseOption = 8;
-				else if (tileCache.frameX < 220)
-					baseOption = 9;
-				else if (tileCache.frameX < 242)
-					baseOption = 10;
-				break;
-			case 650: {
-				int num = tileCache.frameX / 36;
-				int num12 = tileCache.frameY / 18 - 1;
-				num += num12 * 18;
-				if (num < 6 || num == 19 || num == 20 || num == 21 || num == 22 || num == 23 || num == 24 || num == 33 || num == 38 || num == 39 || num == 40)
-					baseOption = 0;
-				else if (num < 16)
-					baseOption = 2;
-				else if (num < 19 || num == 31 || num == 32)
-					baseOption = 1;
-				else if (num < 31)
-					baseOption = 3;
-				else if (num < 38)
-					baseOption = 4;
-				else if (num < 59)
-					baseOption = 0;
-				else if (num < 62)
-					baseOption = 1;
-
-				break;
-			}
-			case 649: {
-				int num = tileCache.frameX / 18;
-				if (num < 6 || num == 28 || num == 29 || num == 30 || num == 31 || num == 32)
-					baseOption = 0;
-				else if (num < 12 || num == 33 || num == 34 || num == 35)
-					baseOption = 1;
-				else if (num < 28)
-					baseOption = 2;
-				else if (num < 48)
-					baseOption = 3;
-				else if (num < 54)
-					baseOption = 4;
-				else if (num < 72)
-					baseOption = 0;
-				else if (num == 72)
-					baseOption = 1;
-
-				break;
-			}
-			case 185: {
-				int num;
-				if (tileCache.frameY < 18) {
-					num = tileCache.frameX / 18;
-					if (num < 6 || num == 28 || num == 29 || num == 30 || num == 31 || num == 32)
-						baseOption = 0;
-					else if (num < 12 || num == 33 || num == 34 || num == 35)
-						baseOption = 1;
-					else if (num < 28)
-						baseOption = 2;
-					else if (num < 48)
-						baseOption = 3;
-					else if (num < 54)
-						baseOption = 4;
-					else if (num < 72)
-						baseOption = 0;
-					else if (num == 72)
-						baseOption = 1;
-
-					break;
-				}
-
-				num = tileCache.frameX / 36;
-				int num7 = tileCache.frameY / 18 - 1;
-				num += num7 * 18;
-				if (num < 6 || num == 19 || num == 20 || num == 21 || num == 22 || num == 23 || num == 24 || num == 33 || num == 38 || num == 39 || num == 40)
-					baseOption = 0;
-				else if (num < 16)
-					baseOption = 2;
-				else if (num < 19 || num == 31 || num == 32)
-					baseOption = 1;
-				else if (num < 31)
-					baseOption = 3;
-				else if (num < 38)
-					baseOption = 4;
-				else if (num < 59)
-					baseOption = 0;
-				else if (num < 62)
-					baseOption = 1;
-
-				break;
-			}
-			case 186:
-			case 647: {
-				int num = tileCache.frameX / 54;
-				if (num < 7)
-					baseOption = 2;
-				else if (num < 22 || num == 33 || num == 34 || num == 35)
-					baseOption = 0;
-				else if (num < 25)
-					baseOption = 1;
-				else if (num == 25)
-					baseOption = 5;
-				else if (num < 32)
-					baseOption = 3;
-
-				break;
-			}
-			case 187:
-			case 648: {
-				int num = tileCache.frameX / 54;
-				int num5 = tileCache.frameY / 36;
-				num += num5 * 36;
-				if (num < 3 || num == 14 || num == 15 || num == 16)
-					baseOption = 0;
-				else if (num < 6)
-					baseOption = 6;
-				else if (num < 9)
-					baseOption = 7;
-				else if (num < 14)
-					baseOption = 4;
-				else if (num < 18)
-					baseOption = 4;
-				else if (num < 23)
-					baseOption = 8;
-				else if (num < 25)
-					baseOption = 0;
-				else if (num < 29)
-					baseOption = 1;
-				else if (num < 47)
-					baseOption = 0;
-				else if (num < 50)
-					baseOption = 1;
-				else if (num < 52)
-					baseOption = 10;
-				else if (num < 55)
-					baseOption = 2;
-
-				break;
-			}
-			case 227:
-				baseOption = tileCache.frameX / 34;
-				break;
-			case 129:
-				if (tileCache.frameX >= 324)
-					baseOption = 1;
-				else
-					baseOption = 0;
-				break;
-			case 240: {
-				int num = tileCache.frameX / 54;
-				int num14 = tileCache.frameY / 54;
-				num += num14 * 36;
-				if ((num < 0 || num > 11) && (num < 47 || num > 53)) {
-					switch (num) {
-						case 72:
-						case 73:
-						case 75:
-							break;
-						case 12:
-						case 13:
-						case 14:
-						case 15:
-							baseOption = 1;
-							return;
-						default:
-							switch (num) {
-								case 16:
-								case 17:
-									baseOption = 2;
-									break;
-								default:
-									if (num < 63 || num > 71) {
-										switch (num) {
-											case 74:
-											case 76:
-											case 77:
-											case 78:
-											case 79:
-											case 80:
-											case 81:
-											case 82:
-											case 83:
-											case 84:
-											case 85:
-											case 86:
-											case 87:
-											case 88:
-											case 89:
-											case 90:
-											case 91:
-											case 92:
-												break;
-											default:
-												if (num >= 41 && num <= 45)
-													baseOption = 3;
-												else if (num == 46)
-													baseOption = 4;
-												return;
-										}
-									}
-									goto case 18;
-								case 18:
-								case 19:
-								case 20:
-								case 21:
-								case 22:
-								case 23:
-								case 24:
-								case 25:
-								case 26:
-								case 27:
-								case 28:
-								case 29:
-								case 30:
-								case 31:
-								case 32:
-								case 33:
-								case 34:
-								case 35:
-									baseOption = 1;
-									break;
-							}
-							return;
-					}
-				}
-
+			case 23:
 				baseOption = 0;
 				break;
-			}
-			case 242: {
-				int num = tileCache.frameY / 72;
-				if (tileCache.frameX / 106 == 0 && num >= 22 && num <= 24)
-					baseOption = 1;
-				else
-					baseOption = 0;
-
+			case 43:
+				baseOption = 2;
+				break;
+			default:
+				baseOption = 1;
 				break;
 			}
-			case 440: {
-				int num = tileCache.frameX / 54;
-				if (num > 6)
-					num = 6;
-
-				baseOption = num;
-				break;
+			break;
+		case 160:
+		case 627:
+		case 628:
+		case 692:
+			baseOption = (x + y) % 9;
+			break;
+		case 461:
+			if (Main.SceneMetrics.ZoneCorrupt)
+			{
+				baseOption = 1;
 			}
-			case 457: {
-				int num = tileCache.frameX / 36;
-				if (num > 4)
-					num = 4;
-
-				baseOption = num;
-				break;
+			else if (Main.SceneMetrics.ZoneCrimson)
+			{
+				baseOption = 2;
 			}
-			case 453: {
-				int num = tileCache.frameX / 36;
-				if (num > 2)
-					num = 2;
-
-				baseOption = num;
-				break;
+			else if (Main.SceneMetrics.ZoneHallow)
+			{
+				baseOption = 3;
 			}
-			case 419: {
-				int num = tileCache.frameX / 18;
-				if (num > 2)
-					num = 2;
-
-				baseOption = num;
-				break;
+			break;
+		case 80:
+		{
+			WorldGen.GetCactusType(x, y, tileCache.frameX, tileCache.frameY, out var evil, out var good, out var crimson);
+			if (evil)
+			{
+				baseOption = 1;
 			}
-			case 428: {
-				int num = tileCache.frameY / 18;
-				if (num > 3)
-					num = 3;
-
-				baseOption = num;
-				break;
+			else if (good)
+			{
+				baseOption = 2;
 			}
-			case 420: {
-				int num = tileCache.frameY / 18;
-				if (num > 5)
-					num = 5;
-
-				baseOption = num;
-				break;
+			else if (crimson)
+			{
+				baseOption = 3;
 			}
-			case 423: {
-				int num = tileCache.frameY / 18;
-				if (num > 6)
-					num = 6;
-
-				baseOption = num;
-				break;
+			else
+			{
+				baseOption = 0;
 			}
-			case 493:
-				if (tileCache.frameX < 18)
-					baseOption = 0;
-				else if (tileCache.frameX < 36)
-					baseOption = 1;
-				else if (tileCache.frameX < 54)
-					baseOption = 2;
-				else if (tileCache.frameX < 72)
-					baseOption = 3;
-				else if (tileCache.frameX < 90)
-					baseOption = 4;
-				else
-					baseOption = 5;
-				break;
-			case 548:
-				if (tileCache.frameX / 54 < 7)
-					baseOption = 0;
-				else
-					baseOption = 1;
-				break;
-			case 597: {
-				int num = tileCache.frameX / 54;
-				if ((uint)num <= 8u)
-					baseOption = num;
-				else
-					baseOption = 0;
-
-				break;
+			break;
+		}
+		case 529:
+		{
+			int num9 = y + 1;
+			WorldGen.GetBiomeInfluence(x, x, num9, num9, out var corruptCount2, out var crimsonCount2, out var hallowedCount2);
+			int num10 = corruptCount2;
+			if (num10 < crimsonCount2)
+			{
+				num10 = crimsonCount2;
 			}
+			if (num10 < hallowedCount2)
+			{
+				num10 = hallowedCount2;
+			}
+			int num11 = 0;
+			num11 = ((corruptCount2 == 0 && crimsonCount2 == 0 && hallowedCount2 == 0) ? ((x < WorldGen.beachDistance || x > Main.maxTilesX - WorldGen.beachDistance) ? 1 : 0) : ((hallowedCount2 == num10) ? 2 : ((crimsonCount2 != num10) ? 4 : 3)));
+			baseOption = num11;
+			break;
+		}
+		case 530:
+		{
+			int num2 = y - tileCache.frameY % 36 / 18 + 2;
+			int num3 = x - tileCache.frameX % 54 / 18;
+			WorldGen.GetBiomeInfluence(num3, num3 + 3, num2, num2, out var corruptCount, out var crimsonCount, out var hallowedCount);
+			int num4 = corruptCount;
+			if (num4 < crimsonCount)
+			{
+				num4 = crimsonCount;
+			}
+			if (num4 < hallowedCount)
+			{
+				num4 = hallowedCount;
+			}
+			int num5 = 0;
+			num5 = ((corruptCount != 0 || crimsonCount != 0 || hallowedCount != 0) ? ((hallowedCount == num4) ? 1 : ((crimsonCount != num4) ? 3 : 2)) : 0);
+			baseOption = num5;
+			break;
+		}
+		case 19:
+		{
+			int num13 = tileCache.frameY / 18;
+			baseOption = 0;
+			if (num13 == 48)
+			{
+				baseOption = 1;
+			}
+			break;
+		}
+		case 15:
+		{
+			int num8 = tileCache.frameY / 40;
+			baseOption = 0;
+			if (num8 == 1 || num8 == 20)
+			{
+				baseOption = 1;
+			}
+			break;
+		}
+		case 518:
+		case 519:
+			baseOption = tileCache.frameY / 18;
+			break;
+		case 4:
+			if (tileCache.frameX < 66)
+			{
+				baseOption = 1;
+			}
+			baseOption = 0;
+			break;
+		case 572:
+			baseOption = tileCache.frameY / 36;
+			break;
+		case 21:
+		case 441:
+			switch (tileCache.frameX / 36)
+			{
+			case 1:
+			case 2:
+			case 10:
+			case 13:
+			case 15:
+				baseOption = 1;
+				break;
+			case 3:
+			case 4:
+				baseOption = 2;
+				break;
+			case 6:
+				baseOption = 3;
+				break;
+			case 11:
+			case 17:
+				baseOption = 4;
+				break;
 			default:
 				baseOption = 0;
 				break;
+			}
+			break;
+		case 467:
+		case 468:
+		{
+			int num = tileCache.frameX / 36;
+			switch (num)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+				baseOption = num;
+				break;
+			case 12:
+			case 13:
+			case 15:
+			case 18:
+				baseOption = 10;
+				break;
+			case 14:
+			case 17:
+				baseOption = 7;
+				break;
+			case 16:
+				baseOption = 3;
+				break;
+			default:
+				baseOption = 12;
+				break;
+			}
+			break;
+		}
+		case 560:
+		{
+			int num = tileCache.frameX / 36;
+			if ((uint)num <= 2u)
+			{
+				baseOption = num;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		}
+		case 28:
+		case 653:
+			if (tileCache.frameY < 144)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameY < 252)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameY < 360 || (tileCache.frameY >= 900 && tileCache.frameY < 1008))
+			{
+				baseOption = 2;
+			}
+			else if (tileCache.frameY < 468)
+			{
+				baseOption = 3;
+			}
+			else if (tileCache.frameY < 576)
+			{
+				baseOption = 4;
+			}
+			else if (tileCache.frameY < 684)
+			{
+				baseOption = 5;
+			}
+			else if (tileCache.frameY < 792)
+			{
+				baseOption = 6;
+			}
+			else if (tileCache.frameY < 900)
+			{
+				baseOption = 8;
+			}
+			else if (tileCache.frameY < 1008)
+			{
+				baseOption = 7;
+			}
+			else if (tileCache.frameY < 1116)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameY < 1224)
+			{
+				baseOption = 3;
+			}
+			else
+			{
+				baseOption = 7;
+			}
+			break;
+		case 27:
+			if (tileCache.frameY < 34)
+			{
+				baseOption = 1;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		case 31:
+		case 696:
+			if (tileCache.frameX >= 36)
+			{
+				baseOption = 1;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		case 26:
+		case 695:
+			if (tileCache.frameX >= 54)
+			{
+				baseOption = 1;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		case 137:
+			switch (tileCache.frameY / 18)
+			{
+			default:
+				baseOption = 0;
+				break;
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+				baseOption = 1;
+				break;
+			case 5:
+				baseOption = 2;
+				break;
+			}
+			break;
+		case 82:
+		case 83:
+		case 84:
+			if (tileCache.frameX < 18)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameX < 36)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX < 54)
+			{
+				baseOption = 2;
+			}
+			else if (tileCache.frameX < 72)
+			{
+				baseOption = 3;
+			}
+			else if (tileCache.frameX < 90)
+			{
+				baseOption = 4;
+			}
+			else if (tileCache.frameX < 108)
+			{
+				baseOption = 5;
+			}
+			else
+			{
+				baseOption = 6;
+			}
+			break;
+		case 591:
+			baseOption = tileCache.frameX / 36;
+			break;
+		case 105:
+			if (tileCache.frameX >= 1548 && tileCache.frameX <= 1654)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX >= 1656 && tileCache.frameX <= 1798)
+			{
+				baseOption = 2;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		case 133:
+			if (tileCache.frameX < 52)
+			{
+				baseOption = 0;
+			}
+			else
+			{
+				baseOption = 1;
+			}
+			break;
+		case 134:
+			if (tileCache.frameX < 28)
+			{
+				baseOption = 0;
+			}
+			else
+			{
+				baseOption = 1;
+			}
+			break;
+		case 149:
+			baseOption = y % 3;
+			break;
+		case 165:
+		case 693:
+		case 694:
+			if (tileCache.frameX < 54)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameX < 106)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX >= 216)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX < 162)
+			{
+				baseOption = 2;
+			}
+			else
+			{
+				baseOption = 3;
+			}
+			break;
+		case 178:
+			if (tileCache.frameX < 18)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameX < 36)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX < 54)
+			{
+				baseOption = 2;
+			}
+			else if (tileCache.frameX < 72)
+			{
+				baseOption = 3;
+			}
+			else if (tileCache.frameX < 90)
+			{
+				baseOption = 4;
+			}
+			else if (tileCache.frameX < 108)
+			{
+				baseOption = 5;
+			}
+			else
+			{
+				baseOption = 6;
+			}
+			break;
+		case 184:
+			if (tileCache.frameX < 22)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameX < 44)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX < 66)
+			{
+				baseOption = 2;
+			}
+			else if (tileCache.frameX < 88)
+			{
+				baseOption = 3;
+			}
+			else if (tileCache.frameX < 110)
+			{
+				baseOption = 4;
+			}
+			else if (tileCache.frameX < 132)
+			{
+				baseOption = 5;
+			}
+			else if (tileCache.frameX < 154)
+			{
+				baseOption = 6;
+			}
+			else if (tileCache.frameX < 176)
+			{
+				baseOption = 7;
+			}
+			else if (tileCache.frameX < 198)
+			{
+				baseOption = 8;
+			}
+			else if (tileCache.frameX < 220)
+			{
+				baseOption = 9;
+			}
+			else if (tileCache.frameX < 242)
+			{
+				baseOption = 10;
+			}
+			break;
+		case 650:
+		{
+			int num = tileCache.frameX / 18;
+			if (num < 6 || num == 28 || num == 29 || num == 30 || num == 31 || num == 32)
+			{
+				baseOption = 0;
+			}
+			else if (num < 12 || num == 33 || num == 34 || num == 35)
+			{
+				baseOption = 1;
+			}
+			else if (num < 28)
+			{
+				baseOption = 2;
+			}
+			else if (num < 48)
+			{
+				baseOption = 3;
+			}
+			else if (num < 54)
+			{
+				baseOption = 4;
+			}
+			else if (num < 72)
+			{
+				baseOption = 0;
+			}
+			else if (num == 72)
+			{
+				baseOption = 1;
+			}
+			else if (num < 78)
+			{
+				baseOption = 11;
+			}
+			break;
+		}
+		case 649:
+		{
+			int num = tileCache.frameX / 36;
+			int num6 = tileCache.frameY / 18 - 1;
+			num += num6 * 18;
+			if (num < 6 || num == 19 || num == 20 || num == 21 || num == 22 || num == 23 || num == 24 || num == 33 || num == 38 || num == 39 || num == 40)
+			{
+				baseOption = 0;
+			}
+			else if (num < 16)
+			{
+				baseOption = 2;
+			}
+			else if (num < 19 || num == 31 || num == 32)
+			{
+				baseOption = 1;
+			}
+			else if (num < 31)
+			{
+				baseOption = 3;
+			}
+			else if (num < 38)
+			{
+				baseOption = 4;
+			}
+			else if (num < 59)
+			{
+				baseOption = 0;
+			}
+			else if (num < 62)
+			{
+				baseOption = 1;
+			}
+			else if (num < 65)
+			{
+				baseOption = 11;
+			}
+			break;
+		}
+		case 185:
+		{
+			int num;
+			if (tileCache.frameY < 18)
+			{
+				num = tileCache.frameX / 18;
+				if (num < 6 || num == 28 || num == 29 || num == 30 || num == 31 || num == 32)
+				{
+					baseOption = 0;
+				}
+				else if (num < 12 || num == 33 || num == 34 || num == 35)
+				{
+					baseOption = 1;
+				}
+				else if (num < 28)
+				{
+					baseOption = 2;
+				}
+				else if (num < 48)
+				{
+					baseOption = 3;
+				}
+				else if (num < 54)
+				{
+					baseOption = 4;
+				}
+				else if (num < 72)
+				{
+					baseOption = 0;
+				}
+				else if (num == 72)
+				{
+					baseOption = 1;
+				}
+				else if (num < 78)
+				{
+					baseOption = 11;
+				}
+				break;
+			}
+			num = tileCache.frameX / 36;
+			int num12 = tileCache.frameY / 18 - 1;
+			num += num12 * 18;
+			if (num < 6 || num == 19 || num == 20 || num == 21 || num == 22 || num == 23 || num == 24 || num == 33 || num == 38 || num == 39 || num == 40)
+			{
+				baseOption = 0;
+			}
+			else if (num < 16)
+			{
+				baseOption = 2;
+			}
+			else if (num < 19 || num == 31 || num == 32)
+			{
+				baseOption = 1;
+			}
+			else if (num < 31)
+			{
+				baseOption = 3;
+			}
+			else if (num < 38)
+			{
+				baseOption = 4;
+			}
+			else if (num < 59)
+			{
+				baseOption = 0;
+			}
+			else if (num < 62)
+			{
+				baseOption = 1;
+			}
+			else if (num < 65)
+			{
+				baseOption = 11;
+			}
+			break;
+		}
+		case 186:
+		case 647:
+		{
+			int num = tileCache.frameX / 54;
+			if (num < 7)
+			{
+				baseOption = 2;
+			}
+			else if (num < 22 || num == 33 || num == 34 || num == 35)
+			{
+				baseOption = 0;
+			}
+			else if (num < 25)
+			{
+				baseOption = 1;
+			}
+			else if (num == 25)
+			{
+				baseOption = 5;
+			}
+			else if (num < 32)
+			{
+				baseOption = 3;
+			}
+			break;
+		}
+		case 187:
+		case 648:
+		{
+			int num = tileCache.frameX / 54;
+			int num7 = tileCache.frameY / 36;
+			num += num7 * 36;
+			if (num < 3 || num == 14 || num == 15 || num == 16)
+			{
+				baseOption = 0;
+			}
+			else if (num < 6)
+			{
+				baseOption = 6;
+			}
+			else if (num < 9)
+			{
+				baseOption = 7;
+			}
+			else if (num < 14)
+			{
+				baseOption = 4;
+			}
+			else if (num < 18)
+			{
+				baseOption = 4;
+			}
+			else if (num < 23)
+			{
+				baseOption = 8;
+			}
+			else if (num < 25)
+			{
+				baseOption = 0;
+			}
+			else if (num < 29)
+			{
+				baseOption = 1;
+			}
+			else if (num < 47)
+			{
+				baseOption = 0;
+			}
+			else if (num < 50)
+			{
+				baseOption = 1;
+			}
+			else if (num < 52)
+			{
+				baseOption = 10;
+			}
+			else if (num < 55)
+			{
+				baseOption = 2;
+			}
+			break;
+		}
+		case 227:
+			baseOption = tileCache.frameX / 34;
+			break;
+		case 129:
+			if (tileCache.frameX >= 324)
+			{
+				baseOption = 1;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		case 240:
+		{
+			int num = tileCache.frameX / 54;
+			int num14 = tileCache.frameY / 54;
+			num += num14 * 36;
+			if ((num >= 0 && num <= 11) || (num >= 47 && num <= 53) || num == 72 || num == 73 || num == 75)
+			{
+				baseOption = 0;
+				break;
+			}
+			if ((num < 12 || num > 15) && (num < 18 || num > 35) && (num < 63 || num > 71))
+			{
+				switch (num)
+				{
+				case 74:
+				case 76:
+				case 77:
+				case 78:
+				case 79:
+				case 80:
+				case 81:
+				case 82:
+				case 83:
+				case 84:
+				case 85:
+				case 86:
+				case 87:
+				case 88:
+				case 89:
+				case 90:
+				case 91:
+				case 92:
+				case 93:
+				case 94:
+				case 95:
+				case 96:
+				case 97:
+				case 98:
+				case 99:
+				case 100:
+					break;
+				default:
+					switch (num)
+					{
+					case 16:
+					case 17:
+						baseOption = 2;
+						return;
+					case 41:
+					case 42:
+					case 43:
+					case 44:
+					case 45:
+						baseOption = 3;
+						return;
+					}
+					if (num == 46)
+					{
+						baseOption = 4;
+					}
+					return;
+				}
+			}
+			baseOption = 1;
+			break;
+		}
+		case 242:
+		{
+			int num = tileCache.frameY / 72;
+			if (tileCache.frameX / 106 == 0 && num >= 22 && num <= 24)
+			{
+				baseOption = 1;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		}
+		case 440:
+		{
+			int num = tileCache.frameX / 54;
+			if (num > 6)
+			{
+				num = 6;
+			}
+			baseOption = num;
+			break;
+		}
+		case 457:
+		{
+			int num = tileCache.frameX / 36;
+			if (num > 4)
+			{
+				num = 4;
+			}
+			baseOption = num;
+			break;
+		}
+		case 453:
+		{
+			int num = tileCache.frameX / 36;
+			if (num > 2)
+			{
+				num = 2;
+			}
+			baseOption = num;
+			break;
+		}
+		case 419:
+		{
+			int num = tileCache.frameX / 18;
+			if (num > 2)
+			{
+				num = 2;
+			}
+			baseOption = num;
+			break;
+		}
+		case 428:
+		{
+			int num = tileCache.frameY / 18;
+			if (num > 3)
+			{
+				num = 3;
+			}
+			baseOption = num;
+			break;
+		}
+		case 420:
+		{
+			int num = tileCache.frameY / 18;
+			if (num > 5)
+			{
+				num = 5;
+			}
+			baseOption = num;
+			break;
+		}
+		case 423:
+		{
+			int num = tileCache.frameY / 18;
+			if (num > 6)
+			{
+				num = 6;
+			}
+			baseOption = num;
+			break;
+		}
+		case 493:
+			if (tileCache.frameX < 18)
+			{
+				baseOption = 0;
+			}
+			else if (tileCache.frameX < 36)
+			{
+				baseOption = 1;
+			}
+			else if (tileCache.frameX < 54)
+			{
+				baseOption = 2;
+			}
+			else if (tileCache.frameX < 72)
+			{
+				baseOption = 3;
+			}
+			else if (tileCache.frameX < 90)
+			{
+				baseOption = 4;
+			}
+			else
+			{
+				baseOption = 5;
+			}
+			break;
+		case 548:
+			if (tileCache.frameX / 54 < 7)
+			{
+				baseOption = 0;
+			}
+			else
+			{
+				baseOption = 1;
+			}
+			break;
+		case 597:
+		{
+			int num = tileCache.frameX / 54;
+			if ((uint)num <= 10u)
+			{
+				baseOption = num;
+			}
+			else
+			{
+				baseOption = 0;
+			}
+			break;
+		}
+		default:
+			baseOption = 0;
+			break;
 		}
 	}
 
 	public static void SaveMap()
 	{
 		if ((Main.ActivePlayerFileData.IsCloudSave && SocialAPI.Cloud == null) || !Main.mapEnabled || !Monitor.TryEnter(IOLock))
+		{
 			return;
-
-		try {
+		}
+		try
+		{
 			FileUtilities.ProtectedInvoke(InternalSaveMap);
 		}
-		catch (Exception value) {
+		catch (Exception value)
+		{
 			using StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true);
 			streamWriter.WriteLine(DateTime.Now);
 			streamWriter.WriteLine(value);
 			streamWriter.WriteLine("");
 		}
-		finally {
+		finally
+		{
 			Monitor.Exit(IOLock);
 		}
 	}
@@ -2507,20 +3027,22 @@ public static class MapHelper
 		bool isCloudSave = Main.ActivePlayerFileData.IsCloudSave;
 		string text = Main.playerPathName.Substring(0, Main.playerPathName.Length - 4);
 		if (!isCloudSave)
+		{
 			Utils.TryCreatingDirectory(text);
-
-		text += Path.DirectorySeparatorChar;
-		text = ((!Main.ActiveWorldFileData.UseGuidAsMapName) ? (text + Main.worldID + ".map") : string.Concat(text, Main.ActiveWorldFileData.UniqueId, ".map"));
+		}
+		text = text + Path.DirectorySeparatorChar + Main.ActiveWorldFileData.MapFileName + ".map";
 		new Stopwatch().Start();
 		if (!Main.gameMenu)
+		{
 			noStatusText = true;
-
-		using (MemoryStream memoryStream = new MemoryStream(4000)) {
+		}
+		using (MemoryStream memoryStream = new MemoryStream(4000))
+		{
 			using BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
 			using DeflateStream deflateStream = new DeflateStream(memoryStream, CompressionMode.Compress);
 			int num = 0;
 			byte[] array = new byte[16384];
-			binaryWriter.Write(279);
+			binaryWriter.Write(316);
 			Main.MapFileMetadata.IncrementAndWrite(binaryWriter);
 			binaryWriter.Write(Main.worldName);
 			binaryWriter.Write(Main.worldID);
@@ -2535,66 +3057,80 @@ public static class MapHelper
 			byte b = 1;
 			byte b2 = 0;
 			int i;
-			for (i = 0; i < TileID.Count; i++) {
+			for (i = 0; i < TileID.Count; i++)
+			{
 				if (tileOptionCounts[i] != 1)
-					b2 = (byte)(b2 | b);
-
-				if (b == 128) {
+				{
+					b2 |= b;
+				}
+				if (b == 128)
+				{
 					binaryWriter.Write(b2);
 					b2 = 0;
 					b = 1;
 				}
-				else {
-					b = (byte)(b << 1);
+				else
+				{
+					b <<= 1;
 				}
 			}
-
 			if (b != 1)
+			{
 				binaryWriter.Write(b2);
-
+			}
 			i = 0;
 			b = 1;
 			b2 = 0;
-			for (; i < WallID.Count; i++) {
+			for (; i < WallID.Count; i++)
+			{
 				if (wallOptionCounts[i] != 1)
-					b2 = (byte)(b2 | b);
-
-				if (b == 128) {
+				{
+					b2 |= b;
+				}
+				if (b == 128)
+				{
 					binaryWriter.Write(b2);
 					b2 = 0;
 					b = 1;
 				}
-				else {
-					b = (byte)(b << 1);
+				else
+				{
+					b <<= 1;
 				}
 			}
-
 			if (b != 1)
+			{
 				binaryWriter.Write(b2);
-
-			for (i = 0; i < TileID.Count; i++) {
+			}
+			for (i = 0; i < TileID.Count; i++)
+			{
 				if (tileOptionCounts[i] != 1)
+				{
 					binaryWriter.Write((byte)tileOptionCounts[i]);
+				}
 			}
-
-			for (i = 0; i < WallID.Count; i++) {
+			for (i = 0; i < WallID.Count; i++)
+			{
 				if (wallOptionCounts[i] != 1)
+				{
 					binaryWriter.Write((byte)wallOptionCounts[i]);
+				}
 			}
-
 			binaryWriter.Flush();
-			for (int j = 0; j < Main.maxTilesY; j++) {
-				if (!noStatusText) {
+			for (int j = 0; j < Main.maxTilesY; j++)
+			{
+				if (!noStatusText)
+				{
 					float num2 = (float)j / (float)Main.maxTilesY;
 					Main.statusText = Lang.gen[66].Value + " " + (int)(num2 * 100f + 1f) + "%";
 				}
-
 				int num3;
-				for (num3 = 0; num3 < Main.maxTilesX; num3++) {
+				for (num3 = 0; num3 < Main.maxTilesX; num3++)
+				{
 					MapTile mapTile = Main.Map[num3, j];
 					byte b4;
-					byte b3;
-					byte b5 = (b4 = (b3 = 0));
+					byte b5;
+					byte b3 = (b4 = (b5 = 0));
 					int num4 = 0;
 					bool flag = true;
 					bool flag2 = true;
@@ -2603,7 +3139,8 @@ public static class MapHelper
 					byte b6 = 0;
 					int num7;
 					ushort num8;
-					if (mapTile.Light <= 18) {
+					if (mapTile.Light <= 18)
+					{
 						flag2 = false;
 						flag = false;
 						num7 = 0;
@@ -2611,159 +3148,436 @@ public static class MapHelper
 						num4 = 0;
 						int num9 = num3 + 1;
 						int num10 = Main.maxTilesX - num3 - 1;
-						while (num10 > 0 && Main.Map[num9, j].Light <= 18) {
+						while (num10 > 0 && Main.Map[num9, j].Light <= 18)
+						{
 							num4++;
 							num10--;
 							num9++;
 						}
 					}
-					else {
+					else
+					{
 						b6 = mapTile.Color;
 						num8 = mapTile.Type;
-						if (num8 < wallPosition) {
+						if (num8 < wallPosition)
+						{
 							num7 = 1;
-							num8 = (ushort)(num8 - tilePosition);
+							num8 -= tilePosition;
 						}
-						else if (num8 < liquidPosition) {
+						else if (num8 < liquidPosition)
+						{
 							num7 = 2;
-							num8 = (ushort)(num8 - wallPosition);
+							num8 -= wallPosition;
 						}
-						else if (num8 < skyPosition) {
+						else if (num8 < skyPosition)
+						{
 							int num11 = num8 - liquidPosition;
-							if (num11 == 3) {
-								b4 = (byte)(b4 | 0x40u);
+							if (num11 == 3)
+							{
+								b4 |= 0x40;
 								num11 = 0;
 							}
-
 							num7 = 3 + num11;
 							flag = false;
 						}
-						else if (num8 < dirtPosition) {
+						else if (num8 < dirtPosition)
+						{
 							num7 = 6;
 							flag2 = false;
 							flag = false;
 						}
-						else if (num8 < hellPosition) {
+						else if (num8 < hellPosition)
+						{
 							num7 = 7;
 							num8 = ((num8 >= rockPosition) ? ((ushort)(num8 - rockPosition)) : ((ushort)(num8 - dirtPosition)));
 						}
-						else {
+						else
+						{
 							num7 = 6;
 							flag = false;
 						}
-
 						if (mapTile.Light == byte.MaxValue)
+						{
 							flag2 = false;
-
-						if (flag2) {
+						}
+						if (flag2)
+						{
 							num4 = 0;
 							int num9 = num3 + 1;
 							int num10 = Main.maxTilesX - num3 - 1;
 							num5 = num9;
-							while (num10 > 0) {
-								MapTile other = Main.Map[num9, j];
-								if (mapTile.EqualsWithoutLight(ref other)) {
+							while (num10 > 0)
+							{
+								if (mapTile.EqualsWithoutLight(Main.Map[num9, j]))
+								{
 									num10--;
 									num4++;
 									num9++;
 									continue;
 								}
-
 								num6 = num9;
 								break;
 							}
 						}
-						else {
+						else
+						{
 							num4 = 0;
 							int num9 = num3 + 1;
 							int num10 = Main.maxTilesX - num3 - 1;
-							while (num10 > 0) {
-								MapTile other2 = Main.Map[num9, j];
-								if (!mapTile.Equals(ref other2))
-									break;
-
+							while (num10 > 0 && mapTile.Equals(Main.Map[num9, j]))
+							{
 								num10--;
 								num4++;
 								num9++;
 							}
 						}
 					}
-
 					if (b6 > 0)
-						b4 = (byte)(b4 | (byte)(b6 << 1));
-
-					if (b3 != 0)
-						b4 = (byte)(b4 | 1u);
-
+					{
+						b4 |= (byte)(b6 << 1);
+					}
+					if (b5 != 0)
+					{
+						b4 |= 1;
+					}
 					if (b4 != 0)
-						b5 = (byte)(b5 | 1u);
-
-					b5 = (byte)(b5 | (byte)(num7 << 1));
+					{
+						b3 |= 1;
+					}
+					b3 |= (byte)(num7 << 1);
 					if (flag && num8 > 255)
-						b5 = (byte)(b5 | 0x10u);
-
+					{
+						b3 |= 0x10;
+					}
 					if (flag2)
-						b5 = (byte)(b5 | 0x20u);
-
+					{
+						b3 |= 0x20;
+					}
 					if (num4 > 0)
-						b5 = ((num4 <= 255) ? ((byte)(b5 | 0x40u)) : ((byte)(b5 | 0x80u)));
-
-					array[num] = b5;
+					{
+						b3 = ((num4 <= 255) ? ((byte)(b3 | 0x40)) : ((byte)(b3 | 0x80)));
+					}
+					array[num] = b3;
 					num++;
-					if (b4 != 0) {
+					if (b4 != 0)
+					{
 						array[num] = b4;
 						num++;
 					}
-
-					if (b3 != 0) {
-						array[num] = b3;
+					if (b5 != 0)
+					{
+						array[num] = b5;
 						num++;
 					}
-
-					if (flag) {
+					if (flag)
+					{
 						array[num] = (byte)num8;
 						num++;
-						if (num8 > 255) {
+						if (num8 > 255)
+						{
 							array[num] = (byte)(num8 >> 8);
 							num++;
 						}
 					}
-
-					if (flag2) {
+					if (flag2)
+					{
 						array[num] = mapTile.Light;
 						num++;
 					}
-
-					if (num4 > 0) {
+					if (num4 > 0)
+					{
 						array[num] = (byte)num4;
 						num++;
-						if (num4 > 255) {
+						if (num4 > 255)
+						{
 							array[num] = (byte)(num4 >> 8);
 							num++;
 						}
 					}
-
-					for (int k = num5; k < num6; k++) {
+					for (int k = num5; k < num6; k++)
+					{
 						array[num] = Main.Map[k, j].Light;
 						num++;
 					}
-
 					num3 += num4;
-					if (num >= 4096) {
+					if (num >= 4096)
+					{
 						deflateStream.Write(array, 0, num);
 						num = 0;
 					}
 				}
 			}
-
 			if (num > 0)
+			{
 				deflateStream.Write(array, 0, num);
-
+			}
 			deflateStream.Dispose();
 			FileUtilities.WriteAllBytes(text, memoryStream.ToArray(), isCloudSave);
 		}
-
 		noStatusText = false;
+	}
+
+	public static void DecompressChunk(byte[] srcData, long srcLength, byte[] dstData, long dstLength, out long resultLength)
+	{
+		resultLength = 0L;
+		ZlibCodec zlibCodec = zlibDecompress;
+		zlibCodec.InitializeInflate();
+		zlibCodec.InputBuffer = srcData;
+		zlibCodec.OutputBuffer = dstData;
+		zlibCodec.NextIn = 0;
+		zlibCodec.AvailableBytesIn = (int)srcLength;
+		zlibCodec.NextOut = 0;
+		zlibCodec.AvailableBytesOut = dstData.Length;
+		int num = zlibCodec.Inflate(FlushType.Finish);
+		if ((num == 0 || 1 == num) && zlibCodec.TotalBytesOut > 0)
+		{
+			resultLength = zlibCodec.TotalBytesOut;
+		}
+		for (int i = (int)resultLength; i < dstLength; i++)
+		{
+			dstData[i] = 0;
+		}
+	}
+
+	public unsafe static void LoadMapVersionCompressed(BinaryReader fileIO, int release)
+	{
+		if (release >= 135)
+		{
+			Main.MapFileMetadata = FileMetadata.Read(fileIO, FileType.Map);
+		}
+		else
+		{
+			Main.MapFileMetadata = FileMetadata.FromCurrentSettings(FileType.Map);
+		}
+		_ = DateTime.Now;
+		fileIO.ReadString();
+		int num = fileIO.ReadInt32();
+		int num2 = fileIO.ReadInt32();
+		int num3 = fileIO.ReadInt32();
+		if (num != Main.worldID || num3 != Main.maxTilesX || num2 != Main.maxTilesY)
+		{
+			throw new Exception("Map meta-data is invalid.");
+		}
+		short num4 = fileIO.ReadInt16();
+		short num5 = fileIO.ReadInt16();
+		short num6 = fileIO.ReadInt16();
+		short num7 = fileIO.ReadInt16();
+		short num8 = fileIO.ReadInt16();
+		short num9 = fileIO.ReadInt16();
+		byte[] array = new byte[2048];
+		byte[] array2 = new byte[sizeof(MapTile) * 64 * 64];
+		bool[] array3 = new bool[num4];
+		byte b = 0;
+		byte b2 = 128;
+		for (int i = 0; i < num4; i++)
+		{
+			if (b2 == 128)
+			{
+				b = fileIO.ReadByte();
+				b2 = 1;
+			}
+			else
+			{
+				b2 <<= 1;
+			}
+			if ((b & b2) == b2)
+			{
+				array3[i] = true;
+			}
+		}
+		bool[] array4 = new bool[num5];
+		b = 0;
+		b2 = 128;
+		for (int i = 0; i < num5; i++)
+		{
+			if (b2 == 128)
+			{
+				b = fileIO.ReadByte();
+				b2 = 1;
+			}
+			else
+			{
+				b2 <<= 1;
+			}
+			if ((b & b2) == b2)
+			{
+				array4[i] = true;
+			}
+		}
+		byte[] array5 = new byte[num4];
+		ushort num10 = 0;
+		for (int i = 0; i < num4; i++)
+		{
+			if (array3[i])
+			{
+				array5[i] = fileIO.ReadByte();
+			}
+			else
+			{
+				array5[i] = 1;
+			}
+			num10 += array5[i];
+		}
+		byte[] array6 = new byte[num5];
+		ushort num11 = 0;
+		for (int i = 0; i < num5; i++)
+		{
+			if (array4[i])
+			{
+				array6[i] = fileIO.ReadByte();
+			}
+			else
+			{
+				array6[i] = 1;
+			}
+			num11 += array6[i];
+		}
+		ushort[] array7 = new ushort[num10 + num11 + num6 + num7 + num8 + num9 + 2];
+		array7[0] = 0;
+		ushort num12 = 1;
+		ushort num13 = 1;
+		for (int i = 0; i < TileID.Count; i++)
+		{
+			if (i < num4)
+			{
+				int num14 = array5[i];
+				int num15 = tileOptionCounts[i];
+				for (int j = 0; j < num15; j++)
+				{
+					if (j < num14)
+					{
+						array7[num13] = num12;
+						num13++;
+					}
+					num12++;
+				}
+			}
+			else
+			{
+				num12 += (ushort)tileOptionCounts[i];
+			}
+		}
+		for (int i = 0; i < WallID.Count; i++)
+		{
+			if (i < num5)
+			{
+				int num16 = array6[i];
+				int num17 = wallOptionCounts[i];
+				for (int k = 0; k < num17; k++)
+				{
+					if (k < num16)
+					{
+						array7[num13] = num12;
+						num13++;
+					}
+					num12++;
+				}
+			}
+			else
+			{
+				num12 += (ushort)wallOptionCounts[i];
+			}
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			if (i < num6)
+			{
+				array7[num13] = num12;
+				num13++;
+			}
+			num12++;
+		}
+		for (int i = 0; i < 256; i++)
+		{
+			if (i < num7)
+			{
+				array7[num13] = num12;
+				num13++;
+			}
+			num12++;
+		}
+		for (int i = 0; i < 256; i++)
+		{
+			if (i < num8)
+			{
+				array7[num13] = num12;
+				num13++;
+			}
+			num12++;
+		}
+		for (int i = 0; i < 256; i++)
+		{
+			if (i < num9)
+			{
+				array7[num13] = num12;
+				num13++;
+			}
+			num12++;
+		}
+		array7[num13] = num12;
+		bool flag = num13 != num12;
+		int num18 = (Main.maxTilesX + 63) / 64;
+		int num19 = (Main.maxTilesY + 63) / 64;
+		int num20 = num18 * num19;
+		int num21 = 4096;
+		for (int l = 0; l < num20; l++)
+		{
+			float num22 = (float)l / (float)num20;
+			Main.statusText = Lang.gen[66].Value + " " + (int)(num22 * 100f + 1f) + "%";
+			int num23 = fileIO.ReadInt32();
+			int num24 = l % num18;
+			int num25 = l / num18;
+			if (num23 > 0)
+			{
+				if (array.Length < num23)
+				{
+					array = new byte[(num23 + 1023) / 1024 * 1024];
+				}
+				for (int m = 0; m < num23; m++)
+				{
+					array[m] = fileIO.ReadByte();
+				}
+				DecompressChunk(array, num23, array2, array2.Length, out var _);
+				fixed (byte* ptr = array2)
+				{
+					MapTile* ptr2 = (MapTile*)ptr;
+					if (flag)
+					{
+						for (int n = 0; n < num21; n++)
+						{
+							int num26 = n % 64 + num24 * 64;
+							int num27 = n / 64 + num25 * 64;
+							ptr2[n].Type = array7[ptr2[n].Type];
+							if (num26 < Main.maxTilesX && num27 < Main.maxTilesY)
+							{
+								Main.Map.SetTile(num26, num27, ref ptr2[n]);
+							}
+						}
+						continue;
+					}
+					for (int num28 = 0; num28 < num21; num28++)
+					{
+						int num29 = num28 % 64 + num24 * 64;
+						int num30 = num28 / 64 + num25 * 64;
+						if (num29 < Main.maxTilesX && num30 < Main.maxTilesY)
+						{
+							Main.Map.SetTile(num29, num30, ref ptr2[num28]);
+						}
+					}
+				}
+				continue;
+			}
+			MapTile tile = default(MapTile);
+			for (int num31 = 0; num31 < num21; num31++)
+			{
+				int num32 = num31 % 64 + num24 * 64;
+				int num33 = num31 / 64 + num25 * 64;
+				if (num32 < Main.maxTilesX && num33 < Main.maxTilesY)
+				{
+					Main.Map.SetTile(num32, num33, ref tile);
+				}
+			}
+		}
 	}
 
 	public static void LoadMapVersion1(BinaryReader fileIO, int release)
@@ -2773,134 +3587,157 @@ public static class MapHelper
 		int num2 = fileIO.ReadInt32();
 		int num3 = fileIO.ReadInt32();
 		if (text != Main.worldName || num != Main.worldID || num3 != Main.maxTilesX || num2 != Main.maxTilesY)
+		{
 			throw new Exception("Map meta-data is invalid.");
-
+		}
 		OldMapHelper oldMapHelper = default(OldMapHelper);
-		for (int i = 0; i < Main.maxTilesX; i++) {
+		for (int i = 0; i < Main.maxTilesX; i++)
+		{
 			float num4 = (float)i / (float)Main.maxTilesX;
 			Main.statusText = Lang.gen[67].Value + " " + (int)(num4 * 100f + 1f) + "%";
-			for (int j = 0; j < Main.maxTilesY; j++) {
-				if (fileIO.ReadBoolean()) {
+			for (int j = 0; j < Main.maxTilesY; j++)
+			{
+				if (fileIO.ReadBoolean())
+				{
 					int num5 = ((release <= 77) ? fileIO.ReadByte() : fileIO.ReadUInt16());
 					byte b = fileIO.ReadByte();
 					oldMapHelper.misc = fileIO.ReadByte();
 					if (release >= 50)
+					{
 						oldMapHelper.misc2 = fileIO.ReadByte();
+					}
 					else
+					{
 						oldMapHelper.misc2 = 0;
-
+					}
 					bool flag = false;
 					int num6 = oldMapHelper.option();
 					int num7;
-					if (oldMapHelper.active()) {
+					if (oldMapHelper.active())
+					{
 						num7 = num6 + tileLookup[num5];
 					}
-					else if (oldMapHelper.water()) {
+					else if (oldMapHelper.water())
+					{
 						num7 = liquidPosition;
 					}
-					else if (oldMapHelper.lava()) {
+					else if (oldMapHelper.lava())
+					{
 						num7 = liquidPosition + 1;
 					}
-					else if (oldMapHelper.honey()) {
+					else if (oldMapHelper.honey())
+					{
 						num7 = liquidPosition + 2;
 					}
-					else if (oldMapHelper.wall()) {
+					else if (oldMapHelper.wall())
+					{
 						num7 = num6 + wallLookup[num5];
 					}
-					else if ((double)j < Main.worldSurface) {
+					else if ((double)j < Main.worldSurface)
+					{
 						flag = true;
-						int num8 = (byte)(256.0 * ((double)j / Main.worldSurface));
-						num7 = skyPosition + num8;
+						num7 = CalcSkyGradient(skyPosition, 256, j);
 					}
-					else if ((double)j < Main.rockLayer) {
+					else if ((double)j < Main.rockLayer)
+					{
 						flag = true;
 						if (num5 > 255)
+						{
 							num5 = 255;
-
+						}
 						num7 = num5 + dirtPosition;
 					}
-					else if (j < Main.UnderworldLayer) {
+					else if (j < Main.UnderworldLayer)
+					{
 						flag = true;
 						if (num5 > 255)
+						{
 							num5 = 255;
-
+						}
 						num7 = num5 + rockPosition;
 					}
-					else {
+					else
+					{
 						num7 = hellPosition;
 					}
-
 					MapTile tile = MapTile.Create((ushort)num7, b, 0);
 					Main.Map.SetTile(i, j, ref tile);
-					int num9 = fileIO.ReadInt16();
-					if (b == byte.MaxValue) {
-						while (num9 > 0) {
-							num9--;
+					int num8 = fileIO.ReadInt16();
+					if (b == byte.MaxValue)
+					{
+						while (num8 > 0)
+						{
+							num8--;
 							j++;
-							if (flag) {
-								if ((double)j < Main.worldSurface) {
+							if (flag)
+							{
+								if ((double)j < Main.worldSurface)
+								{
 									flag = true;
-									int num10 = (byte)(256.0 * ((double)j / Main.worldSurface));
-									num7 = skyPosition + num10;
+									num7 = CalcSkyGradient(skyPosition, 256, j);
 								}
-								else if ((double)j < Main.rockLayer) {
+								else if ((double)j < Main.rockLayer)
+								{
 									flag = true;
 									num7 = num5 + dirtPosition;
 								}
-								else if (j < Main.UnderworldLayer) {
+								else if (j < Main.UnderworldLayer)
+								{
 									flag = true;
 									num7 = num5 + rockPosition;
 								}
-								else {
+								else
+								{
 									flag = true;
 									num7 = hellPosition;
 								}
-
 								tile.Type = (ushort)num7;
 							}
-
 							Main.Map.SetTile(i, j, ref tile);
 						}
-
 						continue;
 					}
-
-					while (num9 > 0) {
+					while (num8 > 0)
+					{
 						j++;
-						num9--;
+						num8--;
 						b = fileIO.ReadByte();
 						if (b <= 18)
+						{
 							continue;
-
+						}
 						tile.Light = b;
-						if (flag) {
-							if ((double)j < Main.worldSurface) {
+						if (flag)
+						{
+							if ((double)j < Main.worldSurface)
+							{
 								flag = true;
-								int num11 = (byte)(256.0 * ((double)j / Main.worldSurface));
-								num7 = skyPosition + num11;
+								num7 = CalcSkyGradient(skyPosition, 256, j);
 							}
-							else if ((double)j < Main.rockLayer) {
+							else if ((double)j < Main.rockLayer)
+							{
 								flag = true;
 								num7 = num5 + dirtPosition;
 							}
-							else if (j < Main.UnderworldLayer) {
+							else if (j < Main.UnderworldLayer)
+							{
 								flag = true;
 								num7 = num5 + rockPosition;
 							}
-							else {
+							else
+							{
 								flag = true;
 								num7 = hellPosition;
 							}
-
 							tile.Type = (ushort)num7;
 						}
-
 						Main.Map.SetTile(i, j, ref tile);
 					}
 				}
-				else {
-					int num12 = fileIO.ReadInt16();
-					j += num12;
+				else
+				{
+					int num9 = fileIO.ReadInt16();
+					j += num9;
 				}
 			}
 		}
@@ -2909,17 +3746,21 @@ public static class MapHelper
 	public static void LoadMapVersion2(BinaryReader fileIO, int release)
 	{
 		if (release >= 135)
+		{
 			Main.MapFileMetadata = FileMetadata.Read(fileIO, FileType.Map);
+		}
 		else
+		{
 			Main.MapFileMetadata = FileMetadata.FromCurrentSettings(FileType.Map);
-
+		}
 		fileIO.ReadString();
 		int num = fileIO.ReadInt32();
 		int num2 = fileIO.ReadInt32();
 		int num3 = fileIO.ReadInt32();
 		if (num != Main.worldID || num3 != Main.maxTilesX || num2 != Main.maxTilesY)
+		{
 			throw new Exception("Map meta-data is invalid.");
-
+		}
 		short num4 = fileIO.ReadInt16();
 		short num5 = fileIO.ReadInt16();
 		short num6 = fileIO.ReadInt16();
@@ -2929,240 +3770,249 @@ public static class MapHelper
 		bool[] array = new bool[num4];
 		byte b = 0;
 		byte b2 = 128;
-		for (int i = 0; i < num4; i++) {
-			if (b2 == 128) {
+		for (int i = 0; i < num4; i++)
+		{
+			if (b2 == 128)
+			{
 				b = fileIO.ReadByte();
 				b2 = 1;
 			}
-			else {
-				b2 = (byte)(b2 << 1);
+			else
+			{
+				b2 <<= 1;
 			}
-
 			if ((b & b2) == b2)
+			{
 				array[i] = true;
+			}
 		}
-
 		bool[] array2 = new bool[num5];
 		b = 0;
 		b2 = 128;
-		for (int i = 0; i < num5; i++) {
-			if (b2 == 128) {
+		for (int i = 0; i < num5; i++)
+		{
+			if (b2 == 128)
+			{
 				b = fileIO.ReadByte();
 				b2 = 1;
 			}
-			else {
-				b2 = (byte)(b2 << 1);
+			else
+			{
+				b2 <<= 1;
 			}
-
 			if ((b & b2) == b2)
+			{
 				array2[i] = true;
+			}
 		}
-
 		byte[] array3 = new byte[num4];
 		ushort num10 = 0;
-		for (int i = 0; i < num4; i++) {
+		for (int i = 0; i < num4; i++)
+		{
 			if (array[i])
+			{
 				array3[i] = fileIO.ReadByte();
+			}
 			else
+			{
 				array3[i] = 1;
-
-			num10 = (ushort)(num10 + array3[i]);
+			}
+			num10 += array3[i];
 		}
-
 		byte[] array4 = new byte[num5];
 		ushort num11 = 0;
-		for (int i = 0; i < num5; i++) {
+		for (int i = 0; i < num5; i++)
+		{
 			if (array2[i])
+			{
 				array4[i] = fileIO.ReadByte();
+			}
 			else
+			{
 				array4[i] = 1;
-
-			num11 = (ushort)(num11 + array4[i]);
+			}
+			num11 += array4[i];
 		}
-
 		ushort[] array5 = new ushort[num10 + num11 + num6 + num7 + num8 + num9 + 2];
 		array5[0] = 0;
 		ushort num12 = 1;
 		ushort num13 = 1;
 		ushort num14 = num13;
-		for (int i = 0; i < TileID.Count; i++) {
-			if (i < num4) {
+		for (int i = 0; i < TileID.Count; i++)
+		{
+			if (i < num4)
+			{
 				int num15 = array3[i];
 				int num16 = tileOptionCounts[i];
-				for (int j = 0; j < num16; j++) {
-					if (j < num15) {
+				for (int j = 0; j < num16; j++)
+				{
+					if (j < num15)
+					{
 						array5[num13] = num12;
-						num13 = (ushort)(num13 + 1);
+						num13++;
 					}
-
-					num12 = (ushort)(num12 + 1);
+					num12++;
 				}
 			}
-			else {
-				num12 = (ushort)(num12 + (ushort)tileOptionCounts[i]);
+			else
+			{
+				num12 += (ushort)tileOptionCounts[i];
 			}
 		}
-
 		ushort num17 = num13;
-		for (int i = 0; i < WallID.Count; i++) {
-			if (i < num5) {
+		for (int i = 0; i < WallID.Count; i++)
+		{
+			if (i < num5)
+			{
 				int num18 = array4[i];
 				int num19 = wallOptionCounts[i];
-				for (int k = 0; k < num19; k++) {
-					if (k < num18) {
+				for (int k = 0; k < num19; k++)
+				{
+					if (k < num18)
+					{
 						array5[num13] = num12;
-						num13 = (ushort)(num13 + 1);
+						num13++;
 					}
-
-					num12 = (ushort)(num12 + 1);
+					num12++;
 				}
 			}
-			else {
-				num12 = (ushort)(num12 + (ushort)wallOptionCounts[i]);
+			else
+			{
+				num12 += (ushort)wallOptionCounts[i];
 			}
 		}
-
 		ushort num20 = num13;
-		for (int i = 0; i < 4; i++) {
-			if (i < num6) {
+		for (int i = 0; i < 4; i++)
+		{
+			if (i < num6)
+			{
 				array5[num13] = num12;
-				num13 = (ushort)(num13 + 1);
+				num13++;
 			}
-
-			num12 = (ushort)(num12 + 1);
+			num12++;
 		}
-
 		ushort num21 = num13;
-		for (int i = 0; i < 256; i++) {
-			if (i < num7) {
+		for (int i = 0; i < 256; i++)
+		{
+			if (i < num7)
+			{
 				array5[num13] = num12;
-				num13 = (ushort)(num13 + 1);
+				num13++;
 			}
-
-			num12 = (ushort)(num12 + 1);
+			num12++;
 		}
-
 		ushort num22 = num13;
-		for (int i = 0; i < 256; i++) {
-			if (i < num8) {
+		for (int i = 0; i < 256; i++)
+		{
+			if (i < num8)
+			{
 				array5[num13] = num12;
-				num13 = (ushort)(num13 + 1);
+				num13++;
 			}
-
-			num12 = (ushort)(num12 + 1);
+			num12++;
 		}
-
 		ushort num23 = num13;
-		for (int i = 0; i < 256; i++) {
-			if (i < num9) {
+		for (int i = 0; i < 256; i++)
+		{
+			if (i < num9)
+			{
 				array5[num13] = num12;
-				num13 = (ushort)(num13 + 1);
+				num13++;
 			}
-
-			num12 = (ushort)(num12 + 1);
+			num12++;
 		}
-
 		ushort num24 = num13;
 		array5[num13] = num12;
 		BinaryReader binaryReader = ((release < 93) ? new BinaryReader(fileIO.BaseStream) : new BinaryReader(new DeflateStream(fileIO.BaseStream, CompressionMode.Decompress)));
-		for (int l = 0; l < Main.maxTilesY; l++) {
+		for (int l = 0; l < Main.maxTilesY; l++)
+		{
 			float num25 = (float)l / (float)Main.maxTilesY;
 			Main.statusText = Lang.gen[67].Value + " " + (int)(num25 * 100f + 1f) + "%";
-			for (int m = 0; m < Main.maxTilesX; m++) {
+			for (int m = 0; m < Main.maxTilesX; m++)
+			{
 				byte b3 = binaryReader.ReadByte();
 				byte b4 = (byte)(((b3 & 1) == 1) ? binaryReader.ReadByte() : 0);
 				if ((b4 & 1) == 1)
+				{
 					binaryReader.ReadByte();
-
+				}
 				byte b5 = (byte)((b3 & 0xE) >> 1);
 				bool flag;
-				switch (b5) {
-					case 0:
-						flag = false;
-						break;
-					case 1:
-					case 2:
-					case 7:
-						flag = true;
-						break;
-					case 3:
-					case 4:
-					case 5:
-						flag = false;
-						break;
-					case 6:
-						flag = false;
-						break;
-					default:
-						flag = false;
-						break;
+				switch (b5)
+				{
+				case 0:
+					flag = false;
+					break;
+				case 1:
+				case 2:
+				case 7:
+					flag = true;
+					break;
+				case 3:
+				case 4:
+				case 5:
+					flag = false;
+					break;
+				case 6:
+					flag = false;
+					break;
+				default:
+					flag = false;
+					break;
 				}
-
 				ushort num26 = (ushort)(flag ? (((b3 & 0x10) != 16) ? binaryReader.ReadByte() : binaryReader.ReadUInt16()) : 0);
 				byte b6 = (((b3 & 0x20) != 32) ? byte.MaxValue : binaryReader.ReadByte());
-				int num27;
-				switch ((byte)((b3 & 0xC0) >> 6)) {
-					case 0:
-						num27 = 0;
-						break;
-					case 1:
-						num27 = binaryReader.ReadByte();
-						break;
-					case 2:
-						num27 = binaryReader.ReadInt16();
-						break;
-					default:
-						num27 = 0;
-						break;
-				}
-
-				switch (b5) {
-					case 0:
-						m += num27;
-						continue;
-					case 1:
-						num26 = (ushort)(num26 + num14);
-						break;
-					case 2:
-						num26 = (ushort)(num26 + num17);
-						break;
-					case 3:
-					case 4:
-					case 5: {
-						int num28 = b5 - 3;
-						if ((b4 & 0x40) == 64)
-							num28 = 3;
-
-						num26 = (ushort)(num26 + (ushort)(num20 + num28));
-						break;
+				int num27 = (byte)((b3 & 0xC0) >> 6) switch
+				{
+					0 => 0, 
+					1 => binaryReader.ReadByte(), 
+					2 => binaryReader.ReadInt16(), 
+					_ => 0, 
+				};
+				switch (b5)
+				{
+				case 0:
+					m += num27;
+					continue;
+				case 1:
+					num26 += num14;
+					break;
+				case 2:
+					num26 += num17;
+					break;
+				case 3:
+				case 4:
+				case 5:
+				{
+					int num28 = b5 - 3;
+					if ((b4 & 0x40) == 64)
+					{
+						num28 = 3;
 					}
-					case 6:
-						if ((double)l < Main.worldSurface) {
-							ushort num29 = (ushort)((double)num7 * ((double)l / Main.worldSurface));
-							num26 = (ushort)(num26 + (ushort)(num21 + num29));
-						}
-						else {
-							num26 = num24;
-						}
-						break;
-					case 7:
-						num26 = ((!((double)l < Main.rockLayer)) ? ((ushort)(num26 + num23)) : ((ushort)(num26 + num22)));
-						break;
+					num26 += (ushort)(num20 + num28);
+					break;
 				}
-
-				MapTile tile = MapTile.Create(array5[num26], b6, (byte)((uint)(b4 >> 1) & 0x1Fu));
+				case 6:
+					num26 = ((!((double)l < Main.worldSurface)) ? num24 : ((ushort)(num26 + (ushort)CalcSkyGradient(num21, num7, l))));
+					break;
+				case 7:
+					num26 = ((!((double)l < Main.rockLayer)) ? ((ushort)(num26 + num23)) : ((ushort)(num26 + num22)));
+					break;
+				}
+				MapTile tile = MapTile.Create(array5[num26], b6, (byte)((b4 >> 1) & 0x1F));
 				Main.Map.SetTile(m, l, ref tile);
-				if (b6 == byte.MaxValue) {
-					while (num27 > 0) {
+				if (b6 == byte.MaxValue)
+				{
+					while (num27 > 0)
+					{
 						m++;
 						Main.Map.SetTile(m, l, ref tile);
 						num27--;
 					}
-
 					continue;
 				}
-
-				while (num27 > 0) {
+				while (num27 > 0)
+				{
 					m++;
 					tile = tile.WithLight(binaryReader.ReadByte());
 					Main.Map.SetTile(m, l, ref tile);
@@ -3170,7 +4020,6 @@ public static class MapHelper
 				}
 			}
 		}
-
 		binaryReader.Close();
 	}
 }

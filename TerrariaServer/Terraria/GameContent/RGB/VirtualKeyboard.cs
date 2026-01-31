@@ -12,15 +12,19 @@ public class VirtualKeyboard : RgbKeyboard
 	private VirtualKeyboard(Fragment fragment, Keys[] keyMap)
 		: base(RgbDeviceVendor.Virtual, fragment, new DeviceColorProfile())
 	{
-		for (int i = 0; i < keyMap.Length; i++) {
-			if (keyMap[i] != 0)
+		for (int i = 0; i < keyMap.Length; i++)
+		{
+			if (keyMap[i] != Keys.None)
+			{
 				_keyCodeMap.Add(keyMap[i], i);
+			}
 		}
 	}
 
 	public static VirtualKeyboard Create()
 	{
-		Point[] gridPositions = new Point[133] {
+		Point[] gridPositions = new Point[133]
+		{
 			new Point(2, 6),
 			new Point(7, 0),
 			new Point(1, 4),
@@ -155,8 +159,8 @@ public class VirtualKeyboard : RgbKeyboard
 			new Point(5, 4),
 			new Point(6, 4)
 		};
-
-		Vector2[] canvasPositions = new Vector2[133] {
+		Vector2[] canvasPositions = new Vector2[133]
+		{
 			new Vector2(0.4365079f, 1f),
 			new Vector2(1.123016f, 1f / 126f),
 			new Vector2(0.2857143f, 2f / 3f),
@@ -291,8 +295,8 @@ public class VirtualKeyboard : RgbKeyboard
 			new Vector2(11f / 12f, 43f / 63f),
 			new Vector2(1.083333f, 43f / 63f)
 		};
-
-		Keys[] keyMap = new Keys[133] {
+		Keys[] keyMap = new Keys[133]
+		{
 			Keys.None,
 			Keys.None,
 			Keys.None,
@@ -427,7 +431,6 @@ public class VirtualKeyboard : RgbKeyboard
 			Keys.A,
 			Keys.S
 		};
-
 		return new VirtualKeyboard(Fragment.FromCustom(gridPositions, canvasPositions), keyMap);
 	}
 
@@ -437,9 +440,12 @@ public class VirtualKeyboard : RgbKeyboard
 
 	public override void Render(IEnumerable<RgbKey> keys)
 	{
-		foreach (RgbKey key in keys) {
+		foreach (RgbKey key in keys)
+		{
 			if (_keyCodeMap.TryGetValue(key.Key, out var value))
+			{
 				SetLedColor(value, key.CurrentColor.ToVector4());
+			}
 		}
 	}
 }

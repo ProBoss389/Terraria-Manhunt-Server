@@ -8,18 +8,31 @@ namespace Terraria.Graphics.Renderers;
 public class GasParticle : ABasicParticle
 {
 	public float FadeInNormalizedTime = 0.25f;
+
 	public float FadeOutNormalizedTime = 0.75f;
+
 	public float TimeToLive = 80f;
+
 	public Color ColorTint;
+
 	public float Opacity;
+
 	public float AdditiveAmount = 1f;
+
 	public float FadeInEnd = 20f;
+
 	public float FadeOutStart = 30f;
+
 	public float FadeOutEnd = 45f;
+
 	public float SlowdownScalar = 0.95f;
+
 	private float _timeSinceSpawn;
+
 	public Color LightColorTint;
+
 	private int _internalIndentifier;
+
 	public float InitialScale = 1f;
 
 	public override void FetchFromPool()
@@ -46,13 +59,15 @@ public class GasParticle : ABasicParticle
 		Opacity = MathHelper.Clamp(Utils.Remap(fromValue, 0f, FadeInNormalizedTime, 0f, 1f) * Utils.Remap(fromValue, FadeOutNormalizedTime, 1f, 1f, 0f), 0f, 1f) * 0.85f;
 		Rotation = (float)_internalIndentifier * 0.4002029f + _timeSinceSpawn * ((float)Math.PI * 2f) / 480f * 0.5f;
 		Velocity *= SlowdownScalar;
-		if (LightColorTint != Color.Transparent) {
+		if (LightColorTint != Color.Transparent)
+		{
 			Color color = LightColorTint * Opacity;
 			Lighting.AddLight(LocalPosition, (float)(int)color.R / 255f, (float)(int)color.G / 255f, (float)(int)color.B / 255f);
 		}
-
 		if (_timeSinceSpawn >= TimeToLive)
+		{
 			base.ShouldBeRemovedFromRenderer = true;
+		}
 	}
 
 	public override void Draw(ref ParticleRendererSettings settings, SpriteBatch spritebatch)

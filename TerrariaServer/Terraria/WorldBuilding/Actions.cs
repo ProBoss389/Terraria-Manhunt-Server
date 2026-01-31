@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.GameContent.Generation.Dungeon;
 
 namespace Terraria.WorldBuilding;
 
@@ -60,13 +60,15 @@ public static class Actions
 	public class TileScanner : GenAction
 	{
 		private ushort[] _tileIds;
+
 		private Dictionary<ushort, int> _tileCounts;
 
 		public TileScanner(params ushort[] tiles)
 		{
 			_tileIds = tiles;
 			_tileCounts = new Dictionary<ushort, int>();
-			for (int i = 0; i < tiles.Length; i++) {
+			for (int i = 0; i < tiles.Length; i++)
+			{
 				_tileCounts[_tileIds[i]] = 0;
 			}
 		}
@@ -75,36 +77,46 @@ public static class Actions
 		{
 			Tile tile = GenBase._tiles[x, y];
 			if (tile.active() && _tileCounts.ContainsKey(tile.type))
+			{
 				_tileCounts[tile.type]++;
-
+			}
 			return UnitApply(origin, x, y, args);
 		}
 
 		public TileScanner Output(Dictionary<ushort, int> resultsOutput)
 		{
 			_tileCounts = resultsOutput;
-			for (int i = 0; i < _tileIds.Length; i++) {
+			for (int i = 0; i < _tileIds.Length; i++)
+			{
 				if (!_tileCounts.ContainsKey(_tileIds[i]))
+				{
 					_tileCounts[_tileIds[i]] = 0;
+				}
 			}
-
 			return this;
 		}
 
-		public Dictionary<ushort, int> GetResults() => _tileCounts;
+		public Dictionary<ushort, int> GetResults()
+		{
+			return _tileCounts;
+		}
 
 		public int GetCount(ushort tileId)
 		{
 			if (!_tileCounts.ContainsKey(tileId))
+			{
 				return -1;
-
+			}
 			return _tileCounts[tileId];
 		}
 	}
 
 	public class Blank : GenAction
 	{
-		public override bool Apply(Point origin, int x, int y, params object[] args) => UnitApply(origin, x, y, args);
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			return UnitApply(origin, x, y, args);
+		}
 	}
 
 	public class Custom : GenAction
@@ -116,7 +128,10 @@ public static class Actions
 			_perUnit = perUnit;
 		}
 
-		public override bool Apply(Point origin, int x, int y, params object[] args) => _perUnit(x, y, args) | UnitApply(origin, x, y, args);
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			return _perUnit(x, y, args) | UnitApply(origin, x, y, args);
+		}
 	}
 
 	public class ClearMetadata : GenAction
@@ -188,24 +203,68 @@ public static class Actions
 	public class SetTile : GenAction
 	{
 		private ushort _type;
+
 		private bool _doFraming;
+
 		private bool _doNeighborFraming;
 
-		public SetTile(ushort type, bool setSelfFrames = false, bool setNeighborFrames = true)
+		private bool _clearTile;
+
+		public SetTile(ushort type, bool setSelfFrames = false, bool setNeighborFrames = true, bool clearTile = true)
 		{
 			_type = type;
 			_doFraming = setSelfFrames;
 			_doNeighborFraming = setNeighborFrames;
+			_clearTile = clearTile;
 		}
 
 		public override bool Apply(Point origin, int x, int y, params object[] args)
 		{
-			GenBase._tiles[x, y].Clear(~(TileDataType.Wiring | TileDataType.Actuator));
-			GenBase._tiles[x, y].type = _type;
-			GenBase._tiles[x, y].active(active: true);
+			Tile tile = GenBase._tiles[x, y];
+			if (_clearTile)
+			{
+				tile.Clear(~(TileDataType.Wiring | TileDataType.Actuator));
+			}
+			tile.type = _type;
+			tile.active(active: true);
 			if (_doFraming)
+			{
 				WorldUtils.TileFrame(x, y, _doNeighborFraming);
+			}
+			return UnitApply(origin, x, y, args);
+		}
+	}
 
+	public class SetWall : GenAction
+	{
+		private ushort _type;
+
+		private bool _doFraming;
+
+		private bool _doNeighborFraming;
+
+		private bool _clearTile;
+
+		public SetWall(ushort type, bool setSelfFrames = false, bool setNeighborFrames = true, bool clearTile = true)
+		{
+			_type = type;
+			_doFraming = setSelfFrames;
+			_doNeighborFraming = setNeighborFrames;
+			_clearTile = clearTile;
+		}
+
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			Tile tile = GenBase._tiles[x, y];
+			if (_clearTile)
+			{
+				tile.Clear(~(TileDataType.Wiring | TileDataType.Actuator));
+			}
+			tile.wall = _type;
+			if (_doFraming)
+			{
+				WorldUtils.WallFrame(x, y, _doNeighborFraming);
+			}
 			return UnitApply(origin, x, y, args);
 		}
 	}
@@ -213,7 +272,9 @@ public static class Actions
 	public class SetTileKeepWall : GenAction
 	{
 		private ushort _type;
+
 		private bool _doFraming;
+
 		private bool _doNeighborFraming;
 
 		public SetTileKeepWall(ushort type, bool setSelfFrames = false, bool setNeighborFrames = true)
@@ -231,15 +292,32 @@ public static class Actions
 			GenBase._tiles[x, y].Clear(~(TileDataType.Wiring | TileDataType.Actuator));
 			GenBase._tiles[x, y].type = _type;
 			GenBase._tiles[x, y].active(active: true);
-			if (wall > 0) {
+			if (wall > 0)
+			{
 				GenBase._tiles[x, y].wall = wall;
 				GenBase._tiles[x, y].wallFrameX(wallFrameX);
 				GenBase._tiles[x, y].wallFrameY(wallFrameY);
 			}
-
 			if (_doFraming)
+			{
 				WorldUtils.TileFrame(x, y, _doNeighborFraming);
+			}
+			return UnitApply(origin, x, y, args);
+		}
+	}
 
+	public class UpdateBounds : GenAction
+	{
+		private DungeonBounds _bounds;
+
+		public UpdateBounds(DungeonBounds bounds)
+		{
+			_bounds = bounds;
+		}
+
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			_bounds.UpdateBounds(x, y);
 			return UnitApply(origin, x, y, args);
 		}
 	}
@@ -247,6 +325,7 @@ public static class Actions
 	public class DebugDraw : GenAction
 	{
 		private Color _color;
+
 		private SpriteBatch _spriteBatch;
 
 		public DebugDraw(SpriteBatch spriteBatch, Color color = default(Color))
@@ -294,31 +373,122 @@ public static class Actions
 		}
 	}
 
+	public class SetTilePaint : GenAction
+	{
+		private byte paintID;
+
+		public SetTilePaint(byte paintID)
+		{
+			this.paintID = paintID;
+		}
+
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			if (paintID == 0)
+			{
+				return Fail();
+			}
+			GenBase._tiles[x, y].color(paintID);
+			return UnitApply(origin, x, y, args);
+		}
+	}
+
+	public class ClearTilePaint : GenAction
+	{
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			GenBase._tiles[x, y].color(0);
+			return UnitApply(origin, x, y, args);
+		}
+	}
+
+	public class SetWallPaint : GenAction
+	{
+		private byte paintID;
+
+		public SetWallPaint(byte paintID)
+		{
+			this.paintID = paintID;
+		}
+
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			if (paintID == 0)
+			{
+				return Fail();
+			}
+			GenBase._tiles[x, y].wallColor(paintID);
+			return UnitApply(origin, x, y, args);
+		}
+	}
+
+	public class ClearWallPaint : GenAction
+	{
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			GenBase._tiles[x, y].wallColor(0);
+			return UnitApply(origin, x, y, args);
+		}
+	}
+
+	public class SetTileAndWallPaint : GenAction
+	{
+		private byte paintID;
+
+		public SetTileAndWallPaint(byte paintID)
+		{
+			this.paintID = paintID;
+		}
+
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			if (paintID == 0)
+			{
+				return Fail();
+			}
+			if (GenBase._tiles[x, y].active())
+			{
+				GenBase._tiles[x, y].color(paintID);
+			}
+			if (GenBase._tiles[x, y].wall != 0)
+			{
+				GenBase._tiles[x, y].wallColor(paintID);
+			}
+			return UnitApply(origin, x, y, args);
+		}
+	}
+
+	public class ClearTileAndWallPaint : GenAction
+	{
+		public override bool Apply(Point origin, int x, int y, params object[] args)
+		{
+			GenBase._tiles[x, y].color(0);
+			GenBase._tiles[x, y].wallColor(0);
+			return UnitApply(origin, x, y, args);
+		}
+	}
+
 	public class SetTileAndWallRainbowPaint : GenAction
 	{
 		public override bool Apply(Point origin, int x, int y, params object[] args)
 		{
-			byte paintIDForPosition = GetPaintIDForPosition(x, y);
-			GenBase._tiles[x, y].color(paintIDForPosition);
-			GenBase._tiles[x, y].wallColor(paintIDForPosition);
+			byte rainbowPaintIDForPosition = WorldGen.GetRainbowPaintIDForPosition(x, y);
+			if (GenBase._tiles[x, y].active())
+			{
+				GenBase._tiles[x, y].color(rainbowPaintIDForPosition);
+			}
+			if (GenBase._tiles[x, y].wall != 0)
+			{
+				GenBase._tiles[x, y].wallColor(rainbowPaintIDForPosition);
+			}
 			return UnitApply(origin, x, y, args);
-		}
-
-		private byte GetPaintIDForPosition(int x, int y)
-		{
-			int num = x % 52 + y % 52;
-			num %= 26;
-			if (num > 12)
-				num = 12 - (num - 12);
-
-			num = Math.Min(12, Math.Max(1, num));
-			return (byte)(12 + num);
 		}
 	}
 
 	public class PlaceTile : GenAction
 	{
 		private ushort _type;
+
 		private int _style;
 
 		public PlaceTile(ushort type, int style = 0)
@@ -346,6 +516,7 @@ public static class Actions
 	public class PlaceWall : GenAction
 	{
 		private ushort _type;
+
 		private bool _neighbors;
 
 		public PlaceWall(ushort type, bool neighbors = true)
@@ -358,13 +529,13 @@ public static class Actions
 		{
 			GenBase._tiles[x, y].wall = _type;
 			WorldGen.SquareWallFrame(x, y);
-			if (_neighbors) {
+			if (_neighbors)
+			{
 				WorldGen.SquareWallFrame(x + 1, y);
 				WorldGen.SquareWallFrame(x - 1, y);
 				WorldGen.SquareWallFrame(x, y - 1);
 				WorldGen.SquareWallFrame(x, y + 1);
 			}
-
 			return UnitApply(origin, x, y, args);
 		}
 	}
@@ -372,6 +543,7 @@ public static class Actions
 	public class SetLiquid : GenAction
 	{
 		private int _type;
+
 		private byte _value;
 
 		public SetLiquid(int type = 0, byte value = byte.MaxValue)
@@ -400,11 +572,11 @@ public static class Actions
 		public override bool Apply(Point origin, int x, int y, params object[] args)
 		{
 			Tile tile = GenBase._tiles[x, y];
-			if (WorldGen.SolidTile(tile)) {
+			if (WorldGen.SolidTile(tile))
+			{
 				tile.ResetToType(_type);
 				return UnitApply(origin, x, y, args);
 			}
-
 			return Fail();
 		}
 	}
@@ -443,12 +615,15 @@ public static class Actions
 
 	public static GenAction Chain(params GenAction[] actions)
 	{
-		for (int i = 0; i < actions.Length - 1; i++) {
+		for (int i = 0; i < actions.Length - 1; i++)
+		{
 			actions[i].NextAction = actions[i + 1];
 		}
-
 		return actions[0];
 	}
 
-	public static GenAction Continue(GenAction action) => new ContinueWrapper(action);
+	public static GenAction Continue(GenAction action)
+	{
+		return new ContinueWrapper(action);
+	}
 }

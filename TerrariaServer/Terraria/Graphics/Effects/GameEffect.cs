@@ -5,7 +5,9 @@ namespace Terraria.Graphics.Effects;
 public abstract class GameEffect
 {
 	public float Opacity;
+
 	protected bool _isLoaded;
+
 	protected EffectPriority _priority;
 
 	public bool IsLoaded => _isLoaded;
@@ -14,7 +16,8 @@ public abstract class GameEffect
 
 	public void Load()
 	{
-		if (!_isLoaded) {
+		if (!_isLoaded)
+		{
 			_isLoaded = true;
 			OnLoad();
 		}

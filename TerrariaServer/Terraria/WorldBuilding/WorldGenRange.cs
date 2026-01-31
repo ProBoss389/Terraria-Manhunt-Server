@@ -14,10 +14,13 @@ public class WorldGenRange
 	}
 
 	public static readonly WorldGenRange Empty = new WorldGenRange(0, 0);
+
 	[JsonProperty("Min")]
 	public readonly int Minimum;
+
 	[JsonProperty("Max")]
 	public readonly int Maximum;
+
 	[JsonProperty]
 	[JsonConverter(typeof(StringEnumConverter))]
 	public readonly ScalingMode ScaleWith;
@@ -32,23 +35,26 @@ public class WorldGenRange
 		Maximum = maximum;
 	}
 
-	public int GetRandom(UnifiedRandom random) => random.Next(ScaledMinimum, ScaledMaximum + 1);
+	public int GetRandom(UnifiedRandom random)
+	{
+		return random.Next(ScaledMinimum, ScaledMaximum + 1);
+	}
 
 	private int ScaleValue(int value)
 	{
 		double num = 1.0;
-		switch (ScaleWith) {
-			case ScalingMode.WorldArea:
-				num = (double)(Main.maxTilesX * Main.maxTilesY) / 5040000.0;
-				break;
-			case ScalingMode.WorldWidth:
-				num = (double)Main.maxTilesX / 4200.0;
-				break;
-			case ScalingMode.None:
-				num = 1.0;
-				break;
+		switch (ScaleWith)
+		{
+		case ScalingMode.WorldArea:
+			num = (double)(Main.maxTilesX * Main.maxTilesY) / 5040000.0;
+			break;
+		case ScalingMode.WorldWidth:
+			num = (double)Main.maxTilesX / 4200.0;
+			break;
+		case ScalingMode.None:
+			num = 1.0;
+			break;
 		}
-
 		return (int)(num * (double)value);
 	}
 }

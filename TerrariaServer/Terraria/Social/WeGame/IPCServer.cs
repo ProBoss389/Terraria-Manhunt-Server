@@ -8,20 +8,27 @@ namespace Terraria.Social.WeGame;
 public class IPCServer : IPCBase
 {
 	private string _serverName;
+
 	private bool _haveClientAccessFlag;
 
 	public event Action OnClientAccess;
 
-	public override event Action<byte[]> OnDataArrive {
-		add {
+	public override event Action<byte[]> OnDataArrive
+	{
+		add
+		{
 			_onDataArrive = (Action<byte[]>)Delegate.Combine(_onDataArrive, value);
 		}
-		remove {
+		remove
+		{
 			_onDataArrive = (Action<byte[]>)Delegate.Remove(_onDataArrive, value);
 		}
 	}
 
-	private NamedPipeServerStream GetPipeStream() => (NamedPipeServerStream)_pipeStream;
+	private NamedPipeServerStream GetPipeStream()
+	{
+		return (NamedPipeServerStream)_pipeStream;
+	}
 
 	public void Init(string serverName)
 	{
@@ -30,7 +37,8 @@ public class IPCServer : IPCBase
 
 	private void LazyCreatePipe()
 	{
-		if (GetPipeStream() == null) {
+		if (GetPipeStream() == null)
+		{
 			_pipeStream = new NamedPipeServerStream(_serverName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
 			_cancelTokenSrc = new CancellationTokenSource();
 		}
@@ -41,9 +49,13 @@ public class IPCServer : IPCBase
 		IPCContent obj = (IPCContent)result.AsyncState;
 		base.ReadCallback(result);
 		if (!obj.CancelToken.IsCancellationRequested)
+		{
 			ContinueReadOrWait();
+		}
 		else
+		{
 			WeGameHelper.WriteDebugString("servcer.ReadCallback cancel");
+		}
 	}
 
 	public void StartListen()
@@ -60,16 +72,22 @@ public class IPCServer : IPCBase
 
 	private void ConnectionCallback(IAsyncResult result)
 	{
-		try {
+		try
+		{
 			_haveClientAccessFlag = true;
 			WeGameHelper.WriteDebugString("Connected in");
 			GetPipeStream().EndWaitForConnection(result);
 			if (!((CancellationToken)result.AsyncState).IsCancellationRequested)
+			{
 				BeginReadData();
+			}
 			else
+			{
 				WeGameHelper.WriteDebugString("ConnectionCallback but user cancel");
+			}
 		}
-		catch (IOException ex) {
+		catch (IOException ex)
+		{
 			_pipeBrokenFlag = true;
 			WeGameHelper.WriteDebugString("ConnectionCallback Exception, {0}", ex.Message);
 		}
@@ -77,15 +95,17 @@ public class IPCServer : IPCBase
 
 	public void ContinueReadOrWait()
 	{
-		if (GetPipeStream().IsConnected) {
+		if (GetPipeStream().IsConnected)
+		{
 			BeginReadData();
 			return;
 		}
-
-		try {
+		try
+		{
 			GetPipeStream().BeginWaitForConnection(ConnectionCallback, null);
 		}
-		catch (IOException ex) {
+		catch (IOException ex)
+		{
 			_pipeBrokenFlag = true;
 			WeGameHelper.WriteDebugString("ContinueReadOrWait Exception, {0}", ex.Message);
 		}
@@ -93,10 +113,12 @@ public class IPCServer : IPCBase
 
 	private void ProcessClientAccessEvent()
 	{
-		if (_haveClientAccessFlag) {
+		if (_haveClientAccessFlag)
+		{
 			if (this.OnClientAccess != null)
+			{
 				this.OnClientAccess();
-
+			}
 			_haveClientAccessFlag = false;
 		}
 	}
@@ -110,7 +132,8 @@ public class IPCServer : IPCBase
 
 	private void ProcessPipeBrokenEvent()
 	{
-		if (_pipeBrokenFlag) {
+		if (_pipeBrokenFlag)
+		{
 			Reset();
 			_pipeBrokenFlag = false;
 			RestartListen();

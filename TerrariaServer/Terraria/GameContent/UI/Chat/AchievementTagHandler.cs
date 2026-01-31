@@ -29,10 +29,14 @@ public class AchievementTagHandler : ITagHandler
 	{
 		Achievement achievement = Main.Achievements.GetAchievement(text);
 		if (achievement == null)
+		{
 			return new TextSnippet(text);
-
+		}
 		return new AchievementSnippet(achievement);
 	}
 
-	public static string GenerateTag(Achievement achievement) => "[a:" + achievement.Name + "]";
+	public static string GenerateTag(Achievement achievement)
+	{
+		return "[a:" + achievement.Name + "]";
+	}
 }

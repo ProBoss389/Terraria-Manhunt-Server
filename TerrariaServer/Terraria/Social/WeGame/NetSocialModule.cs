@@ -15,22 +15,16 @@ public abstract class NetSocialModule : Terraria.Social.Base.NetSocialModule
 	}
 
 	protected const int LobbyMessageJoin = 1;
+
 	protected Lobby _lobby = new Lobby();
+
 	protected WeGameP2PReader _reader;
+
 	protected WeGameP2PWriter _writer;
+
 	protected ConcurrentDictionary<RailID, ConnectionState> _connectionStateMap = new ConcurrentDictionary<RailID, ConnectionState>();
-	protected static readonly byte[] _handshake = new byte[10] {
-		10,
-		0,
-		93,
-		114,
-		101,
-		108,
-		111,
-		103,
-		105,
-		99
-	};
+
+	protected static readonly byte[] _handshake = new byte[10] { 10, 0, 93, 114, 101, 108, 111, 103, 105, 99 };
 
 	protected NetSocialModule()
 	{
@@ -52,29 +46,37 @@ public abstract class NetSocialModule : Terraria.Social.Base.NetSocialModule
 	public override bool IsConnected(RemoteAddress address)
 	{
 		if (address == null)
+		{
 			return false;
-
+		}
 		RailID key = RemoteAddressToRailId(address);
 		if (!_connectionStateMap.ContainsKey(key) || _connectionStateMap[key] != ConnectionState.Connected)
+		{
 			return false;
-
+		}
 		return true;
 	}
 
-	protected RailID GetLocalPeer() => rail_api.RailFactory().RailPlayer().GetRailID();
+	protected RailID GetLocalPeer()
+	{
+		return rail_api.RailFactory().RailPlayer().GetRailID();
+	}
 
 	protected bool GetSessionState(RailID userId, RailNetworkSessionState state)
 	{
 		IRailNetwork railNetwork = rail_api.RailFactory().RailNetworkHelper();
-		if (railNetwork.GetSessionState(userId, state) != 0) {
+		if (railNetwork.GetSessionState(userId, state) != RailResult.kSuccess)
+		{
 			WeGameHelper.WriteDebugString("GetSessionState Failed user:{0}", userId.id_);
 			return false;
 		}
-
 		return true;
 	}
 
-	protected RailID RemoteAddressToRailId(RemoteAddress address) => ((WeGameAddress)address).rail_id;
+	protected RailID RemoteAddressToRailId(RemoteAddress address)
+	{
+		return ((WeGameAddress)address).rail_id;
+	}
 
 	public override bool Send(RemoteAddress address, byte[] data, int length)
 	{
@@ -86,8 +88,9 @@ public abstract class NetSocialModule : Terraria.Social.Base.NetSocialModule
 	public override int Receive(RemoteAddress address, byte[] data, int offset, int length)
 	{
 		if (address == null)
+		{
 			return 0;
-
+		}
 		RailID user = RemoteAddressToRailId(address);
 		return _reader.Receive(user, data, offset, length);
 	}

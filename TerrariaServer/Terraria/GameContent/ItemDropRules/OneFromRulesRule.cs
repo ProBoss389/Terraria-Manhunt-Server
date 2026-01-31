@@ -5,6 +5,7 @@ namespace Terraria.GameContent.ItemDropRules;
 public class OneFromRulesRule : IItemDropRule, INestedItemDropRule
 {
 	public IItemDropRule[] options;
+
 	public int chanceDenominator;
 
 	public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
@@ -16,41 +17,45 @@ public class OneFromRulesRule : IItemDropRule, INestedItemDropRule
 		ChainedRules = new List<IItemDropRuleChainAttempt>();
 	}
 
-	public bool CanDrop(DropAttemptInfo info) => true;
+	public bool CanDrop(DropAttemptInfo info)
+	{
+		return true;
+	}
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
-		ItemDropAttemptResult result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.DidNotRunCode;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.DidNotRunCode
+		};
 	}
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info, ItemDropRuleResolveAction resolveAction)
 	{
 		int num = -1;
-		ItemDropAttemptResult result;
-		if (info.rng.Next(chanceDenominator) == 0) {
+		if (info.rng.Next(chanceDenominator) == 0)
+		{
 			num = info.rng.Next(options.Length);
 			resolveAction(options[num], info);
-			result = default(ItemDropAttemptResult);
-			result.State = ItemDropAttemptResultState.Success;
-			return result;
+			return new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.Success
+			};
 		}
-
-		result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.FailedRandomRoll;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.FailedRandomRoll
+		};
 	}
 
 	public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 	{
 		float num = 1f / (float)chanceDenominator;
-		float num2 = num * ratesInfo.parentDroprateChance;
-		float multiplier = 1f / (float)options.Length * num2;
-		for (int i = 0; i < options.Length; i++) {
+		float multiplier = 1f / (float)options.Length * num;
+		for (int i = 0; i < options.Length; i++)
+		{
 			options[i].ReportDroprates(drops, ratesInfo.With(multiplier));
 		}
-
 		Chains.ReportDroprates(ChainedRules, num, drops, ratesInfo);
 	}
 }

@@ -18,7 +18,9 @@ public class ConditionFloatTracker : AchievementTracker<float>
 	public override void ReportUpdate()
 	{
 		if (SocialAPI.Achievements != null && _name != null)
+		{
 			SocialAPI.Achievements.UpdateFloatStat(_name, _value);
+		}
 	}
 
 	protected override void Load()

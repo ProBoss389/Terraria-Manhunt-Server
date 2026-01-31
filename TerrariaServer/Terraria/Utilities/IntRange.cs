@@ -6,6 +6,7 @@ public struct IntRange
 {
 	[JsonProperty("Min")]
 	public readonly int Minimum;
+
 	[JsonProperty("Max")]
 	public readonly int Maximum;
 

@@ -7,15 +7,17 @@ namespace Terraria.Graphics.Effects;
 public class SkyManager : EffectManager<CustomSky>
 {
 	public static SkyManager Instance = new SkyManager();
+
 	private float _lastDepth;
+
 	private LinkedList<CustomSky> _activeSkies = new LinkedList<CustomSky>();
 
 	public void Reset()
 	{
-		foreach (CustomSky value in _effects.Values) {
+		foreach (CustomSky value in _effects.Values)
+		{
 			value.Reset();
 		}
-
 		_activeSkies.Clear();
 	}
 
@@ -23,17 +25,21 @@ public class SkyManager : EffectManager<CustomSky>
 	{
 		int num = Main.dayRate;
 		if (num < 1)
+		{
 			num = 1;
-
-		for (int i = 0; i < num; i++) {
+		}
+		for (int i = 0; i < num; i++)
+		{
 			LinkedListNode<CustomSky> linkedListNode = _activeSkies.First;
-			while (linkedListNode != null) {
+			while (linkedListNode != null)
+			{
 				CustomSky value = linkedListNode.Value;
 				LinkedListNode<CustomSky> next = linkedListNode.Next;
 				value.Update(gameTime);
 				if (!value.IsActive())
+				{
 					_activeSkies.Remove(linkedListNode);
-
+				}
 				linkedListNode = next;
 			}
 		}
@@ -46,7 +52,8 @@ public class SkyManager : EffectManager<CustomSky>
 
 	public void DrawToDepth(SpriteBatch spriteBatch, float minDepth)
 	{
-		if (!(_lastDepth <= minDepth)) {
+		if (!(_lastDepth <= minDepth))
+		{
 			DrawDepthRange(spriteBatch, minDepth, _lastDepth);
 			_lastDepth = minDepth;
 		}
@@ -54,7 +61,8 @@ public class SkyManager : EffectManager<CustomSky>
 
 	public void DrawDepthRange(SpriteBatch spriteBatch, float minDepth, float maxDepth)
 	{
-		foreach (CustomSky activeSky in _activeSkies) {
+		foreach (CustomSky activeSky in _activeSkies)
+		{
 			activeSky.Draw(spriteBatch, minDepth, maxDepth);
 		}
 	}
@@ -83,20 +91,20 @@ public class SkyManager : EffectManager<CustomSky>
 
 	public Color ProcessTileColor(Color color)
 	{
-		foreach (CustomSky activeSky in _activeSkies) {
+		foreach (CustomSky activeSky in _activeSkies)
+		{
 			color = activeSky.OnTileColor(color);
 		}
-
 		return color;
 	}
 
 	public float ProcessCloudAlpha()
 	{
 		float num = 1f;
-		foreach (CustomSky activeSky in _activeSkies) {
+		foreach (CustomSky activeSky in _activeSkies)
+		{
 			num *= activeSky.GetCloudAlpha();
 		}
-
 		return MathHelper.Clamp(num, 0f, 1f);
 	}
 }

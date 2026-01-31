@@ -8,9 +8,13 @@ namespace Terraria.Graphics.Renderers;
 public class FlameParticle : ABasicParticle
 {
 	public float FadeOutNormalizedTime = 1f;
+
 	private float _timeTolive;
+
 	private float _timeSinceSpawn;
+
 	private int _indexOfPlayerWhoSpawnedThis;
+
 	private int _packedShaderIndex;
 
 	public override void FetchFromPool()
@@ -41,7 +45,9 @@ public class FlameParticle : ABasicParticle
 		base.Update(ref settings);
 		_timeSinceSpawn += 1f;
 		if (_timeSinceSpawn >= _timeTolive)
+		{
 			base.ShouldBeRemovedFromRenderer = true;
+		}
 	}
 
 	public override void Draw(ref ParticleRendererSettings settings, SpriteBatch spritebatch)
@@ -50,14 +56,14 @@ public class FlameParticle : ABasicParticle
 		Vector2 vector = settings.AnchorPosition + LocalPosition;
 		ulong seed = Main.TileFrameSeed ^ (((ulong)LocalPosition.X << 32) | (uint)LocalPosition.Y);
 		Player player = Main.player[_indexOfPlayerWhoSpawnedThis];
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 4; i++)
+		{
 			DrawData drawData = new DrawData(position: vector + new Vector2(Utils.RandomInt(ref seed, -2, 3), Utils.RandomInt(ref seed, -2, 3)) * Scale, texture: _texture.Value, sourceRect: _frame, color: color, rotation: Rotation, origin: _origin, scale: Scale, effect: SpriteEffects.None);
 			drawData.shader = _packedShaderIndex;
 			DrawData cdd = drawData;
 			PlayerDrawHelper.SetShaderForData(player, 0, ref cdd);
 			cdd.Draw(spritebatch);
 		}
-
 		Main.pixelShader.CurrentTechnique.Passes[0].Apply();
 	}
 }

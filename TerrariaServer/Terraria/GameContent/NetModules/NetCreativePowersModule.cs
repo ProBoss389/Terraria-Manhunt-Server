@@ -8,7 +8,7 @@ public class NetCreativePowersModule : NetModule
 {
 	public static NetPacket PreparePacket(ushort powerId, int specificInfoBytesInPacketCount)
 	{
-		NetPacket result = NetModule.CreatePacket<NetCreativePowersModule>(specificInfoBytesInPacketCount + 2);
+		NetPacket result = NetModule.CreatePacket<NetCreativePowersModule>();
 		result.Writer.Write(powerId);
 		return result;
 	}
@@ -17,8 +17,9 @@ public class NetCreativePowersModule : NetModule
 	{
 		ushort id = reader.ReadUInt16();
 		if (!CreativePowerManager.Instance.TryGetPower(id, out var power))
+		{
 			return false;
-
+		}
 		power.DeserializeNetMessage(reader, userId);
 		return true;
 	}

@@ -14,11 +14,13 @@ public static class ChatHelper
 
 	public static void DisplayMessageOnClient(NetworkText text, Color color, int playerId)
 	{
-		if (Main.dedServ) {
+		if (Main.dedServ)
+		{
 			NetPacket packet = NetTextModule.SerializeServerMessage(text, color, byte.MaxValue);
 			NetManager.Instance.SendToClient(packet, playerId);
 		}
-		else {
+		else
+		{
 			DisplayMessage(text, color, byte.MaxValue);
 		}
 	}
@@ -30,13 +32,15 @@ public static class ChatHelper
 
 	public static void SendChatMessageToClientAs(byte messageAuthor, NetworkText text, Color color, int playerId)
 	{
-		if (Main.dedServ) {
+		if (Main.dedServ)
+		{
 			NetPacket packet = NetTextModule.SerializeServerMessage(text, color, messageAuthor);
 			NetManager.Instance.SendToClient(packet, playerId);
 		}
-
 		if (playerId == Main.myPlayer)
+		{
 			DisplayMessage(text, color, messageAuthor);
+		}
 	}
 
 	public static void BroadcastChatMessage(NetworkText text, Color color, int excludedPlayer = -1)
@@ -46,20 +50,26 @@ public static class ChatHelper
 
 	public static void BroadcastChatMessageAs(byte messageAuthor, NetworkText text, Color color, int excludedPlayer = -1)
 	{
-		if (Main.dedServ) {
+		if (Main.dedServ)
+		{
 			NetPacket packet = NetTextModule.SerializeServerMessage(text, color, messageAuthor);
 			NetManager.Instance.Broadcast(packet, OnlySendToPlayersWhoAreLoggedIn, excludedPlayer);
 		}
-		else if (excludedPlayer != Main.myPlayer) {
+		else if (excludedPlayer != Main.myPlayer)
+		{
 			DisplayMessage(text, color, messageAuthor);
 		}
 	}
 
-	public static bool OnlySendToPlayersWhoAreLoggedIn(int clientIndex) => Netplay.Clients[clientIndex].State == 10;
+	public static bool OnlySendToPlayersWhoAreLoggedIn(int clientIndex)
+	{
+		return Netplay.Clients[clientIndex].State == 10;
+	}
 
 	public static void SendChatMessageFromClient(ChatMessage message)
 	{
-		if (!message.IsConsumed) {
+		if (!message.IsConsumed)
+		{
 			NetPacket packet = NetTextModule.SerializeClientMessage(message);
 			NetManager.Instance.SendToServer(packet);
 		}
@@ -68,16 +78,20 @@ public static class ChatHelper
 	public static void DisplayMessage(NetworkText text, Color color, byte messageAuthor)
 	{
 		string text2 = text.ToString();
-		if (messageAuthor < byte.MaxValue) {
+		if (messageAuthor < byte.MaxValue)
+		{
 			Main.player[messageAuthor].chatOverhead.NewMessage(text2, Main.PlayerOverheadChatMessageDisplayTime);
 			Main.player[messageAuthor].chatOverhead.color = color;
 			text2 = NameTagHandler.GenerateTag(Main.player[messageAuthor].name) + " " + text2;
 		}
-
 		if (ShouldCacheMessage())
+		{
 			CacheMessage(text2, color);
+		}
 		else
+		{
 			Main.NewTextMultiline(text2, force: false, color);
+		}
 	}
 
 	private static void CacheMessage(string message, Color color)
@@ -87,8 +101,10 @@ public static class ChatHelper
 
 	public static void ShowCachedMessages()
 	{
-		lock (_cachedMessages) {
-			foreach (Tuple<string, Color> cachedMessage in _cachedMessages) {
+		lock (_cachedMessages)
+		{
+			foreach (Tuple<string, Color> cachedMessage in _cachedMessages)
+			{
 				Main.NewTextMultiline(cachedMessage.Item1, force: false, cachedMessage.Item2);
 			}
 		}
@@ -102,8 +118,9 @@ public static class ChatHelper
 	private static bool ShouldCacheMessage()
 	{
 		if (Main.netMode == 1)
+		{
 			return Main.gameMenu;
-
+		}
 		return false;
 	}
 }

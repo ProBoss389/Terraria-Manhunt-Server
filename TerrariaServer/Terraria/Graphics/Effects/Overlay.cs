@@ -6,6 +6,7 @@ namespace Terraria.Graphics.Effects;
 public abstract class Overlay : GameEffect
 {
 	public OverlayMode Mode = OverlayMode.Inactive;
+
 	private RenderLayers _layer = RenderLayers.All;
 
 	public RenderLayers Layer => _layer;

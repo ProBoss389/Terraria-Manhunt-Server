@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,13 +15,16 @@ public class VertexStrip
 	private struct CustomVertexInfo : IVertexType
 	{
 		public Vector2 Position;
+
 		public Color Color;
-		public Vector2 TexCoord;
-		private static VertexDeclaration _vertexDeclaration = new VertexDeclaration(new VertexElement(0, VertexElementFormat.Vector2, VertexElementUsage.Position, 0), new VertexElement(8, VertexElementFormat.Color, VertexElementUsage.Color, 0), new VertexElement(12, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0));
+
+		public Vector3 TexCoord;
+
+		private static VertexDeclaration _vertexDeclaration = new VertexDeclaration(new VertexElement(0, VertexElementFormat.Vector2, VertexElementUsage.Position, 0), new VertexElement(8, VertexElementFormat.Color, VertexElementUsage.Color, 0), new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.TextureCoordinate, 0));
 
 		public VertexDeclaration VertexDeclaration => _vertexDeclaration;
 
-		public CustomVertexInfo(Vector2 position, Color color, Vector2 texCoord)
+		public CustomVertexInfo(Vector2 position, Color color, Vector3 texCoord)
 		{
 			Position = position;
 			Color = color;
@@ -29,96 +33,110 @@ public class VertexStrip
 	}
 
 	private CustomVertexInfo[] _vertices = new CustomVertexInfo[1];
+
 	private int _vertexAmountCurrentlyMaintained;
+
 	private short[] _indices = new short[1];
+
 	private int _indicesAmountCurrentlyMaintained;
+
 	private List<Vector2> _temporaryPositionsCache = new List<Vector2>();
+
 	private List<float> _temporaryRotationsCache = new List<float>();
+
+	public void Reset(int expectedVertexCount = 0)
+	{
+		_vertexAmountCurrentlyMaintained = 0;
+		_indicesAmountCurrentlyMaintained = 0;
+		if (_vertices.Length < expectedVertexCount)
+		{
+			Array.Resize(ref _vertices, expectedVertexCount);
+		}
+	}
 
 	public void PrepareStrip(Vector2[] positions, float[] rotations, StripColorFunction colorFunction, StripHalfWidthFunction widthFunction, Vector2 offsetForAllPositions = default(Vector2), int? expectedVertexPairsAmount = null, bool includeBacksides = false)
 	{
 		int num = positions.Length;
-		int num2 = (_vertexAmountCurrentlyMaintained = num * 2);
-		if (_vertices.Length < num2)
-			Array.Resize(ref _vertices, num2);
-
-		int num3 = num;
+		Reset(num * 2);
+		int num2 = num;
 		if (expectedVertexPairsAmount.HasValue)
-			num3 = expectedVertexPairsAmount.Value;
-
-		for (int i = 0; i < num; i++) {
-			if (positions[i] == Vector2.Zero) {
-				num = i - 1;
-				_vertexAmountCurrentlyMaintained = num * 2;
-				break;
-			}
-
+		{
+			num2 = expectedVertexPairsAmount.Value;
+		}
+		for (int i = 0; i < num && !(positions[i] == Vector2.Zero); i++)
+		{
 			Vector2 pos = positions[i] + offsetForAllPositions;
 			float rot = MathHelper.WrapAngle(rotations[i]);
-			int indexOnVertexArray = i * 2;
-			float progressOnStrip = (float)i / (float)(num3 - 1);
-			AddVertex(colorFunction, widthFunction, pos, rot, indexOnVertexArray, progressOnStrip);
+			float progressOnStrip = (float)i / (float)(num2 - 1);
+			AddVertexPair(colorFunction, widthFunction, pos, rot, progressOnStrip);
 		}
-
-		PrepareIndices(num, includeBacksides);
+		PrepareIndices(includeBacksides);
 	}
 
 	public void PrepareStripWithProceduralPadding(Vector2[] positions, float[] rotations, StripColorFunction colorFunction, StripHalfWidthFunction widthFunction, Vector2 offsetForAllPositions = default(Vector2), bool includeBacksides = false, bool tryStoppingOddBug = true)
 	{
-		int num = positions.Length;
 		_temporaryPositionsCache.Clear();
 		_temporaryRotationsCache.Clear();
-		for (int i = 0; i < num && !(positions[i] == Vector2.Zero); i++) {
+		for (int i = 0; i < positions.Length && !(positions[i] == Vector2.Zero); i++)
+		{
 			Vector2 vector = positions[i];
-			float num2 = MathHelper.WrapAngle(rotations[i]);
+			float num = MathHelper.WrapAngle(rotations[i]);
 			_temporaryPositionsCache.Add(vector);
-			_temporaryRotationsCache.Add(num2);
-			if (i + 1 >= num || !(positions[i + 1] != Vector2.Zero))
+			_temporaryRotationsCache.Add(num);
+			if (i + 1 >= positions.Length || !(positions[i + 1] != Vector2.Zero))
+			{
 				continue;
-
+			}
 			Vector2 vector2 = positions[i + 1];
-			float num3 = MathHelper.WrapAngle(rotations[i + 1]);
-			int num4 = (int)(Math.Abs(MathHelper.WrapAngle(num3 - num2)) / ((float)Math.PI / 12f));
-			if (num4 != 0) {
-				float num5 = vector.Distance(vector2);
-				Vector2 value = vector + num2.ToRotationVector2() * num5;
-				Vector2 value2 = vector2 + num3.ToRotationVector2() * (0f - num5);
-				int num6 = num4 + 2;
-				float num7 = 1f / (float)num6;
-				Vector2 target = vector;
-				for (float num8 = num7; num8 < 1f; num8 += num7) {
-					Vector2 vector3 = Vector2.CatmullRom(value, vector, vector2, value2, num8);
-					float item = MathHelper.WrapAngle(vector3.DirectionTo(target).ToRotation());
-					_temporaryPositionsCache.Add(vector3);
-					_temporaryRotationsCache.Add(item);
-					target = vector3;
+			float num2 = MathHelper.WrapAngle(rotations[i + 1]);
+			int num3 = (int)(Math.Abs(MathHelper.WrapAngle(num2 - num)) / ((float)Math.PI / 12f));
+			if (num3 == 0)
+			{
+				continue;
+			}
+			float num4 = vector.Distance(vector2);
+			Vector2 value = vector + num.ToRotationVector2() * num4;
+			Vector2 value2 = vector2 + num2.ToRotationVector2() * (0f - num4);
+			int num5 = num3 + 2;
+			float num6 = 1f / (float)num5;
+			Vector2 target = vector;
+			for (float num7 = num6; num7 < 1f; num7 += num6)
+			{
+				Vector2 vector3 = Vector2.CatmullRom(value, vector, vector2, value2, num7);
+				float num8 = MathHelper.WrapAngle(vector3.DirectionTo(target).ToRotation());
+				if (float.IsNaN(num8))
+				{
+					num8 = _temporaryRotationsCache.Last();
 				}
+				_temporaryPositionsCache.Add(vector3);
+				_temporaryRotationsCache.Add(num8);
+				target = vector3;
 			}
 		}
-
+		Reset(_temporaryPositionsCache.Count * 2);
 		int count = _temporaryPositionsCache.Count;
 		Vector2 zero = Vector2.Zero;
-		for (int j = 0; j < count && (!tryStoppingOddBug || !(_temporaryPositionsCache[j] == zero)); j++) {
+		for (int j = 0; j < count && (!tryStoppingOddBug || !(_temporaryPositionsCache[j] == zero)); j++)
+		{
 			Vector2 pos = _temporaryPositionsCache[j] + offsetForAllPositions;
 			float rot = _temporaryRotationsCache[j];
-			int indexOnVertexArray = j * 2;
 			float progressOnStrip = (float)j / (float)(count - 1);
-			AddVertex(colorFunction, widthFunction, pos, rot, indexOnVertexArray, progressOnStrip);
+			AddVertexPair(colorFunction, widthFunction, pos, rot, progressOnStrip);
 		}
-
-		_vertexAmountCurrentlyMaintained = count * 2;
-		PrepareIndices(count, includeBacksides);
+		PrepareIndices(includeBacksides);
 	}
 
-	private void PrepareIndices(int vertexPaidsAdded, bool includeBacksides)
+	public void PrepareIndices(bool includeBacksides)
 	{
-		int num = vertexPaidsAdded - 1;
+		int num = _vertexAmountCurrentlyMaintained / 2 - 1;
 		int num2 = 6 + includeBacksides.ToInt() * 6;
 		int num3 = (_indicesAmountCurrentlyMaintained = num * num2);
 		if (_indices.Length < num3)
+		{
 			Array.Resize(ref _indices, num3);
-
-		for (short num4 = 0; num4 < num; num4 = (short)(num4 + 1)) {
+		}
+		for (short num4 = 0; num4 < num; num4++)
+		{
 			short num5 = (short)(num4 * num2);
 			int num6 = num4 * 2;
 			_indices[num5] = (short)num6;
@@ -127,7 +145,8 @@ public class VertexStrip
 			_indices[num5 + 3] = (short)(num6 + 2);
 			_indices[num5 + 4] = (short)(num6 + 1);
 			_indices[num5 + 5] = (short)(num6 + 3);
-			if (includeBacksides) {
+			if (includeBacksides)
+			{
 				_indices[num5 + 6] = (short)(num6 + 2);
 				_indices[num5 + 7] = (short)(num6 + 1);
 				_indices[num5 + 8] = (short)num6;
@@ -138,26 +157,67 @@ public class VertexStrip
 		}
 	}
 
-	private void AddVertex(StripColorFunction colorFunction, StripHalfWidthFunction widthFunction, Vector2 pos, float rot, int indexOnVertexArray, float progressOnStrip)
+	public void AddVertexPair(StripColorFunction colorFunction, StripHalfWidthFunction widthFunction, Vector2 pos, float rot, float progressOnStrip)
 	{
-		while (indexOnVertexArray + 1 >= _vertices.Length) {
-			Array.Resize(ref _vertices, _vertices.Length * 2);
-		}
-
-		Color color = colorFunction(progressOnStrip);
+		Color vertexColor = colorFunction(progressOnStrip);
 		float num = widthFunction(progressOnStrip);
 		Vector2 vector = MathHelper.WrapAngle(rot - (float)Math.PI / 2f).ToRotationVector2() * num;
-		_vertices[indexOnVertexArray].Position = pos + vector;
-		_vertices[indexOnVertexArray + 1].Position = pos - vector;
-		_vertices[indexOnVertexArray].TexCoord = new Vector2(progressOnStrip, 1f);
-		_vertices[indexOnVertexArray + 1].TexCoord = new Vector2(progressOnStrip, 0f);
-		_vertices[indexOnVertexArray].Color = color;
-		_vertices[indexOnVertexArray + 1].Color = color;
+		AddVertexPair(pos + vector, pos - vector, progressOnStrip, vertexColor);
+	}
+
+	public void AddVertexPair(Vector2 a, Vector2 b, Vector3 uvA, Vector3 uvB, Color vertexColor)
+	{
+		while (_vertexAmountCurrentlyMaintained + 1 >= _vertices.Length)
+		{
+			Array.Resize(ref _vertices, _vertices.Length * 2);
+		}
+		Vector2.Distance(a, b);
+		_vertices[_vertexAmountCurrentlyMaintained].Position = a;
+		_vertices[_vertexAmountCurrentlyMaintained + 1].Position = b;
+		_vertices[_vertexAmountCurrentlyMaintained].TexCoord = uvA;
+		_vertices[_vertexAmountCurrentlyMaintained + 1].TexCoord = uvB;
+		_vertices[_vertexAmountCurrentlyMaintained].Color = vertexColor;
+		_vertices[_vertexAmountCurrentlyMaintained + 1].Color = vertexColor;
+		_vertexAmountCurrentlyMaintained += 2;
+	}
+
+	public void AddVertexPair(Vector2 a, Vector2 b, float uv_x, Color vertexColor)
+	{
+		while (_vertexAmountCurrentlyMaintained + 1 >= _vertices.Length)
+		{
+			Array.Resize(ref _vertices, _vertices.Length * 2);
+		}
+		float num = Vector2.Distance(a, b);
+		_vertices[_vertexAmountCurrentlyMaintained].Position = a;
+		_vertices[_vertexAmountCurrentlyMaintained + 1].Position = b;
+		_vertices[_vertexAmountCurrentlyMaintained].TexCoord = new Vector3(uv_x, num, num);
+		_vertices[_vertexAmountCurrentlyMaintained + 1].TexCoord = new Vector3(uv_x, 0f, num);
+		_vertices[_vertexAmountCurrentlyMaintained].Color = vertexColor;
+		_vertices[_vertexAmountCurrentlyMaintained + 1].Color = vertexColor;
+		_vertexAmountCurrentlyMaintained += 2;
+	}
+
+	public void AddVertexPair(Vector2 v1, Vector2 v2, float uv_x, Color color1, Color color2)
+	{
+		while (_vertexAmountCurrentlyMaintained + 1 >= _vertices.Length)
+		{
+			Array.Resize(ref _vertices, _vertices.Length * 2);
+		}
+		float num = Vector2.Distance(v1, v2);
+		_vertices[_vertexAmountCurrentlyMaintained++] = new CustomVertexInfo(v1, color1, new Vector3(uv_x, num, num));
+		_vertices[_vertexAmountCurrentlyMaintained++] = new CustomVertexInfo(v2, color2, new Vector3(uv_x, 0f, num));
 	}
 
 	public void DrawTrail()
 	{
 		if (_vertexAmountCurrentlyMaintained >= 3)
-			Main.instance.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, _vertices, 0, _vertexAmountCurrentlyMaintained, _indices, 0, _indicesAmountCurrentlyMaintained / 3);
+		{
+			GraphicsDevice graphicsDevice = Main.instance.GraphicsDevice;
+			VertexBufferBinding[] vertexBuffers = graphicsDevice.GetVertexBuffers();
+			IndexBuffer indices = graphicsDevice.Indices;
+			graphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, _vertices, 0, _vertexAmountCurrentlyMaintained, _indices, 0, _indicesAmountCurrentlyMaintained / 3);
+			graphicsDevice.SetVertexBuffers(vertexBuffers);
+			graphicsDevice.Indices = indices;
+		}
 	}
 }

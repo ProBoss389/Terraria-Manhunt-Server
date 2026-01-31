@@ -8,10 +8,15 @@ namespace Terraria;
 public class FrameSkipTest
 {
 	private static int LastRecordedSecondNumber;
+
 	private static float CallsThisSecond;
+
 	private static float DeltasThisSecond;
+
 	private static List<float> DeltaSamples = new List<float>();
+
 	private const int SamplesCount = 5;
+
 	private static MultiTimer serverFramerateTest = new MultiTimer(60);
 
 	public static void Update(GameTime gameTime)
@@ -24,11 +29,13 @@ public class FrameSkipTest
 
 	public static void CheckReset(GameTime gameTime)
 	{
-		if (LastRecordedSecondNumber != gameTime.TotalGameTime.Seconds) {
+		if (LastRecordedSecondNumber != gameTime.TotalGameTime.Seconds)
+		{
 			DeltaSamples.Add(DeltasThisSecond / CallsThisSecond);
 			if (DeltaSamples.Count > 5)
+			{
 				DeltaSamples.RemoveAt(0);
-
+			}
 			CallsThisSecond = 0f;
 			DeltasThisSecond = 0f;
 			LastRecordedSecondNumber = gameTime.TotalGameTime.Seconds;

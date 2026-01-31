@@ -15,20 +15,23 @@ public struct ResourcePackVersion : IComparable, IComparable<ResourcePackVersion
 
 	public static ResourcePackVersion Create(int major, int minor)
 	{
-		ResourcePackVersion result = default(ResourcePackVersion);
-		result.Major = major;
-		result.Minor = minor;
-		return result;
+		return new ResourcePackVersion
+		{
+			Major = major,
+			Minor = minor
+		};
 	}
 
 	public int CompareTo(object obj)
 	{
 		if (obj == null)
+		{
 			return 1;
-
+		}
 		if (!(obj is ResourcePackVersion))
+		{
 			throw new ArgumentException("A RatingInformation object is required for comparison.", "obj");
-
+		}
 		return CompareTo((ResourcePackVersion)obj);
 	}
 
@@ -36,8 +39,9 @@ public struct ResourcePackVersion : IComparable, IComparable<ResourcePackVersion
 	{
 		int num = Major.CompareTo(other.Major);
 		if (num != 0)
+		{
 			return num;
-
+		}
 		return Minor.CompareTo(other.Minor);
 	}
 
@@ -64,8 +68,9 @@ public struct ResourcePackVersion : IComparable, IComparable<ResourcePackVersion
 	public override bool Equals(object obj)
 	{
 		if (!(obj is ResourcePackVersion))
+		{
 			return false;
-
+		}
 		return CompareTo((ResourcePackVersion)obj) == 0;
 	}
 
@@ -76,5 +81,8 @@ public struct ResourcePackVersion : IComparable, IComparable<ResourcePackVersion
 		return ((num << 32) | num2).GetHashCode();
 	}
 
-	public string GetFormattedVersion() => Major + "." + Minor;
+	public string GetFormattedVersion()
+	{
+		return Major + "." + Minor;
+	}
 }

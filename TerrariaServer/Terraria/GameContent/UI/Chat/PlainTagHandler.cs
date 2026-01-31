@@ -12,13 +12,19 @@ public class PlainTagHandler : ITagHandler
 		{
 		}
 
-		public PlainSnippet(string text, Color color, float scale = 1f)
-			: base(text, color, scale)
+		public PlainSnippet(string text, Color color)
+			: base(text, color)
 		{
 		}
 
-		public override Color GetVisibleColor() => Color;
+		public override Color GetVisibleColor()
+		{
+			return Color;
+		}
 	}
 
-	TextSnippet ITagHandler.Parse(string text, Color baseColor, string options) => new PlainSnippet(text);
+	TextSnippet ITagHandler.Parse(string text, Color baseColor, string options)
+	{
+		return new PlainSnippet(text);
+	}
 }

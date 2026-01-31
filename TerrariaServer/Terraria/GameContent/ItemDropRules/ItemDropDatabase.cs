@@ -7,26 +7,34 @@ namespace Terraria.GameContent.ItemDropRules;
 public class ItemDropDatabase
 {
 	private List<IItemDropRule> _globalEntries = new List<IItemDropRule>();
+
 	private Dictionary<int, List<IItemDropRule>> _entriesByNpcNetId = new Dictionary<int, List<IItemDropRule>>();
+
 	private Dictionary<int, List<int>> _npcNetIdsByType = new Dictionary<int, List<int>>();
+
 	private int _masterModeDropRng = 4;
 
 	public void PrepareNPCNetIDsByTypeDictionary()
 	{
 		_npcNetIdsByType.Clear();
-		foreach (KeyValuePair<int, NPC> item in ContentSamples.NpcsByNetId.Where((KeyValuePair<int, NPC> x) => x.Key < 0)) {
+		foreach (KeyValuePair<int, NPC> item in ContentSamples.NpcsByNetId.Where((KeyValuePair<int, NPC> x) => x.Key < 0))
+		{
 			if (!_npcNetIdsByType.ContainsKey(item.Value.type))
+			{
 				_npcNetIdsByType[item.Value.type] = new List<int>();
-
+			}
 			_npcNetIdsByType[item.Value.type].Add(item.Value.netID);
 		}
 	}
 
 	public void TrimDuplicateRulesForNegativeIDs()
 	{
-		for (int i = -65; i < 0; i++) {
+		for (int i = -65; i < 0; i++)
+		{
 			if (_entriesByNpcNetId.TryGetValue(i, out var value))
+			{
 				_entriesByNpcNetId[i] = value.Distinct().ToList();
+			}
 		}
 	}
 
@@ -34,11 +42,13 @@ public class ItemDropDatabase
 	{
 		List<IItemDropRule> list = new List<IItemDropRule>();
 		if (includeGlobalDrops)
+		{
 			list.AddRange(_globalEntries);
-
+		}
 		if (_entriesByNpcNetId.TryGetValue(npcNetId, out var value))
+		{
 			list.AddRange(value);
-
+		}
 		return list;
 	}
 
@@ -51,74 +61,79 @@ public class ItemDropDatabase
 	public IItemDropRule RegisterToNPC(int type, IItemDropRule entry)
 	{
 		RegisterToNPCNetId(type, entry);
-		if (type > 0 && _npcNetIdsByType.TryGetValue(type, out var value)) {
-			for (int i = 0; i < value.Count; i++) {
+		if (type > 0 && _npcNetIdsByType.TryGetValue(type, out var value))
+		{
+			for (int i = 0; i < value.Count; i++)
+			{
 				RegisterToNPCNetId(value[i], entry);
 			}
 		}
-
 		return entry;
 	}
 
 	private void RegisterToNPCNetId(int npcNetId, IItemDropRule entry)
 	{
 		if (!_entriesByNpcNetId.ContainsKey(npcNetId))
+		{
 			_entriesByNpcNetId[npcNetId] = new List<IItemDropRule>();
-
+		}
 		_entriesByNpcNetId[npcNetId].Add(entry);
 	}
 
 	public IItemDropRule RegisterToMultipleNPCs(IItemDropRule entry, params int[] npcNetIds)
 	{
-		for (int i = 0; i < npcNetIds.Length; i++) {
+		for (int i = 0; i < npcNetIds.Length; i++)
+		{
 			RegisterToNPC(npcNetIds[i], entry);
 		}
-
 		return entry;
 	}
 
 	public IItemDropRule RegisterToMultipleNPCsNotRemixSeed(IItemDropRule entry, params int[] npcNetIds)
 	{
-		for (int i = 0; i < npcNetIds.Length; i++) {
-			RegisterToNPC(npcNetIds[i], new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(entry);
+		for (int i = 0; i < npcNetIds.Length; i++)
+		{
+			RegisterToNPC(npcNetIds[i], new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(entry);
 		}
-
 		return entry;
 	}
 
 	public IItemDropRule RegisterToMultipleNPCsRemixSeed(IItemDropRule entry, params int[] npcNetIds)
 	{
-		for (int i = 0; i < npcNetIds.Length; i++) {
+		for (int i = 0; i < npcNetIds.Length; i++)
+		{
 			RegisterToNPC(npcNetIds[i], new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(entry);
 		}
-
 		return entry;
 	}
 
 	private void RemoveFromNPCNetId(int npcNetId, IItemDropRule entry)
 	{
 		if (_entriesByNpcNetId.ContainsKey(npcNetId))
+		{
 			_entriesByNpcNetId[npcNetId].Remove(entry);
+		}
 	}
 
 	public IItemDropRule RemoveFromNPC(int type, IItemDropRule entry)
 	{
 		RemoveFromNPCNetId(type, entry);
-		if (type > 0 && _npcNetIdsByType.TryGetValue(type, out var value)) {
-			for (int i = 0; i < value.Count; i++) {
+		if (type > 0 && _npcNetIdsByType.TryGetValue(type, out var value))
+		{
+			for (int i = 0; i < value.Count; i++)
+			{
 				RemoveFromNPCNetId(value[i], entry);
 			}
 		}
-
 		return entry;
 	}
 
 	public IItemDropRule RemoveFromMultipleNPCs(IItemDropRule entry, params int[] npcNetIds)
 	{
-		for (int i = 0; i < npcNetIds.Length; i++) {
+		for (int i = 0; i < npcNetIds.Length; i++)
+		{
 			RemoveFromNPC(npcNetIds[i], entry);
 		}
-
 		return entry;
 	}
 
@@ -161,7 +176,7 @@ public class ItemDropDatabase
 		RegisterToNPC(618, ItemDropRule.NormalvsExpert(4269, 2, 1));
 		RegisterToNPC(618, ItemDropRule.Common(4054, 10));
 		RegisterToNPC(618, ItemDropRule.NormalvsExpert(4271, 2, 1));
-		RegisterToMultipleNPCs(ItemDropRule.Common(4271, 5), 53, 536);
+		RegisterToMultipleNPCs(ItemDropRule.ScalingWithOnlyBadLuck(4271, 5), 53, 536);
 		Conditions.IsBloodMoonAndNotFromStatue condition = new Conditions.IsBloodMoonAndNotFromStatue();
 		RegisterToMultipleNPCs(ItemDropRule.ByCondition(condition, 4271, 100), 489, 490);
 		RegisterToMultipleNPCs(ItemDropRule.ByCondition(condition, 4271, 25), 587, 586, 621, 620);
@@ -171,6 +186,7 @@ public class ItemDropDatabase
 	{
 		RegisterToNPC(461, ItemDropRule.ExpertGetsRerolls(497, 50, 1));
 		RegisterToMultipleNPCs(ItemDropRule.ExpertGetsRerolls(900, 35, 1), 159, 158);
+		RegisterToMultipleNPCs(ItemDropRule.Common(5597, 40), 159, 158);
 		RegisterToNPC(251, ItemDropRule.ExpertGetsRerolls(1311, 15, 1));
 		RegisterToNPC(251, ItemDropRule.Common(5239, 15));
 		RegisterToNPC(251, ItemDropRule.Common(5236, 15));
@@ -206,33 +222,39 @@ public class ItemDropDatabase
 
 	private void RegisterMimic()
 	{
-		RegisterToNPC(85, new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(ItemDropRule.OneFromOptions(1, 437, 517, 535, 536, 532, 554));
+		RegisterToNPC(85, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.OneFromOptions(1, 437, 517, 535, 536, 532, 554));
 		RegisterToNPC(85, new LeadingConditionRule(new Conditions.RemixSeedHardmode())).OnSuccess(ItemDropRule.OneFromOptions(1, 437, 3069, 535, 536, 532, 554));
-		RegisterToNPC(85, new LeadingConditionRule(new Conditions.RemixSeedEasymode())).OnSuccess(ItemDropRule.OneFromOptions(1, 49, 50, 53, 54, 5011, 975));
+		RegisterToNPC(85, new LeadingConditionRule(new Conditions.Easymode())).OnSuccess(ItemDropRule.OneFromOptions(1, 49, 50, 53, 54, 5011, 975));
+		RegisterToNPC(85, new LeadingConditionRule(new Conditions.Easymode())).OnSuccess(ItemDropRule.Common(930, 20));
+		RegisterToNPC(85, new LeadingConditionRule(new Conditions.Easymode())).OnSuccess(ItemDropRule.Common(997, 20));
+		RegisterIceMimic();
+	}
+
+	private void RegisterIceMimic()
+	{
 		IItemDropRule itemDropRule = ItemDropRule.Common(1312, 20);
-		itemDropRule.OnFailedRoll(new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(ItemDropRule.OneFromOptions(1, 676, 725, 1264));
+		itemDropRule.OnFailedRoll(new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.OneFromOptions(1, 676, 725, 1264));
 		itemDropRule.OnFailedRoll(new LeadingConditionRule(new Conditions.RemixSeedHardmode())).OnSuccess(ItemDropRule.OneFromOptions(1, 676, 1319, 1264));
-		itemDropRule.OnFailedRoll(new LeadingConditionRule(new Conditions.RemixSeedEasymode())).OnSuccess(ItemDropRule.OneFromOptions(1, 670, 724, 950, 725, 987, 1579));
+		itemDropRule.OnFailedRoll(new LeadingConditionRule(new Conditions.RemixSeedEasymode())).OnSuccess(ItemDropRule.OneFromOptions(1, RegisterIceMimic_GetEasyModeItemPool(isRemix: true)));
+		itemDropRule.OnFailedRoll(new LeadingConditionRule(new Conditions.NotRemixSeedEasymode())).OnSuccess(ItemDropRule.OneFromOptions(1, RegisterIceMimic_GetEasyModeItemPool(isRemix: false)));
 		RegisterToNPC(629, itemDropRule);
+		RegisterToNPC(629, new LeadingConditionRule(new Conditions.Easymode())).OnSuccess(ItemDropRule.Common(997, 20));
+	}
+
+	private int[] RegisterIceMimic_GetEasyModeItemPool(bool isRemix)
+	{
+		int[] obj = new int[6] { 670, 724, 950, 0, 987, 1579 };
+		obj[3] = (isRemix ? 725 : 1319);
+		return obj;
 	}
 
 	private void RegisterHardmodeDungeonDrops()
 	{
-		int[] npcNetIds = new int[12] {
-			269,
-			270,
-			271,
-			272,
-			273,
-			274,
-			275,
-			276,
-			277,
-			278,
-			279,
-			280
+		int[] npcNetIds = new int[12]
+		{
+			269, 270, 271, 272, 273, 274, 275, 276, 277, 278,
+			279, 280
 		};
-
 		RegisterToNPC(290, ItemDropRule.ExpertGetsRerolls(1513, 15, 1));
 		RegisterToNPC(290, ItemDropRule.ExpertGetsRerolls(938, 10, 1));
 		RegisterToNPC(287, ItemDropRule.ExpertGetsRerolls(977, 12, 1));
@@ -248,8 +270,7 @@ public class ItemDropDatabase
 		RegisterToMultipleNPCs(ItemDropRule.ExpertGetsRerolls(1445, 20, 1), 285, 286);
 		RegisterToMultipleNPCs(ItemDropRule.ExpertGetsRerolls(1183, 400, 1), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.ExpertGetsRerolls(1266, 300, 1), npcNetIds);
-		RegisterToMultipleNPCsNotRemixSeed(ItemDropRule.ExpertGetsRerolls(671, 200, 1), npcNetIds);
-		RegisterToMultipleNPCsRemixSeed(ItemDropRule.ExpertGetsRerolls(2273, 200, 1), npcNetIds);
+		RegisterToMultipleNPCs(ItemDropRule.ExpertGetsRerolls(671, 200, 1), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.ExpertGetsRerolls(4679, 200, 1), npcNetIds);
 		RegisterToNPC(288, ItemDropRule.Common(1508, 1, 1, 2));
 	}
@@ -305,7 +326,7 @@ public class ItemDropDatabase
 		LeadingConditionRule leadingConditionRule = new LeadingConditionRule(new Conditions.NotExpert());
 		RegisterToNPC(type, leadingConditionRule).OnSuccess(ItemDropRule.OneFromOptions(1, 4923, 4952, 4953, 4914));
 		leadingConditionRule.OnSuccess(ItemDropRule.Common(4823, 15));
-		leadingConditionRule.OnSuccess(ItemDropRule.Common(4778, 4));
+		leadingConditionRule.OnSuccess(ItemDropRule.Common(4778, 4, 3, 3));
 		leadingConditionRule.OnSuccess(ItemDropRule.Common(4715, 50));
 		leadingConditionRule.OnSuccess(ItemDropRule.Common(4784, 7));
 		leadingConditionRule.OnSuccess(ItemDropRule.Common(5075, 20));
@@ -320,19 +341,7 @@ public class ItemDropDatabase
 		new Conditions.IsPumpkinMoon();
 		new Conditions.FromCertainWaveAndAbove(15);
 		RegisterToNPC(315, ItemDropRule.ByCondition(condition, 1857, 20));
-		int[] npcNetIds = new int[10] {
-			305,
-			306,
-			307,
-			308,
-			309,
-			310,
-			311,
-			312,
-			313,
-			314
-		};
-
+		int[] npcNetIds = new int[10] { 305, 306, 307, 308, 309, 310, 311, 312, 313, 314 };
 		RegisterToMultipleNPCs(new LeadingConditionRule(condition), npcNetIds).OnSuccess(ItemDropRule.OneFromOptions(10, 1788, 1789, 1790));
 		IItemDropRule rule = RegisterToNPC(325, new LeadingConditionRule(condition));
 		IItemDropRule itemDropRule = ItemDropRule.Common(1835);
@@ -376,12 +385,7 @@ public class ItemDropDatabase
 		rule3.OnSuccess(ItemDropRule.OneFromOptions(1, 1910, 1929));
 		rule3.OnSuccess(ItemDropRule.MasterModeCommonDrop(4945));
 		rule3.OnSuccess(ItemDropRule.MasterModeDropOnAllPlayers(4794, _masterModeDropRng));
-		int[] npcNetIds = new int[3] {
-			338,
-			339,
-			340
-		};
-
+		int[] npcNetIds = new int[3] { 338, 339, 340 };
 		RegisterToMultipleNPCs(ItemDropRule.OneFromOptions(200, 1943, 1944, 1945), npcNetIds);
 		RegisterToNPC(341, ItemDropRule.ByCondition(new Conditions.IsChristmas(), 1869));
 	}
@@ -399,6 +403,7 @@ public class ItemDropDatabase
 		leadingConditionRule.OnSuccess(ItemDropRule.OneFromOptions(1, 256, 257, 258));
 		leadingConditionRule.OnSuccess(ItemDropRule.NotScalingWithLuck(2585, 3)).OnFailedRoll(ItemDropRule.Common(2610));
 		leadingConditionRule.OnSuccess(ItemDropRule.Common(998));
+		leadingConditionRule.OnSuccess(ItemDropRule.Common(1309, 30));
 	}
 
 	private void RegisterBoss_Plantera()
@@ -420,7 +425,7 @@ public class ItemDropDatabase
 		IItemDropRule itemDropRule = ItemDropRule.Common(758);
 		itemDropRule.OnSuccess(ItemDropRule.Common(771, 1, 50, 150), hideLootReport: true);
 		leadingConditionRule2.OnSuccess(itemDropRule, hideLootReport: true);
-		leadingConditionRule2.OnFailedConditions(new OneFromRulesRule(1, itemDropRule, ItemDropRule.Common(1255), ItemDropRule.Common(788), ItemDropRule.Common(1178), ItemDropRule.Common(1259), ItemDropRule.Common(1155), ItemDropRule.Common(3018)));
+		leadingConditionRule2.OnFailedConditions(new OneFromRulesRule(1, itemDropRule, ItemDropRule.Common(1255), ItemDropRule.Common(788), ItemDropRule.Common(1178), ItemDropRule.Common(1259), ItemDropRule.Common(1155), ItemDropRule.Common(3018), ItemDropRule.Common(5477)));
 	}
 
 	private void RegisterBoss_SkeletronPrime()
@@ -476,9 +481,9 @@ public class ItemDropDatabase
 		RegisterToNPC(type, ItemDropRule.MasterModeDropOnAllPlayers(4798, _masterModeDropRng));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 2112, 7));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 1299, 40));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 47, 1, 20, 50));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 880, 1, 30, 90));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 2171, 1, 1, 3));
-		RegisterToNPC(type, ItemDropRule.ByCondition(condition3, 47, 1, 20, 50));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition3, 56, 1, 30, 90));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition3, 59, 1, 1, 3));
 	}
@@ -502,12 +507,7 @@ public class ItemDropDatabase
 	{
 		Conditions.LegacyHack_IsBossAndExpert condition = new Conditions.LegacyHack_IsBossAndExpert();
 		Conditions.LegacyHack_IsBossAndNotExpert condition2 = new Conditions.LegacyHack_IsBossAndNotExpert();
-		int[] npcNetIds = new int[3] {
-			13,
-			14,
-			15
-		};
-
+		int[] npcNetIds = new int[3] { 13, 14, 15 };
 		RegisterToMultipleNPCs(new DropBasedOnMasterAndExpertMode(ItemDropRule.Common(86, 2, 1, 2), ItemDropRule.Common(86, 5, 1, 2), ItemDropRule.Common(86, 10, 1, 2)), npcNetIds);
 		RegisterToMultipleNPCs(new DropBasedOnMasterAndExpertMode(ItemDropRule.Common(56, 2, 2, 5), ItemDropRule.Common(56, 2, 1, 3), ItemDropRule.Common(56, 3, 1, 2)), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.BossBagByCondition(condition, 3320), npcNetIds);
@@ -546,20 +546,27 @@ public class ItemDropDatabase
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 1132, 3));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 1170, 15));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 2502, 20));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 5483, 15));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 1129, 3)).OnFailedRoll(ItemDropRule.OneFromOptionsNotScalingWithLuck(2, 842, 843, 844));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 1130, 4, 10, 30, 3));
-		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 2431, 1, 16, 26));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 2431, 1, 17, 30));
 	}
 
 	private void RegisterBoss_Skeletron()
 	{
 		Conditions.NotExpert condition = new Conditions.NotExpert();
+		Conditions.RedHatSkeletron condition2 = new Conditions.RedHatSkeletron();
 		short type = 35;
 		RegisterToNPC(type, ItemDropRule.BossBag(3323));
 		RegisterToNPC(type, ItemDropRule.MasterModeCommonDrop(4927));
 		RegisterToNPC(type, ItemDropRule.MasterModeDropOnAllPlayers(4801, _masterModeDropRng));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 1281, 7)).OnFailedRoll(ItemDropRule.Common(1273, 7)).OnFailedRoll(ItemDropRule.Common(1313, 7));
 		RegisterToNPC(type, ItemDropRule.Common(4993, 7));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 5624));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 5625));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 5626));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 5737));
+		RegisterToNPC(type, ItemDropRule.ByCondition(condition2, 5628));
 	}
 
 	private void RegisterBoss_WOF()
@@ -595,30 +602,31 @@ public class ItemDropDatabase
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 4469, 10));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 3384));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 3460, 1, 70, 90));
-		RegisterToNPC(type, new LeadingConditionRule(condition)).OnSuccess(new FromOptionsWithoutRepeatsDropRule(2, 3063, 3389, 3065, 1553, 3930, 3541, 3570, 3571, 3569));
+		RegisterToNPC(type, new LeadingConditionRule(condition)).OnSuccess(new FromOptionsWithoutRepeatsDropRule(2, 3063, 3389, 3065, 1553, 3930, 3541, 3570, 3571, 3569, 5480));
 	}
 
 	private void RegisterBoss_LunarTowers()
 	{
-		DropOneByOne.Parameters parameters = default(DropOneByOne.Parameters);
-		parameters.MinimumItemDropsCount = 12;
-		parameters.MaximumItemDropsCount = 20;
-		parameters.ChanceNumerator = 1;
-		parameters.ChanceDenominator = 1;
-		parameters.MinimumStackPerChunkBase = 1;
-		parameters.MaximumStackPerChunkBase = 3;
-		parameters.BonusMinDropsPerChunkPerPlayer = 0;
-		parameters.BonusMaxDropsPerChunkPerPlayer = 0;
+		DropOneByOne.Parameters parameters = new DropOneByOne.Parameters
+		{
+			MinimumItemDropsCount = 12,
+			MaximumItemDropsCount = 20,
+			ChanceNumerator = 1,
+			ChanceDenominator = 1,
+			MinimumStackPerChunkBase = 1,
+			MaximumStackPerChunkBase = 3,
+			BonusMinDropsPerChunkPerPlayer = 0,
+			BonusMaxDropsPerChunkPerPlayer = 0
+		};
 		DropOneByOne.Parameters parameters2 = parameters;
-		DropOneByOne.Parameters parameters3 = parameters2;
-		parameters3.BonusMinDropsPerChunkPerPlayer = 1;
-		parameters3.BonusMaxDropsPerChunkPerPlayer = 1;
-		parameters3.MinimumStackPerChunkBase = (int)((float)parameters2.MinimumStackPerChunkBase * 1.5f);
-		parameters3.MaximumStackPerChunkBase = (int)((float)parameters2.MaximumStackPerChunkBase * 1.5f);
-		RegisterToNPC(517, new DropBasedOnExpertMode(new DropOneByOne(3458, parameters2), new DropOneByOne(3458, parameters3)));
-		RegisterToNPC(422, new DropBasedOnExpertMode(new DropOneByOne(3456, parameters2), new DropOneByOne(3456, parameters3)));
-		RegisterToNPC(507, new DropBasedOnExpertMode(new DropOneByOne(3457, parameters2), new DropOneByOne(3457, parameters3)));
-		RegisterToNPC(493, new DropBasedOnExpertMode(new DropOneByOne(3459, parameters2), new DropOneByOne(3459, parameters3)));
+		parameters2.BonusMinDropsPerChunkPerPlayer = 1;
+		parameters2.BonusMaxDropsPerChunkPerPlayer = 1;
+		parameters2.MinimumStackPerChunkBase = (int)((float)parameters.MinimumStackPerChunkBase * 1.5f);
+		parameters2.MaximumStackPerChunkBase = (int)((float)parameters.MaximumStackPerChunkBase * 1.5f);
+		RegisterToNPC(517, new DropBasedOnExpertMode(new DropOneByOne(3458, parameters), new DropOneByOne(3458, parameters2)));
+		RegisterToNPC(422, new DropBasedOnExpertMode(new DropOneByOne(3456, parameters), new DropOneByOne(3456, parameters2)));
+		RegisterToNPC(507, new DropBasedOnExpertMode(new DropOneByOne(3457, parameters), new DropOneByOne(3457, parameters2)));
+		RegisterToNPC(493, new DropBasedOnExpertMode(new DropOneByOne(3459, parameters), new DropOneByOne(3459, parameters2)));
 	}
 
 	private void RegisterBoss_Betsy()
@@ -657,13 +665,17 @@ public class ItemDropDatabase
 		RegisterToNPC(type, ItemDropRule.MasterModeDropOnAllPlayers(4808, _masterModeDropRng));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 2588, 7));
 		RegisterToNPC(type, ItemDropRule.ByCondition(condition, 2609, 15));
-		RegisterToNPC(type, new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(new LeadingConditionRule(condition)).OnSuccess(ItemDropRule.OneFromOptions(1, 2611, 2624, 2622, 2621, 2623));
-		RegisterToNPC(type, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(new LeadingConditionRule(condition)).OnSuccess(ItemDropRule.OneFromOptions(1, 2611, 2624, 2622, 2621, 157));
+		RegisterToNPC(type, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(new LeadingConditionRule(condition)).OnSuccess(ItemDropRule.OneFromOptions(1, 5526, 2624, 2622, 2621, 5478, 2623));
+		RegisterToNPC(type, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(new LeadingConditionRule(condition)).OnSuccess(ItemDropRule.OneFromOptions(1, 5526, 2624, 2622, 2621, 5478, 157));
 	}
 
 	private void RegisterWeirdRules()
 	{
+		Conditions.BeatAnyMechBoss condition = new Conditions.BeatAnyMechBoss();
 		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(3260, 40, 30), 86);
+		RegisterToNPC(75, ItemDropRule.ByCondition(condition, 5662, 200));
+		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(5488, 200, 150), 171, 475, 84, 137, 138, 527, 120);
+		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(5489, 200, 150), 170, 180, 473, 474, 83, 179, 101, 98, 94, 182, 268, 525, 526, 529, 533);
 	}
 
 	private void RegisterGlobalRules()
@@ -710,20 +722,20 @@ public class ItemDropDatabase
 		RegisterToMultipleNPCs(ItemDropRule.Food(4023, 40), 177, 152);
 		RegisterToMultipleNPCs(ItemDropRule.Food(4012, 50), 581, 509, 580, 508, 69);
 		RegisterToMultipleNPCs(ItemDropRule.Food(4028, 30), 546, 542, 544, 543, 545);
-		RegisterToMultipleNPCs(ItemDropRule.Food(4035, 50), 67, 65);
+		RegisterToMultipleNPCs(ItemDropRule.Food(4035, 50), 67, 65, 692);
 		RegisterToMultipleNPCs(ItemDropRule.Food(4011, 150), 120, 137, 138);
 		RegisterToNPC(122, ItemDropRule.Food(4017, 75));
 	}
 
 	private void RegisterTownNPCDrops()
 	{
-		RegisterToNPC(22, new ItemDropWithConditionRule(867, 1, 1, 1, new Conditions.NamedNPC("Andrew")));
-		RegisterToNPC(178, new ItemDropWithConditionRule(4372, 1, 1, 1, new Conditions.NamedNPC("Whitney")));
-		RegisterToNPC(227, new ItemDropWithConditionRule(5290, 1, 1, 1, new Conditions.NamedNPC("Jim")));
+		RegisterToNPC(22, new ItemDropWithConditionRule(867, 1, 1, 1, new Conditions.NamedNPC("GuideNames.Andrew")));
+		RegisterToNPC(178, new ItemDropWithConditionRule(4372, 1, 1, 1, new Conditions.NamedNPC("SteampunkerNames.Whitney")));
+		RegisterToNPC(227, new ItemDropWithConditionRule(5290, 1, 1, 1, new Conditions.NamedNPC("PainterNames.Jim")));
 		RegisterToNPC(353, ItemDropRule.Common(3352, 8));
 		RegisterToNPC(441, ItemDropRule.Common(3351, 8));
-		RegisterToNPC(227, ItemDropRule.Common(3350, 10));
-		RegisterToNPC(550, ItemDropRule.Common(3821, 6));
+		RegisterToNPC(227, ItemDropRule.Common(3350, 8));
+		RegisterToNPC(550, ItemDropRule.Common(3821, 8));
 		RegisterToNPC(208, ItemDropRule.Common(3548, 4, 30, 60));
 		RegisterToNPC(207, ItemDropRule.Common(3349, 8));
 		RegisterToNPC(124, ItemDropRule.Common(4818, 8));
@@ -735,10 +747,14 @@ public class ItemDropDatabase
 	private void RegisterDD2EventDrops()
 	{
 		new Conditions.IsExpert();
+		RegisterToNPC(576, new DropBasedOnExpertMode(ItemDropRule.NotScalingWithLuck(3814, 4), ItemDropRule.NotScalingWithLuck(3814, 2)));
+		RegisterToNPC(576, new DropBasedOnExpertMode(ItemDropRule.NotScalingWithLuck(3815, 4, 4, 4), ItemDropRule.NotScalingWithLuck(3815, 2, 4, 4)));
 		RegisterToNPC(576, new CommonDropNotScalingWithLuck(3865, 7, 1, 1));
 		RegisterToNPC(576, ItemDropRule.NormalvsExpertOneFromOptionsNotScalingWithLuck(3, 2, 3811, 3812));
 		RegisterToNPC(576, ItemDropRule.NormalvsExpertOneFromOptionsNotScalingWithLuck(2, 1, 3852, 3854, 3823, 3835, 3836));
 		RegisterToNPC(576, ItemDropRule.NormalvsExpertNotScalingWithLuck(3856, 5, 4));
+		RegisterToNPC(577, new DropBasedOnExpertMode(ItemDropRule.NotScalingWithLuck(3814, 8), ItemDropRule.NotScalingWithLuck(3814, 4)));
+		RegisterToNPC(577, new DropBasedOnExpertMode(ItemDropRule.NotScalingWithLuck(3815, 8, 4, 4), ItemDropRule.NotScalingWithLuck(3815, 4, 4, 4)));
 		RegisterToNPC(577, new CommonDropNotScalingWithLuck(3865, 14, 1, 1));
 		RegisterToNPC(577, ItemDropRule.MasterModeCommonDrop(4947));
 		RegisterToNPC(577, ItemDropRule.MasterModeDropOnAllPlayers(4816, _masterModeDropRng));
@@ -795,19 +811,14 @@ public class ItemDropDatabase
 
 	private void RegisterPirateDrops()
 	{
-		int[] npcNetIds = new int[4] {
-			212,
-			213,
-			214,
-			215
-		};
-
+		int[] npcNetIds = new int[4] { 212, 213, 214, 215 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(905, 4000), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(855, 2000), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(854, 1000), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2584, 1000), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(3033, 500), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(672, 200), npcNetIds);
+		RegisterToMultipleNPCs(ItemDropRule.Common(5460, 200), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1277, 500), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1278, 500), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1279, 500), npcNetIds);
@@ -841,6 +852,7 @@ public class ItemDropDatabase
 		RegisterToNPC(216, ItemDropRule.Common(2584, 250));
 		RegisterToNPC(216, ItemDropRule.Common(3033, 125));
 		RegisterToNPC(216, ItemDropRule.Common(672, 50));
+		RegisterToNPC(216, ItemDropRule.Common(5460, 50));
 		RegisterToNPC(491, ItemDropRule.Common(905, 50));
 		RegisterToNPC(491, ItemDropRule.Common(855, 15));
 		RegisterToNPC(491, ItemDropRule.Common(854, 15));
@@ -848,6 +860,7 @@ public class ItemDropDatabase
 		RegisterToNPC(491, ItemDropRule.Common(3033, 15));
 		RegisterToNPC(491, ItemDropRule.Common(4471, 20));
 		RegisterToNPC(491, ItemDropRule.Common(672, 10));
+		RegisterToNPC(491, ItemDropRule.Common(5460, 10));
 		RegisterToNPC(491, ItemDropRule.MasterModeCommonDrop(4940));
 		RegisterToNPC(491, ItemDropRule.MasterModeDropOnAllPlayers(4792, _masterModeDropRng));
 		RegisterToNPC(491, ItemDropRule.OneFromOptions(1, 1704, 1705, 1710, 1716, 1720, 2379, 2389, 2405, 2843, 3885, 2663, 3910, 2238, 2133, 2137, 2143, 2147, 2151, 2155));
@@ -893,36 +906,15 @@ public class ItemDropDatabase
 	private void RegisterMartianDrops()
 	{
 		RegisterToMultipleNPCs(ItemDropRule.Common(2860, 8, 8, 20), 520, 383, 389, 385, 382, 381, 390, 386);
-		int[] npcNetIds = new int[8] {
-			520,
-			383,
-			389,
-			385,
-			382,
-			381,
-			390,
-			386
-		};
-
+		int[] npcNetIds = new int[8] { 520, 383, 389, 385, 382, 381, 390, 386 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(2798, 800), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2800, 800), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2882, 800), npcNetIds);
-		int[] npcNetIds2 = new int[3] {
-			383,
-			389,
-			386
-		};
-
+		int[] npcNetIds2 = new int[3] { 383, 389, 386 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(2806, 200), npcNetIds2);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2807, 200), npcNetIds2);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2808, 200), npcNetIds2);
-		int[] npcNetIds3 = new int[4] {
-			385,
-			382,
-			381,
-			390
-		};
-
+		int[] npcNetIds3 = new int[4] { 385, 382, 381, 390 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(2803, 200), npcNetIds3);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2804, 200), npcNetIds3);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2805, 200), npcNetIds3);
@@ -940,18 +932,18 @@ public class ItemDropDatabase
 		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(3102, 2, 1), 195, 196);
 		RegisterToNPC(471, ItemDropRule.NormalvsExpertOneFromOptions(2, 1, 3052, 3053, 3054));
 		RegisterToNPC(153, ItemDropRule.Common(1328, 12));
-		RegisterToNPC(59, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Common(23, 1, 1, 2));
+		RegisterToNPC(59, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Gel(1, 1, 2));
 		RegisterToNPC(59, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.NormalvsExpert(1309, 8000, 5600));
 		RegisterToNPC(120, new LeadingConditionRule(new Conditions.TenthAnniversaryIsUp())).OnSuccess(ItemDropRule.Common(1326, 100));
 		RegisterToNPC(120, new LeadingConditionRule(new Conditions.TenthAnniversaryIsNotUp())).OnSuccess(ItemDropRule.NormalvsExpert(1326, 500, 400));
-		RegisterToNPC(49, new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(ItemDropRule.Common(1325, 250));
+		RegisterToNPC(49, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.Common(1325, 250));
 		RegisterToNPC(49, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Common(1314, 250));
-		RegisterToNPC(109, new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(ItemDropRule.Common(1314, 5));
+		RegisterToNPC(109, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.Common(1314, 5));
 		RegisterToNPC(109, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Common(1325, 5));
-		RegisterToNPC(156, new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(ItemDropRule.Common(683, 30));
+		RegisterToNPC(156, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.Common(683, 30));
 		RegisterToNPC(156, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Common(112, 30));
 		RegisterToNPC(634, ItemDropRule.Common(4764, 40));
-		RegisterToNPC(185, ItemDropRule.Common(951, 150));
+		RegisterToNPC(185, ItemDropRule.Common(951, 25));
 		RegisterToNPC(185, new DropBasedOnExpertMode(ItemDropRule.Common(5070, 1, 1, 2), new CommonDrop(5070, 1, 1, 3)));
 		RegisterToNPC(44, ItemDropRule.Common(1320, 20));
 		RegisterToNPC(44, ItemDropRule.Common(88, 20));
@@ -960,15 +952,12 @@ public class ItemDropDatabase
 		RegisterToNPC(24, ItemDropRule.Common(1323, 20));
 		RegisterToNPC(109, ItemDropRule.Common(1324, 10));
 		RegisterToNPC(109, ItemDropRule.Common(4271, 10));
-		int[] npcNetIds = new int[2] {
-			163,
-			238
-		};
-
+		int[] npcNetIds = new int[2] { 163, 238 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(1308, 40), npcNetIds);
 		RegisterToMultipleNPCs(new DropBasedOnExpertMode(ItemDropRule.Common(2607, 2, 1, 3), new CommonDrop(2607, 10, 1, 3, 9)), npcNetIds);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1306, 100), 197, 206, 169, 154);
-		RegisterToNPC(244, ItemDropRule.Common(23, 1, 1, 20));
+		RegisterToNPC(301, ItemDropRule.Common(5576, 10));
+		RegisterToNPC(244, ItemDropRule.Gel(1, 1, 20));
 		RegisterToNPC(244, ItemDropRule.Common(662, 1, 30, 60));
 		RegisterToNPC(250, ItemDropRule.Common(1244, 15));
 		RegisterToNPC(172, ItemDropRule.Common(754));
@@ -985,22 +974,11 @@ public class ItemDropDatabase
 		RegisterToNPC(155, ItemDropRule.NormalvsExpert(5130, 30, 25));
 		RegisterToNPC(480, ItemDropRule.Common(3269, 25));
 		RegisterToNPC(480, ItemDropRule.NormalvsExpert(3781, 40, 20));
-		int[] npcNetIds2 = new int[3] {
-			198,
-			199,
-			226
-		};
-
+		int[] npcNetIds2 = new int[3] { 198, 199, 226 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(1172, 1000), npcNetIds2);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1293, 50), npcNetIds2);
 		RegisterToMultipleNPCs(ItemDropRule.Common(2766, 7, 1, 2), npcNetIds2);
-		int[] npcNetIds3 = new int[4] {
-			78,
-			79,
-			80,
-			630
-		};
-
+		int[] npcNetIds3 = new int[4] { 78, 79, 80, 630 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(870, 75), npcNetIds3);
 		RegisterToMultipleNPCs(ItemDropRule.Common(871, 75), npcNetIds3);
 		RegisterToMultipleNPCs(ItemDropRule.Common(872, 75), npcNetIds3);
@@ -1017,12 +995,7 @@ public class ItemDropDatabase
 		RegisterToNPC(476, ItemDropRule.Common(2272, 3));
 		RegisterToNPC(476, ItemDropRule.Common(5395, 3));
 		RegisterToNPC(476, ItemDropRule.Common(4986, 3, 69, 69));
-		int[] npcNetIds4 = new int[3] {
-			473,
-			474,
-			475
-		};
-
+		int[] npcNetIds4 = new int[3] { 473, 474, 475 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(499, 1, 5, 10), npcNetIds4);
 		RegisterToMultipleNPCs(ItemDropRule.Common(500, 1, 5, 15), npcNetIds4);
 		RegisterToNPC(87, new ItemDropWithConditionRule(4379, 25, 1, 1, new Conditions.WindyEnoughForKiteDrops()));
@@ -1035,12 +1008,7 @@ public class ItemDropDatabase
 		RegisterToNPC(221, ItemDropRule.Common(1119));
 		RegisterToNPC(167, ItemDropRule.Common(879, 50));
 		RegisterToNPC(628, ItemDropRule.Common(313, 2, 1, 2));
-		int[] npcNetIds5 = new int[3] {
-			143,
-			144,
-			145
-		};
-
+		int[] npcNetIds5 = new int[3] { 143, 144, 145 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(593, 1, 5, 10), npcNetIds5);
 		RegisterToMultipleNPCs(ItemDropRule.Common(527, 10), 79, 630);
 		RegisterToNPC(80, ItemDropRule.Common(528, 10));
@@ -1057,69 +1025,32 @@ public class ItemDropDatabase
 		RegisterToNPC(532, ItemDropRule.Common(3380, 1, 1, 3));
 		RegisterToNPC(532, ItemDropRule.Common(3771, 50));
 		RegisterToNPC(528, ItemDropRule.Common(2802, 25));
-		RegisterToNPC(528, ItemDropRule.OneFromOptions(60, 3786, 3785, 3784));
 		RegisterToNPC(529, ItemDropRule.Common(2801, 25));
-		RegisterToNPC(529, ItemDropRule.OneFromOptions(40, 3786, 3785, 3784));
-		RegisterToMultipleNPCs(ItemDropRule.Common(18, 100), 49, 51, 150, 93, 634);
-		RegisterToMultipleNPCs(new ItemDropWithConditionRule(5097, 250, 1, 1, new Conditions.DontStarveIsNotUp()), 49, 51, 150, 93, 634, 151, 60, 137, 152);
+		RegisterToMultipleNPCs(ItemDropRule.OneFromOptions(40, 3786, 3785, 3784), 528, 529);
+		RegisterToMultipleNPCs(ItemDropRule.Common(18, 200), 49, 51, 150, 93, 634);
+		RegisterToMultipleNPCs(new ItemDropWithConditionRule(5097, 300, 1, 1, new Conditions.DontStarveIsNotUp()), 49, 51, 150, 93, 634, 151, 60, 137, 152);
 		RegisterToMultipleNPCs(new ItemDropWithConditionRule(5097, 100, 1, 1, new Conditions.DontStarveIsUp()), 49, 51, 150, 93, 634, 151, 60, 137, 152);
-		RegisterToMultipleNPCs(ItemDropRule.Common(393, 50), 16, 185, 167, 197);
+		RegisterToMultipleNPCs(ItemDropRule.Common(393, 100), 16, 185, 167, 197);
 		RegisterToNPC(58, ItemDropRule.Common(393, 75));
-		int[] npcNetIds6 = new int[13] {
-			494,
-			495,
-			496,
-			497,
-			498,
-			499,
-			500,
-			501,
-			502,
-			503,
-			504,
-			505,
-			506
+		int[] npcNetIds6 = new int[13]
+		{
+			494, 495, 496, 497, 498, 499, 500, 501, 502, 503,
+			504, 505, 506
 		};
-
-		RegisterToMultipleNPCs(ItemDropRule.Common(18, 80), npcNetIds6).OnFailedRoll(ItemDropRule.Common(393, 80)).OnFailedRoll(ItemDropRule.Common(3285, 25));
-		int[] npcNetIds7 = new int[12] {
-			21,
-			201,
-			202,
-			203,
-			322,
-			323,
-			324,
-			635,
-			449,
-			450,
-			451,
-			452
+		RegisterToMultipleNPCs(ItemDropRule.Common(18, 80), npcNetIds6).OnFailedRoll(ItemDropRule.Common(393, 80)).OnFailedRoll(ItemDropRule.Common(3285, 15));
+		int[] npcNetIds7 = new int[12]
+		{
+			21, 201, 202, 203, 322, 323, 324, 635, 449, 450,
+			451, 452
 		};
-
 		RegisterToMultipleNPCs(ItemDropRule.Common(954, 100), npcNetIds7).OnFailedRoll(ItemDropRule.Common(955, 200)).OnFailedRoll(ItemDropRule.Common(1166, 200)).OnFailedRoll(ItemDropRule.Common(1274, 500));
 		RegisterToNPC(6, ItemDropRule.OneFromOptions(175, 956, 957, 958));
-		int[] npcNetIds8 = new int[7] {
-			42,
-			43,
-			231,
-			232,
-			233,
-			234,
-			235
-		};
-
+		int[] npcNetIds8 = new int[7] { 42, 43, 231, 232, 233, 234, 235 };
 		RegisterToMultipleNPCs(ItemDropRule.OneFromOptions(100, 960, 961, 962), npcNetIds8);
-		int[] npcNetIds9 = new int[5] {
-			31,
-			32,
-			294,
-			295,
-			296
-		};
-
+		int[] npcNetIds9 = new int[6] { 31, 32, 294, 295, 296, 693 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(959, 450), npcNetIds9);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1307, 300), npcNetIds9);
+		RegisterToNPC(32, ItemDropRule.Common(5632, 150));
 		RegisterToMultipleNPCs(ItemDropRule.Common(996, 200), 174, 179, 182, 183, 98, 83, 94, 81, 101);
 		RegisterToMultipleNPCs(ItemDropRule.Common(522, 1, 2, 5), 101, 98);
 		RegisterToNPC(98, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4611, 25));
@@ -1128,112 +1059,50 @@ public class ItemDropDatabase
 		RegisterToNPC(86, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4684, 25));
 		RegisterToNPC(224, ItemDropRule.Common(4057, 100));
 		RegisterToMultipleNPCs(ItemDropRule.Common(40, 1, 1, 9), 186, 432);
-		RegisterToNPC(225, ItemDropRule.Common(1243, 45)).OnFailedRoll(ItemDropRule.Common(23, 1, 2, 6));
-		RegisterToNPC(537, ItemDropRule.Common(23, 1, 2, 3));
+		RegisterToNPC(225, ItemDropRule.Common(1243, 45)).OnFailedRoll(ItemDropRule.Gel(1, 2, 6));
+		RegisterToNPC(537, ItemDropRule.Gel(1, 2, 3));
 		RegisterToNPC(537, ItemDropRule.NormalvsExpert(1309, 8000, 5600));
-		int[] npcNetIds10 = new int[4] {
-			335,
-			336,
-			333,
-			334
-		};
-
+		int[] npcNetIds10 = new int[4] { 335, 336, 333, 334 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(1906, 20), npcNetIds10);
 		RegisterToNPC(-4, ItemDropRule.Common(3111, 1, 25, 50));
 		RegisterToNPC(-4, ItemDropRule.NormalvsExpert(1309, 100, 70));
-		int[] npcNetIds11 = new int[18] {
-			1,
-			16,
-			138,
-			141,
-			147,
-			184,
-			187,
-			433,
-			204,
-			302,
-			333,
-			334,
-			335,
-			336,
-			535,
-			658,
-			659,
-			660
+		int[] npcNetIds11 = new int[18]
+		{
+			1, 16, 138, 141, 147, 184, 187, 433, 204, 302,
+			333, 334, 335, 336, 535, 658, 659, 660
 		};
-
-		int[] npcNetIds12 = new int[4] {
-			-6,
-			-7,
-			-8,
-			-9
-		};
-
-		int[] npcNetIds13 = new int[5] {
-			-6,
-			-7,
-			-8,
-			-9,
-			-4
-		};
-
-		IItemDropRule entry = RegisterToMultipleNPCs(ItemDropRule.Common(23, 1, 1, 2), npcNetIds11);
+		int[] npcNetIds12 = new int[5] { -6, -7, -8, -9, 676 };
+		int[] npcNetIds13 = new int[5] { -6, -7, -8, -9, -4 };
+		IItemDropRule entry = RegisterToMultipleNPCs(ItemDropRule.Gel(1, 1, 2), npcNetIds11);
 		RemoveFromMultipleNPCs(entry, npcNetIds13);
-		RegisterToMultipleNPCs(ItemDropRule.Common(23, 1, 2, 5), npcNetIds12);
+		RegisterToMultipleNPCs(ItemDropRule.Gel(1, 2, 5), npcNetIds12);
 		IItemDropRule entry2 = RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(1309, 10000, 7000), npcNetIds11);
 		RemoveFromMultipleNPCs(entry2, npcNetIds13);
 		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(1309, 10000, 7000), npcNetIds12);
 		RegisterToNPC(75, ItemDropRule.Common(501, 1, 1, 3));
-		RegisterToMultipleNPCs(ItemDropRule.Common(23, 1, 2, 4), 81, 183);
-		RegisterToNPC(122, ItemDropRule.Common(23, 1, 5, 10));
+		RegisterToMultipleNPCs(ItemDropRule.Gel(1, 2, 4), 81, 183);
+		RegisterToNPC(122, ItemDropRule.Gel(1, 5, 10));
 		RegisterToNPC(71, ItemDropRule.Common(327));
-		int[] npcNetIds14 = new int[9] {
-			2,
-			317,
-			318,
-			190,
-			191,
-			192,
-			193,
-			194,
-			133
-		};
-
+		int[] npcNetIds14 = new int[9] { 2, 317, 318, 190, 191, 192, 193, 194, 133 };
 		RegisterToMultipleNPCs(ItemDropRule.Common(236, 100), npcNetIds14).OnFailedRoll(ItemDropRule.Common(38, 3));
+		RegisterToMultipleNPCs(new ItemDropWithConditionRule(43, 50, 1, 1, new Conditions.EyeOfCthulhuDefeatedAndNoAltarsInWorld()), npcNetIds14);
 		RegisterToNPC(133, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4683, 25));
 		RegisterToNPC(104, ItemDropRule.Common(485, 60));
 		RegisterToNPC(58, ItemDropRule.Common(263, 250)).OnFailedRoll(ItemDropRule.Common(118, 30));
 		RegisterToNPC(102, ItemDropRule.Common(263, 250));
-		int[] npcNetIds15 = new int[23] {
-			3,
-			591,
-			590,
-			331,
-			332,
-			132,
-			161,
-			186,
-			187,
-			188,
-			189,
-			200,
-			223,
-			319,
-			320,
-			321,
-			430,
-			431,
-			432,
-			433,
-			434,
-			435,
-			436
+		int[] npcNetIds15 = new int[23]
+		{
+			3, 591, 590, 331, 332, 132, 161, 186, 187, 188,
+			189, 200, 223, 319, 320, 321, 430, 431, 432, 433,
+			434, 435, 436
 		};
-
 		RegisterToMultipleNPCs(ItemDropRule.Common(216, 50), npcNetIds15);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1304, 250), npcNetIds15);
 		RegisterToMultipleNPCs(ItemDropRule.Common(5332, 1500), npcNetIds15);
+		RegisterToMultipleNPCs(new ItemDropWithConditionRule(1786, 15, 1, 1, new Conditions.SkyblockIsUpNoSickle()), npcNetIds15);
 		RegisterToMultipleNPCs(ItemDropRule.Common(8, 1, 5, 20), 590, 591);
+		int[] npcNetIds16 = new int[4] { 189, 435, 188, 434 };
+		RegisterToMultipleNPCs(new ItemDropWithConditionRule(9, 2, 5, 20, new Conditions.SkyblockIsUp()), npcNetIds16);
 		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(3212, 150, 75), 489, 490);
 		RegisterToMultipleNPCs(ItemDropRule.NormalvsExpert(3213, 200, 100), 489, 490);
 		RegisterToNPC(223, ItemDropRule.OneFromOptions(20, 1135, 1136));
@@ -1247,13 +1116,9 @@ public class ItemDropDatabase
 		RegisterToNPC(582, ItemDropRule.Common(323, 6));
 		RegisterToMultipleNPCs(ItemDropRule.Common(3772, 50), 581, 580, 508, 509);
 		RegisterToNPC(73, ItemDropRule.Common(362, 1, 1, 2));
-		int[] npcNetIds16 = new int[2] {
-			483,
-			482
-		};
-
-		RegisterToMultipleNPCs(ItemDropRule.Common(3109, 30), npcNetIds16);
-		RegisterToMultipleNPCs(ItemDropRule.Common(4400, 20), npcNetIds16);
+		int[] npcNetIds17 = new int[2] { 483, 482 };
+		RegisterToMultipleNPCs(ItemDropRule.Common(3109, 30), npcNetIds17);
+		RegisterToMultipleNPCs(ItemDropRule.Common(4400, 20), npcNetIds17);
 		RegisterToMultipleNPCs(ItemDropRule.Common(68, 3), 6, 94);
 		RegisterToMultipleNPCs(ItemDropRule.Common(1330, 3), 181, 173, 239, 182, 240);
 		RegisterToMultipleNPCs(ItemDropRule.Common(68, 3, 1, 2), 7, 8, 9);
@@ -1262,66 +1127,40 @@ public class ItemDropDatabase
 		RegisterToMultipleNPCs(new ItemDropWithConditionRule(5094, 525, 1, 1, new Conditions.DontStarveIsNotUp()), 6, 7, 8, 9, 173, 181, 239, 240);
 		RegisterToMultipleNPCs(new ItemDropWithConditionRule(5091, 500, 1, 1, new Conditions.DontStarveIsUp()), 6, 7, 8, 9, 94, 81, 101, 173, 181, 239, 240, 174, 183, 242, 241, 268, 182, 98, 99, 100);
 		RegisterToMultipleNPCs(new ItemDropWithConditionRule(5091, 1500, 1, 1, new Conditions.DontStarveIsNotUp()), 6, 7, 8, 9, 94, 81, 101, 173, 181, 239, 240, 174, 183, 242, 241, 268, 182, 98, 99, 100);
+		RegisterToNPC(690, new StatueMimicItemDropRule());
 		RegisterToMultipleNPCs(new DropBasedOnExpertMode(ItemDropRule.Common(215, 50), ItemDropRule.WithRerolls(215, 1, 50)), 10, 11, 12, 95, 96, 97);
 		RegisterToMultipleNPCs(ItemDropRule.Common(243, 75), 47, 464);
 		RegisterToMultipleNPCs(ItemDropRule.OneFromOptions(50, 3757, 3758, 3759), 168, 470);
 		RegisterToNPC(533, ItemDropRule.Common(3795, 40)).OnFailedRoll(ItemDropRule.Common(3770, 30));
-		int[] npcNetIds17 = new int[3] {
-			63,
-			103,
-			64
-		};
-
-		RegisterToMultipleNPCs(ItemDropRule.Common(1303, 100), npcNetIds17);
-		RegisterToMultipleNPCs(ItemDropRule.Common(282, 1, 1, 4), npcNetIds17);
+		int[] npcNetIds18 = new int[3] { 63, 103, 64 };
+		RegisterToMultipleNPCs(ItemDropRule.Common(1303, 100), npcNetIds18);
+		RegisterToMultipleNPCs(ItemDropRule.Common(282, 1, 1, 4), npcNetIds18);
 		RegisterToMultipleNPCs(ItemDropRule.Common(282, 1, 1, 4), 223);
 		RegisterToMultipleNPCs(ItemDropRule.Common(282, 1, 1, 4), 224);
 		RegisterToNPC(63, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4649, 50));
 		RegisterToNPC(64, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4650, 50));
+		RegisterToNPC(691, ItemDropRule.OneFromOptions(1, 4352, 4350, 4349, 4353, 4351, 4354, 5127, 4378, 4377, 4389));
 		RegisterToNPC(481, ItemDropRule.Common(3094, 2, 40, 80));
 		RegisterToNPC(481, ItemDropRule.OneFromOptions(7, 3187, 3188, 3189));
 		RegisterToNPC(481, ItemDropRule.Common(4463, 20));
-		int[] npcNetIds18 = new int[13] {
-			21,
-			167,
-			201,
-			202,
-			481,
-			203,
-			322,
-			323,
-			324,
-			449,
-			450,
-			451,
-			452
+		RegisterToNPC(481, ItemDropRule.Common(5543, 100));
+		int[] npcNetIds19 = new int[13]
+		{
+			21, 167, 201, 202, 481, 203, 322, 323, 324, 449,
+			450, 451, 452
 		};
-
-		RegisterToMultipleNPCs(ItemDropRule.Common(118, 25), npcNetIds18);
+		RegisterToMultipleNPCs(ItemDropRule.Common(118, 25), npcNetIds19);
 		RegisterToNPC(44, ItemDropRule.Common(118, 25)).OnFailedRoll(ItemDropRule.OneFromOptions(4, 410, 411)).OnFailedRoll(ItemDropRule.Common(166, 1, 1, 3));
 		RegisterToNPC(45, ItemDropRule.Common(238));
 		RegisterToNPC(23, ItemDropRule.Common(116, 50));
+		RegisterToNPC(23, ItemDropRule.Common(5486, 100));
 		RegisterToNPC(24, ItemDropRule.Common(244, 250));
-		int[] npcNetIds19 = new int[6] {
-			31,
-			32,
-			34,
-			294,
-			295,
-			296
-		};
-
-		RegisterToMultipleNPCs(ItemDropRule.Common(932, 250), npcNetIds19).OnFailedRoll(ItemDropRule.Common(3095, 100)).OnFailedRoll(ItemDropRule.Common(327, 65)).OnFailedRoll(ItemDropRule.ByCondition(new Conditions.NotExpert(), 154, 1, 1, 3));
-		RegisterToMultipleNPCs(ItemDropRule.ByCondition(new Conditions.IsExpert(), 154, 1, 2, 6), npcNetIds19);
-		int[] npcNetIds20 = new int[5] {
-			26,
-			27,
-			28,
-			29,
-			111
-		};
-
-		RegisterToMultipleNPCs(ItemDropRule.Common(160, 200), npcNetIds20).OnFailedRoll(ItemDropRule.Common(161, 2, 1, 5));
+		int[] npcNetIds20 = new int[7] { 31, 32, 34, 294, 295, 296, 693 };
+		RegisterToMultipleNPCs(ItemDropRule.Common(932, 250), npcNetIds20).OnFailedRoll(ItemDropRule.Common(3095, 100)).OnFailedRoll(ItemDropRule.Common(327, 65)).OnFailedRoll(ItemDropRule.ByCondition(new Conditions.NotExpert(), 154, 1, 1, 3));
+		RegisterToMultipleNPCs(ItemDropRule.ByCondition(new Conditions.IsExpert(), 154, 1, 2, 6), npcNetIds20);
+		RegisterToNPC(694, ItemDropRule.Common(165, 40));
+		int[] npcNetIds21 = new int[5] { 26, 27, 28, 29, 111 };
+		RegisterToMultipleNPCs(ItemDropRule.Common(160, 200), npcNetIds21).OnFailedRoll(ItemDropRule.Common(161, 2, 1, 5));
 		RegisterToNPC(175, ItemDropRule.Common(1265, 100));
 		RegisterToNPC(175, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4675, 25));
 		RegisterToMultipleNPCs(new DropBasedOnExpertMode(new CommonDrop(209, 3, 1, 1, 2), ItemDropRule.Common(209)), 42, 231, 232, 233, 234, 235);
@@ -1334,6 +1173,7 @@ public class ItemDropDatabase
 		RegisterToNPC(39, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4610, 15));
 		RegisterToNPC(65, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4651, 25));
 		RegisterToNPC(65, ItemDropRule.Common(268, 20)).OnFailedRoll(ItemDropRule.Common(319));
+		RegisterToNPC(692, ItemDropRule.Common(268, 20)).OnFailedRoll(ItemDropRule.Common(319));
 		RegisterToNPC(48, ItemDropRule.NotScalingWithLuck(320, 2));
 		RegisterToNPC(541, ItemDropRule.Common(3783));
 		RegisterToMultipleNPCs(ItemDropRule.Common(319, 8), 542, 543, 544, 545);
@@ -1345,11 +1185,8 @@ public class ItemDropDatabase
 		RegisterToNPC(464, ItemDropRule.ByCondition(new Conditions.WindyEnoughForKiteDrops(), 4671, 25));
 		RegisterToNPC(268, ItemDropRule.Common(1332, 1, 2, 5));
 		RegisterToNPC(631, ItemDropRule.Common(3, 1, 10, 20));
-		RegisterToNPC(631, ItemDropRule.Common(4761, 10));
-		int[] npcNetIds21 = new int[1] {
-			594
-		};
-
+		RegisterToNPC(631, ItemDropRule.Common(4761, 3));
+		int[] npcNetIds22 = new int[1] { 594 };
 		LeadingConditionRule leadingConditionRule = new LeadingConditionRule(new Conditions.NeverTrue());
 		int[] options = new int[0];
 		IItemDropRule rule = leadingConditionRule.OnSuccess(ItemDropRule.OneFromOptions(8, options));
@@ -1363,6 +1200,6 @@ public class ItemDropDatabase
 		rule.OnSuccess(new CommonDrop(4674, chanceDenominator));
 		rule.OnSuccess(new CommonDrop(4343, chanceDenominator, 2, 5));
 		rule.OnSuccess(new CommonDrop(4344, chanceDenominator, 2, 5));
-		RegisterToMultipleNPCs(leadingConditionRule, npcNetIds21);
+		RegisterToMultipleNPCs(leadingConditionRule, npcNetIds22);
 	}
 }

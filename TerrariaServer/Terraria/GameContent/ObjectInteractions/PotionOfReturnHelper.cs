@@ -8,8 +8,9 @@ public class PotionOfReturnHelper
 	{
 		homeHitbox = Rectangle.Empty;
 		if (!player.PotionOfReturnHomePosition.HasValue)
+		{
 			return false;
-
+		}
 		Vector2 vector = new Vector2(0f, -21f);
 		Vector2 center = player.PotionOfReturnHomePosition.Value + vector;
 		homeHitbox = Utils.CenteredRectangle(center, new Vector2(24f, 40f));

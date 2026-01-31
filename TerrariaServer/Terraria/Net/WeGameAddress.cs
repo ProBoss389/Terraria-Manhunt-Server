@@ -5,6 +5,7 @@ namespace Terraria.Net;
 public class WeGameAddress : RemoteAddress
 {
 	public readonly RailID rail_id;
+
 	private string nickname;
 
 	public WeGameAddress(RailID id, string name)
@@ -14,16 +15,27 @@ public class WeGameAddress : RemoteAddress
 		nickname = name;
 	}
 
-	public override string ToString() => "WEGAME_0:" + rail_id.id_;
-	public override string GetIdentifier() => ToString();
+	public override string ToString()
+	{
+		return "WEGAME_0:" + rail_id.id_;
+	}
+
+	public override string GetIdentifier()
+	{
+		return ToString();
+	}
 
 	public override bool IsLocalHost()
 	{
 		if (Program.LaunchParameters.ContainsKey("-localwegameid"))
+		{
 			return Program.LaunchParameters["-localwegameid"].Equals(rail_id.id_.ToString());
-
+		}
 		return false;
 	}
 
-	public override string GetFriendlyName() => nickname;
+	public override string GetFriendlyName()
+	{
+		return nickname;
+	}
 }

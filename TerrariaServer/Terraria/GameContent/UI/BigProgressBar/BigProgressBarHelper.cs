@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using ReLogic.Graphics;
 
 namespace Terraria.GameContent.UI.BigProgressBar;
@@ -24,7 +25,7 @@ public class BigProgressBarHelper
 
 	public static void DrawFancyBar(SpriteBatch spriteBatch, float lifeAmount, float lifeMax, Texture2D barIconTexture, Rectangle barIconFrame)
 	{
-		Texture2D value = Main.Assets.Request<Texture2D>("Images/UI/UI_BossBar").Value;
+		Texture2D value = Main.Assets.Request<Texture2D>("Images/UI/UI_BossBar", AssetRequestMode.ImmediateLoad).Value;
 		Point p = new Point(456, 22);
 		Point p2 = new Point(32, 24);
 		int verticalFrames = 6;
@@ -53,7 +54,9 @@ public class BigProgressBarHelper
 		Vector2 vector2 = new Vector2(4f, 20f) + new Vector2(26f, 28f) / 2f;
 		spriteBatch.Draw(barIconTexture, vector + vector2, barIconFrame, Color.White, 0f, barIconFrame.Size() / 2f, 1f, SpriteEffects.None, 0f);
 		if (BigProgressBarSystem.ShowText)
+		{
 			DrawHealthText(spriteBatch, rectangle, lifeAmount, lifeMax);
+		}
 	}
 
 	private static void DrawHealthText(SpriteBatch spriteBatch, Rectangle area, float current, float max)
@@ -74,7 +77,7 @@ public class BigProgressBarHelper
 
 	public static void DrawFancyBar(SpriteBatch spriteBatch, float lifeAmount, float lifeMax, Texture2D barIconTexture, Rectangle barIconFrame, float shieldCurrent, float shieldMax)
 	{
-		Texture2D value = Main.Assets.Request<Texture2D>("Images/UI/UI_BossBar").Value;
+		Texture2D value = Main.Assets.Request<Texture2D>("Images/UI/UI_BossBar", AssetRequestMode.ImmediateLoad).Value;
 		Point p = new Point(456, 22);
 		Point p2 = new Point(32, 24);
 		int verticalFrames = 6;
@@ -117,11 +120,16 @@ public class BigProgressBarHelper
 		spriteBatch.Draw(value, vector, value7, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 		Vector2 vector2 = new Vector2(4f, 20f) + barIconFrame.Size() / 2f;
 		spriteBatch.Draw(barIconTexture, vector + vector2, barIconFrame, Color.White, 0f, barIconFrame.Size() / 2f, 1f, SpriteEffects.None, 0f);
-		if (BigProgressBarSystem.ShowText) {
+		if (BigProgressBarSystem.ShowText)
+		{
 			if (shieldCurrent > 0f)
+			{
 				DrawHealthText(spriteBatch, rectangle, shieldCurrent, shieldMax);
+			}
 			else
+			{
 				DrawHealthText(spriteBatch, rectangle, lifeAmount, lifeMax);
+			}
 		}
 	}
 }

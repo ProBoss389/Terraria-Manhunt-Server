@@ -10,18 +10,25 @@ public class CameraModifierStack
 	public void Add(ICameraModifier modifier)
 	{
 		RemoveIdenticalModifiers(modifier);
-		_modifiers.Add(modifier);
+		if (Main.UseScreenShake || !modifier.IsAScreenShake)
+		{
+			_modifiers.Add(modifier);
+		}
 	}
 
 	private void RemoveIdenticalModifiers(ICameraModifier modifier)
 	{
 		string uniqueIdentity = modifier.UniqueIdentity;
 		if (uniqueIdentity == null)
+		{
 			return;
-
-		for (int num = _modifiers.Count - 1; num >= 0; num--) {
+		}
+		for (int num = _modifiers.Count - 1; num >= 0; num--)
+		{
 			if (_modifiers[num].UniqueIdentity == uniqueIdentity)
+			{
 				_modifiers.RemoveAt(num);
+			}
 		}
 	}
 
@@ -29,18 +36,21 @@ public class CameraModifierStack
 	{
 		CameraInfo cameraPosition2 = new CameraInfo(cameraPosition);
 		ClearFinishedModifiers();
-		for (int i = 0; i < _modifiers.Count; i++) {
+		for (int i = 0; i < _modifiers.Count; i++)
+		{
 			_modifiers[i].Update(ref cameraPosition2);
 		}
-
 		cameraPosition = cameraPosition2.CameraPosition;
 	}
 
 	private void ClearFinishedModifiers()
 	{
-		for (int num = _modifiers.Count - 1; num >= 0; num--) {
+		for (int num = _modifiers.Count - 1; num >= 0; num--)
+		{
 			if (_modifiers[num].Finished)
+			{
 				_modifiers.RemoveAt(num);
+			}
 		}
 	}
 }

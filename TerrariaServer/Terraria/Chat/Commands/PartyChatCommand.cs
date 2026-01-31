@@ -12,16 +12,22 @@ public class PartyChatCommand : IChatCommand
 	{
 		int team = Main.player[clientId].team;
 		Color color = Main.teamColor[team];
-		if (team == 0) {
+		if (team == 0 || Main.netMode == 0)
+		{
 			SendNoTeamError(clientId);
 		}
-		else {
+		else
+		{
 			if (text == "")
+			{
 				return;
-
-			for (int i = 0; i < 255; i++) {
+			}
+			for (int i = 0; i < 255; i++)
+			{
 				if (Main.player[i].team == team)
+				{
 					ChatHelper.SendChatMessageToClientAs(clientId, NetworkText.FromLiteral(text), color, i);
+				}
 			}
 		}
 	}

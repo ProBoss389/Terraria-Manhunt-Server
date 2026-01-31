@@ -6,8 +6,11 @@ namespace Terraria.Audio;
 public class WAVAudioTrack : ASoundEffectBasedAudioTrack
 {
 	private long _streamContentStartIndex = -1L;
+
 	private Stream _stream;
+
 	private const uint JUNK = 1263424842u;
+
 	private const uint FMT = 544501094u;
 
 	public WAVAudioTrack(Stream stream)
@@ -21,28 +24,30 @@ public class WAVAudioTrack : ASoundEffectBasedAudioTrack
 		uint sampleRate = 0u;
 		bool flag = false;
 		int num = 0;
-		while (!flag && num < 10) {
+		while (!flag && num < 10)
+		{
 			uint num2 = binaryReader.ReadUInt32();
 			int chunkSize = binaryReader.ReadInt32();
-			switch (num2) {
-				case 1263424842u:
-					SkipJunk(binaryReader, chunkSize);
-					break;
-				case 544501094u:
-					binaryReader.ReadInt16();
-					channels = (AudioChannels)binaryReader.ReadUInt16();
-					sampleRate = binaryReader.ReadUInt32();
-					binaryReader.ReadInt32();
-					binaryReader.ReadInt16();
-					binaryReader.ReadInt16();
-					flag = true;
-					break;
+			switch (num2)
+			{
+			case 1263424842u:
+				SkipJunk(binaryReader, chunkSize);
+				break;
+			case 544501094u:
+				binaryReader.ReadInt16();
+				channels = (AudioChannels)binaryReader.ReadUInt16();
+				sampleRate = binaryReader.ReadUInt32();
+				binaryReader.ReadInt32();
+				binaryReader.ReadInt16();
+				binaryReader.ReadInt16();
+				flag = true;
+				break;
 			}
-
 			if (!flag)
+			{
 				num++;
+			}
 		}
-
 		binaryReader.ReadInt32();
 		binaryReader.ReadInt32();
 		_streamContentStartIndex = stream.Position;
@@ -53,8 +58,9 @@ public class WAVAudioTrack : ASoundEffectBasedAudioTrack
 	{
 		int num = chunkSize;
 		if (num % 2 != 0)
+		{
 			num++;
-
+		}
 		reader.ReadBytes(num);
 	}
 
@@ -62,9 +68,13 @@ public class WAVAudioTrack : ASoundEffectBasedAudioTrack
 	{
 		byte[] bufferToSubmit = _bufferToSubmit;
 		if (_stream.Read(bufferToSubmit, 0, bufferToSubmit.Length) < 1)
+		{
 			Stop(AudioStopOptions.Immediate);
+		}
 		else
+		{
 			_soundEffectInstance.SubmitBuffer(_bufferToSubmit);
+		}
 	}
 
 	public override void Reuse()

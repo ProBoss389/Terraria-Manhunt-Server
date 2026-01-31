@@ -6,8 +6,11 @@ namespace Terraria.Audio;
 public abstract class SoundStyle
 {
 	private static UnifiedRandom _random = new UnifiedRandom();
+
 	private float _volume;
+
 	private float _pitchVariance;
+
 	private SoundType _type;
 
 	public float Volume => _volume;
@@ -17,6 +20,8 @@ public abstract class SoundStyle
 	public SoundType Type => _type;
 
 	public abstract bool IsTrackable { get; }
+
+	public abstract int MaxTrackedInstances { get; }
 
 	public SoundStyle(float volume, float pitchVariance, SoundType type = SoundType.Sound)
 	{
@@ -32,6 +37,10 @@ public abstract class SoundStyle
 		_type = type;
 	}
 
-	public float GetRandomPitch() => _random.NextFloat() * PitchVariance - PitchVariance * 0.5f;
+	public float GetRandomPitch()
+	{
+		return _random.NextFloat() * PitchVariance - PitchVariance * 0.5f;
+	}
+
 	public abstract SoundEffect GetRandomSound();
 }

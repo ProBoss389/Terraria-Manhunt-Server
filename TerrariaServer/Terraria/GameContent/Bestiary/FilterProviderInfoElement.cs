@@ -10,8 +10,11 @@ namespace Terraria.GameContent.Bestiary;
 public class FilterProviderInfoElement : IFilterInfoProvider, IProvideSearchFilterString, IBestiaryInfoElement
 {
 	private const int framesPerRow = 16;
+
 	private const int framesPerColumn = 5;
+
 	private Point _filterIconFrame;
+
 	private string _key;
 
 	public int DisplayTextPriority { get; set; }
@@ -27,8 +30,9 @@ public class FilterProviderInfoElement : IFilterInfoProvider, IProvideSearchFilt
 
 	public UIElement GetFilterImage()
 	{
-		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Tags_Shadow");
-		return new UIImageFramed(asset, asset.Frame(16, 5, _filterIconFrame.X, _filterIconFrame.Y)) {
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Tags_Shadow", AssetRequestMode.ImmediateLoad);
+		return new UIImageFramed(asset, asset.Frame(16, 5, _filterIconFrame.X, _filterIconFrame.Y))
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
@@ -37,46 +41,54 @@ public class FilterProviderInfoElement : IFilterInfoProvider, IProvideSearchFilt
 	public string GetSearchString(ref BestiaryUICollectionInfo info)
 	{
 		if (info.UnlockState == BestiaryEntryUnlockState.NotKnownAtAll_0)
+		{
 			return null;
-
+		}
 		return Language.GetText(_key).Value;
 	}
 
-	public string GetDisplayNameKey() => _key;
+	public string GetDisplayNameKey()
+	{
+		return _key;
+	}
 
 	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
 	{
 		if (HideInPortraitInfo)
+		{
 			return null;
-
+		}
 		if (info.UnlockState == BestiaryEntryUnlockState.NotKnownAtAll_0)
+		{
 			return null;
-
-		UIElement uIElement = new UIPanel(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Stat_Panel"), null, 12, 7) {
+		}
+		UIElement uIElement = new UIPanel(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Stat_Panel", AssetRequestMode.ImmediateLoad), null, 12, 7)
+		{
 			Width = new StyleDimension(-14f, 1f),
 			Height = new StyleDimension(34f, 0f),
 			BackgroundColor = new Color(43, 56, 101),
 			BorderColor = Color.Transparent,
 			Left = new StyleDimension(5f, 0f)
 		};
-
 		uIElement.SetPadding(0f);
 		uIElement.PaddingRight = 5f;
 		UIElement filterImage = GetFilterImage();
 		filterImage.HAlign = 0f;
 		filterImage.Left = new StyleDimension(5f, 0f);
-		UIText element = new UIText(Language.GetText(GetDisplayNameKey()), 0.8f) {
+		UIText element = new UIText(Language.GetText(GetDisplayNameKey()), 0.8f)
+		{
 			HAlign = 0f,
-			Left = new StyleDimension(38f, 0f),
+			PaddingLeft = 38f,
+			Width = StyleDimension.FromPercent(1f),
 			TextOriginX = 0f,
 			TextOriginY = 0f,
 			VAlign = 0.5f,
 			DynamicallyScaleDownToWidth = true
 		};
-
 		if (filterImage != null)
+		{
 			uIElement.Append(filterImage);
-
+		}
 		uIElement.Append(element);
 		AddOnHover(uIElement);
 		return uIElement;
@@ -84,14 +96,16 @@ public class FilterProviderInfoElement : IFilterInfoProvider, IProvideSearchFilt
 
 	private void AddOnHover(UIElement button)
 	{
-		button.OnUpdate += delegate (UIElement e) {
+		button.OnUpdate += delegate(UIElement e)
+		{
 			ShowButtonName(e);
 		};
 	}
 
 	private void ShowButtonName(UIElement element)
 	{
-		if (element.IsMouseHovering) {
+		if (element.IsMouseHovering)
+		{
 			string textValue = Language.GetTextValue(GetDisplayNameKey());
 			Main.instance.MouseText(textValue, 0, 0);
 		}

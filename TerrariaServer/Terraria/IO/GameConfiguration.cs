@@ -11,5 +11,8 @@ public class GameConfiguration
 		_root = configurationRoot;
 	}
 
-	public T Get<T>(string entry) => _root[entry].ToObject<T>();
+	public T Get<T>(string entry)
+	{
+		return _root[entry].ToObject<T>();
+	}
 }

@@ -28,8 +28,9 @@ public class ItemRarity
 	{
 		Color result = new Color(Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor);
 		if (_rarities.ContainsKey(rarity))
+		{
 			return _rarities[rarity];
-
+		}
 		return result;
 	}
 }

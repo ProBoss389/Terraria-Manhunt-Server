@@ -10,15 +10,25 @@ namespace Terraria.GameContent.UI.Elements;
 public class UICharacterNameButton : UIElement
 {
 	private readonly Asset<Texture2D> _BasePanelTexture;
+
 	private readonly Asset<Texture2D> _selectedBorderTexture;
+
 	private readonly Asset<Texture2D> _hoveredBorderTexture;
+
 	private bool _hovered;
+
 	private bool _soundedHover;
+
 	private readonly LocalizedText _textToShowWhenEmpty;
+
 	private string actualContents;
+
 	private UIText _text;
+
 	private UIText _title;
+
 	public readonly LocalizedText Description;
+
 	public float DistanceFromTitleToOption = 20f;
 
 	public UICharacterNameButton(LocalizedText titleText, LocalizedText emptyContentText, LocalizedText description = null)
@@ -26,25 +36,25 @@ public class UICharacterNameButton : UIElement
 		Width = StyleDimension.FromPixels(400f);
 		Height = StyleDimension.FromPixels(40f);
 		Description = description;
-		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel");
-		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
-		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder");
+		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel", AssetRequestMode.ImmediateLoad);
+		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
+		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder", AssetRequestMode.ImmediateLoad);
 		_textToShowWhenEmpty = emptyContentText;
 		float textScale = 1f;
-		UIText uIText = new UIText(titleText, textScale) {
+		UIText uIText = new UIText(titleText, textScale)
+		{
 			HAlign = 0f,
 			VAlign = 0.5f,
 			Left = StyleDimension.FromPixels(10f)
 		};
-
 		Append(uIText);
 		_title = uIText;
-		UIText uIText2 = new UIText(Language.GetText("UI.PlayerNameSlot"), textScale) {
+		UIText uIText2 = new UIText(Language.GetText("UI.PlayerNameSlot"), textScale)
+		{
 			HAlign = 0f,
 			VAlign = 0.5f,
 			Left = StyleDimension.FromPixels(150f)
 		};
-
 		Append(uIText2);
 		_text = uIText2;
 		SetContents(null);
@@ -52,35 +62,45 @@ public class UICharacterNameButton : UIElement
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		if (_hovered) {
+		if (_hovered)
+		{
 			if (!_soundedHover)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_soundedHover = true;
 		}
-		else {
+		else
+		{
 			_soundedHover = false;
 		}
-
 		CalculatedStyle dimensions = GetDimensions();
 		Utils.DrawSplicedPanel(spriteBatch, _BasePanelTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, Color.White * 0.5f);
 		if (_hovered)
+		{
 			Utils.DrawSplicedPanel(spriteBatch, _hoveredBorderTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, Color.White);
+		}
 	}
 
 	public void SetContents(string name)
 	{
 		actualContents = name;
-		if (string.IsNullOrEmpty(actualContents)) {
+		if (string.IsNullOrEmpty(actualContents))
+		{
 			_text.TextColor = Color.Gray;
 			_text.SetText(_textToShowWhenEmpty);
 		}
-		else {
+		else
+		{
 			_text.TextColor = Color.White;
 			_text.SetText(actualContents);
 		}
-
 		_text.Left = StyleDimension.FromPixels(_title.GetInnerDimensions().Width + DistanceFromTitleToOption);
+	}
+
+	public CalculatedStyle GetTextDimensions()
+	{
+		return _text.GetDimensions();
 	}
 
 	public void TrimDisplayIfOverElementDimensions(int padding)
@@ -93,19 +113,21 @@ public class UICharacterNameButton : UIElement
 		Point point3 = new Point((int)dimensions2.X, (int)dimensions2.Y);
 		Point point4 = new Point(point3.X + (int)dimensions2.Width, point3.Y + (int)dimensions2.Height);
 		Rectangle rectangle2 = new Rectangle(point3.X, point3.Y, point4.X - point3.X, point4.Y - point3.Y);
-		int num = 0;
-		while (rectangle2.Right > rectangle.Right - padding) {
-			_text.SetText(_text.Text.Substring(0, _text.Text.Length - 1));
-			num++;
+		bool flag = false;
+		while (rectangle2.Right > rectangle.Right - padding)
+		{
+			_text.SetText(Utils.TrimLastCharacter(_text.Text));
+			flag = true;
 			RecalculateChildren();
 			dimensions2 = _text.GetDimensions();
 			point3 = new Point((int)dimensions2.X, (int)dimensions2.Y);
 			point4 = new Point(point3.X + (int)dimensions2.Width, point3.Y + (int)dimensions2.Height);
 			rectangle2 = new Rectangle(point3.X, point3.Y, point4.X - point3.X, point4.Y - point3.Y);
 		}
-
-		if (num > 0)
-			_text.SetText(_text.Text.Substring(0, _text.Text.Length - 1) + "…");
+		if (flag)
+		{
+			_text.SetText(Utils.TrimLastCharacter(_text.Text) + "…");
+		}
 	}
 
 	public override void LeftMouseDown(UIMouseEvent evt)

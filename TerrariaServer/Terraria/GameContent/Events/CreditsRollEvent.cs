@@ -6,6 +6,7 @@ namespace Terraria.GameContent.Events;
 public class CreditsRollEvent
 {
 	private const int MAX_TIME_FOR_CREDITS_ROLL_IN_FRAMES = 28800;
+
 	private static int _creditsRollRemainingTime;
 
 	public static bool IsEventOngoing => _creditsRollRemainingTime > 0;
@@ -14,16 +15,21 @@ public class CreditsRollEvent
 	{
 		_creditsRollRemainingTime = 28800;
 		if (SkyManager.Instance["CreditsRoll"] is CreditsRollSky creditsRollSky)
+		{
 			_creditsRollRemainingTime = creditsRollSky.AmountOfTimeNeededForFullPlay;
-
+		}
 		if (Main.netMode == 2)
+		{
 			NetMessage.SendData(140, -1, -1, null, 0, _creditsRollRemainingTime);
+		}
 	}
 
 	public static void SendCreditsRollRemainingTimeToPlayer(int playerIndex)
 	{
 		if (_creditsRollRemainingTime != 0 && Main.netMode == 2)
+		{
 			NetMessage.SendData(140, playerIndex, -1, null, 0, _creditsRollRemainingTime);
+		}
 	}
 
 	public static void UpdateTime()

@@ -6,7 +6,9 @@ namespace Terraria.Audio;
 public class CueAudioTrack : IAudioTrack, IDisposable
 {
 	private Cue _cue;
+
 	private string _cueName;
+
 	private SoundBank _soundBank;
 
 	public bool IsPlaying => _cue.IsPlaying;
@@ -45,8 +47,9 @@ public class CueAudioTrack : IAudioTrack, IDisposable
 	public void Reuse()
 	{
 		if (_cue != null)
+		{
 			Stop(AudioStopOptions.Immediate);
-
+		}
 		_cue = _soundBank.GetCue(_cueName);
 	}
 

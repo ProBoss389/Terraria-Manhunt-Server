@@ -6,7 +6,9 @@ namespace Terraria.GameContent;
 public abstract class ARenderTargetContentByRequest : INeedRenderTargetContent
 {
 	protected RenderTarget2D _target;
+
 	protected bool _wasPrepared;
+
 	private bool _wasRequested;
 
 	public bool IsReady => _wasPrepared;
@@ -16,27 +18,32 @@ public abstract class ARenderTargetContentByRequest : INeedRenderTargetContent
 		_wasRequested = true;
 	}
 
-	public RenderTarget2D GetTarget() => _target;
+	public RenderTarget2D GetTarget()
+	{
+		return _target;
+	}
 
 	public void PrepareRenderTarget(GraphicsDevice device, SpriteBatch spriteBatch)
 	{
 		_wasPrepared = false;
-		if (_wasRequested) {
+		if (_wasRequested)
+		{
 			_wasRequested = false;
-			HandleUseReqest(device, spriteBatch);
+			HandleUseRequest(device, spriteBatch);
 		}
 	}
 
-	protected abstract void HandleUseReqest(GraphicsDevice device, SpriteBatch spriteBatch);
+	protected abstract void HandleUseRequest(GraphicsDevice device, SpriteBatch spriteBatch);
 
 	protected void PrepareARenderTarget_AndListenToEvents(ref RenderTarget2D target, GraphicsDevice device, int neededWidth, int neededHeight, RenderTargetUsage usage)
 	{
-		if (target == null || target.IsDisposed || target.Width != neededWidth || target.Height != neededHeight) {
-			if (target != null) {
+		if (target == null || target.IsDisposed || target.Width != neededWidth || target.Height != neededHeight)
+		{
+			if (target != null)
+			{
 				target.ContentLost -= target_ContentLost;
 				target.Disposing -= target_Disposing;
 			}
-
 			target = new RenderTarget2D(device, neededWidth, neededHeight, mipMap: false, device.PresentationParameters.BackBufferFormat, DepthFormat.None, 0, usage);
 			target.ContentLost += target_ContentLost;
 			target.Disposing += target_Disposing;
@@ -64,6 +71,8 @@ public abstract class ARenderTargetContentByRequest : INeedRenderTargetContent
 	protected void PrepareARenderTarget_WithoutListeningToEvents(ref RenderTarget2D target, GraphicsDevice device, int neededWidth, int neededHeight, RenderTargetUsage usage)
 	{
 		if (target == null || target.IsDisposed || target.Width != neededWidth || target.Height != neededHeight)
+		{
 			target = new RenderTarget2D(device, neededWidth, neededHeight, mipMap: false, device.PresentationParameters.BackBufferFormat, DepthFormat.None, 0, usage);
+		}
 	}
 }

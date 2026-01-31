@@ -12,6 +12,7 @@ namespace Terraria.GameContent;
 public class AssetSourceController
 {
 	private readonly List<IContentSource> _staticSources;
+
 	private readonly IAssetRepository _assetRepository;
 
 	public ResourcePackList ActiveResourcePackList { get; private set; }
@@ -22,38 +23,38 @@ public class AssetSourceController
 	{
 		_assetRepository = assetRepository;
 		_staticSources = staticSources.ToList();
-		UseResourcePacks(new ResourcePackList());
+		ActiveResourcePackList = new ResourcePackList();
 	}
 
 	public void Refresh()
 	{
-		foreach (ResourcePack allPack in ActiveResourcePackList.AllPacks) {
-			allPack.Refresh();
+		foreach (ResourcePack allPack in ActiveResourcePackList.AllPacks)
+		{
+			allPack.GetContentSource().Refresh();
 		}
-
 		UseResourcePacks(ActiveResourcePackList);
 	}
 
 	public void UseResourcePacks(ResourcePackList resourcePacks)
 	{
 		if (this.OnResourcePackChange != null)
+		{
 			this.OnResourcePackChange(resourcePacks);
-
+		}
 		ActiveResourcePackList = resourcePacks;
 		List<IContentSource> list = new List<IContentSource>(from pack in resourcePacks.EnabledPacks
-															 orderby pack.SortingOrder
-															 select pack.GetContentSource());
-
+			orderby pack.SortingOrder
+			select pack.GetContentSource());
 		list.AddRange(_staticSources);
-		foreach (IContentSource item in list) {
+		foreach (IContentSource item in list)
+		{
 			item.ClearRejections();
 		}
-
 		List<IContentSource> list2 = new List<IContentSource>();
-		for (int num = list.Count - 1; num >= 0; num--) {
+		for (int num = list.Count - 1; num >= 0; num--)
+		{
 			list2.Add(list[num]);
 		}
-
 		_assetRepository.SetSources(list);
 		LanguageManager.Instance.UseSources(list2);
 		Main.audioSystem.UseSources(list2);

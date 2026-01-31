@@ -8,6 +8,7 @@ public class BiomePreferenceListTrait : IShopPersonalityTrait, IEnumerable<Biome
 	public class BiomePreference
 	{
 		public AffectionLevel Affection;
+
 		public AShoppingBiome Biome;
 
 		public BiomePreference(AffectionLevel affection, AShoppingBiome biome)
@@ -37,35 +38,47 @@ public class BiomePreferenceListTrait : IShopPersonalityTrait, IEnumerable<Biome
 	public void ModifyShopPrice(HelperInfo info, ShopHelper shopHelperInstance)
 	{
 		BiomePreference biomePreference = null;
-		for (int i = 0; i < _preferences.Count; i++) {
+		for (int i = 0; i < _preferences.Count; i++)
+		{
 			BiomePreference biomePreference2 = _preferences[i];
 			if (biomePreference2.Biome.IsInBiome(info.player) && (biomePreference == null || biomePreference.Affection < biomePreference2.Affection))
+			{
 				biomePreference = biomePreference2;
+			}
 		}
-
 		if (biomePreference != null)
+		{
 			ApplyPreference(biomePreference, info, shopHelperInstance);
+		}
 	}
 
 	private void ApplyPreference(BiomePreference preference, HelperInfo info, ShopHelper shopHelperInstance)
 	{
 		string nameKey = preference.Biome.NameKey;
-		switch (preference.Affection) {
-			case AffectionLevel.Love:
-				shopHelperInstance.LoveBiome(nameKey);
-				break;
-			case AffectionLevel.Like:
-				shopHelperInstance.LikeBiome(nameKey);
-				break;
-			case AffectionLevel.Dislike:
-				shopHelperInstance.DislikeBiome(nameKey);
-				break;
-			case AffectionLevel.Hate:
-				shopHelperInstance.HateBiome(nameKey);
-				break;
+		switch (preference.Affection)
+		{
+		case AffectionLevel.Love:
+			shopHelperInstance.LoveBiome(nameKey);
+			break;
+		case AffectionLevel.Like:
+			shopHelperInstance.LikeBiome(nameKey);
+			break;
+		case AffectionLevel.Dislike:
+			shopHelperInstance.DislikeBiome(nameKey);
+			break;
+		case AffectionLevel.Hate:
+			shopHelperInstance.HateBiome(nameKey);
+			break;
 		}
 	}
 
-	public IEnumerator<BiomePreference> GetEnumerator() => _preferences.GetEnumerator();
-	IEnumerator IEnumerable.GetEnumerator() => _preferences.GetEnumerator();
+	public IEnumerator<BiomePreference> GetEnumerator()
+	{
+		return _preferences.GetEnumerator();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return _preferences.GetEnumerator();
+	}
 }

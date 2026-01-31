@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using ReLogic.IO;
 using ReLogic.OS;
 using Terraria.Initializers;
@@ -18,34 +17,49 @@ namespace Terraria;
 public static class Program
 {
 	public static bool IsXna = true;
+
 	public static bool IsFna = false;
+
 	public static bool IsMono = Type.GetType("Mono.Runtime") != null;
+
 	public const bool IsDebug = false;
+
 	public static Dictionary<string, string> LaunchParameters = new Dictionary<string, string>();
+
 	public static string SavePath;
+
 	public const string TerrariaSaveFolderPath = "Terraria";
+
 	private static int ThingsToLoad;
+
 	private static int ThingsLoaded;
+
 	public static bool LoadedEverything;
+
 	public static IntPtr JitForcedMethodCache;
 
-	public static float LoadedPercentage {
-		get {
+	public static float LoadedPercentage
+	{
+		get
+		{
 			if (ThingsToLoad == 0)
+			{
 				return 1f;
-
+			}
 			return (float)ThingsLoaded / (float)ThingsToLoad;
 		}
 	}
 
 	public static void StartForceLoad()
 	{
-		if (!Main.SkipAssemblyLoad) {
+		if (!Main.SkipAssemblyLoad)
+		{
 			Thread thread = new Thread(ForceLoadThread);
 			thread.IsBackground = true;
 			thread.Start();
 		}
-		else {
+		else
+		{
 			LoadedEverything = true;
 		}
 	}
@@ -59,17 +73,23 @@ public static class Program
 	private static void ForceJITOnAssembly(Assembly assembly)
 	{
 		Type[] types = assembly.GetTypes();
-		foreach (Type type in types) {
+		foreach (Type type in types)
+		{
 			MethodInfo[] array = (IsMono ? type.GetMethods() : type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic));
-			foreach (MethodInfo methodInfo in array) {
-				if (!methodInfo.IsAbstract && !methodInfo.ContainsGenericParameters && methodInfo.GetMethodBody() != null) {
+			foreach (MethodInfo methodInfo in array)
+			{
+				if (!methodInfo.IsAbstract && !methodInfo.ContainsGenericParameters && methodInfo.GetMethodBody() != null)
+				{
 					if (IsMono)
+					{
 						JitForcedMethodCache = methodInfo.MethodHandle.GetFunctionPointer();
+					}
 					else
+					{
 						RuntimeHelpers.PrepareMethod(methodInfo.MethodHandle);
+					}
 				}
 			}
-
 			ThingsLoaded++;
 		}
 	}
@@ -77,9 +97,12 @@ public static class Program
 	private static void ForceStaticInitializers(Assembly assembly)
 	{
 		Type[] types = assembly.GetTypes();
-		foreach (Type type in types) {
+		foreach (Type type in types)
+		{
 			if (!type.IsGenericType)
+			{
 				RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+			}
 		}
 	}
 
@@ -88,38 +111,43 @@ public static class Program
 		ThingsToLoad = assembly.GetTypes().Length;
 		ForceJITOnAssembly(assembly);
 		if (initializeStaticMembers)
+		{
 			ForceStaticInitializers(assembly);
+		}
 	}
 
 	private static void ForceLoadAssembly(string name, bool initializeStaticMembers)
 	{
 		Assembly assembly = null;
 		Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-		for (int i = 0; i < assemblies.Length; i++) {
-			if (assemblies[i].GetName().Name.Equals(name)) {
+		for (int i = 0; i < assemblies.Length; i++)
+		{
+			if (assemblies[i].GetName().Name.Equals(name))
+			{
 				assembly = assemblies[i];
 				break;
 			}
 		}
-
 		if (assembly == null)
+		{
 			assembly = Assembly.Load(name);
-
+		}
 		ForceLoadAssembly(assembly, initializeStaticMembers);
 	}
 
 	private static void SetupLogging()
 	{
-		if (LaunchParameters.ContainsKey("-logfile")) {
+		if (LaunchParameters.ContainsKey("-logfile"))
+		{
 			string text = LaunchParameters["-logfile"];
 			text = ((text != null && !(text.Trim() == "")) ? Path.Combine(text, $"Log_{DateTime.Now:yyyyMMddHHmmssfff}.log") : Path.Combine(SavePath, "Logs", $"Log_{DateTime.Now:yyyyMMddHHmmssfff}.log"));
 			ConsoleOutputMirror.ToFile(text);
 		}
-
 		CrashWatcher.Inititialize();
 		CrashWatcher.DumpOnException = LaunchParameters.ContainsKey("-minidump");
 		CrashWatcher.LogAllExceptions = LaunchParameters.ContainsKey("-logerrors");
-		if (LaunchParameters.ContainsKey("-fulldump")) {
+		if (LaunchParameters.ContainsKey("-fulldump"))
+		{
 			Console.WriteLine("Full Dump logs enabled.");
 			CrashWatcher.EnableCrashDumps(CrashDump.Options.WithFullMemory);
 		}
@@ -127,14 +155,20 @@ public static class Program
 
 	private static void InitializeConsoleOutput()
 	{
-		try {
+		try
+		{
 			Console.OutputEncoding = Encoding.UTF8;
 			if (Platform.IsWindows)
+			{
 				Console.InputEncoding = Encoding.Unicode;
+			}
 			else
+			{
 				Console.InputEncoding = Encoding.UTF8;
+			}
 		}
-		catch {
+		catch
+		{
 		}
 	}
 
@@ -142,11 +176,10 @@ public static class Program
 	{
 		Thread.CurrentThread.Name = "Main Thread";
 		if (monoArgs)
+		{
 			args = Utils.ConvertMonoArgsToDotNet(args);
-
-		if (IsFna)
-			TrySettingFNAToOpenGL(args);
-
+		}
+		LogFNANativeLibVersions();
 		LaunchParameters = Utils.ParseArguements(args);
 		SavePath = (LaunchParameters.ContainsKey("-savedirectory") ? LaunchParameters["-savedirectory"] : Platform.Get<IPathService>().GetStoragePath("Terraria"));
 		ThreadPool.SetMinThreads(8, 8);
@@ -160,66 +193,83 @@ public static class Program
 	{
 		Main.dedServ = true;
 		LanguageManager.Instance.SetLanguage(GameCulture.DefaultCulture);
-		if (Platform.IsOSX) {
-			Main.OnEngineLoad += delegate {
+		if (Platform.IsOSX)
+		{
+			Main.OnEngineLoad += delegate
+			{
 				Main.instance.IsMouseVisible = false;
 			};
 		}
-
+		else if (Platform.IsWindows)
+		{
+			Main.OnEngineLoad += delegate
+			{
+				IMouseNotifier val = Platform.Get<IMouseNotifier>();
+				if (val != null)
+				{
+					val.AddMouseHandler((Action<bool>)delegate(bool connected)
+					{
+						if (connected)
+						{
+							Main.instance.IsMouseVisible = true;
+							Main.instance.ReHideCursor = true;
+						}
+					});
+				}
+			};
+		}
 		using Main main = new Main();
-		try {
+		try
+		{
 			Lang.InitializeLegacyLocalization();
 			SocialAPI.Initialize();
 			LaunchInitializer.LoadParameters(main);
 			Main.OnEnginePreload += StartForceLoad;
 			if (Main.dedServ)
+			{
 				main.DedServ();
-
+			}
 			main.Run();
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			DisplayException(e);
 		}
 	}
 
-	private static void TrySettingFNAToOpenGL(string[] args)
+	private static void LogFNANativeLibVersions()
 	{
-		bool flag = false;
-		for (int i = 0; i < args.Length; i++) {
-			if (args[i].Contains("gldevice")) {
-				flag = true;
-				break;
-			}
-		}
-
-		if (!flag)
-			Environment.SetEnvironmentVariable("FNA3D_FORCE_DRIVER", "OpenGL");
 	}
 
 	private static void DisplayException(Exception e)
 	{
-		try {
+		try
+		{
 			string text = e.ToString();
-			if (WorldGen.gen) {
-				try {
-					text = $"Creating world - Seed: {Main.ActiveWorldFileData.Seed} Width: {Main.maxTilesX}, Height: {Main.maxTilesY}, Evil: {WorldGen.WorldGenParam_Evil}, IsExpert: {Main.expertMode}\n{text}";
+			if (WorldGen.isGeneratingOrLoadingWorld)
+			{
+				try
+				{
+					text = $"Creating world - Seed: {Main.ActiveWorldFileData.SeedText} Width: {Main.maxTilesX}, Height: {Main.maxTilesY}, Evil: {WorldGen.WorldGenParam_Evil}, IsExpert: {Main.expertMode}\n{text}";
 				}
-				catch {
+				catch
+				{
 				}
 			}
-
-			using (StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true)) {
+			using (StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true))
+			{
 				streamWriter.WriteLine(DateTime.Now);
 				streamWriter.WriteLine(text);
 				streamWriter.WriteLine("");
 			}
-
 			if (Main.dedServ)
+			{
 				Console.WriteLine(Language.GetTextValue("Error.ServerCrash"), DateTime.Now, text);
-
-			MessageBox.Show(text, "Terraria: Error");
+			}
+			MessageBox.Show(text, "Terraria: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
-		catch {
+		catch
+		{
 		}
 	}
 }

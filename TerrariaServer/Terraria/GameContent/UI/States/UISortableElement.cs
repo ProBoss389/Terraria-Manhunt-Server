@@ -14,8 +14,9 @@ public class UISortableElement : UIElement
 	public override int CompareTo(object obj)
 	{
 		if (obj is UISortableElement uISortableElement)
+		{
 			return OrderIndex.CompareTo(uISortableElement.OrderIndex);
-
+		}
 		return base.CompareTo(obj);
 	}
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -11,35 +12,106 @@ namespace Terraria.GameContent.UI.Elements;
 public class GroupOptionButton<T> : UIElement, IGroupOptionButton
 {
 	private T _currentOption;
+
 	private readonly Asset<Texture2D> _BasePanelTexture;
+
 	private readonly Asset<Texture2D> _selectedBorderTexture;
+
 	private readonly Asset<Texture2D> _hoveredBorderTexture;
-	private readonly Asset<Texture2D> _iconTexture;
+
+	private Asset<Texture2D> _iconTexture;
+
 	private readonly T _myOption;
+
 	private Color _color;
+
 	private Color _borderColor;
+
 	public float FadeFromBlack = 1f;
+
+	public int InnerHighlightRim = 7;
+
 	private float _whiteLerp = 0.7f;
+
 	private float _opacity = 0.7f;
+
 	private bool _hovered;
+
 	private bool _soundedHover;
+
 	public bool ShowHighlightWhenSelected = true;
+
 	private bool _UseOverrideColors;
+
 	private Color _overrideUnpickedColor = Color.White;
+
 	private Color _overridePickedColor = Color.White;
+
 	private float _overrideOpacityPicked;
+
 	private float _overrideOpacityUnpicked;
+
 	public readonly LocalizedText Description;
+
 	private UIText _title;
+
+	private float _iconScale = 1f;
+
+	private Vector2 _iconOffset;
+
+	private Rectangle? _iconFrame;
+
+	private Color _iconColor = Color.White;
 
 	public T OptionValue => _myOption;
 
-	public bool IsSelected {
-		get {
-			if (_currentOption != null)
-				return _currentOption.Equals(_myOption);
+	public bool IsSelected => EqualityComparer<T>.Default.Equals(_currentOption, _myOption);
 
-			return false;
+	public Texture2D Icon
+	{
+		get
+		{
+			if (_iconTexture == null)
+			{
+				return null;
+			}
+			return _iconTexture.Value;
+		}
+	}
+
+	public float IconScale
+	{
+		get
+		{
+			return _iconScale;
+		}
+		set
+		{
+			_iconScale = value;
+		}
+	}
+
+	public Vector2 IconOffset
+	{
+		get
+		{
+			return _iconOffset;
+		}
+		set
+		{
+			_iconOffset = value;
+		}
+	}
+
+	public Color IconColor
+	{
+		get
+		{
+			return _iconColor;
+		}
+		set
+		{
+			_iconColor = value;
 		}
 	}
 
@@ -51,21 +123,23 @@ public class GroupOptionButton<T> : UIElement, IGroupOptionButton
 		Description = description;
 		Width = StyleDimension.FromPixels(44f);
 		Height = StyleDimension.FromPixels(34f);
-		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/PanelGrayscale");
-		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
-		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder");
+		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/PanelGrayscale", AssetRequestMode.ImmediateLoad);
+		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
+		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder", AssetRequestMode.ImmediateLoad);
 		if (iconTexturePath != null)
-			_iconTexture = Main.Assets.Request<Texture2D>(iconTexturePath);
-
+		{
+			_iconTexture = Main.Assets.Request<Texture2D>(iconTexturePath, AssetRequestMode.ImmediateLoad);
+		}
 		_color = Colors.InventoryDefaultColor;
-		if (title != null) {
-			UIText uIText = new UIText(title, textSize) {
+		if (title != null)
+		{
+			UIText uIText = new UIText(title, textSize)
+			{
 				HAlign = titleAlignmentX,
 				VAlign = 0.5f,
 				Width = StyleDimension.FromPixelsAndPercent(0f - titleWidthReduction, 1f),
 				Top = StyleDimension.FromPixels(0f)
 			};
-
 			uIText.TextColor = textColor;
 			Append(uIText);
 			_title = uIText;
@@ -75,15 +149,16 @@ public class GroupOptionButton<T> : UIElement, IGroupOptionButton
 	public void SetText(LocalizedText text, float textSize, Color color)
 	{
 		if (_title != null)
+		{
 			_title.Remove();
-
-		UIText uIText = new UIText(text, textSize) {
+		}
+		UIText uIText = new UIText(text, textSize)
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 1f),
 			Top = StyleDimension.FromPixels(0f)
 		};
-
 		uIText.TextColor = color;
 		Append(uIText);
 		_title = uIText;
@@ -94,40 +169,63 @@ public class GroupOptionButton<T> : UIElement, IGroupOptionButton
 		_currentOption = option;
 	}
 
+	public void SetIcon(string iconTexturePath)
+	{
+		if (iconTexturePath != null)
+		{
+			_iconTexture = Main.Assets.Request<Texture2D>(iconTexturePath, AssetRequestMode.ImmediateLoad);
+		}
+		else
+		{
+			_iconTexture = null;
+		}
+	}
+
+	public void SetIconFrame(Rectangle region)
+	{
+		_iconFrame = region;
+	}
+
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		if (_hovered) {
+		if (_hovered)
+		{
 			if (!_soundedHover)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_soundedHover = true;
 		}
-		else {
+		else
+		{
 			_soundedHover = false;
 		}
-
 		CalculatedStyle dimensions = GetDimensions();
 		Color color = _color;
 		float num = _opacity;
 		bool isSelected = IsSelected;
-		if (_UseOverrideColors) {
+		if (_UseOverrideColors)
+		{
 			color = (isSelected ? _overridePickedColor : _overrideUnpickedColor);
 			num = (isSelected ? _overrideOpacityPicked : _overrideOpacityUnpicked);
 		}
-
 		Utils.DrawSplicedPanel(spriteBatch, _BasePanelTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, Color.Lerp(Color.Black, color, FadeFromBlack) * num);
 		if (isSelected && ShowHighlightWhenSelected)
-			Utils.DrawSplicedPanel(spriteBatch, _selectedBorderTexture.Value, (int)dimensions.X + 7, (int)dimensions.Y + 7, (int)dimensions.Width - 14, (int)dimensions.Height - 14, 10, 10, 10, 10, Color.Lerp(color, Color.White, _whiteLerp) * num);
-
+		{
+			Utils.DrawSplicedPanel(spriteBatch, _selectedBorderTexture.Value, (int)dimensions.X + InnerHighlightRim, (int)dimensions.Y + InnerHighlightRim, (int)dimensions.Width - InnerHighlightRim * 2, (int)dimensions.Height - InnerHighlightRim * 2, 10, 10, 10, 10, Color.Lerp(color, Color.White, _whiteLerp) * num);
+		}
 		if (_hovered)
+		{
 			Utils.DrawSplicedPanel(spriteBatch, _hoveredBorderTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, _borderColor);
-
-		if (_iconTexture != null) {
-			Color color2 = Color.White;
+		}
+		if (_iconTexture != null)
+		{
+			Color color2 = IconColor;
 			if (!_hovered && !isSelected)
-				color2 = Color.Lerp(color, Color.White, _whiteLerp) * num;
-
-			spriteBatch.Draw(_iconTexture.Value, new Vector2(dimensions.X + 1f, dimensions.Y + 1f), color2);
+			{
+				color2 = Color.Lerp(color, color2, _whiteLerp) * num;
+			}
+			spriteBatch.Draw(_iconTexture.Value, new Vector2(dimensions.X + 1f, dimensions.Y + 1f) + _iconOffset, _iconFrame, color2, 0f, Vector2.Zero, _iconScale, SpriteEffects.None, 0f);
 		}
 	}
 

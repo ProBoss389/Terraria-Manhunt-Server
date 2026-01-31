@@ -14,7 +14,9 @@ public class ResourcePackList
 	private struct ResourcePackEntry
 	{
 		public string FileName;
+
 		public bool Enabled;
+
 		public int SortingOrder;
 
 		public ResourcePackEntry(string name, bool enabled, int sortingOrder)
@@ -28,18 +30,18 @@ public class ResourcePackList
 	private readonly List<ResourcePack> _resourcePacks = new List<ResourcePack>();
 
 	public IEnumerable<ResourcePack> EnabledPacks => from pack in _resourcePacks
-													 where pack.IsEnabled
-													 orderby pack.SortingOrder, pack.Name, pack.Version, pack.FileName
-													 select pack;
+		where pack.IsEnabled
+		orderby pack.SortingOrder, pack.Name, pack.Version, pack.FileName
+		select pack;
 
 	public IEnumerable<ResourcePack> DisabledPacks => from pack in _resourcePacks
-													  where !pack.IsEnabled
-													  orderby pack.Name, pack.Version, pack.FileName
-													  select pack;
+		where !pack.IsEnabled
+		orderby pack.Name, pack.Version, pack.FileName
+		select pack;
 
 	public IEnumerable<ResourcePack> AllPacks => from pack in _resourcePacks
-												 orderby pack.Name, pack.Version, pack.FileName
-												 select pack;
+		orderby pack.Name, pack.Version, pack.FileName
+		select pack;
 
 	public ResourcePackList()
 	{
@@ -60,8 +62,9 @@ public class ResourcePackList
 	public static ResourcePackList FromJson(JArray serializedState, IServiceProvider services, string searchPath)
 	{
 		if (!Directory.Exists(searchPath))
+		{
 			return new ResourcePackList();
-
+		}
 		List<ResourcePack> resourcePacks = new List<ResourcePack>();
 		CreatePacksFromSavedJson(serializedState, services, searchPath, resourcePacks);
 		CreatePacksFromZips(services, searchPath, resourcePacks);
@@ -73,8 +76,9 @@ public class ResourcePackList
 	public static ResourcePackList Publishable(JArray serializedState, IServiceProvider services, string searchPath)
 	{
 		if (!Directory.Exists(searchPath))
+		{
 			return new ResourcePackList();
-
+		}
 		List<ResourcePack> resourcePacks = new List<ResourcePack>();
 		CreatePacksFromZips(services, searchPath, resourcePacks);
 		CreatePacksFromDirectories(services, searchPath, resourcePacks);
@@ -83,30 +87,35 @@ public class ResourcePackList
 
 	private static void CreatePacksFromSavedJson(JArray serializedState, IServiceProvider services, string searchPath, List<ResourcePack> resourcePacks)
 	{
-		foreach (ResourcePackEntry item2 in CreatePackEntryListFromJson(serializedState)) {
+		foreach (ResourcePackEntry item2 in CreatePackEntryListFromJson(serializedState))
+		{
 			if (item2.FileName == null)
+			{
 				continue;
-
+			}
 			string text = Path.Combine(searchPath, item2.FileName);
-			try {
+			try
+			{
 				bool flag = File.Exists(text) || Directory.Exists(text);
 				ResourcePack.BrandingType branding = ResourcePack.BrandingType.None;
-				if (!flag && SocialAPI.Workshop != null && SocialAPI.Workshop.TryGetPath(item2.FileName, out var fullPathFound)) {
+				if (!flag && SocialAPI.Workshop != null && SocialAPI.Workshop.TryGetPath(item2.FileName, out var fullPathFound))
+				{
 					text = fullPathFound;
 					flag = true;
 					branding = SocialAPI.Workshop.Branding.ResourcePackBrand;
 				}
-
-				if (flag) {
-					ResourcePack item = new ResourcePack(services, text, branding) {
+				if (flag)
+				{
+					ResourcePack item = new ResourcePack(services, text, branding)
+					{
 						IsEnabled = item2.Enabled,
 						SortingOrder = item2.SortingOrder
 					};
-
 					resourcePacks.Add(item);
 				}
 			}
-			catch (Exception arg) {
+			catch (Exception arg)
+			{
 				Console.WriteLine("Failed to read resource pack {0}: {1}", text, arg);
 			}
 		}
@@ -115,14 +124,18 @@ public class ResourcePackList
 	private static void CreatePacksFromDirectories(IServiceProvider services, string searchPath, List<ResourcePack> resourcePacks)
 	{
 		string[] directories = Directory.GetDirectories(searchPath);
-		string folderName;
-		foreach (string text in directories) {
-			try {
-				folderName = Path.GetFileName(text);
+		foreach (string text in directories)
+		{
+			try
+			{
+				string folderName = Path.GetFileName(text);
 				if (resourcePacks.All((ResourcePack pack) => pack.FileName != folderName))
+				{
 					resourcePacks.Add(new ResourcePack(services, text));
+				}
 			}
-			catch (Exception arg) {
+			catch (Exception arg)
+			{
 				Console.WriteLine("Failed to read resource pack {0}: {1}", text, arg);
 			}
 		}
@@ -131,14 +144,18 @@ public class ResourcePackList
 	private static void CreatePacksFromZips(IServiceProvider services, string searchPath, List<ResourcePack> resourcePacks)
 	{
 		string[] files = Directory.GetFiles(searchPath, "*.zip");
-		string fileName;
-		foreach (string text in files) {
-			try {
-				fileName = Path.GetFileName(text);
+		foreach (string text in files)
+		{
+			try
+			{
+				string fileName = Path.GetFileName(text);
 				if (resourcePacks.All((ResourcePack pack) => pack.FileName != fileName))
+				{
 					resourcePacks.Add(new ResourcePack(services, text));
+				}
 			}
-			catch (Exception arg) {
+			catch (Exception arg)
+			{
 				Console.WriteLine("Failed to read resource pack {0}: {1}", text, arg);
 			}
 		}
@@ -148,18 +165,23 @@ public class ResourcePackList
 	{
 		WorkshopSocialModule workshop = SocialAPI.Workshop;
 		if (workshop == null)
+		{
 			return;
-
+		}
 		List<string> listOfSubscribedResourcePackPaths = workshop.GetListOfSubscribedResourcePackPaths();
 		ResourcePack.BrandingType resourcePackBrand = workshop.Branding.ResourcePackBrand;
-		string folderName;
-		foreach (string item in listOfSubscribedResourcePackPaths) {
-			try {
-				folderName = Path.GetFileName(item);
+		foreach (string item in listOfSubscribedResourcePackPaths)
+		{
+			try
+			{
+				string folderName = Path.GetFileName(item);
 				if (resourcePacks.All((ResourcePack pack) => pack.FileName != folderName))
+				{
 					resourcePacks.Add(new ResourcePack(services, item, resourcePackBrand));
+				}
 			}
-			catch (Exception arg) {
+			catch (Exception arg)
+			{
 				Console.WriteLine("Failed to read resource pack {0}: {1}", item, arg);
 			}
 		}
@@ -167,14 +189,17 @@ public class ResourcePackList
 
 	private static IEnumerable<ResourcePackEntry> CreatePackEntryListFromJson(JArray serializedState)
 	{
-		try {
+		try
+		{
 			if (serializedState != null && serializedState.Count != 0)
+			{
 				return serializedState.ToObject<List<ResourcePackEntry>>();
+			}
 		}
-		catch (JsonReaderException arg) {
+		catch (JsonReaderException arg)
+		{
 			Console.WriteLine("Failed to parse configuration entry for resource pack list. {0}", arg);
 		}
-
 		return new List<ResourcePackEntry>();
 	}
 }

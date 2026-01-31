@@ -10,7 +10,8 @@ public class EmoteCommand : IChatCommand
 
 	public void ProcessIncomingMessage(string text, byte clientId)
 	{
-		if (text != "") {
+		if (text != "")
+		{
 			text = $"*{Main.player[clientId].name} {text}";
 			ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(text), RESPONSE_COLOR);
 		}

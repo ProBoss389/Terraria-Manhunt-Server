@@ -8,7 +8,7 @@ public class NetPingModule : NetModule
 {
 	public static NetPacket Serialize(Vector2 position)
 	{
-		NetPacket result = NetModule.CreatePacket<NetPingModule>(8);
+		NetPacket result = NetModule.CreatePacket<NetPingModule>();
 		result.Writer.WriteVector2(position);
 		return result;
 	}
@@ -17,10 +17,13 @@ public class NetPingModule : NetModule
 	{
 		Vector2 position = reader.ReadVector2();
 		if (Main.dedServ)
+		{
 			NetManager.Instance.Broadcast(Serialize(position), userId);
+		}
 		else
+		{
 			Main.Pings.Add(position);
-
+		}
 		return true;
 	}
 }

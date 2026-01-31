@@ -11,7 +11,8 @@ public class AchievementInitializer
 {
 	public static void Load()
 	{
-		if (Main.netMode != 2) {
+		if (Main.netMode != 2)
+		{
 			Achievement achievement = new Achievement("TIMBER");
 			achievement.AddCondition(ItemPickupCondition.Create(9, 619, 2504, 620, 2503, 2260, 621, 911, 1729, 5215));
 			Main.Achievements.Register(achievement);
@@ -115,7 +116,7 @@ public class AchievementInitializer
 			achievement.AddCondition(NPCKilledCondition.Create(245));
 			Main.Achievements.Register(achievement);
 			achievement = new Achievement("ROBBING_THE_GRAVE");
-			achievement.AddCondition(ItemPickupCondition.Create(1513, 938, 963, 977, 1300, 1254, 1514, 679, 759, 1446, 1445, 1444, 1183, 1266, 671, 3291, 4679));
+			achievement.AddCondition(ItemPickupCondition.Create(1513, 938, 963, 977, 1300, 1254, 1514, 679, 759, 1446, 1445, 1444, 1183, 1266, 671, 3291, 4679, 4789));
 			Main.Achievements.Register(achievement);
 			achievement = new Achievement("BIG_BOOTY");
 			achievement.AddCondition(ProgressionEventCondition.Create(20));
@@ -184,7 +185,9 @@ public class AchievementInitializer
 			achievement.AddCondition(ProgressionEventCondition.Create(21));
 			Main.Achievements.Register(achievement);
 			achievement = new Achievement("GELATIN_WORLD_TOUR");
-			achievement.AddConditions(NPCKilledCondition.CreateMany(-5, -6, 1, 81, 71, -3, 147, 138, -10, 50, 59, 16, -7, 244, -8, -1, -2, 184, 204, 225, -9, 141, 183, -4));
+			achievement.AddConditions(NPCKilledCondition.CreateMany(-5, -6, 1, 81, 71, -3, 147, 138, -10, 50, 59, 16, -7, 244, -8, -1, -2, 184, 204, 225, -9, 141));
+			achievement.AddCondition(NPCKilledCondition.Create(183, -24, -25));
+			achievement.AddConditions(NPCKilledCondition.Create(-4));
 			achievement.UseConditionsCompletedTracker();
 			Main.Achievements.Register(achievement);
 			achievement = new Achievement("FASHION_STATEMENT");
@@ -372,6 +375,72 @@ public class AchievementInitializer
 			achievement = new Achievement("TO_INFINITY_AND_BEYOND");
 			achievement.AddCondition(CustomFlagCondition.Create("Do"));
 			Main.Achievements.Register(achievement);
+			achievement = new Achievement("BOOK_WORM");
+			achievement.AddCondition(ProgressionEventCondition.Create(29));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("BOULDER_LORD");
+			achievement.AddCondition(ProgressionEventCondition.Create(30));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("QUEEN_MACHINE");
+			achievement.AddCondition(ProgressionEventCondition.Create(31));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("ROLLIN_IN_YOUR_GRAVE");
+			achievement.AddCondition(ProgressionEventCondition.Create(32));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("FEAR_THE_SUN");
+			achievement.AddCondition(ProgressionEventCondition.Create(33));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("ITS_SHALING_OUTSIDE");
+			achievement.AddCondition(ProgressionEventCondition.Create(34));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("EXTRA_LIFE");
+			achievement.AddCondition(ProgressionEventCondition.Create(35));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("GRAVE_MISTAKE");
+			achievement.AddCondition(ProgressionEventCondition.Create(36));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("SPICY_LICKS");
+			achievement.AddCondition(ProgressionEventCondition.Create(37));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("ORGANIZED_CHAOS");
+			achievement.AddCondition(ItemPickupCondition.Create(1326));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("ON_FLEEK");
+			achievement.AddCondition(ProgressionEventCondition.Create(38));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("FORTUNE_FAVORS_THE_BOULD");
+			achievement.AddCondition(ProgressionEventCondition.Create(39));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("TRAINING_DAY");
+			achievement.AddCondition(ProgressionEventCondition.Create(40));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("MINI_ME");
+			achievement.AddCondition(ProgressionEventCondition.Create(41));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("TERRARIST");
+			achievement.AddCondition(ProgressionEventCondition.Create(42));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("NEW_DIGS");
+			achievement.AddCondition(ProgressionEventCondition.Create(43));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("MY_PEOPLE_NEED_ME");
+			achievement.AddCondition(ProgressionEventCondition.Create(44));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("GOING_OLDSCHOOL");
+			achievement.AddCondition(CustomFlagCondition.Create("Do"));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("SEA_YOU_LATER");
+			achievement.AddCondition(ItemPickupCondition.Create(5358));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("TRASH_COMPACTOR");
+			achievement.AddCondition(ProgressionEventCondition.Create(45));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("CONSERVATIONIST");
+			achievement.AddCondition(CustomIntCondition.Create("Do", 100));
+			Main.Achievements.Register(achievement);
+			achievement = new Achievement("INTERDIMENSIONAL_RECYCLING");
+			achievement.AddCondition(ProgressionEventCondition.Create(46));
+			Main.Achievements.Register(achievement);
 			int num = 0;
 			Main.Achievements.RegisterIconIndex("TIMBER", num++);
 			Main.Achievements.RegisterIconIndex("NO_HOBO", num++);
@@ -488,6 +557,28 @@ public class AchievementInitializer
 			Main.Achievements.RegisterIconIndex("TRANSMUTE_ITEM", num++);
 			Main.Achievements.RegisterIconIndex("PURIFY_ENTIRE_WORLD", num++);
 			Main.Achievements.RegisterIconIndex("TO_INFINITY_AND_BEYOND", num++);
+			Main.Achievements.RegisterIconIndex("BOOK_WORM", num++);
+			Main.Achievements.RegisterIconIndex("BOULDER_LORD", num++);
+			Main.Achievements.RegisterIconIndex("QUEEN_MACHINE", num++);
+			Main.Achievements.RegisterIconIndex("ROLLIN_IN_YOUR_GRAVE", num++);
+			Main.Achievements.RegisterIconIndex("FEAR_THE_SUN", num++);
+			Main.Achievements.RegisterIconIndex("ITS_SHALING_OUTSIDE", num++);
+			Main.Achievements.RegisterIconIndex("EXTRA_LIFE", num++);
+			Main.Achievements.RegisterIconIndex("GRAVE_MISTAKE", num++);
+			Main.Achievements.RegisterIconIndex("SPICY_LICKS", num++);
+			Main.Achievements.RegisterIconIndex("ORGANIZED_CHAOS", num++);
+			Main.Achievements.RegisterIconIndex("ON_FLEEK", num++);
+			Main.Achievements.RegisterIconIndex("FORTUNE_FAVORS_THE_BOULD", num++);
+			Main.Achievements.RegisterIconIndex("TRAINING_DAY", num++);
+			Main.Achievements.RegisterIconIndex("MINI_ME", num++);
+			Main.Achievements.RegisterIconIndex("TERRARIST", num++);
+			Main.Achievements.RegisterIconIndex("NEW_DIGS", num++);
+			Main.Achievements.RegisterIconIndex("MY_PEOPLE_NEED_ME", num++);
+			Main.Achievements.RegisterIconIndex("GOING_OLDSCHOOL", num++);
+			Main.Achievements.RegisterIconIndex("SEA_YOU_LATER", num++);
+			Main.Achievements.RegisterIconIndex("TRASH_COMPACTOR", num++);
+			Main.Achievements.RegisterIconIndex("CONSERVATIONIST", num++);
+			Main.Achievements.RegisterIconIndex("INTERDIMENSIONAL_RECYCLING", num++);
 			AchievementCategory category = AchievementCategory.Slayer;
 			Main.Achievements.RegisterAchievementCategory("EYE_ON_YOU", category);
 			Main.Achievements.RegisterAchievementCategory("SLIPPERY_SHINOBI", category);
@@ -531,14 +622,17 @@ public class AchievementInitializer
 			Main.Achievements.RegisterAchievementCategory("BLOODBATH", category);
 			Main.Achievements.RegisterAchievementCategory("KILL_THE_SUN", category);
 			Main.Achievements.RegisterAchievementCategory("STICKY_SITUATION", category);
+			Main.Achievements.RegisterAchievementCategory("ITS_SHALING_OUTSIDE", category);
 			Main.Achievements.RegisterAchievementCategory("NO_HOBO", category);
 			Main.Achievements.RegisterAchievementCategory("IT_CAN_TALK", category);
+			Main.Achievements.RegisterAchievementCategory("TRAINING_DAY", category);
 			Main.Achievements.RegisterAchievementCategory("HEART_BREAKER", category);
 			Main.Achievements.RegisterAchievementCategory("I_AM_LOOT", category);
 			Main.Achievements.RegisterAchievementCategory("ROBBING_THE_GRAVE", category);
 			Main.Achievements.RegisterAchievementCategory("GET_A_LIFE", category);
 			Main.Achievements.RegisterAchievementCategory("FIND_A_FAIRY", category);
 			Main.Achievements.RegisterAchievementCategory("TRANSMUTE_ITEM", category);
+			Main.Achievements.RegisterAchievementCategory("FORTUNE_FAVORS_THE_BOULD", category);
 			Main.Achievements.RegisterAchievementCategory("JEEPERS_CREEPERS", category);
 			Main.Achievements.RegisterAchievementCategory("WHERES_MY_HONEY", category);
 			Main.Achievements.RegisterAchievementCategory("DUNGEON_HEIST", category);
@@ -560,6 +654,10 @@ public class AchievementInitializer
 			Main.Achievements.RegisterAchievementCategory("MECHA_MAYHEM", category);
 			Main.Achievements.RegisterAchievementCategory("BULLDOZER", category);
 			Main.Achievements.RegisterAchievementCategory("PURIFY_ENTIRE_WORLD", category);
+			Main.Achievements.RegisterAchievementCategory("QUEEN_MACHINE", category);
+			Main.Achievements.RegisterAchievementCategory("TRASH_COMPACTOR", category);
+			Main.Achievements.RegisterAchievementCategory("BOOK_WORM", category);
+			Main.Achievements.RegisterAchievementCategory("BOULDER_LORD", category);
 			Main.Achievements.RegisterAchievementCategory("NOT_THE_BEES", category);
 			Main.Achievements.RegisterAchievementCategory("FLY_A_KITE_ON_A_WINDY_DAY", category);
 			Main.Achievements.RegisterAchievementCategory("DIE_TO_DEAD_MANS_CHEST", category);
@@ -575,6 +673,16 @@ public class AchievementInitializer
 			Main.Achievements.RegisterAchievementCategory("THROW_A_PARTY", category);
 			Main.Achievements.RegisterAchievementCategory("DRINK_BOTTLED_WATER_WHILE_DROWNING", category);
 			Main.Achievements.RegisterAchievementCategory("TO_INFINITY_AND_BEYOND", category);
+			Main.Achievements.RegisterAchievementCategory("ROLLIN_IN_YOUR_GRAVE", category);
+			Main.Achievements.RegisterAchievementCategory("FEAR_THE_SUN", category);
+			Main.Achievements.RegisterAchievementCategory("EXTRA_LIFE", category);
+			Main.Achievements.RegisterAchievementCategory("GRAVE_MISTAKE", category);
+			Main.Achievements.RegisterAchievementCategory("MY_PEOPLE_NEED_ME", category);
+			Main.Achievements.RegisterAchievementCategory("TERRARIST", category);
+			Main.Achievements.RegisterAchievementCategory("SPICY_LICKS", category);
+			Main.Achievements.RegisterAchievementCategory("GOING_OLDSCHOOL", category);
+			Main.Achievements.RegisterAchievementCategory("CONSERVATIONIST", category);
+			Main.Achievements.RegisterAchievementCategory("INTERDIMENSIONAL_RECYCLING", category);
 			Main.Achievements.RegisterAchievementCategory("SERVANT_IN_TRAINING", category);
 			Main.Achievements.RegisterAchievementCategory("GOOD_LITTLE_SLAVE", category);
 			Main.Achievements.RegisterAchievementCategory("TROUT_MONKEY", category);
@@ -595,17 +703,22 @@ public class AchievementInitializer
 			Main.Achievements.RegisterAchievementCategory("PRISMANCER", category);
 			Main.Achievements.RegisterAchievementCategory("SWORD_OF_THE_HERO", category);
 			Main.Achievements.RegisterAchievementCategory("GET_ZENITH", category);
+			Main.Achievements.RegisterAchievementCategory("SEA_YOU_LATER", category);
 			Main.Achievements.RegisterAchievementCategory("HOLD_ON_TIGHT", category);
 			Main.Achievements.RegisterAchievementCategory("THE_CAVALRY", category);
 			Main.Achievements.RegisterAchievementCategory("DYE_HARD", category);
 			Main.Achievements.RegisterAchievementCategory("MATCHING_ATTIRE", category);
 			Main.Achievements.RegisterAchievementCategory("FASHION_STATEMENT", category);
+			Main.Achievements.RegisterAchievementCategory("ON_FLEEK", category);
+			Main.Achievements.RegisterAchievementCategory("MINI_ME", category);
 			Main.Achievements.RegisterAchievementCategory("COMPLETELY_AWESOME", category);
+			Main.Achievements.RegisterAchievementCategory("NEW_DIGS", category);
 			Main.Achievements.RegisterAchievementCategory("TIMBER", category);
 			Main.Achievements.RegisterAchievementCategory("SICK_THROW", category);
 			Main.Achievements.RegisterAchievementCategory("GLORIOUS_GOLDEN_POLE", category);
 			Main.Achievements.RegisterAchievementCategory("TEMPLE_RAIDER", category);
 			Main.Achievements.RegisterAchievementCategory("LIKE_A_BOSS", category);
+			Main.Achievements.RegisterAchievementCategory("ORGANIZED_CHAOS", category);
 			Main.Achievements.Load();
 			Main.Achievements.OnAchievementCompleted += OnAchievementCompleted;
 			AchievementsHelper.Initialize();
@@ -616,6 +729,8 @@ public class AchievementInitializer
 	{
 		Main.NewText(Language.GetTextValue("Achievements.Completed", AchievementTagHandler.GenerateTag(achievement)));
 		if (SoundEngine.FindActiveSound(SoundID.AchievementComplete) == null)
+		{
 			SoundEngine.PlayTrackedSound(SoundID.AchievementComplete);
+		}
 	}
 }

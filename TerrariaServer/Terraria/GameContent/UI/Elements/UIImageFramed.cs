@@ -8,6 +8,7 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIImageFramed : UIElement, IColorable
 {
 	private Asset<Texture2D> _texture;
+
 	private Rectangle _frame;
 
 	public Color Color { get; set; }
@@ -43,6 +44,7 @@ public class UIImageFramed : UIElement, IColorable
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		spriteBatch.Draw(position: GetDimensions().Position(), texture: _texture.Value, sourceRectangle: _frame, color: Color);
+		CalculatedStyle dimensions = GetDimensions();
+		spriteBatch.Draw(_texture.Value, dimensions.Position(), _frame, Color);
 	}
 }

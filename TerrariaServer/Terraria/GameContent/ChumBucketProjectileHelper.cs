@@ -6,6 +6,7 @@ namespace Terraria.GameContent;
 public class ChumBucketProjectileHelper
 {
 	private Dictionary<Point, int> _chumCountsPendingForThisFrame = new Dictionary<Point, int>();
+
 	private Dictionary<Point, int> _chumCountsFromLastFrame = new Dictionary<Point, int>();
 
 	public void OnPreUpdateAllProjectiles()

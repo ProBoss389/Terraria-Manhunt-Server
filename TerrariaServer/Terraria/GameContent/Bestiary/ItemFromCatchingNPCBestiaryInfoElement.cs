@@ -16,16 +16,18 @@ public class ItemFromCatchingNPCBestiaryInfoElement : IItemBestiaryInfoElement, 
 	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
 	{
 		if (info.UnlockState < BestiaryEntryUnlockState.CanShowDropsWithoutDropRates_3)
+		{
 			return null;
-
+		}
 		return new UIBestiaryInfoLine<string>(("catch item #" + _itemType) ?? "");
 	}
 
 	public string GetSearchString(ref BestiaryUICollectionInfo info)
 	{
 		if (info.UnlockState < BestiaryEntryUnlockState.CanShowDropsWithoutDropRates_3)
+		{
 			return null;
-
+		}
 		return ContentSamples.ItemsByType[_itemType].Name;
 	}
 }

@@ -6,21 +6,25 @@ namespace Terraria.GameContent.UI.BigProgressBar;
 public class CommonBossBigProgressBar : IBigProgressBar
 {
 	private BigProgressBarCache _cache;
+
 	private int _headIndex;
 
 	public bool ValidateAndCollectNecessaryInfo(ref BigProgressBarInfo info)
 	{
-		if (info.npcIndexToAimAt < 0 || info.npcIndexToAimAt > 200)
+		if (info.npcIndexToAimAt < 0 || info.npcIndexToAimAt > Main.maxNPCs)
+		{
 			return false;
-
+		}
 		NPC nPC = Main.npc[info.npcIndexToAimAt];
 		if (!nPC.active)
+		{
 			return false;
-
+		}
 		int bossHeadTextureIndex = nPC.GetBossHeadTextureIndex();
 		if (bossHeadTextureIndex == -1)
+		{
 			return false;
-
+		}
 		_cache.SetLife(nPC.life, nPC.lifeMax);
 		_headIndex = bossHeadTextureIndex;
 		return true;

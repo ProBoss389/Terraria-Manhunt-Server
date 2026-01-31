@@ -20,13 +20,17 @@ public class SocialSocket : ISocket
 
 	void ISocket.Close()
 	{
-		if (_remoteAddress != null) {
+		if (_remoteAddress != null)
+		{
 			SocialAPI.Network.Close(_remoteAddress);
 			_remoteAddress = null;
 		}
 	}
 
-	bool ISocket.IsConnected() => SocialAPI.Network.IsConnected(_remoteAddress);
+	bool ISocket.IsConnected()
+	{
+		return SocialAPI.Network.IsConnected(_remoteAddress);
+	}
 
 	void ISocket.Connect(RemoteAddress address)
 	{
@@ -43,10 +47,10 @@ public class SocialSocket : ISocket
 	private void ReadCallback(byte[] data, int offset, int size, SocketReceiveCallback callback, object state)
 	{
 		int size2;
-		while ((size2 = SocialAPI.Network.Receive(_remoteAddress, data, offset, size)) == 0) {
+		while ((size2 = SocialAPI.Network.Receive(_remoteAddress, data, offset, size)) == 0)
+		{
 			Thread.Sleep(1);
 		}
-
 		callback(state, size2);
 	}
 
@@ -55,13 +59,20 @@ public class SocialSocket : ISocket
 		new InternalReadCallback(ReadCallback).BeginInvoke(data, offset, size, callback, state, null, null);
 	}
 
-	void ISocket.SendQueuedPackets()
+	bool ISocket.IsDataAvailable()
 	{
+		return SocialAPI.Network.IsDataAvailable(_remoteAddress);
 	}
 
-	bool ISocket.IsDataAvailable() => SocialAPI.Network.IsDataAvailable(_remoteAddress);
-	RemoteAddress ISocket.GetRemoteAddress() => _remoteAddress;
-	bool ISocket.StartListening(SocketConnectionAccepted callback) => SocialAPI.Network.StartListening(callback);
+	RemoteAddress ISocket.GetRemoteAddress()
+	{
+		return _remoteAddress;
+	}
+
+	bool ISocket.StartListening(SocketConnectionAccepted callback)
+	{
+		return SocialAPI.Network.StartListening(callback);
+	}
 
 	void ISocket.StopListening()
 	{

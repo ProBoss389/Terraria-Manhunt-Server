@@ -14,7 +14,18 @@ public class OverlaySocialModule : Terraria.Social.Base.OverlaySocialModule
 	{
 	}
 
-	public override bool IsGamepadTextInputActive() => _gamepadTextInputActive;
-	public override bool ShowGamepadTextInput(string description, uint maxLength, bool multiLine = false, string existingText = "", bool password = false) => false;
-	public override string GetGamepadText() => "";
+	public override bool IsGamepadTextInputActive()
+	{
+		return _gamepadTextInputActive;
+	}
+
+	public override bool ShowGamepadTextInput(string description, uint maxLength, bool multiLine = false, string existingText = "", bool password = false)
+	{
+		return false;
+	}
+
+	public override string GetGamepadText()
+	{
+		return "";
+	}
 }

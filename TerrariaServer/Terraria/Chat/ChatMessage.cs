@@ -29,8 +29,9 @@ public sealed class ChatMessage
 	public void Serialize(BinaryWriter writer)
 	{
 		if (IsConsumed)
+		{
 			throw new InvalidOperationException("Message has already been consumed.");
-
+		}
 		CommandId.Serialize(writer);
 		writer.Write(Text);
 	}
@@ -38,8 +39,9 @@ public sealed class ChatMessage
 	public int GetMaxSerializedSize()
 	{
 		if (IsConsumed)
+		{
 			throw new InvalidOperationException("Message has already been consumed.");
-
+		}
 		return 0 + CommandId.GetMaxSerializedSize() + (4 + Encoding.UTF8.GetByteCount(Text));
 	}
 
@@ -52,16 +54,18 @@ public sealed class ChatMessage
 	public void SetCommand(ChatCommandId commandId)
 	{
 		if (IsConsumed)
+		{
 			throw new InvalidOperationException("Message has already been consumed.");
-
+		}
 		CommandId = commandId;
 	}
 
 	public void SetCommand<T>() where T : IChatCommand
 	{
 		if (IsConsumed)
+		{
 			throw new InvalidOperationException("Message has already been consumed.");
-
+		}
 		CommandId = ChatCommandId.FromType<T>();
 	}
 

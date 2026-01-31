@@ -7,16 +7,26 @@ namespace Terraria.Initializers;
 public static class ChromaInitializer
 {
 	private static ChromaEngine _engine;
+
 	private const string GAME_NAME_ID = "TERRARIA";
-	private static float _rgbUpdateRate;
-	private static bool _useRazer;
-	private static bool _useCorsair;
-	private static bool _useLogitech;
-	private static bool _useSteelSeries;
-	private static VendorColorProfile _razerColorProfile;
-	private static VendorColorProfile _corsairColorProfile;
-	private static VendorColorProfile _logitechColorProfile;
-	private static VendorColorProfile _steelSeriesColorProfile;
+
+	private static float _rgbUpdateRate = 45f;
+
+	private static bool _useRazer = true;
+
+	private static bool _useCorsair = true;
+
+	private static bool _useLogitech = true;
+
+	private static bool _useSteelSeries = true;
+
+	private static VendorColorProfile _razerColorProfile = new VendorColorProfile(new Vector3(1f, 0.765f, 0.568f));
+
+	private static VendorColorProfile _corsairColorProfile = new VendorColorProfile();
+
+	private static VendorColorProfile _logitechColorProfile = new VendorColorProfile();
+
+	private static VendorColorProfile _steelSeriesColorProfile = new VendorColorProfile();
 
 	public static void BindTo(Preferences preferences)
 	{
@@ -34,9 +44,27 @@ public static class ChromaInitializer
 		_corsairColorProfile = obj.Get("CorsairColorProfile", new VendorColorProfile());
 		_logitechColorProfile = obj.Get("LogitechColorProfile", new VendorColorProfile());
 		_steelSeriesColorProfile = obj.Get("SteelSeriesColorProfile", new VendorColorProfile());
+		if (_razerColorProfile == null)
+		{
+			_razerColorProfile = new VendorColorProfile(new Vector3(1f, 0.765f, 0.568f));
+		}
+		if (_corsairColorProfile == null)
+		{
+			_corsairColorProfile = new VendorColorProfile();
+		}
+		if (_logitechColorProfile == null)
+		{
+			_logitechColorProfile = new VendorColorProfile();
+		}
+		if (_steelSeriesColorProfile == null)
+		{
+			_steelSeriesColorProfile = new VendorColorProfile();
+		}
 		_rgbUpdateRate = obj.Get("RGBUpdatesPerSecond", 45f);
 		if (_rgbUpdateRate <= 1E-07f)
+		{
 			_rgbUpdateRate = 45f;
+		}
 	}
 
 	private static void Configuration_OnSave(Preferences preferences)
@@ -55,7 +83,9 @@ public static class ChromaInitializer
 	public static void DisableAllDeviceGroups()
 	{
 		if (_engine != null)
+		{
 			_engine.DisableAllDeviceGroups();
+		}
 	}
 
 	public static void Load()

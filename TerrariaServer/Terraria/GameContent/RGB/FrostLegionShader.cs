@@ -6,6 +6,7 @@ namespace Terraria.GameContent.RGB;
 public class FrostLegionShader : ChromaShader
 {
 	private readonly Vector4 _primaryColor;
+
 	private readonly Vector4 _secondaryColor;
 
 	public FrostLegionShader(Color primaryColor, Color secondaryColor)
@@ -14,22 +15,26 @@ public class FrostLegionShader : ChromaShader
 		_secondaryColor = secondaryColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
+	[RgbProcessor(new EffectDetailLevel[]
+	{
 		EffectDetailLevel.High,
 		EffectDetailLevel.Low
 	})]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			float staticNoise = NoiseHelper.GetStaticNoise(fragment.GetGridPositionOfIndex(i).X / 2);
 			float num = (canvasPositionOfIndex.Y + canvasPositionOfIndex.X / 2f - staticNoise + time) % 2f;
 			if (num < 0f)
+			{
 				num += 2f;
-
+			}
 			if (num < 0.2f)
+			{
 				num = 1f - num / 0.2f;
-
+			}
 			float amount = num / 2f;
 			Vector4 color = Vector4.Lerp(_primaryColor, _secondaryColor, amount);
 			fragment.SetColor(i, color);

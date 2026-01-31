@@ -3,9 +3,13 @@ namespace Terraria.DataStructures;
 public struct PortableStoolUsage
 {
 	public bool HasAStool;
+
 	public bool IsInUse;
+
 	public int HeightBoost;
+
 	public int VisualYOffset;
+
 	public int MapYOffset;
 
 	public void Reset()

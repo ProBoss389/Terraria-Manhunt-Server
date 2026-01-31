@@ -5,13 +5,17 @@ namespace Terraria.GameContent;
 public struct ShimmerUnstuckHelper
 {
 	public int TimeLeftUnstuck;
+
 	public bool IndefiniteProtectionActive;
 
-	public bool ShouldUnstuck {
-		get {
+	public bool ShouldUnstuck
+	{
+		get
+		{
 			if (!IndefiniteProtectionActive)
+			{
 				return TimeLeftUnstuck > 0;
-
+			}
 			return true;
 		}
 	}
@@ -20,15 +24,20 @@ public struct ShimmerUnstuckHelper
 	{
 		bool flag = !player.shimmering && !player.shimmerWet;
 		if (flag)
+		{
 			IndefiniteProtectionActive = false;
-
+		}
 		if (TimeLeftUnstuck > 0 && !flag)
+		{
 			StartUnstuck();
-
-		if (!IndefiniteProtectionActive && TimeLeftUnstuck > 0) {
+		}
+		if (!IndefiniteProtectionActive && TimeLeftUnstuck > 0)
+		{
 			TimeLeftUnstuck--;
-			if (TimeLeftUnstuck == 0) {
-				ParticleOrchestrator.BroadcastOrRequestParticleSpawn(ParticleOrchestraType.ShimmerTownNPC, new ParticleOrchestraSettings {
+			if (TimeLeftUnstuck == 0)
+			{
+				ParticleOrchestrator.BroadcastOrRequestParticleSpawn(ParticleOrchestraType.ShimmerTownNPC, new ParticleOrchestraSettings
+				{
 					PositionInWorld = player.Bottom
 				});
 			}

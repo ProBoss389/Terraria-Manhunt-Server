@@ -34,4 +34,6 @@ public interface IAudioSystem : IDisposable
 	void LoadFromSources();
 
 	void Update();
+
+	void SetPlayCallback(int trackIndex, AudioTrackPlayCallback callback);
 }

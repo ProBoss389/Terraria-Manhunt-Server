@@ -11,10 +11,15 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIWorkshopPublishWorldListItem : AWorldListItem
 {
 	private Asset<Texture2D> _workshopIconTexture;
+
 	private Asset<Texture2D> _innerPanelTexture;
+
 	private UIElement _worldIcon;
+
 	private UIElement _publishButton;
+
 	private int _orderInList;
+
 	private UIState _ownerState;
 
 	public UIWorkshopPublishWorldListItem(UIState ownerState, WorldFileData data, int orderInList)
@@ -41,7 +46,7 @@ public class UIWorkshopPublishWorldListItem : AWorldListItem
 
 	private void LoadTextures()
 	{
-		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground");
+		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground", AssetRequestMode.ImmediateLoad);
 		_workshopIconTexture = TextureAssets.Extra[243];
 	}
 
@@ -68,14 +73,17 @@ public class UIWorkshopPublishWorldListItem : AWorldListItem
 	private void PublishButtonClick_ImportWorldToLocalFiles(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (listeningElement == evt.Target)
+		{
 			Main.MenuUI.SetState(new WorkshopPublishInfoStateForWorld(_ownerState, _data));
+		}
 	}
 
 	public override int CompareTo(object obj)
 	{
 		if (obj is UIWorkshopPublishWorldListItem uIWorkshopPublishWorldListItem)
+		{
 			return _orderInList.CompareTo(uIWorkshopPublishWorldListItem._orderInList);
-
+		}
 		return base.CompareTo(obj);
 	}
 
@@ -122,8 +130,9 @@ public class UIWorkshopPublishWorldListItem : AWorldListItem
 		vector.X += num3 + 5f;
 		float num5 = num2;
 		if (!GameCulture.FromCultureName(GameCulture.CultureName.English).IsActive)
+		{
 			num5 += 40f;
-
+		}
 		DrawPanel(spriteBatch, vector, num5, height);
 		string textValue = Language.GetTextValue("UI.WorldSizeFormat", _data.WorldSizeName);
 		Vector2 vector3 = FontAssets.MouseText.Value.MeasureString(textValue);

@@ -7,26 +7,27 @@ namespace Terraria.GameContent.RGB;
 public class UndergroundHallowShader : ChromaShader
 {
 	private readonly Vector4 _baseColor = new Color(0.05f, 0.05f, 0.05f).ToVector4();
+
 	private readonly Vector4 _pinkCrystalColor = Color.HotPink.ToVector4();
+
 	private readonly Vector4 _blueCrystalColor = Color.DeepSkyBlue.ToVector4();
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.Low
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.Low })]
 	private void ProcessLowDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
-			Vector4 color = Vector4.Lerp(amount: (float)Math.Sin(time * 2f + fragment.GetCanvasPositionOfIndex(i).X) * 0.5f + 0.5f, value1: _pinkCrystalColor, value2: _blueCrystalColor);
+		for (int i = 0; i < fragment.Count; i++)
+		{
+			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
+			Vector4 color = Vector4.Lerp(_pinkCrystalColor, _blueCrystalColor, (float)Math.Sin(time * 2f + canvasPositionOfIndex.X) * 0.5f + 0.5f);
 			fragment.SetColor(i, color);
 		}
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.High
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.High })]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			fragment.GetGridPositionOfIndex(i);
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			Vector4 baseColor = _baseColor;

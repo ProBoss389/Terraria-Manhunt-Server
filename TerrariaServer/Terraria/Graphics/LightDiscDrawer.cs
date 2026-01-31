@@ -28,5 +28,8 @@ public struct LightDiscDrawer
 		return result;
 	}
 
-	private float StripWidth(float progressOnStrip) => 16f;
+	private float StripWidth(float progressOnStrip)
+	{
+		return 16f;
+	}
 }

@@ -10,7 +10,7 @@ public class NetCreativePowerPermissionsModule : NetModule
 
 	public static NetPacket SerializeCurrentPowerPermissionLevel(ushort powerId, int level)
 	{
-		NetPacket result = NetModule.CreatePacket<NetCreativePowerPermissionsModule>(4);
+		NetPacket result = NetModule.CreatePacket<NetCreativePowerPermissionsModule>();
 		result.Writer.Write((byte)0);
 		result.Writer.Write(powerId);
 		result.Writer.Write((byte)level);
@@ -19,18 +19,20 @@ public class NetCreativePowerPermissionsModule : NetModule
 
 	public override bool Deserialize(BinaryReader reader, int userId)
 	{
-		if (reader.ReadByte() == 0) {
+		if (reader.ReadByte() == 0)
+		{
 			ushort id = reader.ReadUInt16();
 			int currentPermissionLevel = reader.ReadByte();
 			if (Main.netMode == 2)
+			{
 				return false;
-
+			}
 			if (!CreativePowerManager.Instance.TryGetPower(id, out var power))
+			{
 				return false;
-
+			}
 			power.CurrentPermissionLevel = (PowerPermissionLevel)currentPermissionLevel;
 		}
-
 		return true;
 	}
 }

@@ -18,20 +18,29 @@ public class WorkshopPublishInfoStateForWorld : AWorkshopPublishInfoState<WorldF
 	protected override string GetPublishedObjectDisplayName()
 	{
 		if (_dataObject == null)
+		{
 			return "null";
-
+		}
 		return _dataObject.Name;
 	}
 
 	protected override void GoToPublishConfirmation()
 	{
 		if (SocialAPI.Workshop != null && _dataObject != null)
+		{
 			SocialAPI.Workshop.PublishWorld(_dataObject, GetPublishSettings());
-
+		}
 		Main.menuMode = 888;
 		Main.MenuUI.SetState(_previousUIState);
 	}
 
-	protected override List<WorkshopTagOption> GetTagsToShow() => SocialAPI.Workshop.SupportedTags.WorldTags;
-	protected override bool TryFindingTags(out FoundWorkshopEntryInfo info) => SocialAPI.Workshop.TryGetInfoForWorld(_dataObject, out info);
+	protected override List<WorkshopTagOption> GetTagsToShow()
+	{
+		return SocialAPI.Workshop.SupportedTags.WorldTags;
+	}
+
+	protected override bool TryFindingTags(out FoundWorkshopEntryInfo info)
+	{
+		return SocialAPI.Workshop.TryGetInfoForWorld(_dataObject, out info);
+	}
 }

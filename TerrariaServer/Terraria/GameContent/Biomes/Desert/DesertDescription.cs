@@ -6,10 +6,13 @@ namespace Terraria.GameContent.Biomes.Desert;
 
 public class DesertDescription
 {
-	public static readonly DesertDescription Invalid = new DesertDescription {
+	public static readonly DesertDescription Invalid = new DesertDescription
+	{
 		IsValid = false
 	};
+
 	private static readonly Vector2D DefaultBlockScale = new Vector2D(4.0, 2.0);
+
 	private const int SCAN_PADDING = 5;
 
 	public Rectangle CombinedArea { get; private set; }
@@ -44,22 +47,26 @@ public class DesertDescription
 		int num2 = (int)(80.0 * num);
 		int num3 = (int)((WorldGen.genRand.NextDouble() * 0.5 + 1.5) * 170.0 * num);
 		if (WorldGen.remixWorldGen)
+		{
 			num3 = (int)(340.0 * num);
-
+		}
 		int num4 = (int)(defaultBlockScale.X * (double)num2);
 		int num5 = (int)(defaultBlockScale.Y * (double)num3);
 		origin.X -= num4 / 2;
 		SurfaceMap surfaceMap = SurfaceMap.FromArea(origin.X - 5, num4 + 10);
 		if (RowHasInvalidTiles(origin.X, surfaceMap.Bottom, num4))
+		{
 			return Invalid;
-
+		}
 		int num6 = (int)(surfaceMap.Average + (double)surfaceMap.Bottom) / 2;
 		origin.Y = num6 + WorldGen.genRand.Next(40, 60);
 		int num7 = 0;
 		if (Main.tenthAnniversaryWorld)
+		{
 			num7 = (int)(20.0 * num);
-
-		return new DesertDescription {
+		}
+		return new DesertDescription
+		{
 			CombinedArea = new Rectangle(origin.X, num6, num4, origin.Y + num5 - num6),
 			Hive = new Rectangle(origin.X, origin.Y + num7, num4, num5 - num7),
 			Desert = new Rectangle(origin.X, num6, num4, origin.Y + num5 / 2 - num6 + num7),
@@ -74,19 +81,21 @@ public class DesertDescription
 	private static bool RowHasInvalidTiles(int startX, int startY, int width)
 	{
 		if (GenVars.skipDesertTileCheck)
+		{
 			return false;
-
-		for (int i = startX; i < startX + width; i++) {
-			switch (Main.tile[i, startY].type) {
-				case 59:
-				case 60:
-					return true;
-				case 147:
-				case 161:
-					return true;
+		}
+		for (int i = startX; i < startX + width; i++)
+		{
+			ushort type = Main.tile[i, startY].type;
+			if ((!WorldGen.notTheBees || WorldGen.remixWorldGen) && (type == 59 || type == 60))
+			{
+				return true;
+			}
+			if (type == 161 || type == 147)
+			{
+				return true;
 			}
 		}
-
 		return false;
 	}
 }

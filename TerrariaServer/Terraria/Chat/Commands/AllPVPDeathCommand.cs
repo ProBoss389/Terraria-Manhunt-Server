@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 
@@ -10,15 +11,17 @@ public class AllPVPDeathCommand : IChatCommand
 
 	public void ProcessIncomingMessage(string text, byte clientId)
 	{
-		for (int i = 0; i < 255; i++) {
-			Player player = Main.player[i];
-			if (player != null && player.active) {
-				NetworkText text2 = NetworkText.FromKey("LegacyMultiplayer.24", player.name, player.numberOfDeathsPVP);
-				if (player.numberOfDeathsPVP == 1)
-					text2 = NetworkText.FromKey("LegacyMultiplayer.26", player.name, player.numberOfDeathsPVP);
-
-				ChatHelper.BroadcastChatMessage(text2, RESPONSE_COLOR);
+		foreach (Player item in from x in Main.player
+			where x?.active ?? false
+			orderby x.numberOfDeathsPVP descending
+			select x)
+		{
+			NetworkText text2 = NetworkText.FromKey("LegacyMultiplayer.24", item.name, item.numberOfDeathsPVP);
+			if (item.numberOfDeathsPVP == 1)
+			{
+				text2 = NetworkText.FromKey("LegacyMultiplayer.26", item.name, item.numberOfDeathsPVP);
 			}
+			ChatHelper.BroadcastChatMessage(text2, RESPONSE_COLOR);
 		}
 	}
 

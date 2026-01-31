@@ -5,6 +5,7 @@ namespace Terraria.Social.Base;
 public abstract class AWorkshopTagsCollection
 {
 	public readonly List<WorkshopTagOption> WorldTags = new List<WorkshopTagOption>();
+
 	public readonly List<WorkshopTagOption> ResourcePackTags = new List<WorkshopTagOption>();
 
 	protected void AddWorldTag(string tagNameKey, string tagInternalName)

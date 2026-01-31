@@ -9,6 +9,7 @@ public class SteamP2PWriter
 	public class WriteInformation
 	{
 		public byte[] Data;
+
 		public int Size;
 
 		public WriteInformation()
@@ -25,10 +26,15 @@ public class SteamP2PWriter
 	}
 
 	private const int BUFFER_SIZE = 1024;
+
 	private Dictionary<CSteamID, Queue<WriteInformation>> _pendingSendData = new Dictionary<CSteamID, Queue<WriteInformation>>();
+
 	private Dictionary<CSteamID, Queue<WriteInformation>> _pendingSendDataSwap = new Dictionary<CSteamID, Queue<WriteInformation>>();
+
 	private Queue<byte[]> _bufferPool = new Queue<byte[]>();
+
 	private int _channel;
+
 	private object _lock = new object();
 
 	public SteamP2PWriter(int channel)
@@ -38,20 +44,23 @@ public class SteamP2PWriter
 
 	public void QueueSend(CSteamID user, byte[] data, int length)
 	{
-		lock (_lock) {
-			Queue<WriteInformation> queue2 = (_pendingSendData.ContainsKey(user) ? _pendingSendData[user] : (_pendingSendData[user] = new Queue<WriteInformation>()));
+		lock (_lock)
+		{
+			Queue<WriteInformation> queue = (_pendingSendData.ContainsKey(user) ? _pendingSendData[user] : (_pendingSendData[user] = new Queue<WriteInformation>()));
 			int num = length;
 			int num2 = 0;
-			while (num > 0) {
+			while (num > 0)
+			{
 				WriteInformation writeInformation;
-				if (queue2.Count == 0 || 1024 - queue2.Peek().Size == 0) {
+				if (queue.Count == 0 || 1024 - queue.Peek().Size == 0)
+				{
 					writeInformation = ((_bufferPool.Count <= 0) ? new WriteInformation() : new WriteInformation(_bufferPool.Dequeue()));
-					queue2.Enqueue(writeInformation);
+					queue.Enqueue(writeInformation);
 				}
-				else {
-					writeInformation = queue2.Peek();
+				else
+				{
+					writeInformation = queue.Peek();
 				}
-
 				int num3 = Math.Min(num, 1024 - writeInformation.Size);
 				Array.Copy(data, num2, writeInformation.Data, writeInformation.Size, num3);
 				writeInformation.Size += num3;
@@ -63,17 +72,21 @@ public class SteamP2PWriter
 
 	public void ClearUser(CSteamID user)
 	{
-		lock (_lock) {
-			if (_pendingSendData.ContainsKey(user)) {
+		lock (_lock)
+		{
+			if (_pendingSendData.ContainsKey(user))
+			{
 				Queue<WriteInformation> queue = _pendingSendData[user];
-				while (queue.Count > 0) {
+				while (queue.Count > 0)
+				{
 					_bufferPool.Enqueue(queue.Dequeue().Data);
 				}
 			}
-
-			if (_pendingSendDataSwap.ContainsKey(user)) {
+			if (_pendingSendDataSwap.ContainsKey(user))
+			{
 				Queue<WriteInformation> queue2 = _pendingSendDataSwap[user];
-				while (queue2.Count > 0) {
+				while (queue2.Count > 0)
+				{
 					_bufferPool.Enqueue(queue2.Dequeue().Data);
 				}
 			}
@@ -82,13 +95,15 @@ public class SteamP2PWriter
 
 	public void SendAll()
 	{
-		lock (_lock) {
+		lock (_lock)
+		{
 			Utils.Swap(ref _pendingSendData, ref _pendingSendDataSwap);
 		}
-
-		foreach (KeyValuePair<CSteamID, Queue<WriteInformation>> item in _pendingSendDataSwap) {
+		foreach (KeyValuePair<CSteamID, Queue<WriteInformation>> item in _pendingSendDataSwap)
+		{
 			Queue<WriteInformation> value = item.Value;
-			while (value.Count > 0) {
+			while (value.Count > 0)
+			{
 				WriteInformation writeInformation = value.Dequeue();
 				SteamNetworking.SendP2PPacket(item.Key, writeInformation.Data, (uint)writeInformation.Size, EP2PSend.k_EP2PSendReliable, _channel);
 				_bufferPool.Enqueue(writeInformation.Data);

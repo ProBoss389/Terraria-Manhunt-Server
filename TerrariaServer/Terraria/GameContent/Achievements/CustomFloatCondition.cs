@@ -8,20 +8,27 @@ public class CustomFloatCondition : AchievementCondition
 {
 	[JsonProperty("Value")]
 	private float _value;
+
 	private float _maxValue;
 
-	public float Value {
-		get {
+	public float Value
+	{
+		get
+		{
 			return _value;
 		}
-		set {
+		set
+		{
 			float num = Utils.Clamp(value, 0f, _maxValue);
 			if (_tracker != null)
+			{
 				((ConditionFloatTracker)_tracker).SetValue(num);
-
+			}
 			_value = num;
 			if (_value == _maxValue)
+			{
 				Complete();
+			}
 		}
 	}
 
@@ -43,17 +50,27 @@ public class CustomFloatCondition : AchievementCondition
 		base.Load(state);
 		_value = (float)state["Value"];
 		if (_tracker != null)
+		{
 			((ConditionFloatTracker)_tracker).SetValue(_value, reportUpdate: false);
+		}
 	}
 
-	protected override IAchievementTracker CreateAchievementTracker() => new ConditionFloatTracker(_maxValue);
-	public static AchievementCondition Create(string name, float maxValue) => new CustomFloatCondition(name, maxValue);
+	protected override IAchievementTracker CreateAchievementTracker()
+	{
+		return new ConditionFloatTracker(_maxValue);
+	}
+
+	public static AchievementCondition Create(string name, float maxValue)
+	{
+		return new CustomFloatCondition(name, maxValue);
+	}
 
 	public override void Complete()
 	{
 		if (_tracker != null)
+		{
 			((ConditionFloatTracker)_tracker).SetValue(_maxValue);
-
+		}
 		_value = _maxValue;
 		base.Complete();
 	}

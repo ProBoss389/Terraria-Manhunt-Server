@@ -21,27 +21,49 @@ namespace Terraria.GameContent.UI.States;
 public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState, IHaveBackButtonCommand
 {
 	protected UIState _previousUIState;
+
 	protected TPublishedObjectType _dataObject;
+
 	protected string _publishedObjectNameDescriptorTexKey;
+
 	protected string _instructionsTextKey;
+
 	private UIElement _uiListContainer;
+
 	private UIElement _uiListRect;
+
 	private UIScrollbar _scrollbar;
+
 	private bool _isScrollbarAttached;
+
 	private UIText _descriptionText;
+
 	private UIElement _listContainer;
+
 	private UIElement _backButton;
+
 	private UIElement _publishButton;
+
 	private WorkshopItemPublicSettingId _optionPublicity = WorkshopItemPublicSettingId.Public;
+
 	private GroupOptionButton<WorkshopItemPublicSettingId>[] _publicityOptions;
+
 	private List<GroupOptionButton<WorkshopTagOption>> _tagOptions;
+
 	private UICharacterNameButton _previewImagePathPlate;
+
 	private Texture2D _previewImageTransientTexture;
+
 	private UIImage _previewImageUIElement;
+
 	private string _previewImagePath;
+
 	private Asset<Texture2D> _defaultPreviewImageTexture;
+
 	private UIElement _steamDisclaimerButton;
+
 	private UIText _disclaimerText;
+
 	private UIGamepadHelper _helper;
 
 	public AWorkshopPublishInfoState(UIState stateToGoBackTo, TPublishedObjectType dataObject)
@@ -82,21 +104,21 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	{
 		_optionPublicity = WorkshopItemPublicSettingId.Public;
 		GroupOptionButton<WorkshopItemPublicSettingId>[] publicityOptions = _publicityOptions;
-		for (int i = 0; i < publicityOptions.Length; i++) {
+		for (int i = 0; i < publicityOptions.Length; i++)
+		{
 			publicityOptions[i].SetCurrentOption(_optionPublicity);
 		}
-
 		SetTagsFromFoundEntry();
 		UpdateImagePreview();
 	}
 
 	private void FillUIList(UIList uiList)
 	{
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = new StyleDimension(0f, 0f),
 			Height = new StyleDimension(0f, 0f)
 		};
-
 		uIElement.SetPadding(0f);
 		uiList.Add(uIElement);
 		uiList.Add(CreateSteamDisclaimer("disclaimer"));
@@ -107,12 +129,13 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 
 	private UIElement CreatePreviewImageSelectionPanel(string tagGroup)
 	{
-		UIElement obj = new UIElement {
+		UIElement obj = new UIElement
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(80f, 0f)
 		};
-
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = new StyleDimension(72f, 0f),
 			Height = new StyleDimension(72f, 0f),
 			HAlign = 1f,
@@ -120,12 +143,12 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			Left = new StyleDimension(-6f, 0f),
 			Top = new StyleDimension(0f, 0f)
 		};
-
 		uIElement.SetPadding(0f);
 		obj.Append(uIElement);
 		float num = 86f;
-		_defaultPreviewImageTexture = Main.Assets.Request<Texture2D>("Images/UI/Workshop/DefaultPreviewImage");
-		UIImage uIImage = new UIImage(_defaultPreviewImageTexture) {
+		_defaultPreviewImageTexture = Main.Assets.Request<Texture2D>("Images/UI/Workshop/DefaultPreviewImage", AssetRequestMode.ImmediateLoad);
+		UIImage uIImage = new UIImage(_defaultPreviewImageTexture)
+		{
 			Width = new StyleDimension(-4f, 1f),
 			Height = new StyleDimension(-4f, 1f),
 			HAlign = 0.5f,
@@ -133,20 +156,19 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			ScaleToFit = true,
 			AllowResizingDimensions = false
 		};
-
-		UIImage element = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders")) {
+		UIImage element = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		uIElement.Append(uIImage);
 		uIElement.Append(element);
 		_previewImageUIElement = uIImage;
-		UICharacterNameButton uICharacterNameButton = new UICharacterNameButton(Language.GetText("Workshop.PreviewImagePathTitle"), Language.GetText("Workshop.PreviewImagePathEmpty"), Language.GetText("Workshop.PreviewImagePathDescription")) {
+		UICharacterNameButton uICharacterNameButton = new UICharacterNameButton(Language.GetText("Workshop.PreviewImagePathTitle"), Language.GetText("Workshop.PreviewImagePathEmpty"), Language.GetText("Workshop.PreviewImagePathDescription"))
+		{
 			Width = StyleDimension.FromPixelsAndPercent(0f - num, 1f),
 			Height = new StyleDimension(0f, 1f)
 		};
-
 		uICharacterNameButton.OnLeftMouseDown += Click_SetPreviewImage;
 		uICharacterNameButton.OnMouseOver += ShowOptionDescription;
 		uICharacterNameButton.OnMouseOut += ClearOptionDescription;
@@ -159,18 +181,22 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	private void SetTagsFromFoundEntry()
 	{
 		if (!TryFindingTags(out var info))
+		{
 			return;
-
-		if (info.tags != null) {
-			foreach (GroupOptionButton<WorkshopTagOption> tagOption in _tagOptions) {
+		}
+		if (info.tags != null)
+		{
+			foreach (GroupOptionButton<WorkshopTagOption> tagOption in _tagOptions)
+			{
 				bool flag = info.tags.Contains(tagOption.OptionValue.InternalNameForAPIs);
 				tagOption.SetCurrentOption(flag ? tagOption.OptionValue : null);
 				tagOption.SetColor(tagOption.IsSelected ? new Color(152, 175, 235) : Colors.InventoryDefaultColor, 1f);
 			}
 		}
-
+		_optionPublicity = info.publicity;
 		GroupOptionButton<WorkshopItemPublicSettingId>[] publicityOptions = _publicityOptions;
-		for (int i = 0; i < publicityOptions.Length; i++) {
+		for (int i = 0; i < publicityOptions.Length; i++)
+		{
 			publicityOptions[i].SetCurrentOption(info.publicity);
 		}
 	}
@@ -197,15 +223,16 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		groupOptionButton.ShowHighlightWhenSelected = false;
 		groupOptionButton.SetCurrentOption(option: false);
 		groupOptionButton.Width.Set(0f, 1f);
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			HAlign = 0.5f,
 			VAlign = 1f,
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(num, 0f)
 		};
-
 		groupOptionButton.Append(uIElement);
-		UIText uIText = new UIText(Language.GetText("Workshop.SteamDisclaimer")) {
+		UIText uIText = new UIText(Language.GetText("Workshop.SteamDisclaimer"))
+		{
 			HAlign = 0f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(-40f, 1f),
@@ -213,7 +240,6 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			TextColor = Color.Cyan,
 			IgnoresMouseInteraction = true
 		};
-
 		uIText.PaddingLeft = 20f;
 		uIText.PaddingRight = 20f;
 		uIText.PaddingTop = 4f;
@@ -243,10 +269,12 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 
 	private void steamDisclaimerText_OnClick(UIMouseEvent evt, UIElement listeningElement)
 	{
-		try {
+		try
+		{
 			Platform.Get<IPathService>().OpenURL("https://steamcommunity.com/sharedfiles/workshoplegalagreement");
 		}
-		catch (Exception) {
+		catch (Exception)
+		{
 		}
 	}
 
@@ -258,13 +286,16 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 
 	private void UpdateScrollbar()
 	{
-		if (_scrollbar != null) {
-			if (_isScrollbarAttached && !_scrollbar.CanScroll) {
+		if (_scrollbar != null)
+		{
+			if (_isScrollbarAttached && !_scrollbar.CanScroll)
+			{
 				_uiListContainer.RemoveChild(_scrollbar);
 				_isScrollbarAttached = false;
 				_uiListRect.Width.Set(0f, 1f);
 			}
-			else if (!_isScrollbarAttached && _scrollbar.CanScroll) {
+			else if (!_isScrollbarAttached && _scrollbar.CanScroll)
+			{
 				_uiListContainer.Append(_scrollbar);
 				_isScrollbarAttached = true;
 				_uiListRect.Width.Set(-25f, 1f);
@@ -276,7 +307,8 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	{
 		_uiListContainer = container;
 		float num = 0f;
-		UIElement uIElement = (_listContainer = new UIElement {
+		UIElement uIElement = (_listContainer = new UIElement
+		{
 			HAlign = 0f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f),
@@ -284,28 +316,28 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			Height = StyleDimension.FromPixelsAndPercent(-2f - antiHeight, 1f),
 			OverflowHidden = true
 		});
-
-		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/Workshop/ListBackground")) {
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/Workshop/ListBackground", AssetRequestMode.ImmediateLoad))
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(0f, 1f),
 			Color = Color.White * 0.7f
 		};
-
 		uISlicedImage.SetSliceDepths(4);
 		container.Append(uIElement);
 		uIElement.Append(uISlicedImage);
-		UIList uIList = new UIList {
+		UIList uIList = new UIList
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(-4f, 1f),
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			OverflowHidden = true
 		};
-
 		uIList.ManualSortMethod = ManualIfnoSortingMethod;
 		uIList.ListPadding = 5f;
 		uIElement.Append(uIList);
-		UIScrollbar uIScrollbar = new UIScrollbar {
+		UIScrollbar uIScrollbar = new UIScrollbar
+		{
 			HAlign = 1f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f),
@@ -313,7 +345,6 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			Height = StyleDimension.FromPixelsAndPercent(-14f - antiHeight, 1f),
 			Top = StyleDimension.FromPixels(6f)
 		};
-
 		uIScrollbar.SetView(100f, 1000f);
 		uIList.SetScrollbar(uIScrollbar);
 		_uiListRect = uIElement;
@@ -328,39 +359,35 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	private UIElement CreatePublicSettingsRow(float accumulatedHeight, float height, string tagGroup)
 	{
 		CreateStylizedCategoryPanel(height, "Workshop.CategoryTitlePublicity", out var entirePanel, out var innerPanel);
-		WorkshopItemPublicSettingId[] array = new WorkshopItemPublicSettingId[3] {
+		WorkshopItemPublicSettingId[] array = new WorkshopItemPublicSettingId[3]
+		{
 			WorkshopItemPublicSettingId.Public,
 			WorkshopItemPublicSettingId.FriendsOnly,
 			WorkshopItemPublicSettingId.Private
 		};
-
-		LocalizedText[] array2 = new LocalizedText[3] {
+		LocalizedText[] array2 = new LocalizedText[3]
+		{
 			Language.GetText("Workshop.SettingsPublicityPublic"),
 			Language.GetText("Workshop.SettingsPublicityFriendsOnly"),
 			Language.GetText("Workshop.SettingsPublicityPrivate")
 		};
-
-		LocalizedText[] array3 = new LocalizedText[3] {
+		LocalizedText[] array3 = new LocalizedText[3]
+		{
 			Language.GetText("Workshop.SettingsPublicityPublicDescription"),
 			Language.GetText("Workshop.SettingsPublicityFriendsOnlyDescription"),
 			Language.GetText("Workshop.SettingsPublicityPrivateDescription")
 		};
-
-		Color[] array4 = new Color[3] {
+		Color[] array4 = new Color[3]
+		{
 			Color.White,
 			Color.White,
 			Color.White
 		};
-
-		string[] array5 = new string[3] {
-			"Images/UI/Workshop/PublicityPublic",
-			"Images/UI/Workshop/PublicityFriendsOnly",
-			"Images/UI/Workshop/PublicityPrivate"
-		};
-
+		string[] array5 = new string[3] { "Images/UI/Workshop/PublicityPublic", "Images/UI/Workshop/PublicityFriendsOnly", "Images/UI/Workshop/PublicityPrivate" };
 		float num = 0.98f;
 		GroupOptionButton<WorkshopItemPublicSettingId>[] array6 = new GroupOptionButton<WorkshopItemPublicSettingId>[array.Length];
-		for (int i = 0; i < array6.Length; i++) {
+		for (int i = 0; i < array6.Length; i++)
+		{
 			GroupOptionButton<WorkshopItemPublicSettingId> groupOptionButton = new GroupOptionButton<WorkshopItemPublicSettingId>(array[i], array2[i], array3[i], array4[i], array5[i], 1f, 1f, 16f);
 			groupOptionButton.Width = StyleDimension.FromPixelsAndPercent(-4 * (array6.Length - 1), 1f / (float)array6.Length * num);
 			groupOptionButton.HAlign = (float)i / (float)(array6.Length - 1);
@@ -373,7 +400,6 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			innerPanel.Append(groupOptionButton);
 			array6[i] = groupOptionButton;
 		}
-
 		_publicityOptions = array6;
 		return entirePanel;
 	}
@@ -387,7 +413,8 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		CreateStylizedCategoryPanel(num3, "Workshop.CategoryTitleTags", out var entirePanel, out var innerPanel);
 		float num4 = 0.98f;
 		List<GroupOptionButton<WorkshopTagOption>> list = new List<GroupOptionButton<WorkshopTagOption>>();
-		for (int i = 0; i < tagsToShow.Count; i++) {
+		for (int i = 0; i < tagsToShow.Count; i++)
+		{
 			WorkshopTagOption workshopTagOption = tagsToShow[i];
 			GroupOptionButton<WorkshopTagOption> groupOptionButton = new GroupOptionButton<WorkshopTagOption>(workshopTagOption, Language.GetText(workshopTagOption.NameKey), Language.GetText(workshopTagOption.NameKey + "Description"), Color.White, null, 1f, 0.5f, 16f);
 			groupOptionButton.ShowHighlightWhenSelected = false;
@@ -405,7 +432,6 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			innerPanel.Append(groupOptionButton);
 			list.Add(groupOptionButton);
 		}
-
 		_tagOptions = list;
 		return entirePanel;
 	}
@@ -413,7 +439,8 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	private void CreateStylizedCategoryPanel(float height, string titleTextKey, out UIElement entirePanel, out UIElement innerPanel)
 	{
 		float num = 44f;
-		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel")) {
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 0.5f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
@@ -421,26 +448,25 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			Height = StyleDimension.FromPixelsAndPercent(height + num + 4f, 0f),
 			Top = StyleDimension.FromPixels(0f)
 		};
-
 		uISlicedImage.SetSliceDepths(8);
 		uISlicedImage.Color = Color.White * 0.7f;
-		innerPanel = new UIElement {
+		innerPanel = new UIElement
+		{
 			HAlign = 0.5f,
 			VAlign = 1f,
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(height, 0f)
 		};
-
 		uISlicedImage.Append(innerPanel);
 		AddHorizontalSeparator(uISlicedImage, num, 4);
-		UIText uIText = new UIText(Language.GetText(titleTextKey)) {
+		UIText uIText = new UIText(Language.GetText(titleTextKey))
+		{
 			HAlign = 0f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(-40f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(num, 0f),
 			Top = StyleDimension.FromPixelsAndPercent(5f, 0f)
 		};
-
 		uIText.PaddingLeft = 20f;
 		uIText.PaddingRight = 20f;
 		uIText.PaddingTop = 6f;
@@ -461,7 +487,8 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		GroupOptionButton<WorkshopItemPublicSettingId> groupOptionButton = (GroupOptionButton<WorkshopItemPublicSettingId>)listeningElement;
 		_optionPublicity = groupOptionButton.OptionValue;
 		GroupOptionButton<WorkshopItemPublicSettingId>[] publicityOptions = _publicityOptions;
-		for (int i = 0; i < publicityOptions.Length; i++) {
+		for (int i = 0; i < publicityOptions.Length; i++)
+		{
 			publicityOptions[i].SetCurrentOption(groupOptionButton.OptionValue);
 		}
 	}
@@ -470,22 +497,29 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	{
 		LocalizedText localizedText = null;
 		if (listeningElement is GroupOptionButton<WorkshopItemPublicSettingId> groupOptionButton)
+		{
 			localizedText = groupOptionButton.Description;
-
+		}
 		if (listeningElement is UICharacterNameButton uICharacterNameButton)
+		{
 			localizedText = uICharacterNameButton.Description;
-
+		}
 		if (listeningElement is GroupOptionButton<bool> groupOptionButton2)
+		{
 			localizedText = groupOptionButton2.Description;
-
+		}
 		if (listeningElement is GroupOptionButton<WorkshopTagOption> groupOptionButton3)
+		{
 			localizedText = groupOptionButton3.Description;
-
+		}
 		if (listeningElement == _steamDisclaimerButton)
+		{
 			localizedText = Language.GetText("Workshop.SteamDisclaimerDescrpition");
-
+		}
 		if (localizedText != null)
+		{
 			_descriptionText.SetText(localizedText);
+		}
 	}
 
 	public void ClearOptionDescription(UIMouseEvent evt, UIElement listeningElement)
@@ -496,7 +530,7 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	private UIElement CreateInsturctionsPanel(float accumulatedHeight, float height, string tagGroup)
 	{
 		float num = 0f;
-		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight"));
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad));
 		uISlicedImage.HAlign = 0.5f;
 		uISlicedImage.VAlign = 0f;
 		uISlicedImage.Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f);
@@ -505,14 +539,14 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		uISlicedImage.Top = StyleDimension.FromPixels(accumulatedHeight);
 		uISlicedImage.SetSliceDepths(10);
 		uISlicedImage.Color = Color.LightGray * 0.7f;
-		UIText uIText = new UIText(Language.GetText(_instructionsTextKey)) {
+		UIText uIText = new UIText(Language.GetText(_instructionsTextKey))
+		{
 			HAlign = 0f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(-40f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Top = StyleDimension.FromPixelsAndPercent(5f, 0f)
 		};
-
 		uIText.PaddingLeft = 20f;
 		uIText.PaddingRight = 20f;
 		uIText.PaddingTop = 6f;
@@ -524,7 +558,8 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	private void AddDescriptionPanel(UIElement container, float height, string tagGroup)
 	{
 		float num = 0f;
-		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight")) {
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 0.5f,
 			VAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f),
@@ -532,17 +567,16 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 			Height = StyleDimension.FromPixelsAndPercent(height, 0f),
 			Top = StyleDimension.FromPixels(2f)
 		};
-
 		uISlicedImage.SetSliceDepths(10);
 		uISlicedImage.Color = Color.LightGray * 0.7f;
 		container.Append(uISlicedImage);
-		UIText uIText = new UIText(Language.GetText("Workshop.InfoDescriptionDefault"), 0.85f) {
+		UIText uIText = new UIText(Language.GetText("Workshop.InfoDescriptionDefault"), 0.85f)
+		{
 			HAlign = 0f,
 			VAlign = 1f,
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(0f, 1f)
 		};
-
 		uIText.PaddingLeft = 4f;
 		uIText.PaddingRight = 4f;
 		uIText.PaddingTop = 4f;
@@ -562,11 +596,11 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 
 	public void HandleBackButtonUsage()
 	{
-		if (_previousUIState == null) {
+		if (_previousUIState == null)
+		{
 			Main.menuMode = 0;
 			return;
 		}
-
 		Main.menuMode = 888;
 		Main.MenuUI.SetState(_previousUIState);
 	}
@@ -625,36 +659,38 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 
 	private UIElement AddHorizontalSeparator(UIElement Container, float accumualtedHeight, int widthReduction = 0)
 	{
-		UIHorizontalSeparator uIHorizontalSeparator = new UIHorizontalSeparator {
+		UIHorizontalSeparator uIHorizontalSeparator = new UIHorizontalSeparator
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-widthReduction, 1f),
 			HAlign = 0.5f,
 			Top = StyleDimension.FromPixels(accumualtedHeight - 8f),
 			Color = Color.Lerp(Color.White, new Color(63, 65, 151, 255), 0.85f) * 0.9f
 		};
-
 		Container.Append(uIHorizontalSeparator);
 		return uIHorizontalSeparator;
 	}
 
 	protected WorkshopItemPublishSettings GetPublishSettings()
 	{
-		return new WorkshopItemPublishSettings {
+		return new WorkshopItemPublishSettings
+		{
 			Publicity = _optionPublicity,
 			UsedTags = (from x in _tagOptions
-						where x.IsSelected
-						select x.OptionValue).ToArray(),
+				where x.IsSelected
+				select x.OptionValue).ToArray(),
 			PreviewImagePath = _previewImagePath
 		};
 	}
 
 	private void OpenFileDialogueToSelectPreviewImage()
 	{
-		ExtensionFilter[] extensions = new ExtensionFilter[1] {
+		ExtensionFilter[] extensions = new ExtensionFilter[1]
+		{
 			new ExtensionFilter("Image files", "png", "jpg", "jpeg")
 		};
-
 		string text = FileBrowser.OpenFilePanel("Open icon", extensions);
-		if (text != null) {
+		if (text != null)
+		{
 			_previewImagePath = text;
 			UpdateImagePreview();
 		}
@@ -663,20 +699,23 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 	private string PrettifyPath(string path)
 	{
 		if (path == null)
+		{
 			return path;
-
-		char[] anyOf = new char[2] {
+		}
+		char[] anyOf = new char[2]
+		{
 			Path.DirectorySeparatorChar,
 			Path.AltDirectorySeparatorChar
 		};
-
 		int num = path.LastIndexOfAny(anyOf);
 		if (num != -1)
+		{
 			path = path.Substring(num + 1);
-
+		}
 		if (path.Length > 30)
+		{
 			path = path.Substring(0, 30) + "…";
-
+		}
 		return path;
 	}
 
@@ -685,41 +724,44 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		Texture2D texture2D = null;
 		string contents = PrettifyPath(_previewImagePath);
 		_previewImagePathPlate.SetContents(contents);
-		if (_previewImagePath != null) {
-			try {
+		if (_previewImagePath != null)
+		{
+			try
+			{
 				FileStream stream = File.OpenRead(_previewImagePath);
 				texture2D = Texture2D.FromStream(Main.graphics.GraphicsDevice, stream);
 			}
-			catch (Exception exception) {
+			catch (Exception exception)
+			{
 				FancyErrorPrinter.ShowFailedToLoadAssetError(exception, _previewImagePath);
 			}
 		}
-
-		if (texture2D != null && (texture2D.Width > 512 || texture2D.Height > 512)) {
-			object obj = new {
-				texture2D.Width,
-				texture2D.Height
-			};
-
+		if (texture2D != null && (texture2D.Width > 512 || texture2D.Height > 512))
+		{
+			object obj = new { texture2D.Width, texture2D.Height };
 			string textValueWith = Language.GetTextValueWith("Workshop.ReportIssue_FailedToPublish_ImageSizeIsTooLarge", obj);
 			if (SocialAPI.Workshop != null)
+			{
 				SocialAPI.Workshop.IssueReporter.ReportInstantUploadProblemFromValue(textValueWith);
-
+			}
 			_previewImagePath = null;
 			_previewImagePathPlate.SetContents(null);
 			_previewImageUIElement.SetImage(_defaultPreviewImageTexture);
 		}
-		else {
-			if (_previewImageTransientTexture != null) {
+		else
+		{
+			if (_previewImageTransientTexture != null)
+			{
 				_previewImageTransientTexture.Dispose();
 				_previewImageTransientTexture = null;
 			}
-
-			if (texture2D != null) {
+			if (texture2D != null)
+			{
 				_previewImageUIElement.SetImage(texture2D);
 				_previewImageTransientTexture = texture2D;
 			}
-			else {
+			else
+			{
 				_previewImageUIElement.SetImage(_defaultPreviewImageTexture);
 			}
 		}
@@ -742,41 +784,48 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		UILinkPoint linkPoint2 = _helper.GetLinkPoint(id++, _publishButton);
 		SnapPoint snap = null;
 		SnapPoint snap2 = null;
-		for (int i = 0; i < snapPoints.Count; i++) {
+		for (int i = 0; i < snapPoints.Count; i++)
+		{
 			SnapPoint snapPoint = snapPoints[i];
 			string name = snapPoint.Name;
-			if (!(name == "disclaimer")) {
+			if (!(name == "disclaimer"))
+			{
 				if (name == "image")
+				{
 					snap2 = snapPoint;
+				}
 			}
-			else {
+			else
+			{
 				snap = snapPoint;
 			}
 		}
-
 		UILinkPoint upSide = _helper.TryMakeLinkPoint(ref id, snap);
 		UILinkPoint uILinkPoint = _helper.TryMakeLinkPoint(ref id, snap2);
 		_helper.PairLeftRight(linkPoint, linkPoint2);
 		_helper.PairUpDown(upSide, uILinkPoint);
 		UILinkPoint[] array = _helper.CreateUILinkStripHorizontal(ref id, snapPoints.Where((SnapPoint x) => x.Name == "public").ToList());
 		if (array.Length != 0)
+		{
 			_helper.LinkHorizontalStripUpSideToSingle(array, uILinkPoint);
-
+		}
 		UILinkPoint topLinkPoint = ((array.Length != 0) ? array[0] : null);
 		UILinkPoint bottomLinkPoint = linkPoint;
 		List<SnapPoint> pointsForGrid = snapPoints.Where((SnapPoint x) => x.Name == "tags").ToList();
 		UILinkPoint[,] array2 = _helper.CreateUILinkPointGrid(ref id, pointsForGrid, 3, topLinkPoint, null, null, bottomLinkPoint);
 		int num2 = array2.GetLength(1) - 1;
-		if (num2 >= 0) {
+		if (num2 >= 0)
+		{
 			_helper.LinkHorizontalStripBottomSideToSingle(array, array2[0, 0]);
-			for (int num3 = array2.GetLength(0) - 1; num3 >= 0; num3--) {
-				if (array2[num3, num2] != null) {
+			for (int num3 = array2.GetLength(0) - 1; num3 >= 0; num3--)
+			{
+				if (array2[num3, num2] != null)
+				{
 					_helper.PairUpDown(array2[num3, num2], linkPoint2);
 					break;
 				}
 			}
 		}
-
 		UILinkPoint upSide2 = UILinkPointNavigator.Points[id - 1];
 		_helper.PairUpDown(upSide2, linkPoint);
 		_helper.MoveToVisuallyClosestPoint(num, id);

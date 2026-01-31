@@ -23,7 +23,8 @@ public class SepiaScreenShaderData : ScreenShaderData
 		float cloudAlpha = Main.cloudAlpha;
 		GetDaylightPowers(out var nightlightPower, out var daylightPower, out var moonPower, out var dawnPower);
 		float num2 = nightlightPower * 0.13f;
-		if (Main.starGame) {
+		if (Main.starGame)
+		{
 			float num3 = (float)Main.starGameMath() - 1f;
 			nightlightPower = num3;
 			daylightPower = 1f - num3;
@@ -31,18 +32,19 @@ public class SepiaScreenShaderData : ScreenShaderData
 			dawnPower = 1f - num3;
 			num2 = nightlightPower * 0.13f;
 		}
-		else if (!Main.dayTime) {
-			if (Main.GetMoonPhase() == MoonPhase.Full) {
+		else if (!Main.dayTime)
+		{
+			if (Main.GetMoonPhase() == MoonPhase.Full)
+			{
 				value = new Vector3(-0.19f, 0.01f, 0.22f);
 				num2 += 0.07f * moonPower;
 			}
-
-			if (Main.bloodMoon) {
+			if (Main.bloodMoon)
+			{
 				value = new Vector3(0.2f, -0.1f, -0.221f);
 				num2 = 0.2f;
 			}
 		}
-
 		nightlightPower *= num;
 		daylightPower *= num;
 		moonPower *= num;
@@ -74,11 +76,13 @@ public class SepiaScreenShaderData : ScreenShaderData
 		nightlightPower = Utils.Remap(fromValue, -0.2f, 0.1f, 0f, 1f);
 		daylightPower = Utils.Remap(fromValue, 0.1f, -1f, 0f, 1f);
 		dawnPower = Utils.Remap(fromValue2, 0.66f, 1f, 0f, 1f);
-		if (!Main.dayTime) {
+		if (!Main.dayTime)
+		{
 			float num = (float)(Main.time / 32400.0) * 2f;
 			if (num > 1f)
+			{
 				num = 2f - num;
-
+			}
 			moonPower = Utils.Remap(num, 0f, 0.25f, 0f, 1f);
 		}
 	}

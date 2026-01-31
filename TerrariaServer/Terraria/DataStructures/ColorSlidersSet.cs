@@ -5,8 +5,11 @@ namespace Terraria.DataStructures;
 public class ColorSlidersSet
 {
 	public float Hue;
+
 	public float Saturation;
+
 	public float Luminance;
+
 	public float Alpha = 1f;
 
 	public void SetHSL(Color color)
@@ -31,7 +34,10 @@ public class ColorSlidersSet
 		return result;
 	}
 
-	public Vector3 GetHSLVector() => new Vector3(Hue, Saturation, Luminance);
+	public Vector3 GetHSLVector()
+	{
+		return new Vector3(Hue, Saturation, Luminance);
+	}
 
 	public void ApplyToMainLegacyBars()
 	{

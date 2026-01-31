@@ -8,17 +8,22 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIHorizontalSeparator : UIElement
 {
 	private Asset<Texture2D> _texture;
+
 	public Color Color;
+
 	public int EdgeWidth;
 
 	public UIHorizontalSeparator(int EdgeWidth = 2, bool highlightSideUp = true)
 	{
 		Color = Color.White;
 		if (highlightSideUp)
-			_texture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Separator1");
+		{
+			_texture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Separator1", AssetRequestMode.ImmediateLoad);
+		}
 		else
-			_texture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Separator2");
-
+		{
+			_texture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/Separator2", AssetRequestMode.ImmediateLoad);
+		}
 		Width.Set(_texture.Width(), 0f);
 		Height.Set(_texture.Height(), 0f);
 	}
@@ -29,5 +34,8 @@ public class UIHorizontalSeparator : UIElement
 		Utils.DrawPanel(_texture.Value, EdgeWidth, 0, spriteBatch, dimensions.Position(), dimensions.Width, Color);
 	}
 
-	public override bool ContainsPoint(Vector2 point) => false;
+	public override bool ContainsPoint(Vector2 point)
+	{
+		return false;
+	}
 }

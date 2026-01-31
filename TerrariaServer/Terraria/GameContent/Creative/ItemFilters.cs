@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.DataStructures;
@@ -14,35 +16,49 @@ public static class ItemFilters
 	public class BySearch : IItemEntryFilter, IEntryFilter<Item>, ISearchFilter<Item>
 	{
 		private const int _tooltipMaxLines = 30;
+
 		private string[] _toolTipLines = new string[30];
-		private bool[] _unusedPrefixLine = new bool[30];
-		private bool[] _unusedBadPrefixLines = new bool[30];
+
+		private Color[] _unusedColor = new Color[30];
+
 		private int _unusedYoyoLogo;
+
 		private int _unusedResearchLine;
+
 		private string _search;
 
 		public bool FitsFilter(Item entry)
 		{
 			if (_search == null)
+			{
 				return true;
-
+			}
 			int numLines = 1;
 			float knockBack = entry.knockBack;
-			Main.MouseText_DrawItemTooltip_GetLinesInfo(entry, ref _unusedYoyoLogo, ref _unusedResearchLine, knockBack, ref numLines, _toolTipLines, _unusedPrefixLine, _unusedBadPrefixLines);
-			for (int i = 0; i < numLines; i++) {
-				if (_toolTipLines[i].ToLower().IndexOf(_search, StringComparison.OrdinalIgnoreCase) != -1)
+			int stack = entry.stack;
+			entry.stack = 1;
+			Main.MouseText_DrawItemTooltip_GetLinesInfo(entry, ref _unusedYoyoLogo, ref _unusedResearchLine, knockBack, ref numLines, _toolTipLines, _unusedColor);
+			entry.stack = stack;
+			for (int i = 0; i < numLines; i++)
+			{
+				if (_toolTipLines[i].IndexOf(_search, StringComparison.OrdinalIgnoreCase) != -1)
+				{
 					return true;
+				}
 			}
-
 			return false;
 		}
 
-		public string GetDisplayNameKey() => "CreativePowers.TabSearch";
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabSearch";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Rank_Light");
-			return new UIImageFramed(asset, asset.Frame()) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Rank_Light", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame())
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -59,23 +75,30 @@ public static class ItemFilters
 		public bool FitsFilter(Item entry)
 		{
 			if (entry.createWall != -1)
+			{
 				return true;
-
+			}
 			if (entry.tileWand != -1)
+			{
 				return true;
-
+			}
 			if (entry.createTile == -1)
+			{
 				return false;
-
+			}
 			return !Main.tileFrameImportant[entry.createTile];
 		}
 
-		public string GetDisplayNameKey() => "CreativePowers.TabBlocks";
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabBlocks";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 4).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 4).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -88,17 +111,22 @@ public static class ItemFilters
 		{
 			int createTile = entry.createTile;
 			if (createTile == -1)
+			{
 				return false;
-
+			}
 			return Main.tileFrameImportant[createTile];
 		}
 
-		public string GetDisplayNameKey() => "CreativePowers.TabFurniture";
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabFurniture";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 7).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 7).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -107,92 +135,55 @@ public static class ItemFilters
 
 	public class Tools : IItemEntryFilter, IEntryFilter<Item>
 	{
-		private HashSet<int> _itemIdsThatAreAccepted = new HashSet<int> {
-			509,
-			850,
-			851,
-			3612,
-			3625,
-			3611,
-			510,
-			849,
-			3620,
-			1071,
-			1543,
-			1072,
-			1544,
-			1100,
-			1545,
-			50,
-			3199,
-			3124,
-			5358,
-			5359,
-			5360,
-			5361,
-			5437,
-			1326,
-			5335,
-			3384,
-			4263,
-			4819,
-			4262,
-			946,
-			4707,
-			205,
-			206,
-			207,
-			1128,
-			3031,
-			4820,
-			5302,
-			5364,
-			4460,
-			4608,
-			4872,
-			3032,
-			5303,
-			5304,
-			1991,
-			4821,
-			3183,
-			779,
-			5134,
-			1299,
-			4711,
-			4049,
-			114
+		private HashSet<int> _itemIdsThatAreAccepted = new HashSet<int>
+		{
+			213, 5295, 509, 850, 851, 3612, 3625, 3611, 510, 849,
+			3620, 1071, 1543, 1072, 1544, 1100, 1545, 50, 3199, 3124,
+			5358, 5359, 5360, 5361, 5437, 1326, 5335, 3384, 4263, 4819,
+			4262, 946, 4707, 205, 206, 207, 1128, 3031, 4820, 5302,
+			5364, 4460, 4608, 4872, 3032, 5303, 5304, 1991, 4821, 3183,
+			779, 5134, 1299, 4711, 4049, 114, 5667
 		};
 
 		public bool FitsFilter(Item entry)
 		{
 			if (entry.pick > 0)
+			{
 				return true;
-
+			}
 			if (entry.axe > 0)
+			{
 				return true;
-
+			}
 			if (entry.hammer > 0)
+			{
 				return true;
-
+			}
 			if (entry.fishingPole > 0)
+			{
 				return true;
-
+			}
 			if (entry.tileWand != -1)
+			{
 				return true;
-
+			}
 			if (_itemIdsThatAreAccepted.Contains(entry.type))
+			{
 				return true;
-
+			}
 			return false;
 		}
 
-		public string GetDisplayNameKey() => "CreativePowers.TabTools";
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabTools";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 6).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 6).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -201,13 +192,21 @@ public static class ItemFilters
 
 	public class Weapon : IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => entry.damage > 0;
-		public string GetDisplayNameKey() => "CreativePowers.TabWeapons";
+		public bool FitsFilter(Item entry)
+		{
+			return entry.damage > 0;
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabWeapons";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -219,21 +218,30 @@ public static class ItemFilters
 		public bool IsAnArmorThatMatchesSocialState(Item entry, bool shouldBeSocial)
 		{
 			if (entry.bodySlot != -1 || entry.headSlot != -1 || entry.legSlot != -1)
+			{
 				return entry.vanity == shouldBeSocial;
-
+			}
 			return false;
 		}
 	}
 
 	public class Armor : AArmor, IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => IsAnArmorThatMatchesSocialState(entry, shouldBeSocial: false);
-		public string GetDisplayNameKey() => "CreativePowers.TabArmor";
+		public bool FitsFilter(Item entry)
+		{
+			return IsAnArmorThatMatchesSocialState(entry, shouldBeSocial: false);
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabArmor";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 2).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 2).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -242,13 +250,21 @@ public static class ItemFilters
 
 	public class Vanity : AArmor, IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => IsAnArmorThatMatchesSocialState(entry, shouldBeSocial: true);
-		public string GetDisplayNameKey() => "CreativePowers.TabVanity";
+		public bool FitsFilter(Item entry)
+		{
+			return IsAnArmorThatMatchesSocialState(entry, shouldBeSocial: true);
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabVanity";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 8).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 8).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -265,26 +281,45 @@ public static class ItemFilters
 
 		public bool IsAnAccessoryOfType(Item entry, AccessoriesCategory categoryType)
 		{
-			bool flag = ItemSlot.IsMiscEquipment(entry);
+			bool flag = IsMiscEquipment(entry);
 			if (flag && categoryType == AccessoriesCategory.Misc)
+			{
 				return true;
-
+			}
 			if (!flag && categoryType == AccessoriesCategory.NonMisc && entry.accessory)
+			{
 				return true;
-
+			}
 			return false;
+		}
+
+		public static bool IsMiscEquipment(Item item)
+		{
+			if (item.mountType == -1 && (item.buffType <= 0 || !Main.lightPet[item.buffType]) && (item.buffType <= 0 || !Main.vanityPet[item.buffType]))
+			{
+				return Main.projHook[item.shoot];
+			}
+			return true;
 		}
 	}
 
 	public class Accessories : AAccessories, IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => IsAnAccessoryOfType(entry, AccessoriesCategory.NonMisc);
-		public string GetDisplayNameKey() => "CreativePowers.TabAccessories";
+		public bool FitsFilter(Item entry)
+		{
+			return IsAnAccessoryOfType(entry, AccessoriesCategory.NonMisc);
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabAccessories";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 1).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 1).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -293,13 +328,21 @@ public static class ItemFilters
 
 	public class MiscAccessories : AAccessories, IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => IsAnAccessoryOfType(entry, AccessoriesCategory.Misc);
-		public string GetDisplayNameKey() => "CreativePowers.TabAccessoriesMisc";
+		public bool FitsFilter(Item entry)
+		{
+			return IsAnAccessoryOfType(entry, AccessoriesCategory.Misc);
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabAccessoriesMisc";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 9).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 9).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -312,21 +355,27 @@ public static class ItemFilters
 		{
 			int type = entry.type;
 			if (type == 267 || type == 1307)
+			{
 				return true;
-
+			}
 			bool flag = entry.createTile != -1 || entry.createWall != -1 || entry.tileWand != -1;
 			if (entry.consumable)
+			{
 				return !flag;
-
+			}
 			return false;
 		}
 
-		public string GetDisplayNameKey() => "CreativePowers.TabConsumables";
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabConsumables";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 3).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 3).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -335,13 +384,21 @@ public static class ItemFilters
 
 	public class GameplayItems : IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => ItemID.Sets.SortingPriorityBossSpawns[entry.type] != -1;
-		public string GetDisplayNameKey() => "CreativePowers.TabMisc";
+		public bool FitsFilter(Item entry)
+		{
+			return ItemID.Sets.SortingPriorityMiscImportants[entry.type] != -1;
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabMisc";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 5).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 5).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -350,43 +407,35 @@ public static class ItemFilters
 
 	public class MiscFallback : IItemEntryFilter, IEntryFilter<Item>
 	{
-		private bool[] _fitsFilterByItemType;
+		private readonly List<IItemEntryFilter> otherFiltersToCheckAgainst;
+
+		private bool?[] _fitsFilterByItemType = new bool?[ItemID.Count];
 
 		public MiscFallback(List<IItemEntryFilter> otherFiltersToCheckAgainst)
 		{
-			short count = ItemID.Count;
-			_fitsFilterByItemType = new bool[count];
-			for (int i = 1; i < count; i++) {
-				_fitsFilterByItemType[i] = true;
-				Item entry = ContentSamples.ItemsByType[i];
-				if (!CreativeItemSacrificesCatalog.Instance.TryGetSacrificeCountCapToUnlockInfiniteItems(i, out var _)) {
-					_fitsFilterByItemType[i] = false;
-					continue;
-				}
-
-				for (int j = 0; j < otherFiltersToCheckAgainst.Count; j++) {
-					if (otherFiltersToCheckAgainst[j].FitsFilter(entry)) {
-						_fitsFilterByItemType[i] = false;
-						break;
-					}
-				}
-			}
+			this.otherFiltersToCheckAgainst = otherFiltersToCheckAgainst;
 		}
 
 		public bool FitsFilter(Item entry)
 		{
-			if (_fitsFilterByItemType.IndexInRange(entry.type))
-				return _fitsFilterByItemType[entry.type];
-
-			return false;
+			bool? flag = _fitsFilterByItemType[entry.type];
+			if (!flag.HasValue)
+			{
+				flag = (_fitsFilterByItemType[entry.type] = !otherFiltersToCheckAgainst.Any((IItemEntryFilter f) => f.FitsFilter(entry)));
+			}
+			return flag.Value;
 		}
 
-		public string GetDisplayNameKey() => "CreativePowers.TabMisc";
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabMisc";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 5).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 5).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -395,13 +444,21 @@ public static class ItemFilters
 
 	public class Materials : IItemEntryFilter, IEntryFilter<Item>
 	{
-		public bool FitsFilter(Item entry) => entry.material;
-		public string GetDisplayNameKey() => "CreativePowers.TabMaterials";
+		public bool FitsFilter(Item entry)
+		{
+			return entry.material;
+		}
+
+		public string GetDisplayNameKey()
+		{
+			return "CreativePowers.TabMaterials";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons");
-			return new UIImageFramed(asset, asset.Frame(11, 1, 10).OffsetSize(-2, 0)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Infinite_Icons", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(11, 1, 10).OffsetSize(-2, 0))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -409,7 +466,10 @@ public static class ItemFilters
 	}
 
 	private const int framesPerRow = 11;
+
 	private const int framesPerColumn = 1;
+
 	private const int frameSizeOffsetX = -2;
+
 	private const int frameSizeOffsetY = 0;
 }

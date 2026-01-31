@@ -12,8 +12,9 @@ public class PVPDeathCommand : IChatCommand
 	{
 		NetworkText text2 = NetworkText.FromKey("LegacyMultiplayer.24", Main.player[clientId].name, Main.player[clientId].numberOfDeathsPVP);
 		if (Main.player[clientId].numberOfDeathsPVP == 1)
+		{
 			text2 = NetworkText.FromKey("LegacyMultiplayer.26", Main.player[clientId].name, Main.player[clientId].numberOfDeathsPVP);
-
+		}
 		ChatHelper.BroadcastChatMessage(text2, RESPONSE_COLOR);
 	}
 

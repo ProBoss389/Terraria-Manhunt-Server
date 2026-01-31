@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria.GameContent.Shaders;
 using Terraria.GameContent.Skies;
 using Terraria.Graphics.Effects;
@@ -25,20 +26,17 @@ public static class ScreenEffectInitializer
 		Filters.Scene["testInvert"] = new Filter(new ScreenShaderData("FilterInvert"), EffectPriority.VeryHigh);
 		Filters.Scene["BloodMoon"] = new Filter(new BloodMoonScreenShaderData("FilterBloodMoon").UseColor(2f, -0.8f, -0.6f), EffectPriority.Medium);
 		Filters.Scene["Sepia"] = new Filter(new SepiaScreenShaderData("FilterSepia").UseImage("Images/DSTNoise").UseIntensity(1f), EffectPriority.Medium);
+		Filters.Scene["Noir"] = new Filter(new ScreenShaderData("FilterNoir").UseImage("Images/NoirNoise", 0, SamplerState.PointWrap).UseIntensity(1f), EffectPriority.Medium);
 		Filters.Scene["Sandstorm"] = new Filter(new SandstormShaderData("FilterSandstormForeground").UseColor(1.1f, 1f, 0.5f).UseSecondaryColor(0.7f, 0.5f, 0.3f).UseImage("Images/Misc/noise")
 			.UseIntensity(0.4f), EffectPriority.High);
-
 		Overlays.Scene["Sandstorm"] = new SimpleOverlay("Images/Misc/noise", new SandstormShaderData("FilterSandstormBackground").UseColor(1.1f, 1f, 0.5f).UseSecondaryColor(0.7f, 0.5f, 0.3f).UseImage("Images/Misc/noise")
 			.UseIntensity(0.4f), EffectPriority.High, RenderLayers.Landscape);
-
 		Filters.Scene["Blizzard"] = new Filter(new BlizzardShaderData("FilterBlizzardForeground").UseColor(1f, 1f, 1f).UseSecondaryColor(0.7f, 0.7f, 1f).UseImage("Images/Misc/noise")
 			.UseIntensity(0.4f)
 			.UseImageScale(new Vector2(3f, 0.75f)), EffectPriority.High);
-
 		Overlays.Scene["Blizzard"] = new SimpleOverlay("Images/Misc/noise", new BlizzardShaderData("FilterBlizzardBackground").UseColor(1f, 1f, 1f).UseSecondaryColor(0.7f, 0.7f, 1f).UseImage("Images/Misc/noise")
 			.UseIntensity(0.4f)
 			.UseImageScale(new Vector2(3f, 0.75f)), EffectPriority.High, RenderLayers.Landscape);
-
 		Filters.Scene["HeatDistortion"] = new Filter(new ScreenShaderData("FilterHeatDistortion").UseImage("Images/Misc/noise").UseIntensity(4f), EffectPriority.Low);
 		Filters.Scene["WaterDistortion"] = new Filter(new WaterShaderData("FilterWaterDistortion").UseIntensity(1f).UseImage("Images/Misc/noise"), EffectPriority.VeryHigh);
 		Filters.Scene["CrystalDestructionColor"] = new Filter(new ScreenShaderData("FilterCrystalDestructionColor").UseColor(1f, 0f, 0.75f).UseIntensity(1f).UseOpacity(0.8f), EffectPriority.VeryHigh);
@@ -64,6 +62,7 @@ public static class ScreenEffectInitializer
 		SkyManager.Instance["Slime"] = new SlimeSky();
 		SkyManager.Instance["MoonLord"] = new MoonLordSky(forPlayer: false);
 		SkyManager.Instance["CreditsRoll"] = new CreditsRollSky();
+		SkyManager.Instance["Aurora"] = new AuroraSky();
 		SkyManager.Instance["MonolithNebula"] = new NebulaSky();
 		SkyManager.Instance["MonolithStardust"] = new StardustSky();
 		SkyManager.Instance["MonolithVortex"] = new VortexSky();

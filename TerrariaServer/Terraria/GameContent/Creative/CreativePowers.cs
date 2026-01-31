@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria.Audio;
 using Terraria.GameContent.NetModules;
 using Terraria.GameContent.UI.Elements;
@@ -25,8 +26,11 @@ public class CreativePowers
 		}
 
 		internal string _powerNameKey;
+
 		internal Point _iconLocation;
+
 		internal bool _defaultToggleState;
+
 		private bool[] _perPlayerIsEnabled = new bool[255];
 
 		public ushort PowerId { get; set; }
@@ -40,48 +44,57 @@ public class CreativePowers
 		public bool IsEnabledForPlayer(int playerIndex)
 		{
 			if (!_perPlayerIsEnabled.IndexInRange(playerIndex))
+			{
 				return false;
-
+			}
 			return _perPlayerIsEnabled[playerIndex];
 		}
 
 		public void DeserializeNetMessage(BinaryReader reader, int userId)
 		{
-			switch (reader.ReadByte()) {
-				case 0:
-					Deserialize_SyncEveryone(reader, userId);
-					break;
-				case 1: {
-					int playerIndex = reader.ReadByte();
-					bool state = reader.ReadBoolean();
-					if (Main.netMode == 2) {
-						playerIndex = userId;
-						if (!CreativePowersHelper.IsAvailableForPlayer(this, playerIndex))
-							break;
+			switch ((SubMessageType)reader.ReadByte())
+			{
+			case SubMessageType.SyncEveryone:
+				Deserialize_SyncEveryone(reader, userId);
+				break;
+			case SubMessageType.SyncOnePlayer:
+			{
+				int playerIndex = reader.ReadByte();
+				bool state = reader.ReadBoolean();
+				if (Main.netMode == 2)
+				{
+					playerIndex = userId;
+					if (!CreativePowersHelper.IsAvailableForPlayer(this, playerIndex))
+					{
+						break;
 					}
-
-					SetEnabledState(playerIndex, state);
-					break;
 				}
+				SetEnabledState(playerIndex, state);
+				break;
+			}
 			}
 		}
 
 		private void Deserialize_SyncEveryone(BinaryReader reader, int userId)
 		{
 			int num = (int)Math.Ceiling((float)_perPlayerIsEnabled.Length / 8f);
-			if (Main.netMode == 2 && !CreativePowersHelper.IsAvailableForPlayer(this, userId)) {
+			if (Main.netMode == 2 && !CreativePowersHelper.IsAvailableForPlayer(this, userId))
+			{
 				reader.ReadBytes(num);
 				return;
 			}
-
-			for (int i = 0; i < num; i++) {
+			for (int i = 0; i < num; i++)
+			{
 				BitsByte bitsByte = reader.ReadByte();
-				for (int j = 0; j < 8; j++) {
+				for (int j = 0; j < 8; j++)
+				{
 					int num2 = i * 8 + j;
-					if (num2 != Main.myPlayer) {
+					if (num2 != Main.myPlayer)
+					{
 						if (num2 >= _perPlayerIsEnabled.Length)
+						{
 							break;
-
+						}
 						SetEnabledState(num2, bitsByte[j]);
 					}
 				}
@@ -91,7 +104,8 @@ public class CreativePowers
 		public void SetEnabledState(int playerIndex, bool state)
 		{
 			_perPlayerIsEnabled[playerIndex] = state;
-			if (Main.netMode == 2) {
+			if (Main.netMode == 2)
+			{
 				NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, 3);
 				packet.Writer.Write((byte)1);
 				packet.Writer.Write((byte)playerIndex);
@@ -107,7 +121,7 @@ public class CreativePowers
 
 		internal void RequestUse()
 		{
-			NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, 1);
+			NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, 3);
 			packet.Writer.Write((byte)1);
 			packet.Writer.Write((byte)Main.myPlayer);
 			packet.Writer.Write(!_perPlayerIsEnabled[Main.myPlayer]);
@@ -116,7 +130,8 @@ public class CreativePowers
 
 		public void Reset()
 		{
-			for (int i = 0; i < _perPlayerIsEnabled.Length; i++) {
+			for (int i = 0; i < _perPlayerIsEnabled.Length; i++)
+			{
 				_perPlayerIsEnabled[i] = _defaultToggleState;
 			}
 		}
@@ -126,19 +141,20 @@ public class CreativePowers
 			int num = (int)Math.Ceiling((float)_perPlayerIsEnabled.Length / 8f);
 			NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, num + 1);
 			packet.Writer.Write((byte)0);
-			for (int i = 0; i < num; i++) {
+			for (int i = 0; i < num; i++)
+			{
 				BitsByte bitsByte = (byte)0;
-				for (int j = 0; j < 8; j++) {
+				for (int j = 0; j < 8; j++)
+				{
 					int num2 = i * 8 + j;
 					if (num2 >= _perPlayerIsEnabled.Length)
+					{
 						break;
-
+					}
 					bitsByte[j] = _perPlayerIsEnabled[num2];
 				}
-
 				packet.Writer.Write(bitsByte);
 			}
-
 			NetManager.Instance.SendToClient(packet, playerIndex);
 		}
 
@@ -157,7 +173,8 @@ public class CreativePowers
 			bool currentOption = _perPlayerIsEnabled[Main.myPlayer];
 			GroupOptionButton<bool> groupOptionButton = affectedElement as GroupOptionButton<bool>;
 			groupOptionButton.SetCurrentOption(currentOption);
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string originalText = Language.GetTextValue(groupOptionButton.IsSelected ? (_powerNameKey + "_Enabled") : (_powerNameKey + "_Disabled"));
 				CreativePowersHelper.AddDescriptionIfNeeded(ref originalText, _powerNameKey + "_Description");
 				CreativePowersHelper.AddUnlockTextIfNeeded(ref originalText, GetIsUnlocked(), _powerNameKey + "_Unlock");
@@ -169,7 +186,9 @@ public class CreativePowers
 		private void button_OnClick(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (GetIsUnlocked() && CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer))
+			{
 				RequestUse();
+			}
 		}
 
 		public abstract bool GetIsUnlocked();
@@ -178,12 +197,19 @@ public class CreativePowers
 	public abstract class APerPlayerSliderPower : ICreativePower, IOnPlayerJoining, IProvideSliderElement, IPowerSubcategoryElement
 	{
 		internal Point _iconLocation;
+
 		internal float _sliderCurrentValueCache;
+
 		internal string _powerNameKey;
+
 		internal float[] _cachePerPlayer = new float[256];
+
 		internal float _sliderDefaultValue;
+
 		private float _currentTargetValue;
+
 		private bool _needsToCommitChange;
+
 		private DateTime _nextTimeWeCanPush = DateTime.UtcNow;
 
 		public ushort PowerId { get; set; }
@@ -198,8 +224,9 @@ public class CreativePowers
 		{
 			value = 0f;
 			if (!_cachePerPlayer.IndexInRange(playerIndex))
+			{
 				return false;
-
+			}
 			value = RemapSliderValueToPowerValue(_cachePerPlayer[playerIndex]);
 			return true;
 		}
@@ -210,14 +237,17 @@ public class CreativePowers
 		{
 			int num = reader.ReadByte();
 			float num2 = reader.ReadSingle();
-			if (Main.netMode == 2) {
+			if (Main.netMode == 2)
+			{
 				num = userId;
 				if (!CreativePowersHelper.IsAvailableForPlayer(this, num))
+				{
 					return;
+				}
 			}
-
 			_cachePerPlayer[num] = num2;
-			if (num == Main.myPlayer) {
+			if (num == Main.myPlayer)
+			{
 				_sliderCurrentValueCache = num2;
 				UpdateInfoFromSliderValueCache();
 			}
@@ -243,14 +273,16 @@ public class CreativePowers
 		internal float GetSliderValue()
 		{
 			if (Main.netMode == 1 && _needsToCommitChange)
+			{
 				return _currentTargetValue;
-
+			}
 			return _sliderCurrentValueCache;
 		}
 
 		internal void SetValueKeyboard(float value)
 		{
-			if (value != _currentTargetValue && CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer)) {
+			if (value != _currentTargetValue && CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer))
+			{
 				_currentTargetValue = value;
 				_needsToCommitChange = true;
 			}
@@ -261,12 +293,15 @@ public class CreativePowers
 			float sliderValue = GetSliderValue();
 			float num = UILinksInitializer.HandleSliderVerticalInput(sliderValue, 0f, 1f, PlayerInput.CurrentProfile.InterfaceDeadzoneX, 0.35f);
 			if (num != sliderValue)
+			{
 				SetValueKeyboard(num);
+			}
 		}
 
 		public void PushChangeAndSetSlider(float value)
 		{
-			if (CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer)) {
+			if (CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer))
+			{
 				value = MathHelper.Clamp(value, 0f, 1f);
 				_sliderCurrentValueCache = value;
 				_currentTargetValue = value;
@@ -285,7 +320,8 @@ public class CreativePowers
 
 		private void categoryButton_OnUpdate(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				GroupOptionButton<int> groupOptionButton = affectedElement as GroupOptionButton<int>;
 				string originalText = Language.GetTextValue(_powerNameKey + (groupOptionButton.IsSelected ? "_Opened" : "_Closed"));
 				CreativePowersHelper.AddDescriptionIfNeeded(ref originalText, _powerNameKey + "_Description");
@@ -293,14 +329,15 @@ public class CreativePowers
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
 			}
-
 			AttemptPushingChange();
 		}
 
 		private void AttemptPushingChange()
 		{
 			if (_needsToCommitChange && DateTime.UtcNow.CompareTo(_nextTimeWeCanPush) != -1)
+			{
 				PushChange(_currentTargetValue);
+			}
 		}
 
 		internal void PushChange(float newSliderValue)
@@ -316,7 +353,8 @@ public class CreativePowers
 
 		public virtual void Reset()
 		{
-			for (int i = 0; i < _cachePerPlayer.Length; i++) {
+			for (int i = 0; i < _cachePerPlayer.Length; i++)
+			{
 				ResetForPlayer(i);
 			}
 		}
@@ -324,7 +362,8 @@ public class CreativePowers
 		public virtual void ResetForPlayer(int playerIndex)
 		{
 			_cachePerPlayer[playerIndex] = _sliderDefaultValue;
-			if (playerIndex == Main.myPlayer) {
+			if (playerIndex == Main.myPlayer)
+			{
 				_sliderCurrentValueCache = _sliderDefaultValue;
 				_currentTargetValue = _sliderDefaultValue;
 			}
@@ -341,7 +380,9 @@ public class CreativePowers
 	public abstract class ASharedButtonPower : ICreativePower
 	{
 		internal Point _iconLocation;
+
 		internal string _powerNameKey;
+
 		internal string _descriptionKey;
 
 		public ushort PowerId { get; set; }
@@ -366,7 +407,9 @@ public class CreativePowers
 		public void DeserializeNetMessage(BinaryReader reader, int userId)
 		{
 			if (Main.netMode != 2 || CreativePowersHelper.IsAvailableForPlayer(this, userId))
+			{
 				UsePower();
+			}
 		}
 
 		internal abstract void UsePower();
@@ -385,7 +428,8 @@ public class CreativePowers
 
 		private void button_OnUpdate(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string originalText = Language.GetTextValue(_powerNameKey);
 				CreativePowersHelper.AddDescriptionIfNeeded(ref originalText, _descriptionKey);
 				CreativePowersHelper.AddUnlockTextIfNeeded(ref originalText, GetIsUnlocked(), _powerNameKey + "_Unlock");
@@ -397,7 +441,9 @@ public class CreativePowers
 		private void button_OnClick(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer))
+			{
 				RequestUse();
+			}
 		}
 
 		public abstract bool GetIsUnlocked();
@@ -435,9 +481,11 @@ public class CreativePowers
 		public void DeserializeNetMessage(BinaryReader reader, int userId)
 		{
 			bool powerInfo = reader.ReadBoolean();
-			if (Main.netMode != 2 || CreativePowersHelper.IsAvailableForPlayer(this, userId)) {
+			if (Main.netMode != 2 || CreativePowersHelper.IsAvailableForPlayer(this, userId))
+			{
 				SetPowerInfo(powerInfo);
-				if (Main.netMode == 2) {
+				if (Main.netMode == 2)
+				{
 					NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, 1);
 					packet.Writer.Write(Enabled);
 					NetManager.Instance.Broadcast(packet);
@@ -467,7 +515,8 @@ public class CreativePowers
 			bool enabled = Enabled;
 			GroupOptionButton<bool> groupOptionButton = affectedElement as GroupOptionButton<bool>;
 			groupOptionButton.SetCurrentOption(enabled);
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string buttonTextKey = GetButtonTextKey();
 				string originalText = Language.GetTextValue(buttonTextKey + (groupOptionButton.IsSelected ? "_Enabled" : "_Disabled"));
 				CreativePowersHelper.AddDescriptionIfNeeded(ref originalText, buttonTextKey + "_Description");
@@ -480,7 +529,9 @@ public class CreativePowers
 		private void button_OnClick(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer))
+			{
 				RequestUse();
+			}
 		}
 
 		internal abstract void CustomizeButton(UIElement button);
@@ -493,11 +544,17 @@ public class CreativePowers
 	public abstract class ASharedSliderPower : ICreativePower, IOnPlayerJoining, IProvideSliderElement, IPowerSubcategoryElement
 	{
 		internal Point _iconLocation;
+
 		internal float _sliderCurrentValueCache;
+
 		internal string _powerNameKey;
+
 		internal bool _syncToJoiningPlayers = true;
+
 		internal float _currentTargetValue;
+
 		private bool _needsToCommitChange;
+
 		private DateTime _nextTimeWeCanPush = DateTime.UtcNow;
 
 		public ushort PowerId { get; set; }
@@ -511,10 +568,12 @@ public class CreativePowers
 		public void DeserializeNetMessage(BinaryReader reader, int userId)
 		{
 			float num = reader.ReadSingle();
-			if (Main.netMode != 2 || CreativePowersHelper.IsAvailableForPlayer(this, userId)) {
+			if (Main.netMode != 2 || CreativePowersHelper.IsAvailableForPlayer(this, userId))
+			{
 				_sliderCurrentValueCache = num;
 				UpdateInfoFromSliderValueCache();
-				if (Main.netMode == 2) {
+				if (Main.netMode == 2)
+				{
 					NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, 4);
 					packet.Writer.Write(num);
 					NetManager.Instance.Broadcast(packet);
@@ -541,22 +600,29 @@ public class CreativePowers
 		internal float GetSliderValue()
 		{
 			if (Main.netMode == 1 && _needsToCommitChange)
+			{
 				return _currentTargetValue;
-
+			}
 			return GetSliderValueInner();
 		}
 
-		internal virtual float GetSliderValueInner() => _sliderCurrentValueCache;
+		internal virtual float GetSliderValueInner()
+		{
+			return _sliderCurrentValueCache;
+		}
 
 		internal void SetValueKeyboard(float value)
 		{
 			if (value != _currentTargetValue)
+			{
 				SetValueKeyboardForced(value);
+			}
 		}
 
 		internal void SetValueKeyboardForced(float value)
 		{
-			if (CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer)) {
+			if (CreativePowersHelper.IsAvailableForPlayer(this, Main.myPlayer))
+			{
 				_currentTargetValue = value;
 				_needsToCommitChange = true;
 			}
@@ -567,7 +633,9 @@ public class CreativePowers
 			float sliderValue = GetSliderValue();
 			float num = UILinksInitializer.HandleSliderVerticalInput(sliderValue, 0f, 1f, PlayerInput.CurrentProfile.InterfaceDeadzoneX, 0.35f);
 			if (num != sliderValue)
+			{
 				SetValueKeyboard(num);
+			}
 		}
 
 		public GroupOptionButton<int> GetOptionButton(CreativePowerUIElementRequestInfo info, int optionIndex, int currentOptionIndex)
@@ -581,7 +649,8 @@ public class CreativePowers
 
 		private void categoryButton_OnUpdate(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				GroupOptionButton<int> groupOptionButton = affectedElement as GroupOptionButton<int>;
 				string originalText = Language.GetTextValue(_powerNameKey + (groupOptionButton.IsSelected ? "_Opened" : "_Closed"));
 				CreativePowersHelper.AddDescriptionIfNeeded(ref originalText, _powerNameKey + "_Description");
@@ -589,13 +658,13 @@ public class CreativePowers
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
 			}
-
 			AttemptPushingChange();
 		}
 
 		private void AttemptPushingChange()
 		{
-			if (_needsToCommitChange && DateTime.UtcNow.CompareTo(_nextTimeWeCanPush) != -1) {
+			if (_needsToCommitChange && DateTime.UtcNow.CompareTo(_nextTimeWeCanPush) != -1)
+			{
 				_needsToCommitChange = false;
 				_sliderCurrentValueCache = _currentTargetValue;
 				_nextTimeWeCanPush = DateTime.UtcNow;
@@ -612,7 +681,8 @@ public class CreativePowers
 
 		public void OnPlayerJoining(int playerIndex)
 		{
-			if (_syncToJoiningPlayers) {
+			if (_syncToJoiningPlayers)
+			{
 				NetPacket packet = NetCreativePowersModule.PreparePacket(PowerId, 4);
 				packet.Writer.Write(_sliderCurrentValueCache);
 				NetManager.Instance.SendToClient(packet, playerIndex);
@@ -630,7 +700,10 @@ public class CreativePowers
 			_iconLocation = CreativePowersHelper.CreativePowerIconLocations.Godmode;
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(Player player, BinaryWriter writer)
 		{
@@ -652,7 +725,9 @@ public class CreativePowers
 		public void ApplyLoadedDataToOutOfPlayerFields(Player player)
 		{
 			if (player.savedPerPlayerFieldsThatArentInThePlayerClass.godmodePowerEnabled != IsEnabledForPlayer(player.whoAmI))
+			{
 				RequestUse();
+			}
 		}
 	}
 
@@ -665,7 +740,10 @@ public class CreativePowers
 			_defaultToggleState = true;
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(Player player, BinaryWriter writer)
 		{
@@ -687,7 +765,9 @@ public class CreativePowers
 		public void ApplyLoadedDataToOutOfPlayerFields(Player player)
 		{
 			if (player.savedPerPlayerFieldsThatArentInThePlayerClass.farPlacementRangePowerEnabled != IsEnabledForPlayer(player.whoAmI))
+			{
 				RequestUse();
+			}
 		}
 	}
 
@@ -696,7 +776,9 @@ public class CreativePowers
 		internal override void UsePower()
 		{
 			if (Main.netMode != 1)
+			{
 				Main.SkipToTime(0, setIsDayTime: true);
+			}
 		}
 
 		internal override void OnCreation()
@@ -706,7 +788,10 @@ public class CreativePowers
 			_iconLocation = CreativePowersHelper.CreativePowerIconLocations.TimeDawn;
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 	}
 
 	public class StartNightImmediately : ASharedButtonPower
@@ -714,7 +799,9 @@ public class CreativePowers
 		internal override void UsePower()
 		{
 			if (Main.netMode != 1)
+			{
 				Main.SkipToTime(0, setIsDayTime: false);
+			}
 		}
 
 		internal override void OnCreation()
@@ -724,7 +811,10 @@ public class CreativePowers
 			_iconLocation = CreativePowersHelper.CreativePowerIconLocations.TimeDusk;
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 	}
 
 	public class StartNoonImmediately : ASharedButtonPower
@@ -732,7 +822,9 @@ public class CreativePowers
 		internal override void UsePower()
 		{
 			if (Main.netMode != 1)
+			{
 				Main.SkipToTime(27000, setIsDayTime: true);
+			}
 		}
 
 		internal override void OnCreation()
@@ -742,7 +834,10 @@ public class CreativePowers
 			_iconLocation = CreativePowersHelper.CreativePowerIconLocations.TimeNoon;
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 	}
 
 	public class StartMidnightImmediately : ASharedButtonPower
@@ -750,7 +845,9 @@ public class CreativePowers
 		internal override void UsePower()
 		{
 			if (Main.netMode != 1)
+			{
 				Main.SkipToTime(16200, setIsDayTime: false);
+			}
 		}
 
 		internal override void OnCreation()
@@ -760,7 +857,10 @@ public class CreativePowers
 			_iconLocation = CreativePowersHelper.CreativePowerIconLocations.TimeMidnight;
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 	}
 
 	public class ModifyTimeRate : ASharedSliderPower, IPersistentPerWorldContent
@@ -795,29 +895,32 @@ public class CreativePowers
 			uIPanel.VAlign = 0.5f;
 			uIPanel.Append(uIVerticalSlider);
 			uIPanel.OnUpdate += CreativePowersHelper.UpdateUseMouseInterface;
-			UIText uIText = new UIText("x24") {
+			UIText uIText = new UIText("x24")
+			{
 				HAlign = 1f,
 				VAlign = 0f
 			};
-
+			uIText.OnUpdate += UpdateMouseOverNoItemText;
 			uIText.OnMouseOver += Button_OnMouseOver;
 			uIText.OnMouseOut += Button_OnMouseOut;
 			uIText.OnLeftClick += topText_OnClick;
 			uIPanel.Append(uIText);
-			UIText uIText2 = new UIText("x12") {
+			UIText uIText2 = new UIText("x12")
+			{
 				HAlign = 1f,
 				VAlign = 0.5f
 			};
-
+			uIText2.OnUpdate += UpdateMouseOverNoItemText;
 			uIText2.OnMouseOver += Button_OnMouseOver;
 			uIText2.OnMouseOut += Button_OnMouseOut;
 			uIText2.OnLeftClick += middleText_OnClick;
 			uIPanel.Append(uIText2);
-			UIText uIText3 = new UIText("x1") {
+			UIText uIText3 = new UIText("x1")
+			{
 				HAlign = 1f,
 				VAlign = 1f
 			};
-
+			uIText3.OnUpdate += UpdateMouseOverNoItemText;
 			uIText3.OnMouseOver += Button_OnMouseOver;
 			uIText3.OnMouseOut += Button_OnMouseOut;
 			uIText3.OnLeftClick += bottomText_OnClick;
@@ -846,20 +949,25 @@ public class CreativePowers
 		private void Button_OnMouseOut(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Color.Black;
-
+			}
 			SoundEngine.PlaySound(12);
 		}
 
 		private void Button_OnMouseOver(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Main.OurFavoriteColor;
-
+			}
 			SoundEngine.PlaySound(12);
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(BinaryWriter writer)
 		{
@@ -877,9 +985,18 @@ public class CreativePowers
 			reader.ReadSingle();
 		}
 
+		private void UpdateMouseOverNoItemText(UIElement affectedElement)
+		{
+			if (affectedElement.IsMouseHovering)
+			{
+				Main.instance.MouseTextNoOverride(string.Empty, 0, 0);
+			}
+		}
+
 		private void UpdateSliderAndShowMultiplierMouseOver(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string originalText = "x" + TargetTimeRate;
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
@@ -906,10 +1023,13 @@ public class CreativePowers
 		internal override void UpdateInfoFromSliderValueCache()
 		{
 			if (_sliderCurrentValueCache <= 0.33f)
+			{
 				StrengthMultiplierToGiveNPCs = Utils.Remap(_sliderCurrentValueCache, 0f, 0.33f, 0.5f, 1f);
+			}
 			else
+			{
 				StrengthMultiplierToGiveNPCs = Utils.Remap(_sliderCurrentValueCache, 0.33f, 1f, 1f, 3f);
-
+			}
 			float strengthMultiplierToGiveNPCs = (float)Math.Round(StrengthMultiplierToGiveNPCs * 20f) / 20f;
 			StrengthMultiplierToGiveNPCs = strengthMultiplierToGiveNPCs;
 		}
@@ -958,22 +1078,24 @@ public class CreativePowers
 
 		private static void AddIndication(UIPanel panel, float yAnchor, string indicationText, string iconImagePath, UIElement.ElementEvent updateEvent, UIElement.MouseEvent clickEvent)
 		{
-			UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>(iconImagePath)) {
+			UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>(iconImagePath, AssetRequestMode.ImmediateLoad))
+			{
 				HAlign = 1f,
 				VAlign = yAnchor,
 				Left = new StyleDimension(4f, 0f),
 				Top = new StyleDimension(2f, 0f),
 				RemoveFloatingPointsFromDrawPosition = true
 			};
-
 			uIImage.OnMouseOut += Button_OnMouseOut;
 			uIImage.OnMouseOver += Button_OnMouseOver;
 			if (updateEvent != null)
+			{
 				uIImage.OnUpdate += updateEvent;
-
+			}
 			if (clickEvent != null)
+			{
 				uIImage.OnLeftClick += clickEvent;
-
+			}
 			panel.Append(uIImage);
 		}
 
@@ -989,7 +1111,8 @@ public class CreativePowers
 
 		private void MouseOver_Journey(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string textValue = Language.GetTextValue("UI.Creative");
 				Main.instance.MouseTextNoOverride(textValue, 0, 0);
 			}
@@ -997,7 +1120,8 @@ public class CreativePowers
 
 		private void MouseOver_Normal(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string textValue = Language.GetTextValue("UI.Normal");
 				Main.instance.MouseTextNoOverride(textValue, 0, 0);
 			}
@@ -1005,7 +1129,8 @@ public class CreativePowers
 
 		private void MouseOver_Expert(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string textValue = Language.GetTextValue("UI.Expert");
 				Main.instance.MouseTextNoOverride(textValue, 0, 0);
 			}
@@ -1013,7 +1138,8 @@ public class CreativePowers
 
 		private void MouseOver_Master(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string textValue = Language.GetTextValue("UI.Master");
 				Main.instance.MouseTextNoOverride(textValue, 0, 0);
 			}
@@ -1021,20 +1147,24 @@ public class CreativePowers
 
 		private void UpdateSliderColorAndShowMultiplierMouseOver(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string originalText = "x" + StrengthMultiplierToGiveNPCs.ToString("F2");
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
 			}
-
-			if (affectedElement is UIVerticalSlider uIVerticalSlider) {
+			if (affectedElement is UIVerticalSlider uIVerticalSlider)
+			{
 				uIVerticalSlider.EmptyColor = Color.Black;
 				Color filledColor = (Main.masterMode ? Main.hcColor : (Main.expertMode ? Main.mcColor : ((!(StrengthMultiplierToGiveNPCs < 1f)) ? Color.White : Main.creativeModeColor)));
 				uIVerticalSlider.FilledColor = filledColor;
 			}
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(BinaryWriter writer)
 		{
@@ -1067,8 +1197,15 @@ public class CreativePowers
 			Main.windSpeedCurrent = (Main.windSpeedTarget = MathHelper.Lerp(-0.8f, 0.8f, _sliderCurrentValueCache));
 		}
 
-		internal override float GetSliderValueInner() => Utils.GetLerpValue(-0.8f, 0.8f, Main.windSpeedTarget);
-		public override bool GetIsUnlocked() => true;
+		internal override float GetSliderValueInner()
+		{
+			return Utils.GetLerpValue(-0.8f, 0.8f, Main.windSpeedTarget);
+		}
+
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public override UIElement ProvideSlider()
 		{
@@ -1081,29 +1218,32 @@ public class CreativePowers
 			uIPanel.VAlign = 0.5f;
 			uIPanel.Append(uIVerticalSlider);
 			uIPanel.OnUpdate += CreativePowersHelper.UpdateUseMouseInterface;
-			UIText uIText = new UIText(Language.GetText("CreativePowers.WindWest")) {
+			UIText uIText = new UIText(Language.GetText("CreativePowers.WindWest"))
+			{
 				HAlign = 1f,
 				VAlign = 0f
 			};
-
+			uIText.OnUpdate += UpdateMouseOverNoItemText;
 			uIText.OnMouseOut += Button_OnMouseOut;
 			uIText.OnMouseOver += Button_OnMouseOver;
 			uIText.OnLeftClick += topText_OnClick;
 			uIPanel.Append(uIText);
-			UIText uIText2 = new UIText(Language.GetText("CreativePowers.WindEast")) {
+			UIText uIText2 = new UIText(Language.GetText("CreativePowers.WindEast"))
+			{
 				HAlign = 1f,
 				VAlign = 1f
 			};
-
+			uIText2.OnUpdate += UpdateMouseOverNoItemText;
 			uIText2.OnMouseOut += Button_OnMouseOut;
 			uIText2.OnMouseOver += Button_OnMouseOver;
 			uIText2.OnLeftClick += bottomText_OnClick;
 			uIPanel.Append(uIText2);
-			UIText uIText3 = new UIText(Language.GetText("CreativePowers.WindNone")) {
+			UIText uIText3 = new UIText(Language.GetText("CreativePowers.WindNone"))
+			{
 				HAlign = 1f,
 				VAlign = 0.5f
 			};
-
+			uIText3.OnUpdate += UpdateMouseOverNoItemText;
 			uIText3.OnMouseOut += Button_OnMouseOut;
 			uIText3.OnMouseOver += Button_OnMouseOver;
 			uIText3.OnLeftClick += middleText_OnClick;
@@ -1132,29 +1272,43 @@ public class CreativePowers
 		private void Button_OnMouseOut(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Color.Black;
-
+			}
 			SoundEngine.PlaySound(12);
 		}
 
 		private void Button_OnMouseOver(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Main.OurFavoriteColor;
-
+			}
 			SoundEngine.PlaySound(12);
+		}
+
+		private void UpdateMouseOverNoItemText(UIElement affectedElement)
+		{
+			if (affectedElement.IsMouseHovering)
+			{
+				Main.instance.MouseTextNoOverride(string.Empty, 0, 0);
+			}
 		}
 
 		private void UpdateSliderAndShowMultiplierMouseOver(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				int num = (int)(Main.windSpeedCurrent * 50f);
 				string originalText = "";
 				if (num < 0)
+				{
 					originalText += Language.GetTextValue("GameUI.EastWind", Math.Abs(num));
+				}
 				else if (num > 0)
+				{
 					originalText += Language.GetTextValue("GameUI.WestWind", num);
-
+				}
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
 			}
@@ -1173,16 +1327,24 @@ public class CreativePowers
 		internal override void UpdateInfoFromSliderValueCache()
 		{
 			if (_sliderCurrentValueCache == 0f)
-				Main.StopRain();
+			{
+				Main.StopRain(instant: true);
+			}
 			else
-				Main.StartRain();
-
-			Main.cloudAlpha = _sliderCurrentValueCache;
-			Main.maxRaining = _sliderCurrentValueCache;
+			{
+				Main.StartRain(instant: true, _sliderCurrentValueCache);
+			}
 		}
 
-		internal override float GetSliderValueInner() => Main.cloudAlpha;
-		public override bool GetIsUnlocked() => true;
+		internal override float GetSliderValueInner()
+		{
+			return Main.cloudAlpha;
+		}
+
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public override UIElement ProvideSlider()
 		{
@@ -1195,29 +1357,32 @@ public class CreativePowers
 			uIPanel.VAlign = 0.5f;
 			uIPanel.Append(uIVerticalSlider);
 			uIPanel.OnUpdate += CreativePowersHelper.UpdateUseMouseInterface;
-			UIText uIText = new UIText(Language.GetText("CreativePowers.WeatherMonsoon")) {
+			UIText uIText = new UIText(Language.GetText("CreativePowers.WeatherMonsoon"))
+			{
 				HAlign = 1f,
 				VAlign = 0f
 			};
-
+			uIText.OnUpdate += UpdateMouseOverNoItemText;
 			uIText.OnMouseOut += Button_OnMouseOut;
 			uIText.OnMouseOver += Button_OnMouseOver;
 			uIText.OnLeftClick += topText_OnClick;
 			uIPanel.Append(uIText);
-			UIText uIText2 = new UIText(Language.GetText("CreativePowers.WeatherClearSky")) {
+			UIText uIText2 = new UIText(Language.GetText("CreativePowers.WeatherClearSky"))
+			{
 				HAlign = 1f,
 				VAlign = 1f
 			};
-
+			uIText2.OnUpdate += UpdateMouseOverNoItemText;
 			uIText2.OnMouseOut += Button_OnMouseOut;
 			uIText2.OnMouseOver += Button_OnMouseOver;
 			uIText2.OnLeftClick += bottomText_OnClick;
 			uIPanel.Append(uIText2);
-			UIText uIText3 = new UIText(Language.GetText("CreativePowers.WeatherDrizzle")) {
+			UIText uIText3 = new UIText(Language.GetText("CreativePowers.WeatherDrizzle"))
+			{
 				HAlign = 1f,
 				VAlign = 0.5f
 			};
-
+			uIText3.OnUpdate += UpdateMouseOverNoItemText;
 			uIText3.OnMouseOut += Button_OnMouseOut;
 			uIText3.OnMouseOver += Button_OnMouseOver;
 			uIText3.OnLeftClick += middleText_OnClick;
@@ -1246,22 +1411,33 @@ public class CreativePowers
 		private void Button_OnMouseOut(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Color.Black;
-
+			}
 			SoundEngine.PlaySound(12);
 		}
 
 		private void Button_OnMouseOver(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Main.OurFavoriteColor;
-
+			}
 			SoundEngine.PlaySound(12);
+		}
+
+		private void UpdateMouseOverNoItemText(UIElement affectedElement)
+		{
+			if (affectedElement.IsMouseHovering)
+			{
+				Main.instance.MouseTextNoOverride(string.Empty, 0, 0);
+			}
 		}
 
 		private void UpdateSliderAndShowMultiplierMouseOver(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string originalText = Main.maxRaining.ToString("P0");
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
@@ -1276,8 +1452,15 @@ public class CreativePowers
 			button.Append(CreativePowersHelper.GetIconImage(CreativePowersHelper.CreativePowerIconLocations.FreezeTime));
 		}
 
-		internal override string GetButtonTextKey() => "CreativePowers.FreezeTime";
-		public override bool GetIsUnlocked() => true;
+		internal override string GetButtonTextKey()
+		{
+			return "CreativePowers.FreezeTime";
+		}
+
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(BinaryWriter writer)
 		{
@@ -1303,8 +1486,15 @@ public class CreativePowers
 			button.Append(CreativePowersHelper.GetIconImage(CreativePowersHelper.CreativePowerIconLocations.WindFreeze));
 		}
 
-		internal override string GetButtonTextKey() => "CreativePowers.FreezeWindDirectionAndStrength";
-		public override bool GetIsUnlocked() => true;
+		internal override string GetButtonTextKey()
+		{
+			return "CreativePowers.FreezeWindDirectionAndStrength";
+		}
+
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(BinaryWriter writer)
 		{
@@ -1330,8 +1520,15 @@ public class CreativePowers
 			button.Append(CreativePowersHelper.GetIconImage(CreativePowersHelper.CreativePowerIconLocations.RainFreeze));
 		}
 
-		internal override string GetButtonTextKey() => "CreativePowers.FreezeRainPower";
-		public override bool GetIsUnlocked() => true;
+		internal override string GetButtonTextKey()
+		{
+			return "CreativePowers.FreezeRainPower";
+		}
+
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(BinaryWriter writer)
 		{
@@ -1357,8 +1554,15 @@ public class CreativePowers
 			button.Append(CreativePowersHelper.GetIconImage(CreativePowersHelper.CreativePowerIconLocations.StopBiomeSpread));
 		}
 
-		internal override string GetButtonTextKey() => "CreativePowers.StopBiomeSpread";
-		public override bool GetIsUnlocked() => true;
+		internal override string GetButtonTextKey()
+		{
+			return "CreativePowers.StopBiomeSpread";
+		}
+
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(BinaryWriter writer)
 		{
@@ -1391,11 +1595,13 @@ public class CreativePowers
 		public bool GetShouldDisableSpawnsFor(int playerIndex)
 		{
 			if (!_cachePerPlayer.IndexInRange(playerIndex))
+			{
 				return false;
-
+			}
 			if (playerIndex == Main.myPlayer)
+			{
 				return _sliderCurrentValueCache == 0f;
-
+			}
 			return _cachePerPlayer[playerIndex] == 0f;
 		}
 
@@ -1406,8 +1612,9 @@ public class CreativePowers
 		public override float RemapSliderValueToPowerValue(float sliderValue)
 		{
 			if (sliderValue < 0.5f)
+			{
 				return Utils.Remap(sliderValue, 0f, 0.5f, 0.1f, 1f);
-
+			}
 			return Utils.Remap(sliderValue, 0.5f, 1f, 1f, 10f);
 		}
 
@@ -1422,29 +1629,32 @@ public class CreativePowers
 			uIPanel.VAlign = 0.5f;
 			uIPanel.Append(uIVerticalSlider);
 			uIPanel.OnUpdate += CreativePowersHelper.UpdateUseMouseInterface;
-			UIText uIText = new UIText("x10") {
+			UIText uIText = new UIText("x10")
+			{
 				HAlign = 1f,
 				VAlign = 0f
 			};
-
+			uIText.OnUpdate += UpdateMouseOverNoItemText;
 			uIText.OnMouseOut += Button_OnMouseOut;
 			uIText.OnMouseOver += Button_OnMouseOver;
 			uIText.OnLeftClick += topText_OnClick;
 			uIPanel.Append(uIText);
-			UIText uIText2 = new UIText("x1") {
+			UIText uIText2 = new UIText("x1")
+			{
 				HAlign = 1f,
 				VAlign = 0.5f
 			};
-
+			uIText2.OnUpdate += UpdateMouseOverNoItemText;
 			uIText2.OnMouseOut += Button_OnMouseOut;
 			uIText2.OnMouseOver += Button_OnMouseOver;
 			uIText2.OnLeftClick += middleText_OnClick;
 			uIPanel.Append(uIText2);
-			UIText uIText3 = new UIText("x0") {
+			UIText uIText3 = new UIText("x0")
+			{
 				HAlign = 1f,
 				VAlign = 1f
 			};
-
+			uIText3.OnUpdate += UpdateMouseOverNoItemText;
 			uIText3.OnMouseOut += Button_OnMouseOut;
 			uIText3.OnMouseOver += Button_OnMouseOver;
 			uIText3.OnLeftClick += bottomText_OnClick;
@@ -1455,16 +1665,18 @@ public class CreativePowers
 		private void Button_OnMouseOut(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Color.Black;
-
+			}
 			SoundEngine.PlaySound(12);
 		}
 
 		private void Button_OnMouseOver(UIMouseEvent evt, UIElement listeningElement)
 		{
 			if (listeningElement is UIText uIText)
+			{
 				uIText.ShadowColor = Main.OurFavoriteColor;
-
+			}
 			SoundEngine.PlaySound(12);
 		}
 
@@ -1486,19 +1698,32 @@ public class CreativePowers
 			SoundEngine.PlaySound(12);
 		}
 
+		private void UpdateMouseOverNoItemText(UIElement affectedElement)
+		{
+			if (affectedElement.IsMouseHovering)
+			{
+				Main.instance.MouseTextNoOverride(string.Empty, 0, 0);
+			}
+		}
+
 		private void UpdateSliderAndShowMultiplierMouseOver(UIElement affectedElement)
 		{
-			if (affectedElement.IsMouseHovering) {
+			if (affectedElement.IsMouseHovering)
+			{
 				string originalText = "x" + RemapSliderValueToPowerValue(GetSliderValue()).ToString("F2");
 				if (GetShouldDisableSpawnsFor(Main.myPlayer))
+				{
 					originalText = Language.GetTextValue(_powerNameKey + "EnemySpawnsDisabled");
-
+				}
 				CreativePowersHelper.AddPermissionTextIfNeeded(this, ref originalText);
 				Main.instance.MouseTextNoOverride(originalText, 0, 0);
 			}
 		}
 
-		public override bool GetIsUnlocked() => true;
+		public override bool GetIsUnlocked()
+		{
+			return true;
+		}
 
 		public void Save(Player player, BinaryWriter writer)
 		{

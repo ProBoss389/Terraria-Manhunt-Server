@@ -7,6 +7,7 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIItemIcon : UIElement
 {
 	private Item _item;
+
 	private bool _blackedOut;
 
 	public UIItemIcon(Item item, bool blackedOut)
@@ -19,6 +20,7 @@ public class UIItemIcon : UIElement
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		ItemSlot.DrawItemIcon(screenPositionForItemCenter: GetDimensions().Center(), item: _item, context: 31, spriteBatch: spriteBatch, scale: _item.scale, sizeLimit: 32f, environmentColor: _blackedOut ? Color.Black : Color.White);
+		CalculatedStyle dimensions = GetDimensions();
+		ItemSlot.DrawItemIcon(_item, 31, spriteBatch, dimensions.Center(), _item.scale, 32f, _blackedOut ? Color.Black : Color.White);
 	}
 }

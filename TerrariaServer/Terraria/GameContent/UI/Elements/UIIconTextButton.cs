@@ -12,15 +12,25 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIIconTextButton : UIElement
 {
 	private readonly Asset<Texture2D> _BasePanelTexture;
+
 	private readonly Asset<Texture2D> _hoveredTexture;
+
 	private readonly Asset<Texture2D> _iconTexture;
+
 	private Color _color;
+
 	private Color _hoverColor;
+
 	public float FadeFromBlack = 1f;
+
 	private float _whiteLerp = 0.7f;
+
 	private float _opacity = 0.7f;
+
 	private bool _hovered;
+
 	private bool _soundedHover;
+
 	private UIText _title;
 
 	public UIIconTextButton(LocalizedText title, Color textColor, string iconTexturePath, float textSize = 1f, float titleAlignmentX = 0.5f, float titleWidthReduction = 10f)
@@ -28,33 +38,38 @@ public class UIIconTextButton : UIElement
 		Width = StyleDimension.FromPixels(44f);
 		Height = StyleDimension.FromPixels(34f);
 		_hoverColor = Color.White;
-		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/PanelGrayscale");
-		_hoveredTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
+		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/PanelGrayscale", AssetRequestMode.ImmediateLoad);
+		_hoveredTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
 		if (iconTexturePath != null)
-			_iconTexture = Main.Assets.Request<Texture2D>(iconTexturePath);
-
+		{
+			_iconTexture = Main.Assets.Request<Texture2D>(iconTexturePath, AssetRequestMode.ImmediateLoad);
+		}
 		SetColor(Color.Lerp(Color.Black, Colors.InventoryDefaultColor, FadeFromBlack), 1f);
 		if (title != null)
+		{
 			SetText(title, textSize, textColor);
+		}
 	}
 
 	public void SetText(LocalizedText text, float textSize, Color color)
 	{
 		if (_title != null)
+		{
 			_title.Remove();
-
-		UIText uIText = new UIText(text, textSize) {
+		}
+		UIText uIText = new UIText(text, textSize)
+		{
 			HAlign = 0f,
 			VAlign = 0.5f,
 			Top = StyleDimension.FromPixels(0f),
 			Left = StyleDimension.FromPixelsAndPercent(10f, 0f),
 			IgnoresMouseInteraction = true
 		};
-
 		uIText.TextColor = color;
 		Append(uIText);
 		_title = uIText;
-		if (_iconTexture != null) {
+		if (_iconTexture != null)
+		{
 			Width.Set(_title.GetDimensions().Width + (float)_iconTexture.Width() + 26f, 0f);
 			Height.Set(Math.Max(_title.GetDimensions().Height, _iconTexture.Height()) + 16f, 0f);
 		}
@@ -62,21 +77,24 @@ public class UIIconTextButton : UIElement
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		if (_hovered) {
+		if (_hovered)
+		{
 			if (!_soundedHover)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_soundedHover = true;
 		}
-		else {
+		else
+		{
 			_soundedHover = false;
 		}
-
 		CalculatedStyle dimensions = GetDimensions();
 		Color color = _color;
 		float opacity = _opacity;
 		Utils.DrawSplicedPanel(spriteBatch, _BasePanelTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, Color.Lerp(Color.Black, color, FadeFromBlack) * opacity);
-		if (_iconTexture != null) {
+		if (_iconTexture != null)
+		{
 			Color color2 = Color.Lerp(color, Color.White, _whiteLerp) * opacity;
 			spriteBatch.Draw(_iconTexture.Value, new Vector2(dimensions.X + dimensions.Width - (float)_iconTexture.Width() - 5f, dimensions.Center().Y - (float)(_iconTexture.Height() / 2)), color2);
 		}

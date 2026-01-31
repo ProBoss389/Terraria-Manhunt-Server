@@ -8,6 +8,7 @@ namespace Terraria.Social.WeGame;
 public class IPCMessage
 {
 	private IPCMessageType _cmd;
+
 	private string _jsonData;
 
 	public void Build<T>(IPCMessageType cmd, T t)
@@ -38,5 +39,8 @@ public class IPCMessage
 		return list.ToArray();
 	}
 
-	public IPCMessageType GetCmd() => _cmd;
+	public IPCMessageType GetCmd()
+	{
+		return _cmd;
+	}
 }

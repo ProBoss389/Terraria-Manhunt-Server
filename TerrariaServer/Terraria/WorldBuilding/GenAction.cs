@@ -5,7 +5,9 @@ namespace Terraria.WorldBuilding;
 public abstract class GenAction : GenBase
 {
 	public GenAction NextAction;
+
 	public ShapeData OutputData;
+
 	private bool _returnFalseOnFailure = true;
 
 	public abstract bool Apply(Point origin, int x, int y, params object[] args);
@@ -13,11 +15,13 @@ public abstract class GenAction : GenBase
 	protected bool UnitApply(Point origin, int x, int y, params object[] args)
 	{
 		if (OutputData != null)
+		{
 			OutputData.Add(x - origin.X, y - origin.Y);
-
+		}
 		if (NextAction != null)
+		{
 			return NextAction.Apply(origin, x, y, args);
-
+		}
 		return true;
 	}
 
@@ -27,7 +31,10 @@ public abstract class GenAction : GenBase
 		return this;
 	}
 
-	protected bool Fail() => !_returnFalseOnFailure;
+	protected bool Fail()
+	{
+		return !_returnFalseOnFailure;
+	}
 
 	public GenAction Output(ShapeData data)
 	{

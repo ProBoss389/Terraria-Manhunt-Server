@@ -7,6 +7,7 @@ namespace Terraria.GameContent.RGB;
 public class BrainShader : ChromaShader
 {
 	private readonly Vector4 _brainColor;
+
 	private readonly Vector4 _veinColor;
 
 	public BrainShader(Color brainColor, Color veinColor)
@@ -15,25 +16,23 @@ public class BrainShader : ChromaShader
 		_veinColor = veinColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.Low
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.Low })]
 	private void ProcessLowDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
 		Vector4 color = Vector4.Lerp(_brainColor, _veinColor, Math.Max(0f, (float)Math.Sin(time * 3f)));
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			fragment.SetColor(i, color);
 		}
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.High
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.High })]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
 		new Vector2(1.6f, 0.5f);
 		Vector4 value = Vector4.Lerp(_brainColor, _veinColor, Math.Max(0f, (float)Math.Sin(time * 3f)) * 0.5f + 0.5f);
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			Vector4 brainColor = _brainColor;
 			float dynamicNoise = NoiseHelper.GetDynamicNoise(canvasPositionOfIndex * 0.15f + new Vector2(time * 0.002f), time * 0.03f);

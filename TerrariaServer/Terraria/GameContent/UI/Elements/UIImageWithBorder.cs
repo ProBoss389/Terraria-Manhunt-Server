@@ -8,6 +8,7 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIImageWithBorder : UIImage
 {
 	private Asset<Texture2D> _borderTexture;
+
 	private Texture2D _nonReloadingBorderTexture;
 
 	public UIImageWithBorder(Asset<Texture2D> texture, Asset<Texture2D> borderTexture)
@@ -44,21 +45,24 @@ public class UIImageWithBorder : UIImage
 		CalculatedStyle dimensions = GetDimensions();
 		Texture2D texture2D = null;
 		if (_borderTexture != null)
+		{
 			texture2D = _borderTexture.Value;
-
+		}
 		if (_nonReloadingBorderTexture != null)
+		{
 			texture2D = _nonReloadingBorderTexture;
-
-		if (ScaleToFit) {
+		}
+		if (ScaleToFit)
+		{
 			spriteBatch.Draw(texture2D, dimensions.ToRectangle(), Color);
 			return;
 		}
-
 		Vector2 vector = texture2D.Size();
 		Vector2 vector2 = dimensions.Position() + vector * (1f - ImageScale) / 2f + vector * NormalizedOrigin;
 		if (RemoveFloatingPointsFromDrawPosition)
+		{
 			vector2 = vector2.Floor();
-
+		}
 		spriteBatch.Draw(texture2D, vector2, null, Color, Rotation, vector * NormalizedOrigin, ImageScale, SpriteEffects.None, 0f);
 	}
 }

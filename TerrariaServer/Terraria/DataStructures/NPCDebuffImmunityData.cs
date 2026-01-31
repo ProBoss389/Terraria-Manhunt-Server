@@ -5,13 +5,17 @@ namespace Terraria.DataStructures;
 public class NPCDebuffImmunityData
 {
 	public bool ImmuneToWhips;
+
 	public bool ImmuneToAllBuffsThatAreNotWhips;
+
 	public int[] SpecificallyImmuneTo;
 
 	public void ApplyToNPC(NPC npc)
 	{
-		if (ImmuneToWhips || ImmuneToAllBuffsThatAreNotWhips) {
-			for (int i = 1; i < BuffID.Count; i++) {
+		if (ImmuneToWhips || ImmuneToAllBuffsThatAreNotWhips)
+		{
+			for (int i = 1; i < BuffID.Count; i++)
+			{
 				bool flag = BuffID.Sets.IsAnNPCWhipDebuff[i];
 				bool flag2 = false;
 				flag2 |= flag && ImmuneToWhips;
@@ -19,9 +23,10 @@ public class NPCDebuffImmunityData
 				npc.buffImmune[i] = flag2;
 			}
 		}
-
-		if (SpecificallyImmuneTo != null) {
-			for (int j = 0; j < SpecificallyImmuneTo.Length; j++) {
+		if (SpecificallyImmuneTo != null)
+		{
+			for (int j = 0; j < SpecificallyImmuneTo.Length; j++)
+			{
 				int num = SpecificallyImmuneTo[j];
 				npc.buffImmune[num] = true;
 			}

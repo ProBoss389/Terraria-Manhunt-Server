@@ -10,15 +10,19 @@ namespace Terraria.GameContent.UI.Elements;
 public class EmoteButton : UIElement
 {
 	private Asset<Texture2D> _texture;
+
 	private Asset<Texture2D> _textureBorder;
+
 	private int _emoteIndex;
+
 	private bool _hovered;
+
 	private int _frameCounter;
 
 	public EmoteButton(int emoteIndex)
 	{
-		_texture = Main.Assets.Request<Texture2D>("Images/Extra_" + (short)48);
-		_textureBorder = Main.Assets.Request<Texture2D>("Images/UI/EmoteBubbleBorder");
+		_texture = Main.Assets.Request<Texture2D>("Images/Extra_" + (short)48, AssetRequestMode.ImmediateLoad);
+		_textureBorder = Main.Assets.Request<Texture2D>("Images/UI/EmoteBubbleBorder", AssetRequestMode.ImmediateLoad);
 		_emoteIndex = emoteIndex;
 		Rectangle frame = GetFrame();
 		Width.Set(frame.Width, 0f);
@@ -34,7 +38,9 @@ public class EmoteButton : UIElement
 	private void UpdateFrame()
 	{
 		if (++_frameCounter >= 20)
+		{
 			_frameCounter = 0;
+		}
 	}
 
 	public override void Update(GameTime gameTime)
@@ -55,12 +61,14 @@ public class EmoteButton : UIElement
 		Color white = Color.White;
 		Color color = Color.Black;
 		if (_hovered)
+		{
 			color = Main.OurFavoriteColor;
-
+		}
 		spriteBatch.Draw(_texture.Value, vector, value, white, 0f, origin, 1f, SpriteEffects.None, 0f);
 		spriteBatch.Draw(_texture.Value, vector, frame, white, 0f, origin, 1f, SpriteEffects.None, 0f);
 		spriteBatch.Draw(_textureBorder.Value, vector - Vector2.One * 2f, null, color, 0f, origin, 1f, SpriteEffects.None, 0f);
-		if (_hovered) {
+		if (_hovered)
+		{
 			string name = EmoteID.Search.GetName(_emoteIndex);
 			string cursorText = "/" + Language.GetTextValue("EmojiName." + name);
 			Main.instance.MouseText(cursorText, 0, 0);

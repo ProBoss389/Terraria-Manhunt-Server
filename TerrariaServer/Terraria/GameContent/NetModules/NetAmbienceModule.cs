@@ -11,7 +11,7 @@ public class NetAmbienceModule : NetModule
 	public static NetPacket SerializeSkyEntitySpawn(Player player, SkyEntityType type)
 	{
 		int value = Main.rand.Next();
-		NetPacket result = NetModule.CreatePacket<NetAmbienceModule>(6);
+		NetPacket result = NetModule.CreatePacket<NetAmbienceModule>();
 		result.Writer.Write((byte)player.whoAmI);
 		result.Writer.Write(value);
 		result.Writer.Write((byte)type);
@@ -21,18 +21,20 @@ public class NetAmbienceModule : NetModule
 	public override bool Deserialize(BinaryReader reader, int userId)
 	{
 		if (Main.dedServ)
+		{
 			return false;
-
+		}
 		byte playerId = reader.ReadByte();
 		int seed = reader.ReadInt32();
 		SkyEntityType type = (SkyEntityType)reader.ReadByte();
 		if (Main.remixWorld)
+		{
 			return true;
-
-		Main.QueueMainThreadAction(delegate {
+		}
+		Main.QueueMainThreadAction(delegate
+		{
 			((AmbientSky)SkyManager.Instance["Ambience"]).Spawn(Main.player[playerId], type, seed);
 		});
-
 		return true;
 	}
 }

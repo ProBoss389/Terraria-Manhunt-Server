@@ -4,10 +4,13 @@ namespace Terraria.DataStructures;
 
 public struct Point16
 {
-	public readonly short X;
-	public readonly short Y;
-	public static Point16 Zero = new Point16(0, 0);
-	public static Point16 NegativeOne = new Point16(-1, -1);
+	public short X;
+
+	public short Y;
+
+	public static Point16 Zero;
+
+	public static Point16 NegativeOne;
 
 	public Point16(Point point)
 	{
@@ -27,23 +30,36 @@ public struct Point16
 		this.Y = Y;
 	}
 
-	public static Point16 Max(int firstX, int firstY, int secondX, int secondY) => new Point16((firstX > secondX) ? firstX : secondX, (firstY > secondY) ? firstY : secondY);
-	public Point16 Max(int compareX, int compareY) => new Point16((X > compareX) ? X : compareX, (Y > compareY) ? Y : compareY);
-	public Point16 Max(Point16 compareTo) => new Point16((X > compareTo.X) ? X : compareTo.X, (Y > compareTo.Y) ? Y : compareTo.Y);
+	public static Point16 Max(int firstX, int firstY, int secondX, int secondY)
+	{
+		return new Point16((firstX > secondX) ? firstX : secondX, (firstY > secondY) ? firstY : secondY);
+	}
+
+	public Point16 Max(int compareX, int compareY)
+	{
+		return new Point16((X > compareX) ? X : compareX, (Y > compareY) ? Y : compareY);
+	}
+
+	public Point16 Max(Point16 compareTo)
+	{
+		return new Point16((X > compareTo.X) ? X : compareTo.X, (Y > compareTo.Y) ? Y : compareTo.Y);
+	}
 
 	public static bool operator ==(Point16 first, Point16 second)
 	{
 		if (first.X == second.X)
+		{
 			return first.Y == second.Y;
-
+		}
 		return false;
 	}
 
 	public static bool operator !=(Point16 first, Point16 second)
 	{
 		if (first.X == second.X)
+		{
 			return first.Y != second.Y;
-
+		}
 		return true;
 	}
 
@@ -51,11 +67,30 @@ public struct Point16
 	{
 		Point16 point = (Point16)obj;
 		if (X != point.X || Y != point.Y)
+		{
 			return false;
-
+		}
 		return true;
 	}
 
-	public override int GetHashCode() => (X << 16) | (ushort)Y;
-	public override string ToString() => $"{{{X}, {Y}}}";
+	public override int GetHashCode()
+	{
+		return (X << 16) | (ushort)Y;
+	}
+
+	public override string ToString()
+	{
+		return $"{{{X}, {Y}}}";
+	}
+
+	public static implicit operator Point(Point16 p)
+	{
+		return new Point(p.X, p.Y);
+	}
+
+	static Point16()
+	{
+		Zero = new Point16(0, 0);
+		NegativeOne = new Point16(-1, -1);
+	}
 }

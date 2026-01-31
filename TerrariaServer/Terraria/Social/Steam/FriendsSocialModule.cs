@@ -13,7 +13,10 @@ public class FriendsSocialModule : Terraria.Social.Base.FriendsSocialModule
 	{
 	}
 
-	public override string GetUsername() => SteamFriends.GetPersonaName();
+	public override string GetUsername()
+	{
+		return SteamFriends.GetPersonaName();
+	}
 
 	public override void OpenJoinInterface()
 	{

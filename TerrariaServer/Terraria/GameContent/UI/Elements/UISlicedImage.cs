@@ -8,17 +8,25 @@ namespace Terraria.GameContent.UI.Elements;
 public class UISlicedImage : UIElement
 {
 	private Asset<Texture2D> _texture;
+
 	private Color _color;
+
 	private int _leftSliceDepth;
+
 	private int _rightSliceDepth;
+
 	private int _topSliceDepth;
+
 	private int _bottomSliceDepth;
 
-	public Color Color {
-		get {
+	public Color Color
+	{
+		get
+		{
 			return _color;
 		}
-		set {
+		set
+		{
 			_color = value;
 		}
 	}

@@ -7,5 +7,8 @@ public class CorruptionBiome : AShoppingBiome
 		base.NameKey = "Corruption";
 	}
 
-	public override bool IsInBiome(Player player) => player.ZoneCorrupt;
+	public override bool IsInBiome(Player player)
+	{
+		return player.ZoneCorrupt;
+	}
 }

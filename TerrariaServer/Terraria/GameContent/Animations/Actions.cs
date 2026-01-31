@@ -14,7 +14,9 @@ public class Actions
 		public class Fade : IPlayerAction, IAnimationSegmentAction<Player>
 		{
 			private int _duration;
+
 			private float _opacityTarget;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -43,17 +45,19 @@ public class Actions
 			public void ApplyTo(Player obj, float localTimeForObj)
 			{
 				if (localTimeForObj < _delay)
+				{
 					return;
-
-				if (_duration == 0) {
+				}
+				if (_duration == 0)
+				{
 					obj.opacityForAnimation = _opacityTarget;
 					return;
 				}
-
 				float num = localTimeForObj - _delay;
 				if (num > (float)_duration)
+				{
 					num = _duration;
-
+				}
 				obj.opacityForAnimation = MathHelper.Lerp(obj.opacityForAnimation, _opacityTarget, Utils.GetLerpValue(0f, _duration, num, clamped: true));
 			}
 		}
@@ -61,6 +65,7 @@ public class Actions
 		public class Wait : IPlayerAction, IAnimationSegmentAction<Player>
 		{
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -77,7 +82,9 @@ public class Actions
 			public void ApplyTo(Player obj, float localTimeForObj)
 			{
 				if (!(localTimeForObj < _delay))
+				{
 					obj.velocity = Vector2.Zero;
+				}
 			}
 
 			public void SetDelay(float delay)
@@ -89,6 +96,7 @@ public class Actions
 		public class LookAt : IPlayerAction, IAnimationSegmentAction<Player>
 		{
 			private int _direction;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => 0;
@@ -105,7 +113,9 @@ public class Actions
 			public void ApplyTo(Player obj, float localTimeForObj)
 			{
 				if (!(localTimeForObj < _delay))
+				{
 					obj.direction = _direction;
+				}
 			}
 
 			public void SetDelay(float delay)
@@ -117,8 +127,11 @@ public class Actions
 		public class MoveWithAcceleration : IPlayerAction, IAnimationSegmentAction<Player>
 		{
 			private Vector2 _offsetPerFrame;
+
 			private Vector2 _accelerationPerFrame;
+
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -141,16 +154,20 @@ public class Actions
 
 			public void ApplyTo(Player obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
 					if (num > (float)_duration)
+					{
 						num = _duration;
-
+					}
 					Vector2 vector = _offsetPerFrame * num + _accelerationPerFrame * (num * num * 0.5f);
 					obj.position += vector;
 					obj.velocity = _offsetPerFrame + _accelerationPerFrame * num;
 					if (_offsetPerFrame.X != 0f)
+					{
 						obj.direction = ((_offsetPerFrame.X > 0f) ? 1 : (-1));
+					}
 				}
 			}
 		}
@@ -165,7 +182,9 @@ public class Actions
 		public class Fade : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _duration;
+
 			private int _alphaPerFrame;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -194,17 +213,19 @@ public class Actions
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
 				if (localTimeForObj < _delay)
+				{
 					return;
-
-				if (_duration == 0) {
+				}
+				if (_duration == 0)
+				{
 					obj.alpha = Utils.Clamp(obj.alpha + _alphaPerFrame, 0, 255);
 					return;
 				}
-
 				float num = localTimeForObj - _delay;
 				if (num > (float)_duration)
+				{
 					num = _duration;
-
+				}
 				obj.alpha = Utils.Clamp(obj.alpha + (int)num * _alphaPerFrame, 0, 255);
 			}
 		}
@@ -212,7 +233,9 @@ public class Actions
 		public class ShowItem : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _itemIdToShow;
+
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -234,13 +257,14 @@ public class Actions
 
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
-					if (num > (float)_duration) {
+					if (num > (float)_duration)
+					{
 						FixNPCIfWasHoldingItem(obj);
 						return;
 					}
-
 					obj.velocity = Vector2.Zero;
 					obj.frameCounter = num;
 					obj.ai[0] = 23f;
@@ -251,7 +275,8 @@ public class Actions
 
 			private void FixNPCIfWasHoldingItem(NPC obj)
 			{
-				if (obj.ai[0] == 23f) {
+				if (obj.ai[0] == 23f)
+				{
 					obj.frameCounter = 0.0;
 					obj.ai[0] = 0f;
 					obj.ai[1] = 0f;
@@ -263,7 +288,9 @@ public class Actions
 		public class Move : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private Vector2 _offsetPerFrame;
+
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -285,15 +312,19 @@ public class Actions
 
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
 					if (num > (float)_duration)
+					{
 						num = _duration;
-
+					}
 					obj.position += _offsetPerFrame * num;
 					obj.velocity = _offsetPerFrame;
 					if (_offsetPerFrame.X != 0f)
+					{
 						obj.direction = (obj.spriteDirection = ((_offsetPerFrame.X > 0f) ? 1 : (-1)));
+					}
 				}
 			}
 		}
@@ -301,8 +332,11 @@ public class Actions
 		public class MoveWithAcceleration : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private Vector2 _offsetPerFrame;
+
 			private Vector2 _accelerationPerFrame;
+
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -325,16 +359,20 @@ public class Actions
 
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
 					if (num > (float)_duration)
+					{
 						num = _duration;
-
+					}
 					Vector2 vector = _offsetPerFrame * num + _accelerationPerFrame * (num * num * 0.5f);
 					obj.position += vector;
 					obj.velocity = _offsetPerFrame + _accelerationPerFrame * num;
 					if (_offsetPerFrame.X != 0f)
+					{
 						obj.direction = (obj.spriteDirection = ((_offsetPerFrame.X > 0f) ? 1 : (-1)));
+					}
 				}
 			}
 		}
@@ -342,9 +380,13 @@ public class Actions
 		public class MoveWithRotor : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private Vector2 _offsetPerFrame;
+
 			private Vector2 _resultMultiplier;
+
 			private float _radialOffset;
+
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -368,11 +410,13 @@ public class Actions
 
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
 					if (num > (float)_duration)
+					{
 						num = _duration;
-
+					}
 					Vector2 vector = _offsetPerFrame.RotatedBy(_radialOffset * num) * _resultMultiplier;
 					obj.position += vector;
 				}
@@ -382,6 +426,7 @@ public class Actions
 		public class DoBunnyRestAnimation : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -403,22 +448,26 @@ public class Actions
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
 				if (localTimeForObj < _delay)
+				{
 					return;
-
+				}
 				float num = localTimeForObj - _delay;
 				if (num > (float)_duration)
+				{
 					num = _duration;
-
+				}
 				Rectangle frame = obj.frame;
 				int num2 = 10;
 				int num3 = (int)num;
-				while (num3 > 4) {
+				while (num3 > 4)
+				{
 					num3 -= 4;
 					num2++;
 					if (num2 > 13)
+					{
 						num2 = 13;
+					}
 				}
-
 				obj.ai[0] = 21f;
 				obj.ai[1] = 31f;
 				obj.frameCounter = num3;
@@ -429,6 +478,7 @@ public class Actions
 		public class Wait : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -445,7 +495,9 @@ public class Actions
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
 				if (!(localTimeForObj < _delay))
+				{
 					obj.velocity = Vector2.Zero;
+				}
 			}
 
 			public void SetDelay(float delay)
@@ -457,6 +509,7 @@ public class Actions
 		public class Blink : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -472,11 +525,14 @@ public class Actions
 
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					obj.velocity = Vector2.Zero;
 					obj.ai[0] = 0f;
 					if (!(localTimeForObj > _delay + (float)_duration))
+					{
 						obj.ai[0] = 1001f;
+					}
 				}
 			}
 
@@ -489,6 +545,7 @@ public class Actions
 		public class LookAt : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _direction;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => 0;
@@ -505,7 +562,9 @@ public class Actions
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
 				if (!(localTimeForObj < _delay))
+				{
 					obj.direction = (obj.spriteDirection = _direction);
+				}
 			}
 
 			public void SetDelay(float delay)
@@ -586,8 +645,11 @@ public class Actions
 		public class ZombieKnockOnDoor : INPCAction, IAnimationSegmentAction<NPC>
 		{
 			private int _duration;
+
 			private float _delay;
+
 			private Vector2 bumpOffset = new Vector2(-1f, 0f);
+
 			private Vector2 bumpVelocity = new Vector2(0.75f, 0f);
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -608,16 +670,20 @@ public class Actions
 
 			public void ApplyTo(NPC obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
 					if (num > (float)_duration)
+					{
 						num = _duration;
-
-					if ((int)num % 60 / 4 <= 3) {
+					}
+					if ((int)num % 60 / 4 <= 3)
+					{
 						obj.position += bumpOffset;
 						obj.velocity = bumpVelocity;
 					}
-					else {
+					else
+					{
 						obj.position -= bumpOffset;
 						obj.velocity = Vector2.Zero;
 					}
@@ -635,7 +701,9 @@ public class Actions
 		public class Fade : ISpriteAction, IAnimationSegmentAction<Segments.LooseSprite>
 		{
 			private int _duration;
+
 			private float _opacityTarget;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -664,17 +732,19 @@ public class Actions
 			public void ApplyTo(Segments.LooseSprite obj, float localTimeForObj)
 			{
 				if (localTimeForObj < _delay)
+				{
 					return;
-
-				if (_duration == 0) {
+				}
+				if (_duration == 0)
+				{
 					obj.CurrentOpacity = _opacityTarget;
 					return;
 				}
-
 				float num = localTimeForObj - _delay;
 				if (num > (float)_duration)
+				{
 					num = _duration;
-
+				}
 				obj.CurrentOpacity = MathHelper.Lerp(obj.CurrentOpacity, _opacityTarget, Utils.GetLerpValue(0f, _duration, num, clamped: true));
 			}
 		}
@@ -682,7 +752,9 @@ public class Actions
 		public abstract class AScale : ISpriteAction, IAnimationSegmentAction<Segments.LooseSprite>
 		{
 			protected int Duration;
+
 			private Vector2 _scaleTarget;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => Duration;
@@ -711,17 +783,19 @@ public class Actions
 			public void ApplyTo(Segments.LooseSprite obj, float localTimeForObj)
 			{
 				if (localTimeForObj < _delay)
+				{
 					return;
-
-				if (Duration == 0) {
+				}
+				if (Duration == 0)
+				{
 					obj.CurrentDrawData.scale = _scaleTarget;
 					return;
 				}
-
 				float num = localTimeForObj - _delay;
 				if (num > (float)Duration)
+				{
 					num = Duration;
-
+				}
 				float progress = GetProgress(num);
 				obj.CurrentDrawData.scale = Vector2.Lerp(obj.CurrentDrawData.scale, _scaleTarget, progress);
 			}
@@ -741,7 +815,10 @@ public class Actions
 			{
 			}
 
-			protected override float GetProgress(float durationInFramesToApply) => Utils.GetLerpValue(0f, Duration, durationInFramesToApply, clamped: true);
+			protected override float GetProgress(float durationInFramesToApply)
+			{
+				return Utils.GetLerpValue(0f, Duration, durationInFramesToApply, clamped: true);
+			}
 		}
 
 		public class OutCircleScale : AScale
@@ -767,6 +844,7 @@ public class Actions
 		public class Wait : ISpriteAction, IAnimationSegmentAction<Segments.LooseSprite>
 		{
 			private int _duration;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -794,9 +872,13 @@ public class Actions
 		public class SimulateGravity : ISpriteAction, IAnimationSegmentAction<Segments.LooseSprite>
 		{
 			private int _duration;
+
 			private float _delay;
+
 			private Vector2 _initialVelocity;
+
 			private Vector2 _gravityPerFrame;
+
 			private float _rotationPerFrame;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -820,11 +902,13 @@ public class Actions
 
 			public void ApplyTo(Segments.LooseSprite obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					float num = localTimeForObj - _delay;
 					if (num > (float)_duration)
+					{
 						num = _duration;
-
+					}
 					Vector2 vector = _initialVelocity * num + _gravityPerFrame * (num * num);
 					obj.CurrentDrawData.position += vector;
 					obj.CurrentDrawData.rotation += _rotationPerFrame * num;
@@ -835,9 +919,13 @@ public class Actions
 		public class SetFrame : ISpriteAction, IAnimationSegmentAction<Segments.LooseSprite>
 		{
 			private int _targetFrameX;
+
 			private int _targetFrameY;
+
 			private int _paddingX;
+
 			private int _paddingY;
+
 			private float _delay;
 
 			public int ExpectedLengthOfActionInFrames => 0;
@@ -861,7 +949,8 @@ public class Actions
 
 			public void ApplyTo(Segments.LooseSprite obj, float localTimeForObj)
 			{
-				if (!(localTimeForObj < _delay)) {
+				if (!(localTimeForObj < _delay))
+				{
 					Rectangle value = obj.CurrentDrawData.sourceRect.Value;
 					value.X = (value.Width + _paddingX) * _targetFrameX;
 					value.Y = (value.Height + _paddingY) * _targetFrameY;
@@ -873,11 +962,17 @@ public class Actions
 		public class SetFrameSequence : ISpriteAction, IAnimationSegmentAction<Segments.LooseSprite>
 		{
 			private Point[] _frameIndices;
+
 			private int _timePerFrame;
+
 			private int _paddingX;
+
 			private int _paddingY;
+
 			private float _delay;
+
 			private int _duration;
+
 			private bool _loop;
 
 			public int ExpectedLengthOfActionInFrames => _duration;
@@ -910,26 +1005,33 @@ public class Actions
 			public void ApplyTo(Segments.LooseSprite obj, float localTimeForObj)
 			{
 				if (localTimeForObj < _delay)
+				{
 					return;
-
+				}
 				Rectangle value = obj.CurrentDrawData.sourceRect.Value;
 				int num = 0;
-				if (_loop) {
+				if (_loop)
+				{
 					int num2 = _frameIndices.Length;
 					num = (int)(localTimeForObj % (float)(_timePerFrame * num2)) / _timePerFrame;
 					if (num >= num2)
+					{
 						num = num2 - 1;
+					}
 				}
-				else {
+				else
+				{
 					float num3 = localTimeForObj - _delay;
 					if (num3 > (float)_duration)
+					{
 						num3 = _duration;
-
+					}
 					num = (int)(num3 / (float)_timePerFrame);
 					if (num >= _frameIndices.Length)
+					{
 						num = _frameIndices.Length - 1;
+					}
 				}
-
 				Point point = _frameIndices[num];
 				value.X = (value.Width + _paddingX) * point.X;
 				value.Y = (value.Height + _paddingY) * point.Y;

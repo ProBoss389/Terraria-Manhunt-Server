@@ -9,7 +9,9 @@ public class SteamP2PReader
 	public class ReadResult
 	{
 		public byte[] Data;
+
 		public uint Size;
+
 		public uint Offset;
 
 		public ReadResult(byte[] data, uint size)
@@ -23,11 +25,17 @@ public class SteamP2PReader
 	public delegate bool OnReadEvent(byte[] data, int size, CSteamID user);
 
 	public object SteamLock = new object();
+
 	private const int BUFFER_SIZE = 4096;
+
 	private Dictionary<CSteamID, Queue<ReadResult>> _pendingReadBuffers = new Dictionary<CSteamID, Queue<ReadResult>>();
+
 	private Queue<CSteamID> _deletionQueue = new Queue<CSteamID>();
+
 	private Queue<byte[]> _bufferPool = new Queue<byte[]>();
+
 	private int _channel;
+
 	private OnReadEvent _readEvent;
 
 	public SteamP2PReader(int channel)
@@ -37,21 +45,25 @@ public class SteamP2PReader
 
 	public void ClearUser(CSteamID id)
 	{
-		lock (_pendingReadBuffers) {
+		lock (_pendingReadBuffers)
+		{
 			_deletionQueue.Enqueue(id);
 		}
 	}
 
 	public bool IsDataAvailable(CSteamID id)
 	{
-		lock (_pendingReadBuffers) {
+		lock (_pendingReadBuffers)
+		{
 			if (!_pendingReadBuffers.ContainsKey(id))
+			{
 				return false;
-
+			}
 			Queue<ReadResult> queue = _pendingReadBuffers[id];
 			if (queue.Count == 0 || queue.Peek().Size == 0)
+			{
 				return false;
-
+			}
 			return true;
 		}
 	}
@@ -63,38 +75,45 @@ public class SteamP2PReader
 
 	private bool IsPacketAvailable(out uint size)
 	{
-		lock (SteamLock) {
+		lock (SteamLock)
+		{
 			return SteamNetworking.IsP2PPacketAvailable(out size, _channel);
 		}
 	}
 
 	public void ReadTick()
 	{
-		lock (_pendingReadBuffers) {
-			while (_deletionQueue.Count > 0) {
+		lock (_pendingReadBuffers)
+		{
+			while (_deletionQueue.Count > 0)
+			{
 				_pendingReadBuffers.Remove(_deletionQueue.Dequeue());
 			}
-
 			uint size;
-			while (IsPacketAvailable(out size)) {
+			while (IsPacketAvailable(out size))
+			{
 				byte[] array = ((_bufferPool.Count != 0) ? _bufferPool.Dequeue() : new byte[Math.Max(size, 4096u)]);
 				bool flag;
 				uint pcubMsgSize;
 				CSteamID psteamIDRemote;
-				lock (SteamLock) {
+				lock (SteamLock)
+				{
 					flag = SteamNetworking.ReadP2PPacket(array, (uint)array.Length, out pcubMsgSize, out psteamIDRemote, _channel);
 				}
-
 				if (!flag)
+				{
 					continue;
-
-				if (_readEvent == null || _readEvent(array, (int)pcubMsgSize, psteamIDRemote)) {
+				}
+				if (_readEvent == null || _readEvent(array, (int)pcubMsgSize, psteamIDRemote))
+				{
 					if (!_pendingReadBuffers.ContainsKey(psteamIDRemote))
+					{
 						_pendingReadBuffers[psteamIDRemote] = new Queue<ReadResult>();
-
+					}
 					_pendingReadBuffers[psteamIDRemote].Enqueue(new ReadResult(array, pcubMsgSize));
 				}
-				else {
+				else
+				{
 					_bufferPool.Enqueue(array);
 				}
 			}
@@ -104,26 +123,32 @@ public class SteamP2PReader
 	public int Receive(CSteamID user, byte[] buffer, int bufferOffset, int bufferSize)
 	{
 		uint num = 0u;
-		lock (_pendingReadBuffers) {
+		lock (_pendingReadBuffers)
+		{
 			if (!_pendingReadBuffers.ContainsKey(user))
+			{
 				return 0;
-
+			}
 			Queue<ReadResult> queue = _pendingReadBuffers[user];
-			while (queue.Count > 0) {
+			while (queue.Count > 0)
+			{
 				ReadResult readResult = queue.Peek();
 				uint num2 = Math.Min((uint)bufferSize - num, readResult.Size - readResult.Offset);
 				if (num2 == 0)
+				{
 					return (int)num;
-
+				}
 				Array.Copy(readResult.Data, readResult.Offset, buffer, bufferOffset + num, num2);
 				if (num2 == readResult.Size - readResult.Offset)
+				{
 					_bufferPool.Enqueue(queue.Dequeue().Data);
+				}
 				else
+				{
 					readResult.Offset += num2;
-
+				}
 				num += num2;
 			}
-
 			return (int)num;
 		}
 	}

@@ -10,8 +10,9 @@ public class ColorTagHandler : ITagHandler
 	{
 		TextSnippet textSnippet = new TextSnippet(text);
 		if (!int.TryParse(options, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out var result))
+		{
 			return textSnippet;
-
+		}
 		textSnippet.Color = new Color((result >> 16) & 0xFF, (result >> 8) & 0xFF, result & 0xFF);
 		return textSnippet;
 	}

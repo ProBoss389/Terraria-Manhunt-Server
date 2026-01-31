@@ -16,9 +16,13 @@ namespace Terraria.GameContent.UI.States;
 public class UIAchievementsMenu : UIState
 {
 	private UIList _achievementsList;
+
 	private List<UIAchievementListItem> _achievementElements = new List<UIAchievementListItem>();
+
 	private List<UIToggleImage> _categoryButtons = new List<UIToggleImage>();
+
 	private UIElement _backpanel;
+
 	private UIElement _outerContainer;
 
 	public void InitializePage()
@@ -68,12 +72,12 @@ public class UIAchievementsMenu : UIState
 		uIElement.Append(uITextPanel2);
 		_backpanel = uITextPanel2;
 		List<Achievement> list = Main.Achievements.CreateAchievementsList();
-		for (int i = 0; i < list.Count; i++) {
+		for (int i = 0; i < list.Count; i++)
+		{
 			UIAchievementListItem item = new UIAchievementListItem(list[i], flag);
 			_achievementsList.Add(item);
 			_achievementElements.Add(item);
 		}
-
 		UIScrollbar uIScrollbar = new UIScrollbar();
 		uIScrollbar.SetView(100f, 1000f);
 		uIScrollbar.Height.Set(-50f, 1f);
@@ -85,8 +89,9 @@ public class UIAchievementsMenu : UIState
 		uIElement2.Width.Set(0f, 1f);
 		uIElement2.Height.Set(32f, 0f);
 		uIElement2.Top.Set(10f, 0f);
-		Asset<Texture2D> texture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Categories");
-		for (int j = 0; j < 4; j++) {
+		Asset<Texture2D> texture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Categories", AssetRequestMode.ImmediateLoad);
+		for (int j = 0; j < 4; j++)
+		{
 			UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(34 * j, 0), new Point(34 * j, 34));
 			uIToggleImage.Left.Set(j * 36 + 8, 0f);
 			uIToggleImage.SetState(value: true);
@@ -94,50 +99,40 @@ public class UIAchievementsMenu : UIState
 			_categoryButtons.Add(uIToggleImage);
 			uIElement2.Append(uIToggleImage);
 		}
-
 		uIPanel.Append(uIElement2);
 	}
 
 	public override void Draw(SpriteBatch spriteBatch)
 	{
 		base.Draw(spriteBatch);
-		for (int i = 0; i < _categoryButtons.Count; i++) {
-			if (_categoryButtons[i].IsMouseHovering) {
+		for (int i = 0; i < _categoryButtons.Count; i++)
+		{
+			if (_categoryButtons[i].IsMouseHovering)
+			{
 				string text = "";
-				switch (i) {
-					case 3:
-						text = Language.GetTextValue("Achievements.ChallengerCategory");
-						break;
-					case 1:
-						text = Language.GetTextValue("Achievements.CollectorCategory");
-						break;
-					case 2:
-						text = Language.GetTextValue("Achievements.ExplorerCategory");
-						break;
-					case 0:
-						text = Language.GetTextValue("Achievements.SlayerCategory");
-						break;
-					case -1:
-						text = Language.GetTextValue("Achievements.NoCategory");
-						break;
-					default:
-						text = Language.GetTextValue("Achievements.NoCategory");
-						break;
-				}
-
+				text = i switch
+				{
+					3 => Language.GetTextValue("Achievements.ChallengerCategory"), 
+					1 => Language.GetTextValue("Achievements.CollectorCategory"), 
+					2 => Language.GetTextValue("Achievements.ExplorerCategory"), 
+					0 => Language.GetTextValue("Achievements.SlayerCategory"), 
+					-1 => Language.GetTextValue("Achievements.NoCategory"), 
+					_ => Language.GetTextValue("Achievements.NoCategory"), 
+				};
 				float x = FontAssets.MouseText.Value.MeasureString(text).X;
 				Vector2 vector = new Vector2(Main.mouseX, Main.mouseY) + new Vector2(16f);
 				if (vector.Y > (float)(Main.screenHeight - 30))
+				{
 					vector.Y = Main.screenHeight - 30;
-
+				}
 				if (vector.X > (float)Main.screenWidth - x)
+				{
 					vector.X = Main.screenWidth - 460;
-
+				}
 				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value, text, vector.X, vector.Y, new Color(Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor), Color.Black, Vector2.Zero);
 				break;
 			}
 		}
-
 		SetupGamepadPoints(spriteBatch);
 	}
 
@@ -169,29 +164,34 @@ public class UIAchievementsMenu : UIState
 	{
 		SoundEngine.PlaySound(12);
 		_achievementsList.Clear();
-		foreach (UIAchievementListItem achievementElement in _achievementElements) {
+		foreach (UIAchievementListItem achievementElement in _achievementElements)
+		{
 			if (_categoryButtons[(int)achievementElement.GetAchievement().Category].IsOn)
+			{
 				_achievementsList.Add(achievementElement);
+			}
 		}
-
 		Recalculate();
 	}
 
 	public override void OnActivate()
 	{
 		InitializePage();
-		if (Main.gameMenu) {
+		if (Main.gameMenu)
+		{
 			_outerContainer.Top.Set(220f, 0f);
 			_outerContainer.Height.Set(-220f, 1f);
 		}
-		else {
+		else
+		{
 			_outerContainer.Top.Set(120f, 0f);
 			_outerContainer.Height.Set(-120f, 1f);
 		}
-
 		_achievementsList.UpdateOrder();
 		if (PlayerInput.UsingGamepadUI)
+		{
 			UILinkPointNavigator.ChangePoint(3002);
+		}
 	}
 
 	private void SetupGamepadPoints(SpriteBatch spriteBatch)
@@ -209,7 +209,8 @@ public class UIAchievementsMenu : UIState
 		uILinkPoint2.Unlink();
 		uILinkPoint2.Up = num2 + 1;
 		uILinkPoint2.Down = num2 - 1;
-		for (int i = 0; i < _categoryButtons.Count; i++) {
+		for (int i = 0; i < _categoryButtons.Count; i++)
+		{
 			num2 = (UILinkPointNavigator.Shortcuts.FANCYUI_HIGHEST_INDEX = num2 + 1);
 			UILinkPointNavigator.SetPosition(num2, _categoryButtons[i].GetInnerDimensions().ToRectangle().Center.ToVector2());
 			UILinkPoint uILinkPoint3 = UILinkPointNavigator.Points[num2];

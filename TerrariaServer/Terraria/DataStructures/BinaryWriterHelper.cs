@@ -29,7 +29,8 @@ public struct BinaryWriterHelper
 		long position = writer.BaseStream.Position;
 		writer.BaseStream.Position = _placeInWriter;
 		long num = position - _placeInWriter - 4;
-		if (num != 0L) {
+		if (num != 0L)
+		{
 			writer.Write((int)num);
 			writer.Write(dataId);
 			writer.BaseStream.Position = position;

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Terraria.Localization;
 
 namespace Terraria.UI;
@@ -6,19 +5,28 @@ namespace Terraria.UI;
 public class ItemTooltip
 {
 	public static readonly ItemTooltip None = new ItemTooltip();
-	private static readonly List<TooltipProcessor> _globalProcessors = new List<TooltipProcessor>();
+
 	private static ulong _globalValidatorKey = 1uL;
+
+	private static readonly ulong _neverUpdateHack = ulong.MaxValue;
+
 	private string[] _tooltipLines;
+
 	private ulong _validatorKey;
+
 	private readonly LocalizedText _text;
+
 	private string _processedText;
 
-	public int Lines {
-		get {
+	public int Lines
+	{
+		get
+		{
 			ValidateTooltip();
 			if (_tooltipLines == null)
+			{
 				return 0;
-
+			}
 			return _tooltipLines.Length;
 		}
 	}
@@ -34,9 +42,6 @@ public class ItemTooltip
 
 	public static ItemTooltip FromLanguageKey(string key)
 	{
-		if (!Language.Exists(key))
-			return None;
-
 		return new ItemTooltip(key);
 	}
 
@@ -46,46 +51,41 @@ public class ItemTooltip
 		return _tooltipLines[line];
 	}
 
+	private ItemTooltip(string[] hardcodedLines)
+	{
+		_validatorKey = _neverUpdateHack;
+		_tooltipLines = hardcodedLines;
+		_processedText = string.Join("\n", hardcodedLines);
+	}
+
+	public static ItemTooltip FromHardcodedText(params string[] text)
+	{
+		return new ItemTooltip(text);
+	}
+
 	private void ValidateTooltip()
 	{
-		if (_validatorKey == _globalValidatorKey)
-			return;
-
-		_validatorKey = _globalValidatorKey;
-		if (_text == null) {
-			_tooltipLines = null;
-			_processedText = string.Empty;
-			return;
+		if (_validatorKey != _neverUpdateHack && _validatorKey != _globalValidatorKey)
+		{
+			_validatorKey = _globalValidatorKey;
+			if (_text == null || !_text.HasValue)
+			{
+				_tooltipLines = null;
+				_processedText = string.Empty;
+				return;
+			}
+			string value = _text.Value;
+			_tooltipLines = value.Split('\n');
+			_processedText = value;
 		}
-
-		string text = _text.Value;
-		foreach (TooltipProcessor globalProcessor in _globalProcessors) {
-			text = globalProcessor(text);
-		}
-
-		_tooltipLines = text.Split('\n');
-		_processedText = text;
-	}
-
-	public static void AddGlobalProcessor(TooltipProcessor processor)
-	{
-		_globalProcessors.Add(processor);
-	}
-
-	public static void RemoveGlobalProcessor(TooltipProcessor processor)
-	{
-		_globalProcessors.Remove(processor);
-	}
-
-	public static void ClearGlobalProcessors()
-	{
-		_globalProcessors.Clear();
 	}
 
 	public static void InvalidateTooltips()
 	{
 		_globalValidatorKey++;
 		if (_globalValidatorKey == ulong.MaxValue)
+		{
 			_globalValidatorKey = 0uL;
+		}
 	}
 }

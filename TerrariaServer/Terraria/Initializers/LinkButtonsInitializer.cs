@@ -22,14 +22,15 @@ public class LinkButtonsInitializer
 
 	private static TitleLinkButton MakeSimpleButton(string textKey, string linkUrl, int horizontalFrameIndex)
 	{
-		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/TitleLinkButtons");
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/TitleLinkButtons", AssetRequestMode.ImmediateLoad);
 		Rectangle value = asset.Frame(7, 2, horizontalFrameIndex);
 		Rectangle value2 = asset.Frame(7, 2, horizontalFrameIndex, 1);
 		value.Width--;
 		value.Height--;
 		value2.Width--;
 		value2.Height--;
-		return new TitleLinkButton {
+		return new TitleLinkButton
+		{
 			TooltipTextKey = textKey,
 			LinkUrl = linkUrl,
 			FrameWehnSelected = value2,

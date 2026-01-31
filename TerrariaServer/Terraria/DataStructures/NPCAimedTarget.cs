@@ -6,10 +6,15 @@ namespace Terraria.DataStructures;
 public struct NPCAimedTarget
 {
 	public NPCTargetType Type;
+
 	public Rectangle Hitbox;
+
 	public int Width;
+
 	public int Height;
+
 	public Vector2 Position;
+
 	public Vector2 Velocity;
 
 	public bool Invalid => Type == NPCTargetType.None;
@@ -36,7 +41,8 @@ public struct NPCAimedTarget
 		Height = player.height;
 		Position = player.position;
 		Velocity = player.velocity;
-		if (!ignoreTank && player.tankPet > -1) {
+		if (!ignoreTank && player.tankPet > -1)
+		{
 			Projectile projectile = Main.projectile[player.tankPet];
 			Type = NPCTargetType.PlayerTankPet;
 			Hitbox = projectile.Hitbox;

@@ -16,5 +16,6 @@ public enum AnchorType
 	SolidBottom = 0x80,
 	Platform = 0x100,
 	PlanterBox = 0x200,
-	PlatformNonHammered = 0x400
+	PlatformNonHammered = 0x400,
+	AllFlatHeight = 0x800
 }

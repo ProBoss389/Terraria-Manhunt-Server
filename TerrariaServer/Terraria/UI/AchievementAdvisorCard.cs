@@ -6,11 +6,17 @@ namespace Terraria.UI;
 public class AchievementAdvisorCard
 {
 	private const int _iconSize = 64;
+
 	private const int _iconSizeWithSpace = 66;
+
 	private const int _iconsPerRow = 8;
+
 	public Achievement achievement;
+
 	public float order;
+
 	public Rectangle frame;
+
 	public int achievementIndex;
 
 	public AchievementAdvisorCard(Achievement achievement, float order)
@@ -23,15 +29,12 @@ public class AchievementAdvisorCard
 
 	public bool IsAchievableInWorld()
 	{
-		switch (achievement.Name) {
-			case "MASTERMIND":
-				return WorldGen.crimson;
-			case "WORM_FODDER":
-				return !WorldGen.crimson;
-			case "PLAY_ON_A_SPECIAL_SEED":
-				return Main.specialSeedWorld;
-			default:
-				return true;
-		}
+		return achievement.Name switch
+		{
+			"MASTERMIND" => WorldGen.crimson, 
+			"WORM_FODDER" => !WorldGen.crimson, 
+			"PLAY_ON_A_SPECIAL_SEED" => Main.specialSeedWorld, 
+			_ => true, 
+		};
 	}
 }

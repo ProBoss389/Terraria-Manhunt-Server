@@ -3,7 +3,9 @@ namespace Terraria.DataStructures;
 public struct PlayerInteractionAnchor
 {
 	public int interactEntityID;
+
 	public int X;
+
 	public int Y;
 
 	public bool InUse => interactEntityID != -1;
@@ -31,17 +33,16 @@ public struct PlayerInteractionAnchor
 
 	public bool IsInValidUseTileEntity()
 	{
-		if (InUse)
-			return TileEntity.ByID.ContainsKey(interactEntityID);
-
-		return false;
+		return GetTileEntity() != null;
 	}
 
 	public TileEntity GetTileEntity()
 	{
-		if (!IsInValidUseTileEntity())
-			return null;
-
-		return TileEntity.ByID[interactEntityID];
+		TileEntity result = null;
+		if (InUse)
+		{
+			TileEntity.TryGet<TileEntity>(interactEntityID, out result);
+		}
+		return result;
 	}
 }

@@ -14,10 +14,14 @@ public class SearchAliasInfoElement : IBestiaryInfoElement, IProvideSearchFilter
 	public string GetSearchString(ref BestiaryUICollectionInfo info)
 	{
 		if (info.UnlockState == BestiaryEntryUnlockState.NotKnownAtAll_0)
+		{
 			return null;
-
+		}
 		return _alias;
 	}
 
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
 }

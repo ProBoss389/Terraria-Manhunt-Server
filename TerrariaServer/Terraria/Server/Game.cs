@@ -9,39 +9,51 @@ public class Game : IDisposable
 {
 	public GameComponentCollection Components => null;
 
-	public ContentManager Content {
-		get {
+	public ContentManager Content
+	{
+		get
+		{
 			return null;
 		}
-		set {
+		set
+		{
 		}
 	}
 
 	public GraphicsDevice GraphicsDevice => null;
 
-	public TimeSpan InactiveSleepTime {
-		get {
+	public TimeSpan InactiveSleepTime
+	{
+		get
+		{
 			return TimeSpan.Zero;
 		}
-		set {
+		set
+		{
 		}
 	}
 
 	public bool IsActive => true;
 
-	public bool IsFixedTimeStep {
-		get {
+	public bool IsFixedTimeStep
+	{
+		get
+		{
 			return true;
 		}
-		set {
+		set
+		{
 		}
 	}
 
-	public bool IsMouseVisible {
-		get {
+	public bool IsMouseVisible
+	{
+		get
+		{
 			return false;
 		}
-		set {
+		set
+		{
 		}
 	}
 
@@ -49,22 +61,31 @@ public class Game : IDisposable
 
 	public GameServiceContainer Services => null;
 
-	public TimeSpan TargetElapsedTime {
-		get {
+	public TimeSpan TargetElapsedTime
+	{
+		get
+		{
 			return TimeSpan.Zero;
 		}
-		set {
+		set
+		{
 		}
 	}
 
 	public GameWindow Window => null;
 
 	public event EventHandler<EventArgs> Activated;
+
 	public event EventHandler<EventArgs> Deactivated;
+
 	public event EventHandler<EventArgs> Disposed;
+
 	public event EventHandler<EventArgs> Exiting;
 
-	protected virtual bool BeginDraw() => true;
+	protected virtual bool BeginDraw()
+	{
+		return true;
+	}
 
 	protected virtual void BeginRun()
 	{
@@ -126,7 +147,10 @@ public class Game : IDisposable
 	{
 	}
 
-	protected virtual bool ShowMissingRequirementMessage(Exception exception) => true;
+	protected virtual bool ShowMissingRequirementMessage(Exception exception)
+	{
+		return true;
+	}
 
 	public void SuppressDraw()
 	{

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -10,20 +9,31 @@ namespace Terraria.Net.Sockets;
 
 public class TcpSocket : ISocket
 {
-	private byte[] _packetBuffer = new byte[1024];
-	private List<object> _callbackBuffer = new List<object>();
-	private int _messagesInQueue;
 	private TcpClient _connection;
+
 	private TcpListener _listener;
+
 	private SocketConnectionAccepted _listenerCallback;
+
 	private RemoteAddress _remoteAddress;
+
 	private bool _isListening;
 
-	public int MessagesInQueue => _messagesInQueue;
+	private DebugNetworkStream _debugStream;
+
+	private DebugNetworkStream GetStream()
+	{
+		if (_debugStream == null)
+		{
+			return _debugStream = new DebugNetworkStream(_connection.GetStream());
+		}
+		return _debugStream;
+	}
 
 	public TcpSocket()
 	{
-		_connection = new TcpClient {
+		_connection = new TcpClient
+		{
 			NoDelay = true
 		};
 	}
@@ -45,8 +55,9 @@ public class TcpSocket : ISocket
 	bool ISocket.IsConnected()
 	{
 		if (_connection == null || _connection.Client == null)
+		{
 			return false;
-
+		}
 		return _connection.Connected;
 	}
 
@@ -59,82 +70,98 @@ public class TcpSocket : ISocket
 
 	private void ReadCallback(IAsyncResult result)
 	{
-		Tuple<SocketReceiveCallback, object> tuple = (Tuple<SocketReceiveCallback, object>)result.AsyncState;
-		tuple.Item1(tuple.Item2, _connection.GetStream().EndRead(result));
+		try
+		{
+			Tuple<SocketReceiveCallback, object> tuple = (Tuple<SocketReceiveCallback, object>)result.AsyncState;
+			tuple.Item1(tuple.Item2, GetStream().EndRead(result));
+		}
+		catch (ObjectDisposedException)
+		{
+			((ISocket)this).Close();
+		}
 	}
 
 	private void SendCallback(IAsyncResult result)
 	{
 		Tuple<SocketSendCallback, object> tuple;
-		if (Platform.IsWindows) {
+		if (Platform.IsWindows)
+		{
 			tuple = (Tuple<SocketSendCallback, object>)result.AsyncState;
 		}
-		else {
+		else
+		{
 			object[] obj = (object[])result.AsyncState;
 			LegacyNetBufferPool.ReturnBuffer((byte[])obj[1]);
 			tuple = (Tuple<SocketSendCallback, object>)obj[0];
 		}
-
-		try {
-			_connection.GetStream().EndWrite(result);
+		try
+		{
+			GetStream().EndWrite(result);
 			tuple.Item1(tuple.Item2);
 		}
-		catch (Exception) {
+		catch (Exception)
+		{
 			((ISocket)this).Close();
 		}
 	}
 
-	void ISocket.SendQueuedPackets()
-	{
-	}
-
 	void ISocket.AsyncSend(byte[] data, int offset, int size, SocketSendCallback callback, object state)
 	{
-		if (!Platform.IsWindows) {
+		if (!Platform.IsWindows)
+		{
 			byte[] array = LegacyNetBufferPool.RequestBuffer(data, offset, size);
-			_connection.GetStream().BeginWrite(array, 0, size, SendCallback, new object[2] {
+			GetStream().BeginWrite(array, 0, size, SendCallback, new object[2]
+			{
 				new Tuple<SocketSendCallback, object>(callback, state),
 				array
 			});
 		}
-		else {
-			_connection.GetStream().BeginWrite(data, 0, size, SendCallback, new Tuple<SocketSendCallback, object>(callback, state));
+		else
+		{
+			GetStream().BeginWrite(data, 0, size, SendCallback, new Tuple<SocketSendCallback, object>(callback, state));
 		}
 	}
 
 	void ISocket.AsyncReceive(byte[] data, int offset, int size, SocketReceiveCallback callback, object state)
 	{
-		_connection.GetStream().BeginRead(data, offset, size, ReadCallback, new Tuple<SocketReceiveCallback, object>(callback, state));
+		GetStream().BeginRead(data, offset, size, ReadCallback, new Tuple<SocketReceiveCallback, object>(callback, state));
 	}
 
 	bool ISocket.IsDataAvailable()
 	{
 		if (!_connection.Connected)
+		{
 			return false;
-
-		return _connection.GetStream().DataAvailable;
+		}
+		return GetStream().DataAvailable;
 	}
 
-	RemoteAddress ISocket.GetRemoteAddress() => _remoteAddress;
+	RemoteAddress ISocket.GetRemoteAddress()
+	{
+		return _remoteAddress;
+	}
 
 	bool ISocket.StartListening(SocketConnectionAccepted callback)
 	{
 		IPAddress address = IPAddress.Any;
 		if (Program.LaunchParameters.TryGetValue("-ip", out var value) && !IPAddress.TryParse(value, out address))
+		{
 			address = IPAddress.Any;
-
+		}
 		_isListening = true;
 		_listenerCallback = callback;
 		if (_listener == null)
+		{
 			_listener = new TcpListener(address, Netplay.ListenPort);
-
-		try {
+		}
+		try
+		{
 			_listener.Start();
 		}
-		catch (Exception) {
+		catch (Exception)
+		{
 			return false;
 		}
-
 		Thread thread = new Thread(ListenLoop);
 		thread.IsBackground = true;
 		thread.Name = "TCP Listen Thread";
@@ -149,16 +176,18 @@ public class TcpSocket : ISocket
 
 	private void ListenLoop()
 	{
-		while (_isListening && !Netplay.Disconnect) {
-			try {
+		while (_isListening && !Netplay.Disconnect)
+		{
+			try
+			{
 				ISocket socket = new TcpSocket(_listener.AcceptTcpClient());
 				Console.WriteLine(Language.GetTextValue("Net.ClientConnecting", socket.GetRemoteAddress()));
 				_listenerCallback(socket);
 			}
-			catch (Exception) {
+			catch (Exception)
+			{
 			}
 		}
-
 		_listener.Stop();
 	}
 }

@@ -18,26 +18,34 @@ public static class Filters
 		public bool FitsFilter(BestiaryEntry entry)
 		{
 			if (_search == null)
+			{
 				return true;
-
+			}
 			BestiaryUICollectionInfo info = entry.UIInfoProvider.GetEntryUICollectionInfo();
-			for (int i = 0; i < entry.Info.Count; i++) {
-				if (entry.Info[i] is IProvideSearchFilterString provideSearchFilterString) {
+			for (int i = 0; i < entry.Info.Count; i++)
+			{
+				if (entry.Info[i] is IProvideSearchFilterString provideSearchFilterString)
+				{
 					string searchString = provideSearchFilterString.GetSearchString(ref info);
 					if (searchString != null && searchString.ToLower().IndexOf(_search, StringComparison.OrdinalIgnoreCase) != -1)
+					{
 						return true;
+					}
 				}
 			}
-
 			return false;
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.IfSearched";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.IfSearched";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Rank_Light");
-			return new UIImageFramed(asset, asset.Frame()) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Rank_Light", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame())
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -59,12 +67,16 @@ public static class Filters
 			return entry.Icon.GetUnlockState(entryUICollectionInfo);
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.IfUnlocked";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.IfUnlocked";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Tags_Shadow");
-			return new UIImageFramed(asset, asset.Frame(16, 5, 14, 3)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Tags_Shadow", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(16, 5, 14, 3))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -77,20 +89,26 @@ public static class Filters
 
 		public bool FitsFilter(BestiaryEntry entry)
 		{
-			for (int i = 0; i < entry.Info.Count; i++) {
+			for (int i = 0; i < entry.Info.Count; i++)
+			{
 				if (entry.Info[i] is RareSpawnBestiaryInfoElement)
+				{
 					return true;
+				}
 			}
-
 			return false;
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.IsRare";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.IsRare";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Rank_Light");
-			return new UIImageFramed(asset, asset.Frame()) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Rank_Light", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame())
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -103,20 +121,26 @@ public static class Filters
 
 		public bool FitsFilter(BestiaryEntry entry)
 		{
-			for (int i = 0; i < entry.Info.Count; i++) {
+			for (int i = 0; i < entry.Info.Count; i++)
+			{
 				if (entry.Info[i] is BossBestiaryInfoElement)
+				{
 					return true;
+				}
 			}
-
 			return false;
 		}
 
-		public string GetDisplayNameKey() => "BestiaryInfo.IsBoss";
+		public string GetDisplayNameKey()
+		{
+			return "BestiaryInfo.IsBoss";
+		}
 
 		public UIElement GetImage()
 		{
-			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Tags_Shadow");
-			return new UIImageFramed(asset, asset.Frame(16, 5, 15, 3)) {
+			Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Tags_Shadow", AssetRequestMode.ImmediateLoad);
+			return new UIImageFramed(asset, asset.Frame(16, 5, 15, 3))
+			{
 				HAlign = 0.5f,
 				VAlign = 0.5f
 			};
@@ -134,21 +158,26 @@ public static class Filters
 			_element = element;
 		}
 
-		public bool FitsFilter(BestiaryEntry entry) => entry.Info.Contains(_element);
+		public bool FitsFilter(BestiaryEntry entry)
+		{
+			return entry.Info.Contains(_element);
+		}
 
 		public string GetDisplayNameKey()
 		{
 			if (!(_element is IFilterInfoProvider filterInfoProvider))
+			{
 				return null;
-
+			}
 			return filterInfoProvider.GetDisplayNameKey();
 		}
 
 		public UIElement GetImage()
 		{
 			if (!(_element is IFilterInfoProvider filterInfoProvider))
+			{
 				return null;
-
+			}
 			return filterInfoProvider.GetFilterImage();
 		}
 	}

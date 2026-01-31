@@ -2,9 +2,9 @@ namespace Terraria.DataStructures;
 
 public class EntitySource_BossSpawn : IEntitySource
 {
-	public readonly Entity Entity;
+	public readonly IEntitySourceTarget Entity;
 
-	public EntitySource_BossSpawn(Entity entity)
+	public EntitySource_BossSpawn(IEntitySourceTarget entity)
 	{
 		Entity = entity;
 	}

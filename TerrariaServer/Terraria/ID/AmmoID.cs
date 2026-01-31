@@ -6,10 +6,14 @@ public static class AmmoID
 {
 	public class Sets
 	{
-		public static Dictionary<int, Dictionary<int, int>> SpecificLauncherAmmoProjectileMatches = new Dictionary<int, Dictionary<int, int>> {
+		public static SetFactory Factory = new SetFactory(ItemID.Count);
+
+		public static Dictionary<int, Dictionary<int, int>> SpecificLauncherAmmoProjectileMatches = new Dictionary<int, Dictionary<int, int>>
+		{
 			{
 				759,
-				new Dictionary<int, int> {
+				new Dictionary<int, int>
+				{
 					{ 771, 134 },
 					{ 772, 137 },
 					{ 773, 140 },
@@ -26,7 +30,8 @@ public static class AmmoID
 			},
 			{
 				758,
-				new Dictionary<int, int> {
+				new Dictionary<int, int>
+				{
 					{ 771, 133 },
 					{ 772, 136 },
 					{ 773, 139 },
@@ -43,7 +48,8 @@ public static class AmmoID
 			},
 			{
 				760,
-				new Dictionary<int, int> {
+				new Dictionary<int, int>
+				{
 					{ 771, 135 },
 					{ 772, 138 },
 					{ 773, 141 },
@@ -60,7 +66,8 @@ public static class AmmoID
 			},
 			{
 				1946,
-				new Dictionary<int, int> {
+				new Dictionary<int, int>
+				{
 					{ 771, 338 },
 					{ 772, 339 },
 					{ 773, 340 },
@@ -77,7 +84,8 @@ public static class AmmoID
 			},
 			{
 				3930,
-				new Dictionary<int, int> {
+				new Dictionary<int, int>
+				{
 					{ 771, 715 },
 					{ 772, 716 },
 					{ 773, 717 },
@@ -93,23 +101,47 @@ public static class AmmoID
 				}
 			}
 		};
+
+		public static bool[] IsArrow = Factory.CreateBoolSet(Arrow, Stake);
+
+		public static bool[] IsBullet = Factory.CreateBoolSet(Bullet, CandyCorn);
+
+		public static bool[] IsSpecialist = Factory.CreateBoolSet(Rocket, StyngerBolt, JackOLantern, NailFriendly, Coin, Flare, Dart, Snowball, FallenStar, Gel);
 	}
 
 	public static int None = 0;
+
 	public static int Gel = 23;
+
 	public static int Arrow = 40;
+
 	public static int Coin = 71;
+
 	public static int FallenStar = 75;
+
 	public static int Bullet = 97;
+
 	public static int Sand = 169;
+
 	public static int Dart = 283;
+
 	public static int Rocket = 771;
+
 	public static int Solution = 780;
+
 	public static int Flare = 931;
+
 	public static int Snowball = 949;
+
 	public static int StyngerBolt = 1261;
+
 	public static int CandyCorn = 1783;
+
 	public static int JackOLantern = 1785;
+
 	public static int Stake = 1836;
+
 	public static int NailFriendly = 3108;
+
+	public static int Acorn = 27;
 }

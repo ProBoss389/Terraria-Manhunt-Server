@@ -11,28 +11,37 @@ namespace Terraria.Graphics.Renderers;
 public class LegacyPlayerRenderer : IPlayerRenderer
 {
 	private readonly List<DrawData> _drawData = new List<DrawData>();
+
 	private readonly List<int> _dust = new List<int>();
+
 	private readonly List<int> _gore = new List<int>();
 
-	public static SamplerState MountedSamplerState {
-		get {
-			if (!Main.drawToScreen)
-				return SamplerState.AnisotropicClamp;
+	public Projectile OverrideHeldProjectile;
 
+	public static SamplerState MountedSamplerState
+	{
+		get
+		{
+			if (!Main.drawToScreen)
+			{
+				return SamplerState.AnisotropicClamp;
+			}
 			return SamplerState.LinearClamp;
 		}
 	}
 
 	public void DrawPlayers(Camera camera, IEnumerable<Player> players)
 	{
-		foreach (Player player in players) {
+		foreach (Player player in players)
+		{
 			DrawPlayerFull(camera, player);
 		}
 	}
 
 	public void DrawPlayerHead(Camera camera, Player drawPlayer, Vector2 position, float alpha = 1f, float scale = 1f, Color borderColor = default(Color))
 	{
-		if (!drawPlayer.ShouldNotDraw) {
+		if (!drawPlayer.ShouldNotDraw)
+		{
 			_drawData.Clear();
 			_dust.Clear();
 			_gore.Clear();
@@ -55,8 +64,9 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 	private void CreateOutlines(float alpha, float scale, Color borderColor)
 	{
 		if (!(borderColor != Color.Transparent))
+		{
 			return;
-
+		}
 		List<DrawData> collection = new List<DrawData>(_drawData);
 		List<DrawData> list = new List<DrawData>(_drawData);
 		float num = 2f * scale;
@@ -64,21 +74,25 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 		color *= alpha * alpha;
 		Color black = Color.Black;
 		black *= alpha * alpha;
-		int colorOnlyShaderIndex = ContentSamples.CommonlyUsedContentSamples.ColorOnlyShaderIndex;
-		for (int i = 0; i < list.Count; i++) {
+		int colorOnlyShaderIndex = ContentSamples.DyeShaderIDs.ColorOnlyShaderIndex;
+		for (int i = 0; i < list.Count; i++)
+		{
 			DrawData value = list[i];
 			value.shader = colorOnlyShaderIndex;
 			value.color = black;
 			list[i] = value;
 		}
-
 		int num2 = 2;
 		Vector2 vector;
-		for (int j = -num2; j <= num2; j++) {
-			for (int k = -num2; k <= num2; k++) {
-				if (Math.Abs(j) + Math.Abs(k) == num2) {
+		for (int j = -num2; j <= num2; j++)
+		{
+			for (int k = -num2; k <= num2; k++)
+			{
+				if (Math.Abs(j) + Math.Abs(k) == num2)
+				{
 					vector = new Vector2((float)j * num, (float)k * num);
-					for (int l = 0; l < list.Count; l++) {
+					for (int l = 0; l < list.Count; l++)
+					{
 						DrawData item = list[l];
 						item.position += vector;
 						_drawData.Add(item);
@@ -86,21 +100,24 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 				}
 			}
 		}
-
-		for (int m = 0; m < list.Count; m++) {
+		for (int m = 0; m < list.Count; m++)
+		{
 			DrawData value2 = list[m];
 			value2.shader = colorOnlyShaderIndex;
 			value2.color = color;
 			list[m] = value2;
 		}
-
 		vector = Vector2.Zero;
 		num2 = 1;
-		for (int n = -num2; n <= num2; n++) {
-			for (int num3 = -num2; num3 <= num2; num3++) {
-				if (Math.Abs(n) + Math.Abs(num3) == num2) {
+		for (int n = -num2; n <= num2; n++)
+		{
+			for (int num3 = -num2; num3 <= num2; num3++)
+			{
+				if (Math.Abs(n) + Math.Abs(num3) == num2)
+				{
 					vector = new Vector2((float)n * num, (float)num3 * num);
-					for (int num4 = 0; num4 < list.Count; num4++) {
+					for (int num4 = 0; num4 < list.Count; num4++)
+					{
 						DrawData item2 = list[num4];
 						item2.position += vector;
 						_drawData.Add(item2);
@@ -108,42 +125,53 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 				}
 			}
 		}
-
 		_drawData.AddRange(collection);
 	}
 
 	public void DrawPlayer(Camera camera, Player drawPlayer, Vector2 position, float rotation, Vector2 rotationOrigin, float shadow = 0f, float scale = 1f)
 	{
 		if (drawPlayer.ShouldNotDraw)
+		{
 			return;
-
+		}
 		PlayerDrawSet drawInfo = default(PlayerDrawSet);
 		_drawData.Clear();
 		_dust.Clear();
 		_gore.Clear();
-		drawInfo.BoringSetup(drawPlayer, _drawData, _dust, _gore, position, shadow, rotation, rotationOrigin);
+		bool num = drawPlayer.whoAmI == Main.myPlayer;
+		bool invis = drawPlayer.invis;
+		if (num)
+		{
+			drawPlayer.invis = false;
+			if (invis)
+			{
+				shadow = MathHelper.Min(shadow, 0.8f);
+				drawInfo.invisShadow = true;
+			}
+		}
+		drawInfo.BoringSetup(drawPlayer, _drawData, _dust, _gore, position, shadow, rotation, rotationOrigin, OverrideHeldProjectile);
 		DrawPlayer_UseNormalLayers(ref drawInfo);
+		if (num)
+		{
+			drawPlayer.invis = invis;
+		}
 		PlayerDrawLayers.DrawPlayer_TransformDrawData(ref drawInfo);
 		if (scale != 1f)
+		{
 			PlayerDrawLayers.DrawPlayer_ScaleDrawData(ref drawInfo, scale);
-
-		PlayerDrawLayers.DrawPlayer_RenderAllLayers(ref drawInfo);
-		if (!drawInfo.drawPlayer.mount.Active || !drawInfo.drawPlayer.UsingSuperCart)
-			return;
-
-		for (int i = 0; i < 1000; i++) {
-			if (Main.projectile[i].active && Main.projectile[i].owner == drawInfo.drawPlayer.whoAmI && Main.projectile[i].type == 591)
-				Main.instance.DrawProj(i);
 		}
-	}
-
-	private static void DrawPlayer_MountTransformation(ref PlayerDrawSet drawInfo)
-	{
-		PlayerDrawLayers.DrawPlayer_02_MountBehindPlayer(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_23_MountFront(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_extra_MountPlus(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_26_SolarShield(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_extra_MountMinus(ref drawInfo);
+		PlayerDrawLayers.DrawPlayer_RenderAllLayers(ref drawInfo);
+		if (!drawInfo.drawPlayer.mount.Active || !drawInfo.drawPlayer.UsingSuperCart || OverrideHeldProjectile != null)
+		{
+			return;
+		}
+		for (int i = 0; i < 1000; i++)
+		{
+			if (Main.projectile[i].active && Main.projectile[i].owner == drawInfo.drawPlayer.whoAmI && Main.projectile[i].type == 591)
+			{
+				Main.instance.DrawProj(i);
+			}
+		}
 	}
 
 	private static void DrawPlayer_UseNormalLayers(ref PlayerDrawSet drawInfo)
@@ -173,18 +201,21 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 		PlayerDrawLayers.DrawPlayer_extra_TorsoMinus(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_11_Balloons(ref drawInfo);
 		if (drawInfo.weaponDrawOrder == WeaponDrawOrder.BehindBackArm)
+		{
 			PlayerDrawLayers.DrawPlayer_27_HeldItem(ref drawInfo);
-
+		}
+		PlayerDrawLayers.DrawPlayer_13_ArmorBackCoat(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_12_Skin(ref drawInfo);
-		if (drawInfo.drawPlayer.wearsRobe && drawInfo.drawPlayer.body != 166) {
+		if (drawInfo.drawPlayer.wearsRobe && drawInfo.drawPlayer.body != 166)
+		{
 			PlayerDrawLayers.DrawPlayer_14_Shoes(ref drawInfo);
 			PlayerDrawLayers.DrawPlayer_13_Leggings(ref drawInfo);
 		}
-		else {
+		else
+		{
 			PlayerDrawLayers.DrawPlayer_13_Leggings(ref drawInfo);
 			PlayerDrawLayers.DrawPlayer_14_Shoes(ref drawInfo);
 		}
-
 		PlayerDrawLayers.DrawPlayer_extra_TorsoPlus(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_15_SkinLongCoat(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_16_ArmorLongCoat(ref drawInfo);
@@ -192,15 +223,21 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 		PlayerDrawLayers.DrawPlayer_18_OffhandAcc(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_19_WaistAcc(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_20_NeckAcc(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_21_Head(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_21_1_Magiluminescence(ref drawInfo);
-		PlayerDrawLayers.DrawPlayer_22_FaceAcc(ref drawInfo);
-		if (drawInfo.drawFrontAccInNeckAccLayer) {
-			PlayerDrawLayers.DrawPlayer_extra_TorsoMinus(ref drawInfo);
-			PlayerDrawLayers.DrawPlayer_32_FrontAcc_FrontPart(ref drawInfo);
-			PlayerDrawLayers.DrawPlayer_extra_TorsoPlus(ref drawInfo);
+		if (!drawInfo.mountHandlesHeadDraw)
+		{
+			PlayerDrawLayers.DrawPlayer_21_Head(ref drawInfo);
 		}
-
+		PlayerDrawLayers.DrawPlayer_21_1_Magiluminescence(ref drawInfo);
+		if (!drawInfo.mountHandlesHeadDraw)
+		{
+			PlayerDrawLayers.DrawPlayer_22_FaceAcc(ref drawInfo);
+			if (drawInfo.drawFrontAccInNeckAccLayer)
+			{
+				PlayerDrawLayers.DrawPlayer_extra_TorsoMinus(ref drawInfo);
+				PlayerDrawLayers.DrawPlayer_32_FrontAcc_FrontPart(ref drawInfo);
+				PlayerDrawLayers.DrawPlayer_extra_TorsoPlus(ref drawInfo);
+			}
+		}
 		PlayerDrawLayers.DrawPlayer_23_MountFront(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_24_Pulley(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_JimsDroneRadio(ref drawInfo);
@@ -210,18 +247,21 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 		PlayerDrawLayers.DrawPlayer_26_SolarShield(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_extra_MountMinus(ref drawInfo);
 		if (drawInfo.weaponDrawOrder == WeaponDrawOrder.BehindFrontArm)
+		{
 			PlayerDrawLayers.DrawPlayer_27_HeldItem(ref drawInfo);
-
+		}
 		PlayerDrawLayers.DrawPlayer_28_ArmOverItem(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_29_OnhandAcc(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_30_BladedGlove(ref drawInfo);
 		if (!drawInfo.drawFrontAccInNeckAccLayer)
+		{
 			PlayerDrawLayers.DrawPlayer_32_FrontAcc_FrontPart(ref drawInfo);
-
+		}
 		PlayerDrawLayers.DrawPlayer_extra_TorsoMinus(ref drawInfo);
 		if (drawInfo.weaponDrawOrder == WeaponDrawOrder.OverFrontArm)
+		{
 			PlayerDrawLayers.DrawPlayer_27_HeldItem(ref drawInfo);
-
+		}
 		PlayerDrawLayers.DrawPlayer_31_ProjectileOverArm(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_33_FrozenOrWebbedDebuff(ref drawInfo);
 		PlayerDrawLayers.DrawPlayer_34_ElectrifiedDebuffFront(ref drawInfo);
@@ -237,215 +277,250 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 		SpriteBatch spriteBatch = camera.SpriteBatch;
 		SamplerState samplerState = camera.Sampler;
 		if (drawPlayer.mount.Active && drawPlayer.fullRotation != 0f)
+		{
 			samplerState = MountedSamplerState;
-
+		}
 		spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState, DepthStencilState.None, camera.Rasterizer, null, camera.GameViewMatrix.TransformationMatrix);
 		if (Main.gamePaused)
+		{
 			drawPlayer.PlayerFrame();
-
-		if (drawPlayer.ghost) {
-			for (int i = 0; i < 3; i++) {
+		}
+		if (drawPlayer.ghost)
+		{
+			for (int i = 0; i < 3; i++)
+			{
 				Vector2 vector = drawPlayer.shadowPos[i];
-				vector = drawPlayer.position - drawPlayer.velocity * (2 + i * 2);
+				vector = drawPlayer.position + drawPlayer.netOffset - drawPlayer.velocity * (2 + i * 2);
 				DrawGhost(camera, drawPlayer, vector, 0.5f + 0.2f * (float)i);
 			}
-
-			DrawGhost(camera, drawPlayer, drawPlayer.position);
+			DrawGhost(camera, drawPlayer, drawPlayer.position + drawPlayer.netOffset);
 		}
-		else {
-			if (drawPlayer.inventory[drawPlayer.selectedItem].flame || drawPlayer.head == 137 || drawPlayer.wings == 22) {
-				drawPlayer.itemFlameCount--;
-				if (drawPlayer.itemFlameCount <= 0) {
-					drawPlayer.itemFlameCount = 5;
-					for (int j = 0; j < 7; j++) {
-						drawPlayer.itemFlamePos[j].X = (float)Main.rand.Next(-10, 11) * 0.15f;
-						drawPlayer.itemFlamePos[j].Y = (float)Main.rand.Next(-10, 1) * 0.35f;
-					}
-				}
-			}
-
-			if (drawPlayer.armorEffectDrawShadowEOCShield) {
+		else
+		{
+			PrepareDrawForFrame(drawPlayer);
+			if (drawPlayer.armorEffectDrawShadowEOCShield)
+			{
 				int num = drawPlayer.eocDash / 4;
 				if (num > 3)
+				{
 					num = 3;
-
-				for (int k = 0; k < num; k++) {
-					DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[k], drawPlayer.shadowRotation[k], drawPlayer.shadowOrigin[k], 0.5f + 0.2f * (float)k);
+				}
+				for (int j = 0; j < num; j++)
+				{
+					DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[j] + drawPlayer.netOffset, drawPlayer.shadowRotation[j], drawPlayer.shadowOrigin[j], 0.5f + 0.2f * (float)j);
 				}
 			}
-
-			Vector2 position = default(Vector2);
-			if (drawPlayer.invis) {
+			Vector2 position;
+			if (drawPlayer.invis)
+			{
 				drawPlayer.armorEffectDrawOutlines = false;
 				drawPlayer.armorEffectDrawShadow = false;
 				drawPlayer.armorEffectDrawShadowSubtle = false;
-				position = drawPlayer.position;
-				if (drawPlayer.aggro <= -750) {
+				position = drawPlayer.position + drawPlayer.netOffset;
+				if (drawPlayer.aggro <= -750)
+				{
 					DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 1f);
 				}
-				else {
+				else
+				{
 					drawPlayer.invis = false;
 					DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin);
 					drawPlayer.invis = true;
 				}
 			}
-
-			if (drawPlayer.armorEffectDrawOutlines) {
+			if (drawPlayer.armorEffectDrawOutlines)
+			{
 				_ = drawPlayer.position;
 				if (!Main.gamePaused)
+				{
 					drawPlayer.ghostFade += drawPlayer.ghostDir * 0.075f;
-
-				if ((double)drawPlayer.ghostFade < 0.1) {
+				}
+				if ((double)drawPlayer.ghostFade < 0.1)
+				{
 					drawPlayer.ghostDir = 1f;
 					drawPlayer.ghostFade = 0.1f;
 				}
-				else if ((double)drawPlayer.ghostFade > 0.9) {
+				else if ((double)drawPlayer.ghostFade > 0.9)
+				{
 					drawPlayer.ghostDir = -1f;
 					drawPlayer.ghostFade = 0.9f;
 				}
-
 				float num2 = drawPlayer.ghostFade * 5f;
-				for (int l = 0; l < 4; l++) {
+				for (int k = 0; k < 4; k++)
+				{
+					float x;
 					float num3;
-					float num4;
-					switch (l) {
-						default:
-							num3 = num2;
-							num4 = 0f;
-							break;
-						case 1:
-							num3 = 0f - num2;
-							num4 = 0f;
-							break;
-						case 2:
-							num3 = 0f;
-							num4 = num2;
-							break;
-						case 3:
-							num3 = 0f;
-							num4 = 0f - num2;
-							break;
+					switch (k)
+					{
+					default:
+						x = num2;
+						num3 = 0f;
+						break;
+					case 1:
+						x = 0f - num2;
+						num3 = 0f;
+						break;
+					case 2:
+						x = 0f;
+						num3 = num2;
+						break;
+					case 3:
+						x = 0f;
+						num3 = 0f - num2;
+						break;
 					}
-
-					position = new Vector2(drawPlayer.position.X + num3, drawPlayer.position.Y + drawPlayer.gfxOffY + num4);
+					position = drawPlayer.position + drawPlayer.netOffset + new Vector2(x, drawPlayer.gfxOffY + num3);
 					DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, drawPlayer.ghostFade);
 				}
 			}
-
-			if (drawPlayer.armorEffectDrawOutlinesForbidden) {
+			if (drawPlayer.armorEffectDrawOutlinesForbidden)
+			{
 				_ = drawPlayer.position;
 				if (!Main.gamePaused)
+				{
 					drawPlayer.ghostFade += drawPlayer.ghostDir * 0.025f;
-
-				if ((double)drawPlayer.ghostFade < 0.1) {
+				}
+				if ((double)drawPlayer.ghostFade < 0.1)
+				{
 					drawPlayer.ghostDir = 1f;
 					drawPlayer.ghostFade = 0.1f;
 				}
-				else if ((double)drawPlayer.ghostFade > 0.9) {
+				else if ((double)drawPlayer.ghostFade > 0.9)
+				{
 					drawPlayer.ghostDir = -1f;
 					drawPlayer.ghostFade = 0.9f;
 				}
-
-				float num5 = drawPlayer.ghostFade * 5f;
-				for (int m = 0; m < 4; m++) {
-					float num6;
-					float num7;
-					switch (m) {
-						default:
-							num6 = num5;
-							num7 = 0f;
-							break;
-						case 1:
-							num6 = 0f - num5;
-							num7 = 0f;
-							break;
-						case 2:
-							num6 = 0f;
-							num7 = num5;
-							break;
-						case 3:
-							num6 = 0f;
-							num7 = 0f - num5;
-							break;
+				float num4 = drawPlayer.ghostFade * 5f;
+				for (int l = 0; l < 4; l++)
+				{
+					float x2;
+					float num5;
+					switch (l)
+					{
+					default:
+						x2 = num4;
+						num5 = 0f;
+						break;
+					case 1:
+						x2 = 0f - num4;
+						num5 = 0f;
+						break;
+					case 2:
+						x2 = 0f;
+						num5 = num4;
+						break;
+					case 3:
+						x2 = 0f;
+						num5 = 0f - num4;
+						break;
 					}
-
-					position = new Vector2(drawPlayer.position.X + num6, drawPlayer.position.Y + drawPlayer.gfxOffY + num7);
+					position = drawPlayer.position + drawPlayer.netOffset + new Vector2(x2, drawPlayer.gfxOffY + num5);
 					DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, drawPlayer.ghostFade);
 				}
 			}
-
-			if (drawPlayer.armorEffectDrawShadowBasilisk) {
-				int num8 = (int)(drawPlayer.basiliskCharge * 3f);
-				for (int n = 0; n < num8; n++) {
-					DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[n], drawPlayer.shadowRotation[n], drawPlayer.shadowOrigin[n], 0.5f + 0.2f * (float)n);
+			if (drawPlayer.armorEffectDrawShadowBasilisk)
+			{
+				int num6 = (int)(drawPlayer.basiliskCharge * 3f);
+				for (int m = 0; m < num6; m++)
+				{
+					DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[m] + drawPlayer.netOffset, drawPlayer.shadowRotation[m], drawPlayer.shadowOrigin[m], 0.5f + 0.2f * (float)m);
 				}
 			}
-			else if (drawPlayer.armorEffectDrawShadow) {
-				for (int num9 = 0; num9 < 3; num9++) {
-					DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[num9], drawPlayer.shadowRotation[num9], drawPlayer.shadowOrigin[num9], 0.5f + 0.2f * (float)num9);
+			else if (drawPlayer.armorEffectDrawShadow)
+			{
+				for (int n = 0; n < 3; n++)
+				{
+					DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[n] + drawPlayer.netOffset, drawPlayer.shadowRotation[n], drawPlayer.shadowOrigin[n], 0.5f + 0.2f * (float)n);
 				}
 			}
-
-			if (drawPlayer.armorEffectDrawShadowLokis) {
-				for (int num10 = 0; num10 < 3; num10++) {
-					DrawPlayer(camera, drawPlayer, Vector2.Lerp(drawPlayer.shadowPos[num10], drawPlayer.position + new Vector2(0f, drawPlayer.gfxOffY), 0.5f), drawPlayer.shadowRotation[num10], drawPlayer.shadowOrigin[num10], MathHelper.Lerp(1f, 0.5f + 0.2f * (float)num10, 0.5f));
+			if (drawPlayer.armorEffectDrawShadowLokis)
+			{
+				for (int num7 = 0; num7 < 3; num7++)
+				{
+					DrawPlayer(camera, drawPlayer, Vector2.Lerp(drawPlayer.shadowPos[num7], drawPlayer.position + new Vector2(0f, drawPlayer.gfxOffY), 0.5f) + drawPlayer.netOffset, drawPlayer.shadowRotation[num7], drawPlayer.shadowOrigin[num7], MathHelper.Lerp(1f, 0.5f + 0.2f * (float)num7, 0.5f));
 				}
 			}
-
-			if (drawPlayer.armorEffectDrawShadowSubtle) {
-				for (int num11 = 0; num11 < 4; num11++) {
-					position.X = drawPlayer.position.X + (float)Main.rand.Next(-20, 21) * 0.1f;
-					position.Y = drawPlayer.position.Y + (float)Main.rand.Next(-20, 21) * 0.1f + drawPlayer.gfxOffY;
+			if (drawPlayer.armorEffectDrawShadowSubtle)
+			{
+				for (int num8 = 0; num8 < 4; num8++)
+				{
+					position = drawPlayer.position + drawPlayer.netOffset + new Vector2((float)Main.rand.Next(-20, 21) * 0.1f, (float)Main.rand.Next(-20, 21) * 0.1f + drawPlayer.gfxOffY);
 					DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 0.9f);
 				}
 			}
-
-			if (drawPlayer.shadowDodge) {
+			if (drawPlayer.shadowDodge)
+			{
 				drawPlayer.shadowDodgeCount += 1f;
 				if (drawPlayer.shadowDodgeCount > 30f)
+				{
 					drawPlayer.shadowDodgeCount = 30f;
+				}
 			}
-			else {
+			else
+			{
 				drawPlayer.shadowDodgeCount -= 1f;
 				if (drawPlayer.shadowDodgeCount < 0f)
+				{
 					drawPlayer.shadowDodgeCount = 0f;
+				}
 			}
-
-			if (drawPlayer.shadowDodgeCount > 0f) {
+			if (drawPlayer.shadowDodgeCount > 0f)
+			{
 				_ = drawPlayer.position;
-				position.X = drawPlayer.position.X + drawPlayer.shadowDodgeCount;
-				position.Y = drawPlayer.position.Y + drawPlayer.gfxOffY;
+				position = drawPlayer.position + drawPlayer.netOffset + new Vector2(drawPlayer.shadowDodgeCount, drawPlayer.gfxOffY);
 				DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 0.5f + (float)Main.rand.Next(-10, 11) * 0.005f);
-				position.X = drawPlayer.position.X - drawPlayer.shadowDodgeCount;
+				position = drawPlayer.position + drawPlayer.netOffset + new Vector2(0f - drawPlayer.shadowDodgeCount, drawPlayer.gfxOffY);
 				DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 0.5f + (float)Main.rand.Next(-10, 11) * 0.005f);
 			}
-
-			if (drawPlayer.brainOfConfusionDodgeAnimationCounter > 0) {
-				Vector2 vector2 = drawPlayer.position + new Vector2(0f, drawPlayer.gfxOffY);
+			if (drawPlayer.brainOfConfusionDodgeAnimationCounter > 0)
+			{
+				Vector2 vector2 = drawPlayer.position + drawPlayer.netOffset + new Vector2(0f, drawPlayer.gfxOffY);
 				float lerpValue = Utils.GetLerpValue(300f, 270f, drawPlayer.brainOfConfusionDodgeAnimationCounter);
 				float y = MathHelper.Lerp(2f, 120f, lerpValue);
-				if (lerpValue >= 0f && lerpValue <= 1f) {
-					for (float num12 = 0f; num12 < (float)Math.PI * 2f; num12 += (float)Math.PI / 3f) {
-						position = vector2 + new Vector2(0f, y).RotatedBy((float)Math.PI * 2f * lerpValue * 0.5f + num12);
+				if (lerpValue >= 0f && lerpValue <= 1f)
+				{
+					for (float num9 = 0f; num9 < (float)Math.PI * 2f; num9 += (float)Math.PI / 3f)
+					{
+						position = vector2 + new Vector2(0f, y).RotatedBy((float)Math.PI * 2f * lerpValue * 0.5f + num9);
 						DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, lerpValue);
 					}
 				}
 			}
-
-			position = drawPlayer.position;
-			position.Y += drawPlayer.gfxOffY;
+			position = drawPlayer.position + drawPlayer.netOffset + new Vector2(0f, drawPlayer.gfxOffY);
 			if (drawPlayer.stoned)
+			{
 				DrawPlayerStoned(camera, drawPlayer, position);
+			}
 			else if (!drawPlayer.invis)
+			{
 				DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin);
+			}
 		}
-
 		spriteBatch.End();
+	}
+
+	public void PrepareDrawForFrame(Player drawPlayer)
+	{
+		if (!drawPlayer.inventory[drawPlayer.selectedItem].flame && drawPlayer.head != 137 && drawPlayer.wings != 22)
+		{
+			return;
+		}
+		drawPlayer.itemFlameCount--;
+		if (drawPlayer.itemFlameCount <= 0)
+		{
+			drawPlayer.itemFlameCount = 5;
+			for (int i = 0; i < 7; i++)
+			{
+				drawPlayer.itemFlamePos[i].X = (float)Main.rand.Next(-10, 11) * 0.15f;
+				drawPlayer.itemFlamePos[i].Y = (float)Main.rand.Next(-10, 1) * 0.35f;
+			}
+		}
 	}
 
 	private void DrawPlayerStoned(Camera camera, Player drawPlayer, Vector2 position)
 	{
-		if (!drawPlayer.dead) {
+		if (!drawPlayer.dead)
+		{
 			SpriteEffects spriteEffects = SpriteEffects.None;
 			spriteEffects = ((drawPlayer.direction != 1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			camera.SpriteBatch.Draw(TextureAssets.Extra[37].Value, new Vector2((int)(position.X - camera.UnscaledPosition.X - (float)(drawPlayer.bodyFrame.Width / 2) + (float)(drawPlayer.width / 2)), (int)(position.Y - camera.UnscaledPosition.Y + (float)drawPlayer.height - (float)drawPlayer.bodyFrame.Height + 8f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2), null, Lighting.GetColor((int)((double)position.X + (double)drawPlayer.width * 0.5) / 16, (int)((double)position.Y + (double)drawPlayer.height * 0.5) / 16, Color.White), 0f, new Vector2(TextureAssets.Extra[37].Width() / 2, TextureAssets.Extra[37].Height() / 2), 1f, spriteEffects, 0f);
@@ -456,7 +531,7 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 	{
 		byte mouseTextColor = Main.mouseTextColor;
 		SpriteEffects effects = ((drawPlayer.direction != 1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
-		Color immuneAlpha = drawPlayer.GetImmuneAlpha(Lighting.GetColor((int)((double)drawPlayer.position.X + (double)drawPlayer.width * 0.5) / 16, (int)((double)drawPlayer.position.Y + (double)drawPlayer.height * 0.5) / 16, new Color((int)mouseTextColor / 2 + 100, (int)mouseTextColor / 2 + 100, (int)mouseTextColor / 2 + 100, (int)mouseTextColor / 2 + 100)), shadow);
+		Color immuneAlpha = drawPlayer.GetImmuneAlpha(Lighting.GetColor((int)((double)drawPlayer.position.X + (double)drawPlayer.width * 0.5) / 16, (int)((double)drawPlayer.position.Y + (double)drawPlayer.height * 0.5) / 16, new Color(mouseTextColor / 2 + 100, mouseTextColor / 2 + 100, mouseTextColor / 2 + 100, mouseTextColor / 2 + 100)), shadow);
 		immuneAlpha.A = (byte)((float)(int)immuneAlpha.A * (1f - Math.Max(0.5f, shadow - 0.5f)));
 		Rectangle value = new Rectangle(0, TextureAssets.Ghost.Height() / 4 * drawPlayer.ghostFrame, TextureAssets.Ghost.Width(), TextureAssets.Ghost.Height() / 4);
 		Vector2 origin = new Vector2((float)value.Width * 0.5f, (float)value.Height * 0.5f);

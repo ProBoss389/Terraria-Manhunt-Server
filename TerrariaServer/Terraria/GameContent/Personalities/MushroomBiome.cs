@@ -7,5 +7,8 @@ public class MushroomBiome : AShoppingBiome
 		base.NameKey = "Mushroom";
 	}
 
-	public override bool IsInBiome(Player player) => player.ZoneGlowshroom;
+	public override bool IsInBiome(Player player)
+	{
+		return player.ZoneGlowshroom;
+	}
 }

@@ -8,23 +8,41 @@ namespace Terraria.GameContent.UI.BigProgressBar;
 public class BigProgressBarSystem
 {
 	private IBigProgressBar _currentBar;
+
 	private CommonBossBigProgressBar _bossBar = new CommonBossBigProgressBar();
+
 	private BigProgressBarInfo _info;
+
 	private static TwinsBigProgressBar _twinsBar = new TwinsBigProgressBar();
+
 	private static EaterOfWorldsProgressBar _eaterOfWorldsBar = new EaterOfWorldsProgressBar();
+
 	private static BrainOfCthuluBigProgressBar _brainOfCthuluBar = new BrainOfCthuluBigProgressBar();
+
 	private static GolemHeadProgressBar _golemBar = new GolemHeadProgressBar();
+
 	private static MoonLordProgressBar _moonlordBar = new MoonLordProgressBar();
+
 	private static SolarFlarePillarBigProgressBar _solarPillarBar = new SolarFlarePillarBigProgressBar();
+
 	private static VortexPillarBigProgressBar _vortexPillarBar = new VortexPillarBigProgressBar();
+
 	private static NebulaPillarBigProgressBar _nebulaPillarBar = new NebulaPillarBigProgressBar();
+
 	private static StardustPillarBigProgressBar _stardustPillarBar = new StardustPillarBigProgressBar();
+
 	private static NeverValidProgressBar _neverValid = new NeverValidProgressBar();
+
 	private static PirateShipBigProgressBar _pirateShipBar = new PirateShipBigProgressBar();
+
 	private static MartianSaucerBigProgressBar _martianSaucerBar = new MartianSaucerBigProgressBar();
+
 	private static DeerclopsBigProgressBar _deerclopsBar = new DeerclopsBigProgressBar();
+
 	public static bool ShowText = true;
-	private Dictionary<int, IBigProgressBar> _bossBarsByNpcNetId = new Dictionary<int, IBigProgressBar> {
+
+	private Dictionary<int, IBigProgressBar> _bossBarsByNpcNetId = new Dictionary<int, IBigProgressBar>
+	{
 		{ 125, _twinsBar },
 		{ 126, _twinsBar },
 		{ 13, _eaterOfWorldsBar },
@@ -52,6 +70,7 @@ public class BigProgressBarSystem
 		{ 68, _neverValid },
 		{ 668, _deerclopsBar }
 	};
+
 	private const string _preferencesKey = "ShowBossBarHealthText";
 
 	public void BindTo(Preferences preferences)
@@ -63,16 +82,21 @@ public class BigProgressBarSystem
 	public void Update()
 	{
 		if (_currentBar == null)
+		{
 			TryFindingNPCToTrack();
-
+		}
 		if (_currentBar != null && !_currentBar.ValidateAndCollectNecessaryInfo(ref _info))
+		{
 			_currentBar = null;
+		}
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
 		if (_currentBar != null)
+		{
 			_currentBar.Draw(ref _info, spriteBatch);
+		}
 	}
 
 	private void TryFindingNPCToTrack()
@@ -80,35 +104,44 @@ public class BigProgressBarSystem
 		Rectangle value = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
 		value.Inflate(5000, 5000);
 		float num = float.PositiveInfinity;
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			NPC nPC = Main.npc[i];
-			if (nPC.active && nPC.Hitbox.Intersects(value)) {
+			if (nPC.active && nPC.Hitbox.Intersects(value))
+			{
 				float num2 = nPC.Distance(Main.LocalPlayer.Center);
 				if (num > num2 && TryTracking(i))
+				{
 					num = num2;
+				}
 			}
 		}
 	}
 
 	public bool TryTracking(int npcIndex)
 	{
-		if (npcIndex < 0 || npcIndex > 200)
+		if (npcIndex < 0 || npcIndex > Main.maxNPCs)
+		{
 			return false;
-
+		}
 		NPC nPC = Main.npc[npcIndex];
 		if (!nPC.active)
+		{
 			return false;
-
-		BigProgressBarInfo bigProgressBarInfo = default(BigProgressBarInfo);
-		bigProgressBarInfo.npcIndexToAimAt = npcIndex;
-		BigProgressBarInfo info = bigProgressBarInfo;
+		}
+		BigProgressBarInfo info = new BigProgressBarInfo
+		{
+			npcIndexToAimAt = npcIndex
+		};
 		IBigProgressBar bigProgressBar = _bossBar;
 		if (_bossBarsByNpcNetId.TryGetValue(nPC.netID, out var value))
+		{
 			bigProgressBar = value;
-
+		}
 		if (!bigProgressBar.ValidateAndCollectNecessaryInfo(ref info))
+		{
 			return false;
-
+		}
 		_currentBar = bigProgressBar;
 		info.showText = true;
 		_info = info;

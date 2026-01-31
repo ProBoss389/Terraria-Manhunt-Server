@@ -10,7 +10,9 @@ public class SayChatCommand : IChatCommand
 	{
 		ChatHelper.BroadcastChatMessageAs(clientId, NetworkText.FromLiteral(text), Main.player[clientId].ChatColor());
 		if (Main.dedServ)
+		{
 			Console.WriteLine("<{0}> {1}", Main.player[clientId].name, text);
+		}
 	}
 
 	public void ProcessOutgoingMessage(ChatMessage message)

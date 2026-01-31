@@ -7,7 +7,9 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIColoredSliderSimple : UIElement
 {
 	public float FillPercent;
+
 	public Color FilledColor = Main.OurFavoriteColor;
+
 	public Color EmptyColor = Color.Black;
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)

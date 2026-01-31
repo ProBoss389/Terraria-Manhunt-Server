@@ -7,511 +7,683 @@ namespace Terraria.GameInput;
 public class TriggersSet
 {
 	public Dictionary<string, bool> KeyStatus = new Dictionary<string, bool>();
+
 	public Dictionary<string, InputMode> LatestInputMode = new Dictionary<string, InputMode>();
+
 	public bool UsedMovementKey = true;
+
 	public int HotbarScrollCD;
+
 	public int HotbarHoldTime;
 
-	public bool MouseLeft {
-		get {
+	public bool MouseLeft
+	{
+		get
+		{
 			return KeyStatus["MouseLeft"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MouseLeft"] = value;
 		}
 	}
 
-	public bool MouseRight {
-		get {
+	public bool MouseRight
+	{
+		get
+		{
 			return KeyStatus["MouseRight"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MouseRight"] = value;
 		}
 	}
 
-	public bool Up {
-		get {
+	public bool Up
+	{
+		get
+		{
 			return KeyStatus["Up"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Up"] = value;
 		}
 	}
 
-	public bool Down {
-		get {
+	public bool Down
+	{
+		get
+		{
 			return KeyStatus["Down"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Down"] = value;
 		}
 	}
 
-	public bool Left {
-		get {
+	public bool Left
+	{
+		get
+		{
 			return KeyStatus["Left"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Left"] = value;
 		}
 	}
 
-	public bool Right {
-		get {
+	public bool Right
+	{
+		get
+		{
 			return KeyStatus["Right"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Right"] = value;
 		}
 	}
 
-	public bool Jump {
-		get {
+	public bool Jump
+	{
+		get
+		{
 			return KeyStatus["Jump"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Jump"] = value;
 		}
 	}
 
-	public bool Throw {
-		get {
+	public bool Throw
+	{
+		get
+		{
 			return KeyStatus["Throw"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Throw"] = value;
 		}
 	}
 
-	public bool Inventory {
-		get {
+	public bool Inventory
+	{
+		get
+		{
 			return KeyStatus["Inventory"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Inventory"] = value;
 		}
 	}
 
-	public bool Grapple {
-		get {
+	public bool Grapple
+	{
+		get
+		{
 			return KeyStatus["Grapple"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Grapple"] = value;
 		}
 	}
 
-	public bool SmartSelect {
-		get {
+	public bool SmartSelect
+	{
+		get
+		{
 			return KeyStatus["SmartSelect"];
 		}
-		set {
+		set
+		{
 			KeyStatus["SmartSelect"] = value;
 		}
 	}
 
-	public bool SmartCursor {
-		get {
+	public bool SmartCursor
+	{
+		get
+		{
 			return KeyStatus["SmartCursor"];
 		}
-		set {
+		set
+		{
 			KeyStatus["SmartCursor"] = value;
 		}
 	}
 
-	public bool QuickMount {
-		get {
+	public bool QuickMount
+	{
+		get
+		{
 			return KeyStatus["QuickMount"];
 		}
-		set {
+		set
+		{
 			KeyStatus["QuickMount"] = value;
 		}
 	}
 
-	public bool QuickHeal {
-		get {
+	public bool QuickHeal
+	{
+		get
+		{
 			return KeyStatus["QuickHeal"];
 		}
-		set {
+		set
+		{
 			KeyStatus["QuickHeal"] = value;
 		}
 	}
 
-	public bool QuickMana {
-		get {
+	public bool QuickMana
+	{
+		get
+		{
 			return KeyStatus["QuickMana"];
 		}
-		set {
+		set
+		{
 			KeyStatus["QuickMana"] = value;
 		}
 	}
 
-	public bool QuickBuff {
-		get {
+	public bool QuickBuff
+	{
+		get
+		{
 			return KeyStatus["QuickBuff"];
 		}
-		set {
+		set
+		{
 			KeyStatus["QuickBuff"] = value;
 		}
 	}
 
-	public bool Loadout1 {
-		get {
+	public bool Loadout1
+	{
+		get
+		{
 			return KeyStatus["Loadout1"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Loadout1"] = value;
 		}
 	}
 
-	public bool Loadout2 {
-		get {
+	public bool Loadout2
+	{
+		get
+		{
 			return KeyStatus["Loadout2"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Loadout2"] = value;
 		}
 	}
 
-	public bool Loadout3 {
-		get {
+	public bool Loadout3
+	{
+		get
+		{
 			return KeyStatus["Loadout3"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Loadout3"] = value;
 		}
 	}
 
-	public bool MapZoomIn {
-		get {
+	public bool MapZoomIn
+	{
+		get
+		{
 			return KeyStatus["MapZoomIn"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MapZoomIn"] = value;
 		}
 	}
 
-	public bool MapZoomOut {
-		get {
+	public bool MapZoomOut
+	{
+		get
+		{
 			return KeyStatus["MapZoomOut"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MapZoomOut"] = value;
 		}
 	}
 
-	public bool MapAlphaUp {
-		get {
+	public bool MapAlphaUp
+	{
+		get
+		{
 			return KeyStatus["MapAlphaUp"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MapAlphaUp"] = value;
 		}
 	}
 
-	public bool MapAlphaDown {
-		get {
+	public bool MapAlphaDown
+	{
+		get
+		{
 			return KeyStatus["MapAlphaDown"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MapAlphaDown"] = value;
 		}
 	}
 
-	public bool MapFull {
-		get {
+	public bool MapFull
+	{
+		get
+		{
 			return KeyStatus["MapFull"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MapFull"] = value;
 		}
 	}
 
-	public bool MapStyle {
-		get {
+	public bool MapStyle
+	{
+		get
+		{
 			return KeyStatus["MapStyle"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MapStyle"] = value;
 		}
 	}
 
-	public bool Hotbar1 {
-		get {
+	public bool Hotbar1
+	{
+		get
+		{
 			return KeyStatus["Hotbar1"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar1"] = value;
 		}
 	}
 
-	public bool Hotbar2 {
-		get {
+	public bool Hotbar2
+	{
+		get
+		{
 			return KeyStatus["Hotbar2"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar2"] = value;
 		}
 	}
 
-	public bool Hotbar3 {
-		get {
+	public bool Hotbar3
+	{
+		get
+		{
 			return KeyStatus["Hotbar3"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar3"] = value;
 		}
 	}
 
-	public bool Hotbar4 {
-		get {
+	public bool Hotbar4
+	{
+		get
+		{
 			return KeyStatus["Hotbar4"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar4"] = value;
 		}
 	}
 
-	public bool Hotbar5 {
-		get {
+	public bool Hotbar5
+	{
+		get
+		{
 			return KeyStatus["Hotbar5"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar5"] = value;
 		}
 	}
 
-	public bool Hotbar6 {
-		get {
+	public bool Hotbar6
+	{
+		get
+		{
 			return KeyStatus["Hotbar6"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar6"] = value;
 		}
 	}
 
-	public bool Hotbar7 {
-		get {
+	public bool Hotbar7
+	{
+		get
+		{
 			return KeyStatus["Hotbar7"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar7"] = value;
 		}
 	}
 
-	public bool Hotbar8 {
-		get {
+	public bool Hotbar8
+	{
+		get
+		{
 			return KeyStatus["Hotbar8"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar8"] = value;
 		}
 	}
 
-	public bool Hotbar9 {
-		get {
+	public bool Hotbar9
+	{
+		get
+		{
 			return KeyStatus["Hotbar9"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar9"] = value;
 		}
 	}
 
-	public bool Hotbar10 {
-		get {
+	public bool Hotbar10
+	{
+		get
+		{
 			return KeyStatus["Hotbar10"];
 		}
-		set {
+		set
+		{
 			KeyStatus["Hotbar10"] = value;
 		}
 	}
 
-	public bool HotbarMinus {
-		get {
+	public bool HotbarMinus
+	{
+		get
+		{
 			return KeyStatus["HotbarMinus"];
 		}
-		set {
+		set
+		{
 			KeyStatus["HotbarMinus"] = value;
 		}
 	}
 
-	public bool HotbarPlus {
-		get {
+	public bool HotbarPlus
+	{
+		get
+		{
 			return KeyStatus["HotbarPlus"];
 		}
-		set {
+		set
+		{
 			KeyStatus["HotbarPlus"] = value;
 		}
 	}
 
-	public bool DpadRadial1 {
-		get {
+	public bool DpadRadial1
+	{
+		get
+		{
 			return KeyStatus["DpadRadial1"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadRadial1"] = value;
 		}
 	}
 
-	public bool DpadRadial2 {
-		get {
+	public bool DpadRadial2
+	{
+		get
+		{
 			return KeyStatus["DpadRadial2"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadRadial2"] = value;
 		}
 	}
 
-	public bool DpadRadial3 {
-		get {
+	public bool DpadRadial3
+	{
+		get
+		{
 			return KeyStatus["DpadRadial3"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadRadial3"] = value;
 		}
 	}
 
-	public bool DpadRadial4 {
-		get {
+	public bool DpadRadial4
+	{
+		get
+		{
 			return KeyStatus["DpadRadial4"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadRadial4"] = value;
 		}
 	}
 
-	public bool RadialHotbar {
-		get {
+	public bool RadialHotbar
+	{
+		get
+		{
 			return KeyStatus["RadialHotbar"];
 		}
-		set {
+		set
+		{
 			KeyStatus["RadialHotbar"] = value;
 		}
 	}
 
-	public bool RadialQuickbar {
-		get {
+	public bool RadialQuickbar
+	{
+		get
+		{
 			return KeyStatus["RadialQuickbar"];
 		}
-		set {
+		set
+		{
 			KeyStatus["RadialQuickbar"] = value;
 		}
 	}
 
-	public bool DpadMouseSnap1 {
-		get {
+	public bool DpadMouseSnap1
+	{
+		get
+		{
 			return KeyStatus["DpadSnap1"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadSnap1"] = value;
 		}
 	}
 
-	public bool DpadMouseSnap2 {
-		get {
+	public bool DpadMouseSnap2
+	{
+		get
+		{
 			return KeyStatus["DpadSnap2"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadSnap2"] = value;
 		}
 	}
 
-	public bool DpadMouseSnap3 {
-		get {
+	public bool DpadMouseSnap3
+	{
+		get
+		{
 			return KeyStatus["DpadSnap3"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadSnap3"] = value;
 		}
 	}
 
-	public bool DpadMouseSnap4 {
-		get {
+	public bool DpadMouseSnap4
+	{
+		get
+		{
 			return KeyStatus["DpadSnap4"];
 		}
-		set {
+		set
+		{
 			KeyStatus["DpadSnap4"] = value;
 		}
 	}
 
-	public bool MenuUp {
-		get {
+	public bool MenuUp
+	{
+		get
+		{
 			return KeyStatus["MenuUp"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MenuUp"] = value;
 		}
 	}
 
-	public bool MenuDown {
-		get {
+	public bool MenuDown
+	{
+		get
+		{
 			return KeyStatus["MenuDown"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MenuDown"] = value;
 		}
 	}
 
-	public bool MenuLeft {
-		get {
+	public bool MenuLeft
+	{
+		get
+		{
 			return KeyStatus["MenuLeft"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MenuLeft"] = value;
 		}
 	}
 
-	public bool MenuRight {
-		get {
+	public bool MenuRight
+	{
+		get
+		{
 			return KeyStatus["MenuRight"];
 		}
-		set {
+		set
+		{
 			KeyStatus["MenuRight"] = value;
 		}
 	}
 
-	public bool LockOn {
-		get {
+	public bool LockOn
+	{
+		get
+		{
 			return KeyStatus["LockOn"];
 		}
-		set {
+		set
+		{
 			KeyStatus["LockOn"] = value;
 		}
 	}
 
-	public bool ViewZoomIn {
-		get {
+	public bool ViewZoomIn
+	{
+		get
+		{
 			return KeyStatus["ViewZoomIn"];
 		}
-		set {
+		set
+		{
 			KeyStatus["ViewZoomIn"] = value;
 		}
 	}
 
-	public bool ViewZoomOut {
-		get {
+	public bool ViewZoomOut
+	{
+		get
+		{
 			return KeyStatus["ViewZoomOut"];
 		}
-		set {
+		set
+		{
 			KeyStatus["ViewZoomOut"] = value;
 		}
 	}
 
-	public bool OpenCreativePowersMenu {
-		get {
+	public bool OpenCreativePowersMenu
+	{
+		get
+		{
 			return KeyStatus["ToggleCreativeMenu"];
 		}
-		set {
+		set
+		{
 			KeyStatus["ToggleCreativeMenu"] = value;
 		}
 	}
 
-	public bool ToggleCameraMode {
-		get {
+	public bool ToggleCameraMode
+	{
+		get
+		{
 			return KeyStatus["ToggleCameraMode"];
 		}
-		set {
+		set
+		{
 			KeyStatus["ToggleCameraMode"] = value;
 		}
 	}
@@ -521,7 +693,8 @@ public class TriggersSet
 	public void Reset()
 	{
 		string[] array = KeyStatus.Keys.ToArray();
-		for (int i = 0; i < array.Length; i++) {
+		for (int i = 0; i < array.Length; i++)
+		{
 			KeyStatus[array[i]] = false;
 		}
 	}
@@ -530,10 +703,10 @@ public class TriggersSet
 	{
 		KeyStatus.Clear();
 		LatestInputMode.Clear();
-		foreach (KeyValuePair<string, bool> item in other.KeyStatus) {
+		foreach (KeyValuePair<string, bool> item in other.KeyStatus)
+		{
 			KeyStatus.Add(item.Key, item.Value);
 		}
-
 		UsedMovementKey = other.UsedMovementKey;
 		HotbarScrollCD = other.HotbarScrollCD;
 		HotbarHoldTime = other.HotbarHoldTime;
@@ -542,7 +715,8 @@ public class TriggersSet
 	public void SetupKeys()
 	{
 		KeyStatus.Clear();
-		foreach (string knownTrigger in PlayerInput.KnownTriggers) {
+		foreach (string knownTrigger in PlayerInput.KnownTriggers)
+		{
 			KeyStatus.Add(knownTrigger, value: false);
 		}
 	}
@@ -559,32 +733,40 @@ public class TriggersSet
 
 	public void CopyInto(Player p)
 	{
-		if (PlayerInput.CurrentInputMode != InputMode.XBoxGamepadUI && !PlayerInput.CursorIsBusy) {
+		if (PlayerInput.CurrentInputMode != InputMode.XBoxGamepadUI && !PlayerInput.CursorIsBusy)
+		{
 			p.controlUp = Up;
 			p.controlDown = Down;
 			p.controlLeft = Left;
 			p.controlRight = Right;
 			p.controlJump = Jump;
 			p.controlHook = Grapple;
-			p.controlTorch = SmartSelect;
+			if (!p.mouseInterface)
+			{
+				p.controlTorch = SmartSelect;
+			}
 			p.controlSmart = SmartCursor;
 			p.controlMount = QuickMount;
 			p.controlQuickHeal = QuickHeal;
 			p.controlQuickMana = QuickMana;
 			p.controlCreativeMenu = OpenCreativePowersMenu;
 			if (QuickBuff)
+			{
 				p.QuickBuff();
-
+			}
 			if (Loadout1)
+			{
 				p.TrySwitchingLoadout(0);
-
+			}
 			if (Loadout2)
+			{
 				p.TrySwitchingLoadout(1);
-
+			}
 			if (Loadout3)
+			{
 				p.TrySwitchingLoadout(2);
+			}
 		}
-
 		p.controlInv = Inventory;
 		p.controlThrow = Throw;
 		p.mapZoomIn = MapZoomIn;
@@ -593,75 +775,103 @@ public class TriggersSet
 		p.mapAlphaDown = MapAlphaDown;
 		p.mapFullScreen = MapFull;
 		p.mapStyle = MapStyle;
-		if (MouseLeft) {
+		if (MouseLeft)
+		{
 			if (!Main.blockMouse && !p.mouseInterface)
+			{
 				p.controlUseItem = true;
+			}
 		}
-		else {
+		else
+		{
 			Main.blockMouse = false;
 		}
-
+		if (!Main.playerInventory && Main.player[Main.myPlayer].stressBall && Main.player[Main.myPlayer].CanUseStressBall() && !MouseLeft && !Main.blockMouse && !p.mouseInterface)
+		{
+			p.controlUseItem = true;
+		}
 		if (!MouseRight && !Main.playerInventory)
+		{
 			PlayerInput.LockGamepadTileUseButton = false;
-
+		}
 		if (MouseRight && !p.mouseInterface && !Main.blockMouse && !ShouldLockTileUsage() && !PlayerInput.InBuildingMode)
+		{
 			p.controlUseTile = true;
-
+		}
 		if (PlayerInput.InBuildingMode && MouseRight)
+		{
 			p.controlInv = true;
-
+		}
 		if (SmartSelect && LatestInputMode.TryGetValue("SmartSelect", out var value) && IsInputFromGamepad(value))
+		{
 			PlayerInput.SettingsForUI.SetCursorMode(CursorMode.Gamepad);
-
+		}
 		bool flag = PlayerInput.Triggers.Current.HotbarPlus || PlayerInput.Triggers.Current.HotbarMinus;
 		if (flag)
+		{
 			HotbarHoldTime++;
+		}
 		else
+		{
 			HotbarHoldTime = 0;
-
+		}
 		if (HotbarScrollCD > 0 && (!(HotbarScrollCD == 1 && flag) || PlayerInput.CurrentProfile.HotbarRadialHoldTimeRequired <= 0))
+		{
 			HotbarScrollCD--;
+		}
 	}
 
 	public void CopyIntoDuringChat(Player p)
 	{
-		if (MouseLeft) {
+		if (MouseLeft)
+		{
 			if (!Main.blockMouse && !p.mouseInterface)
+			{
 				p.controlUseItem = true;
+			}
 		}
-		else {
+		else
+		{
 			Main.blockMouse = false;
 		}
-
 		if (!MouseRight && !Main.playerInventory)
+		{
 			PlayerInput.LockGamepadTileUseButton = false;
-
+		}
 		if (MouseRight && !p.mouseInterface && !Main.blockMouse && !ShouldLockTileUsage() && !PlayerInput.InBuildingMode)
+		{
 			p.controlUseTile = true;
-
+		}
 		bool flag = PlayerInput.Triggers.Current.HotbarPlus || PlayerInput.Triggers.Current.HotbarMinus;
 		if (flag)
+		{
 			HotbarHoldTime++;
+		}
 		else
+		{
 			HotbarHoldTime = 0;
-
+		}
 		if (HotbarScrollCD > 0 && (!(HotbarScrollCD == 1 && flag) || PlayerInput.CurrentProfile.HotbarRadialHoldTimeRequired <= 0))
+		{
 			HotbarScrollCD--;
+		}
 	}
 
 	private bool ShouldLockTileUsage()
 	{
 		if (PlayerInput.LockGamepadTileUseButton)
+		{
 			return PlayerInput.UsingGamepad;
-
+		}
 		return false;
 	}
 
 	private bool IsInputFromGamepad(InputMode mode)
 	{
 		if ((uint)mode <= 2u)
+		{
 			return false;
-
+		}
 		return true;
 	}
 }

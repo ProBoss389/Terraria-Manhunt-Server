@@ -26,109 +26,60 @@ public static class PlayerDataInitializer
 
 	private static void LoadVariant(int ID, int[] pieceIDs)
 	{
-		for (int i = 0; i < pieceIDs.Length; i++) {
-			TextureAssets.Players[ID, pieceIDs[i]] = Main.Assets.Request<Texture2D>("Images/Player_" + ID + "_" + pieceIDs[i], AssetRequestMode.AsyncLoad);
+		for (int i = 0; i < pieceIDs.Length; i++)
+		{
+			TextureAssets.Players[ID, pieceIDs[i]] = Main.Assets.Request<Texture2D>("Images/Player_" + ID + "_" + pieceIDs[i]);
 		}
 	}
 
 	private static void CopyVariant(int to, int from)
 	{
-		for (int i = 0; i < PlayerTextureID.Count; i++) {
+		for (int i = 0; i < PlayerTextureID.Count; i++)
+		{
 			TextureAssets.Players[to, i] = TextureAssets.Players[from, i];
 		}
 	}
 
 	private static void LoadStarterMale()
 	{
-		LoadVariant(0, new int[15] {
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
-			7,
-			8,
-			9,
-			10,
-			11,
-			12,
-			13,
-			15
+		LoadVariant(0, new int[15]
+		{
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+			10, 11, 12, 13, 15
 		});
-
 		TextureAssets.Players[0, 14] = Asset<Texture2D>.Empty;
 	}
 
 	private static void LoadStickerMale()
 	{
 		CopyVariant(1, 0);
-		LoadVariant(1, new int[6] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13
-		});
+		LoadVariant(1, new int[6] { 4, 6, 8, 11, 12, 13 });
 	}
 
 	private static void LoadGangsterMale()
 	{
 		CopyVariant(2, 0);
-		LoadVariant(2, new int[6] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13
-		});
+		LoadVariant(2, new int[6] { 4, 6, 8, 11, 12, 13 });
 	}
 
 	private static void LoadCoatMale()
 	{
 		CopyVariant(3, 0);
-		LoadVariant(3, new int[7] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13,
-			14
-		});
+		LoadVariant(3, new int[7] { 4, 6, 8, 11, 12, 13, 14 });
 	}
 
 	private static void LoadDressMale()
 	{
 		CopyVariant(8, 0);
-		LoadVariant(8, new int[7] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13,
-			14
-		});
+		LoadVariant(8, new int[7] { 4, 6, 8, 11, 12, 13, 14 });
 	}
 
 	private static void LoadStarterFemale()
 	{
 		CopyVariant(4, 0);
-		LoadVariant(4, new int[11] {
-			3,
-			4,
-			5,
-			6,
-			7,
-			8,
-			9,
-			10,
-			11,
-			12,
+		LoadVariant(4, new int[11]
+		{
+			3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
 			13
 		});
 	}
@@ -136,69 +87,31 @@ public static class PlayerDataInitializer
 	private static void LoadStickerFemale()
 	{
 		CopyVariant(5, 4);
-		LoadVariant(5, new int[6] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13
-		});
+		LoadVariant(5, new int[6] { 4, 6, 8, 11, 12, 13 });
 	}
 
 	private static void LoadGangsterFemale()
 	{
 		CopyVariant(6, 4);
-		LoadVariant(6, new int[6] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13
-		});
+		LoadVariant(6, new int[6] { 4, 6, 8, 11, 12, 13 });
 	}
 
 	private static void LoadCoatFemale()
 	{
 		CopyVariant(7, 4);
-		LoadVariant(7, new int[7] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13,
-			14
-		});
+		LoadVariant(7, new int[7] { 4, 6, 8, 11, 12, 13, 14 });
 	}
 
 	private static void LoadDressFemale()
 	{
 		CopyVariant(9, 4);
-		LoadVariant(9, new int[6] {
-			4,
-			6,
-			8,
-			11,
-			12,
-			13
-		});
+		LoadVariant(9, new int[6] { 4, 6, 8, 11, 12, 13 });
 	}
 
 	private static void LoadDisplayDollMale()
 	{
 		CopyVariant(10, 0);
-		LoadVariant(10, new int[7] {
-			0,
-			2,
-			3,
-			5,
-			7,
-			9,
-			10
-		});
-
+		LoadVariant(10, new int[7] { 0, 2, 3, 5, 7, 9, 10 });
 		Asset<Texture2D> asset = TextureAssets.Players[10, 2];
 		TextureAssets.Players[10, 2] = asset;
 		TextureAssets.Players[10, 1] = asset;
@@ -214,14 +127,7 @@ public static class PlayerDataInitializer
 	private static void LoadDisplayDollFemale()
 	{
 		CopyVariant(11, 10);
-		LoadVariant(11, new int[5] {
-			3,
-			5,
-			7,
-			9,
-			10
-		});
-
+		LoadVariant(11, new int[5] { 3, 5, 7, 9, 10 });
 		Asset<Texture2D> asset = TextureAssets.Players[10, 2];
 		TextureAssets.Players[11, 2] = asset;
 		TextureAssets.Players[11, 1] = asset;

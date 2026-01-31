@@ -8,8 +8,11 @@ namespace Terraria.DataStructures;
 public abstract class SelectionHolder<TCycleType> where TCycleType : class, IConfigKeyHolder
 {
 	protected Dictionary<string, TCycleType> Options = new Dictionary<string, TCycleType>();
+
 	protected TCycleType ActiveSelection;
+
 	protected string ActiveSelectionConfigKey;
+
 	protected bool LoadedContent;
 
 	public string ActiveSelectionKeyName { get; private set; }
@@ -28,7 +31,9 @@ public abstract class SelectionHolder<TCycleType> where TCycleType : class, ICon
 	{
 		Configuration_OnLoad(obj);
 		if (LoadedContent)
+		{
 			SetActiveMinimapFromLoadedConfigKey();
+		}
 	}
 
 	protected abstract void PopulateOptionsAndLoadContent(AssetRequestMode mode);
@@ -43,17 +48,19 @@ public abstract class SelectionHolder<TCycleType> where TCycleType : class, ICon
 	public void CycleSelection()
 	{
 		TCycleType lastFrame = null;
-		Options.Values.FirstOrDefault(delegate (TCycleType frame) {
+		Options.Values.FirstOrDefault(delegate(TCycleType frame)
+		{
 			if (frame == ActiveSelection)
+			{
 				return true;
-
+			}
 			lastFrame = frame;
 			return false;
 		});
-
 		if (lastFrame == null)
+		{
 			lastFrame = Options.Values.Last();
-
+		}
 		SetActiveFrame(lastFrame);
 	}
 
@@ -66,8 +73,9 @@ public abstract class SelectionHolder<TCycleType> where TCycleType : class, ICon
 	{
 		TCycleType val = Options.FirstOrDefault((KeyValuePair<string, TCycleType> pair) => pair.Key == frameName).Value;
 		if (val == null)
+		{
 			val = Options.Values.First();
-
+		}
 		SetActiveFrame(val);
 	}
 

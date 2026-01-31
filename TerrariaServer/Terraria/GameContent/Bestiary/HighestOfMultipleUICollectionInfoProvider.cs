@@ -5,6 +5,7 @@ namespace Terraria.GameContent.Bestiary;
 public class HighestOfMultipleUICollectionInfoProvider : IBestiaryUICollectionInfoProvider
 {
 	private IBestiaryUICollectionInfoProvider[] _providers;
+
 	private int _mainProviderIndex;
 
 	public HighestOfMultipleUICollectionInfoProvider(params IBestiaryUICollectionInfoProvider[] providers)
@@ -17,15 +18,20 @@ public class HighestOfMultipleUICollectionInfoProvider : IBestiaryUICollectionIn
 	{
 		BestiaryUICollectionInfo entryUICollectionInfo = _providers[_mainProviderIndex].GetEntryUICollectionInfo();
 		BestiaryEntryUnlockState unlockState = entryUICollectionInfo.UnlockState;
-		for (int i = 0; i < _providers.Length; i++) {
+		for (int i = 0; i < _providers.Length; i++)
+		{
 			BestiaryUICollectionInfo entryUICollectionInfo2 = _providers[i].GetEntryUICollectionInfo();
 			if (unlockState < entryUICollectionInfo2.UnlockState)
+			{
 				unlockState = entryUICollectionInfo2.UnlockState;
+			}
 		}
-
 		entryUICollectionInfo.UnlockState = unlockState;
 		return entryUICollectionInfo;
 	}
 
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
 }

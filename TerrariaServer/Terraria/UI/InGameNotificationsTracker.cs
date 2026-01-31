@@ -26,9 +26,12 @@ public class InGameNotificationsTracker
 
 	private static void JoinRequests_OnRequestRemoved(UserJoinToServerRequest request)
 	{
-		for (int num = _notifications.Count - 1; num >= 0; num--) {
+		for (int num = _notifications.Count - 1; num >= 0; num--)
+		{
 			if (_notifications[num].CreationObject == request)
+			{
 				_notifications.RemoveAt(num);
+			}
 		}
 	}
 
@@ -36,14 +39,18 @@ public class InGameNotificationsTracker
 	{
 		float num = Main.screenHeight - 40;
 		if (PlayerInput.UsingGamepad)
+		{
 			num -= 25f;
-
+		}
 		Vector2 positionAnchorBottom = new Vector2(Main.screenWidth / 2, num);
-		foreach (IInGameNotification notification in _notifications) {
+		foreach (IInGameNotification notification in _notifications)
+		{
 			notification.DrawInGame(sb, positionAnchorBottom);
 			notification.PushAnchor(ref positionAnchorBottom);
 			if (positionAnchorBottom.Y < -100f)
+			{
 				break;
+			}
 		}
 	}
 
@@ -53,25 +60,32 @@ public class InGameNotificationsTracker
 		int num2 = area.Height / 5 - num;
 		Rectangle area2 = new Rectangle(area.X, area.Y, area.Width - 6, num2);
 		int num3 = 0;
-		foreach (IInGameNotification notification in _notifications) {
+		foreach (IInGameNotification notification in _notifications)
+		{
 			notification.DrawInNotificationsArea(spriteBatch, area2, ref gamepadPointIdLocalIndexToUse);
 			area2.Y += num2 + num;
 			num3++;
 			if (num3 >= 5)
+			{
 				break;
+			}
 		}
 	}
 
 	public static void AddCompleted(Achievement achievement)
 	{
 		if (Main.netMode != 2)
+		{
 			_notifications.Add(new InGamePopups.AchievementUnlockedPopup(achievement));
+		}
 	}
 
 	public static void AddJoinRequest(UserJoinToServerRequest request)
 	{
 		if (Main.netMode != 2)
+		{
 			_notifications.Add(new InGamePopups.PlayerWantsToJoinGamePopup(request));
+		}
 	}
 
 	public static void Clear()
@@ -81,9 +95,11 @@ public class InGameNotificationsTracker
 
 	public static void Update()
 	{
-		for (int i = 0; i < _notifications.Count; i++) {
+		for (int i = 0; i < _notifications.Count; i++)
+		{
 			_notifications[i].Update();
-			if (_notifications[i].ShouldBeRemoved) {
+			if (_notifications[i].ShouldBeRemoved)
+			{
 				_notifications.Remove(_notifications[i]);
 				i--;
 			}

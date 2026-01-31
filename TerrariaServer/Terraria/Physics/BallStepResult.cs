@@ -9,7 +9,18 @@ public struct BallStepResult
 		State = state;
 	}
 
-	public static BallStepResult OutOfBounds() => new BallStepResult(BallState.OutOfBounds);
-	public static BallStepResult Moving() => new BallStepResult(BallState.Moving);
-	public static BallStepResult Resting() => new BallStepResult(BallState.Resting);
+	public static BallStepResult OutOfBounds()
+	{
+		return new BallStepResult(BallState.OutOfBounds);
+	}
+
+	public static BallStepResult Moving()
+	{
+		return new BallStepResult(BallState.Moving);
+	}
+
+	public static BallStepResult Resting()
+	{
+		return new BallStepResult(BallState.Resting);
+	}
 }

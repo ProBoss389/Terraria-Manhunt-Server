@@ -5,9 +5,13 @@ namespace Terraria.DataStructures;
 public class CachedBuffer
 {
 	public readonly byte[] Data;
+
 	public readonly BinaryWriter Writer;
+
 	public readonly BinaryReader Reader;
+
 	private readonly MemoryStream _memoryStream;
+
 	private bool _isActive = true;
 
 	public int Length => Data.Length;
@@ -31,7 +35,8 @@ public class CachedBuffer
 
 	public void Recycle()
 	{
-		if (_isActive) {
+		if (_isActive)
+		{
 			_isActive = false;
 			BufferPool.Recycle(this);
 		}

@@ -4,7 +4,8 @@ public class CommonResourceBarMethods
 {
 	public static void DrawLifeMouseOver()
 	{
-		if (!Main.mouseText) {
+		if (!Main.mouseText)
+		{
 			Player localPlayer = Main.LocalPlayer;
 			localPlayer.cursorItemIconEnabled = false;
 			string text = localPlayer.statLife + "/" + localPlayer.statLifeMax2;
@@ -15,7 +16,8 @@ public class CommonResourceBarMethods
 
 	public static void DrawManaMouseOver()
 	{
-		if (!Main.mouseText) {
+		if (!Main.mouseText)
+		{
 			Player localPlayer = Main.LocalPlayer;
 			localPlayer.cursorItemIconEnabled = false;
 			string text = localPlayer.statMana + "/" + localPlayer.statManaMax2;

@@ -11,13 +11,17 @@ public class DropNothing : IItemDropRule
 		ChainedRules = new List<IItemDropRuleChainAttempt>();
 	}
 
-	public bool CanDrop(DropAttemptInfo info) => false;
+	public bool CanDrop(DropAttemptInfo info)
+	{
+		return false;
+	}
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
-		ItemDropAttemptResult result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.DoesntFillConditions;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.DoesntFillConditions
+		};
 	}
 
 	public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)

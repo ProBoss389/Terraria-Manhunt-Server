@@ -6,16 +6,23 @@ namespace Terraria.Modules;
 public class TileObjectBaseModule
 {
 	public int width;
+
 	public int height;
+
 	public Point16 origin;
+
 	public TileObjectDirection direction;
+
 	public int randomRange;
+
 	public bool flattenAnchors;
+
 	public int[] specificRandomStyles;
 
 	public TileObjectBaseModule(TileObjectBaseModule copyFrom = null)
 	{
-		if (copyFrom == null) {
+		if (copyFrom == null)
+		{
 			width = 1;
 			height = 1;
 			origin = Point16.Zero;
@@ -25,7 +32,6 @@ public class TileObjectBaseModule
 			specificRandomStyles = null;
 			return;
 		}
-
 		width = copyFrom.width;
 		height = copyFrom.height;
 		origin = copyFrom.origin;
@@ -33,7 +39,8 @@ public class TileObjectBaseModule
 		randomRange = copyFrom.randomRange;
 		flattenAnchors = copyFrom.flattenAnchors;
 		specificRandomStyles = null;
-		if (copyFrom.specificRandomStyles != null) {
+		if (copyFrom.specificRandomStyles != null)
+		{
 			specificRandomStyles = new int[copyFrom.specificRandomStyles.Length];
 			copyFrom.specificRandomStyles.CopyTo(specificRandomStyles, 0);
 		}

@@ -7,7 +7,9 @@ namespace Terraria.UI;
 public class SnapPoint
 {
 	public string Name;
+
 	private Vector2 _anchor;
+
 	private Vector2 _offset;
 
 	public int Id { get; private set; }

@@ -8,11 +8,10 @@ namespace Terraria.GameContent.UI.BigProgressBar;
 public class GolemHeadProgressBar : IBigProgressBar
 {
 	private BigProgressBarCache _cache;
+
 	private NPC _referenceDummy;
-	private HashSet<int> ValidIds = new HashSet<int> {
-		246,
-		245
-	};
+
+	private HashSet<int> ValidIds = new HashSet<int> { 246, 245 };
 
 	public GolemHeadProgressBar()
 	{
@@ -21,25 +20,29 @@ public class GolemHeadProgressBar : IBigProgressBar
 
 	public bool ValidateAndCollectNecessaryInfo(ref BigProgressBarInfo info)
 	{
-		if (info.npcIndexToAimAt < 0 || info.npcIndexToAimAt > 200)
+		if (info.npcIndexToAimAt < 0 || info.npcIndexToAimAt > Main.maxNPCs)
+		{
 			return false;
-
+		}
 		NPC nPC = Main.npc[info.npcIndexToAimAt];
 		if (!nPC.active && !TryFindingAnotherGolemPiece(ref info))
+		{
 			return false;
-
+		}
 		int num = 0;
 		_referenceDummy.SetDefaults(245, nPC.GetMatchingSpawnParams());
 		num += _referenceDummy.lifeMax;
 		_referenceDummy.SetDefaults(246, nPC.GetMatchingSpawnParams());
 		num += _referenceDummy.lifeMax;
 		float num2 = 0f;
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			NPC nPC2 = Main.npc[i];
 			if (nPC2.active && ValidIds.Contains(nPC2.type))
+			{
 				num2 += (float)nPC2.life;
+			}
 		}
-
 		_cache.SetLife(num2, num);
 		return true;
 	}
@@ -54,14 +57,15 @@ public class GolemHeadProgressBar : IBigProgressBar
 
 	private bool TryFindingAnotherGolemPiece(ref BigProgressBarInfo info)
 	{
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			NPC nPC = Main.npc[i];
-			if (nPC.active && ValidIds.Contains(nPC.type)) {
+			if (nPC.active && ValidIds.Contains(nPC.type))
+			{
 				info.npcIndexToAimAt = i;
 				return true;
 			}
 		}
-
 		return false;
 	}
 }

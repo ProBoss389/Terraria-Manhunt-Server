@@ -15,21 +15,22 @@ public class CommonDropWithRerolls : CommonDrop
 	public override ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
 		bool flag = false;
-		for (int i = 0; i < timesToRoll; i++) {
+		for (int i = 0; i < timesToRoll; i++)
+		{
 			flag = flag || info.player.RollLuck(chanceDenominator) < chanceNumerator;
 		}
-
-		ItemDropAttemptResult result;
-		if (flag) {
+		if (flag)
+		{
 			CommonCode.DropItemFromNPC(info.npc, itemId, info.rng.Next(amountDroppedMinimum, amountDroppedMaximum + 1));
-			result = default(ItemDropAttemptResult);
-			result.State = ItemDropAttemptResultState.Success;
-			return result;
+			return new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.Success
+			};
 		}
-
-		result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.FailedRandomRoll;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.FailedRandomRoll
+		};
 	}
 
 	public override void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
@@ -37,10 +38,10 @@ public class CommonDropWithRerolls : CommonDrop
 		float num = (float)chanceNumerator / (float)chanceDenominator;
 		float num2 = 1f - num;
 		float num3 = 1f;
-		for (int i = 0; i < timesToRoll; i++) {
+		for (int i = 0; i < timesToRoll; i++)
+		{
 			num3 *= num2;
 		}
-
 		float num4 = 1f - num3;
 		float dropRate = num4 * ratesInfo.parentDroprateChance;
 		drops.Add(new DropRateInfo(itemId, amountDroppedMinimum, amountDroppedMaximum, dropRate, ratesInfo.conditions));

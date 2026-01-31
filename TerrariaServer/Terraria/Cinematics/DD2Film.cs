@@ -11,10 +11,15 @@ namespace Terraria.Cinematics;
 public class DD2Film : Film
 {
 	private NPC _dryad;
+
 	private NPC _ogre;
+
 	private NPC _portal;
+
 	private List<NPC> _army = new List<NPC>();
+
 	private List<NPC> _critters = new List<NPC>();
+
 	private Vector2 _startPoint;
 
 	public DD2Film()
@@ -61,11 +66,13 @@ public class DD2Film : Film
 
 	private void DryadInteract(FrameEventData evt)
 	{
-		if (_dryad != null) {
+		if (_dryad != null)
+		{
 			_dryad.ai[0] = 9f;
 			if (evt.IsFirstFrame)
+			{
 				_dryad.ai[1] = evt.Duration;
-
+			}
 			_dryad.localAI[0] = 0f;
 		}
 	}
@@ -111,22 +118,18 @@ public class DD2Film : Film
 
 	private void CreateCritters(FrameEventData evt)
 	{
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 5; i++)
+		{
 			float num = (float)i / 5f;
-			NPC nPC = PlaceNPCOnGround(Utils.SelectRandom(Main.rand, new short[4] {
-				46,
-				46,
-				299,
-				538
-			}), _startPoint + new Vector2((num - 0.25f) * 400f + Main.rand.NextFloat() * 50f - 25f, 0f));
-
+			NPC nPC = PlaceNPCOnGround(Utils.SelectRandom(Main.rand, new short[4] { 46, 46, 299, 538 }), _startPoint + new Vector2((num - 0.25f) * 400f + Main.rand.NextFloat() * 50f - 25f, 0f));
 			nPC.ai[0] = 0f;
 			nPC.ai[1] = 600f;
 			_critters.Add(nPC);
 		}
-
-		if (_dryad != null) {
-			for (int j = 0; j < 10; j++) {
+		if (_dryad != null)
+		{
+			for (int j = 0; j < 10; j++)
+			{
 				_ = (float)j / 10f;
 				int num2 = NPC.NewNPC(new EntitySource_Film(), (int)_dryad.position.X + Main.rand.Next(-1000, 800), (int)_dryad.position.Y - Main.rand.Next(-50, 300), 356);
 				NPC nPC2 = Main.npc[num2];
@@ -145,27 +148,29 @@ public class DD2Film : Film
 
 	private void DryadPortalKnock(FrameEventData evt)
 	{
-		if (_dryad != null) {
-			if (evt.Frame == 20) {
+		if (_dryad != null)
+		{
+			if (evt.Frame == 20)
+			{
 				_dryad.velocity.Y -= 7f;
 				_dryad.velocity.X -= 8f;
 				SoundEngine.PlaySound(3, (int)_dryad.Center.X, (int)_dryad.Center.Y);
 			}
-
-			if (evt.Frame >= 20) {
+			if (evt.Frame >= 20)
+			{
 				_dryad.ai[0] = 1f;
 				_dryad.ai[1] = evt.Remaining;
 				_dryad.rotation += 0.05f;
 			}
 		}
-
-		if (_ogre != null) {
-			if (evt.Frame > 40) {
+		if (_ogre != null)
+		{
+			if (evt.Frame > 40)
+			{
 				_ogre.target = Main.myPlayer;
 				_ogre.direction = 1;
 				return;
 			}
-
 			_ogre.direction = -1;
 			_ogre.ai[1] = 0f;
 			_ogre.ai[0] = Math.Min(40f, _ogre.ai[0]);
@@ -176,7 +181,8 @@ public class DD2Film : Film
 	private void RemoveEnemyDamage(FrameEventData evt)
 	{
 		_ogre.friendly = true;
-		foreach (NPC item in _army) {
+		foreach (NPC item in _army)
+		{
 			item.friendly = true;
 		}
 	}
@@ -184,7 +190,8 @@ public class DD2Film : Film
 	private void RestoreEnemyDamage(FrameEventData evt)
 	{
 		_ogre.friendly = false;
-		foreach (NPC item in _army) {
+		foreach (NPC item in _army)
+		{
 			item.friendly = false;
 		}
 	}
@@ -192,27 +199,31 @@ public class DD2Film : Film
 	private void DryadPortalFade(FrameEventData evt)
 	{
 		if (_dryad == null || _portal == null)
+		{
 			return;
-
+		}
 		if (evt.IsFirstFrame)
+		{
 			SoundEngine.PlaySound(SoundID.DD2_EtherianPortalDryadTouch, _dryad.Center);
-
+		}
 		float val = (float)(evt.Frame - 7) / (float)(evt.Duration - 7);
 		val = Math.Max(0f, val);
 		_dryad.color = new Color(Vector3.Lerp(Vector3.One, new Vector3(0.5f, 0f, 0.8f), val));
 		_dryad.Opacity = 1f - val;
 		_dryad.rotation += 0.05f * (val * 4f + 1f);
 		_dryad.scale = 1f - val;
-		if (_dryad.position.X < _portal.Right.X) {
+		if (_dryad.position.X < _portal.Right.X)
+		{
 			_dryad.velocity.X *= 0.95f;
 			_dryad.velocity.Y *= 0.55f;
 		}
-
 		int num = (int)(6f * val);
 		float num2 = _dryad.Size.Length() / 2f;
 		num2 /= 20f;
-		for (int i = 0; i < num; i++) {
-			if (Main.rand.Next(5) == 0) {
+		for (int i = 0; i < num; i++)
+		{
+			if (Main.rand.Next(5) == 0)
+			{
 				Dust dust = Dust.NewDustDirect(_dryad.position, _dryad.width, _dryad.height, 27, _dryad.velocity.X * 1f, 0f, 100);
 				dust.scale = 0.55f;
 				dust.fadeIn = 0.7f;
@@ -230,7 +241,8 @@ public class DD2Film : Film
 
 	private void DryadStand(FrameEventData evt)
 	{
-		if (_dryad != null) {
+		if (_dryad != null)
+		{
 			_dryad.ai[0] = 0f;
 			_dryad.ai[1] = evt.Remaining;
 		}
@@ -238,7 +250,8 @@ public class DD2Film : Film
 
 	private void DryadLookRight(FrameEventData evt)
 	{
-		if (_dryad != null) {
+		if (_dryad != null)
+		{
 			_dryad.direction = 1;
 			_dryad.spriteDirection = 1;
 		}
@@ -246,7 +259,8 @@ public class DD2Film : Film
 
 	private void DryadLookLeft(FrameEventData evt)
 	{
-		if (_dryad != null) {
+		if (_dryad != null)
+		{
 			_dryad.direction = -1;
 			_dryad.spriteDirection = -1;
 		}
@@ -261,13 +275,17 @@ public class DD2Film : Film
 	private void DryadConfusedEmote(FrameEventData evt)
 	{
 		if (_dryad != null && evt.IsFirstFrame)
+		{
 			EmoteBubble.NewBubble(87, new WorldUIAnchor(_dryad), evt.Duration);
+		}
 	}
 
 	private void DryadAlertEmote(FrameEventData evt)
 	{
 		if (_dryad != null && evt.IsFirstFrame)
+		{
 			EmoteBubble.NewBubble(3, new WorldUIAnchor(_dryad), evt.Duration);
+		}
 	}
 
 	private void CreateOgre(FrameEventData evt)
@@ -283,7 +301,8 @@ public class DD2Film : Film
 
 	private void OgreStand(FrameEventData evt)
 	{
-		if (_ogre != null) {
+		if (_ogre != null)
+		{
 			_ogre.ai[0] = 0f;
 			_ogre.ai[1] = 0f;
 			_ogre.velocity = Vector2.Zero;
@@ -292,7 +311,8 @@ public class DD2Film : Film
 
 	private void DryadAttack(FrameEventData evt)
 	{
-		if (_dryad != null) {
+		if (_dryad != null)
+		{
 			_dryad.ai[0] = 14f;
 			_dryad.ai[1] = evt.Remaining;
 			_dryad.dryadWard = false;
@@ -301,7 +321,8 @@ public class DD2Film : Film
 
 	private void OgreLookRight(FrameEventData evt)
 	{
-		if (_ogre != null) {
+		if (_ogre != null)
+		{
 			_ogre.direction = 1;
 			_ogre.spriteDirection = 1;
 		}
@@ -309,7 +330,8 @@ public class DD2Film : Film
 
 	private void OgreLookLeft(FrameEventData evt)
 	{
-		if (_ogre != null) {
+		if (_ogre != null)
+		{
 			_ogre.direction = -1;
 			_ogre.spriteDirection = -1;
 		}
@@ -330,20 +352,20 @@ public class DD2Film : Film
 		int num2 = (int)position.Y;
 		int i = num / 16;
 		int j;
-		for (j = num2 / 16; !WorldGen.SolidTile(i, j); j++) {
+		for (j = num2 / 16; !WorldGen.SolidTile(i, j); j++)
+		{
 		}
-
 		num2 = j * 16;
 		int start = 100;
-		switch (type) {
-			case 20:
-				start = 1;
-				break;
-			case 576:
-				start = 50;
-				break;
+		switch (type)
+		{
+		case 20:
+			start = 1;
+			break;
+		case 576:
+			start = 50;
+			break;
 		}
-
 		int num3 = NPC.NewNPC(new EntitySource_Film(), num, num2, type, start);
 		return Main.npc[num3];
 	}
@@ -351,22 +373,25 @@ public class DD2Film : Film
 	public override void OnEnd()
 	{
 		if (_dryad != null)
+		{
 			_dryad.active = false;
-
+		}
 		if (_portal != null)
+		{
 			_portal.active = false;
-
+		}
 		if (_ogre != null)
+		{
 			_ogre.active = false;
-
-		foreach (NPC critter in _critters) {
+		}
+		foreach (NPC critter in _critters)
+		{
 			critter.active = false;
 		}
-
-		foreach (NPC item in _army) {
+		foreach (NPC item in _army)
+		{
 			item.active = false;
 		}
-
 		Main.NewText("DD2Film: End");
 		base.OnEnd();
 	}

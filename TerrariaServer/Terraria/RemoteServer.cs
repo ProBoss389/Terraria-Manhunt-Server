@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Terraria.Localization;
 using Terraria.Net.Sockets;
 
 namespace Terraria;
@@ -8,14 +7,25 @@ namespace Terraria;
 public class RemoteServer
 {
 	public ISocket Socket = new TcpSocket();
+
 	public bool IsActive;
+
 	public int State;
+
 	public int TimeOutTimer;
+
+	public bool PendingTermination;
+
 	public bool IsReading;
+
 	public byte[] ReadBuffer;
+
 	public string StatusText;
+
 	public int StatusCount;
+
 	public int StatusMax;
+
 	public BitsByte ServerSpecialFlags;
 
 	public bool HideStatusTextPercent => ServerSpecialFlags[0];
@@ -24,9 +34,20 @@ public class RemoteServer
 
 	public bool ServerWantsToRunCheckBytesInClientLoopThread => ServerSpecialFlags[2];
 
+	public bool ReadBufferFull => NetMessage.buffer[256].RemainingReadBufferLength < ReadBuffer.Length;
+
 	public void ResetSpecialFlags()
 	{
 		ServerSpecialFlags = (byte)0;
+	}
+
+	public bool IsConnected()
+	{
+		if (!PendingTermination)
+		{
+			return Socket.IsConnected();
+		}
+		return false;
 	}
 
 	public void ClientWriteCallBack(object state)
@@ -34,38 +55,45 @@ public class RemoteServer
 		NetMessage.buffer[256].spamCount--;
 	}
 
-	public void ClientReadCallBack(object state, int length)
+	public void ClientReadCallBack(object state, int streamLength)
 	{
-		try {
-			if (!Netplay.Disconnect) {
-				if (length == 0) {
-					Netplay.Disconnect = true;
-					Main.statusText = Language.GetTextValue("Net.LostConnection");
+		try
+		{
+			if (!Netplay.Disconnect)
+			{
+				if (streamLength == 0)
+				{
+					PendingTermination = true;
 				}
-				else if (Main.ignoreErrors) {
-					try {
-						NetMessage.ReceiveBytes(ReadBuffer, length);
+				else if (Main.ignoreErrors)
+				{
+					try
+					{
+						NetMessage.ReceiveBytes(ReadBuffer, streamLength);
 					}
-					catch {
+					catch
+					{
 					}
 				}
-				else {
-					NetMessage.ReceiveBytes(ReadBuffer, length);
+				else
+				{
+					NetMessage.ReceiveBytes(ReadBuffer, streamLength);
 				}
 			}
-
 			IsReading = false;
 		}
-		catch (Exception value) {
-			try {
+		catch (Exception value)
+		{
+			try
+			{
 				using StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true);
 				streamWriter.WriteLine(DateTime.Now);
 				streamWriter.WriteLine(value);
 				streamWriter.WriteLine("");
 			}
-			catch {
+			catch
+			{
 			}
-
 			Netplay.Disconnect = true;
 		}
 	}

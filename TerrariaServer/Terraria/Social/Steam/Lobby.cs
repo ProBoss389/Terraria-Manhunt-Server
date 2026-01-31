@@ -7,13 +7,21 @@ namespace Terraria.Social.Steam;
 public class Lobby
 {
 	private HashSet<CSteamID> _usersSeen = new HashSet<CSteamID>();
+
 	private byte[] _messageBuffer = new byte[1024];
+
 	public CSteamID Id = CSteamID.Nil;
+
 	public CSteamID Owner = CSteamID.Nil;
+
 	public LobbyState State;
+
 	private CallResult<LobbyEnter_t> _lobbyEnter;
+
 	private CallResult<LobbyEnter_t>.APIDispatchDelegate _lobbyEnterExternalCallback;
+
 	private CallResult<LobbyCreated_t> _lobbyCreated;
+
 	private CallResult<LobbyCreated_t>.APIDispatchDelegate _lobbyCreatedExternalCallback;
 
 	public Lobby()
@@ -33,14 +41,19 @@ public class Lobby
 	public void OpenInviteOverlay()
 	{
 		if (State == LobbyState.Inactive)
+		{
 			SteamFriends.ActivateGameOverlayInviteDialog(new CSteamID(Main.LobbyId));
+		}
 		else
+		{
 			SteamFriends.ActivateGameOverlayInviteDialog(Id);
+		}
 	}
 
 	public void Join(CSteamID lobbyId, CallResult<LobbyEnter_t>.APIDispatchDelegate callResult)
 	{
-		if (State == LobbyState.Inactive) {
+		if (State == LobbyState.Inactive)
+		{
 			State = LobbyState.Connecting;
 			_lobbyEnterExternalCallback = callResult;
 			SteamAPICall_t hAPICall = SteamMatchmaking.JoinLobby(lobbyId);
@@ -58,15 +71,27 @@ public class Lobby
 		return array;
 	}
 
-	public int GetUserCount() => SteamMatchmaking.GetNumLobbyMembers(Id);
-	public CSteamID GetUserByIndex(int index) => SteamMatchmaking.GetLobbyMemberByIndex(Id, index);
-	public bool SendMessage(byte[] data) => SendMessage(data, data.Length);
+	public int GetUserCount()
+	{
+		return SteamMatchmaking.GetNumLobbyMembers(Id);
+	}
+
+	public CSteamID GetUserByIndex(int index)
+	{
+		return SteamMatchmaking.GetLobbyMemberByIndex(Id, index);
+	}
+
+	public bool SendMessage(byte[] data)
+	{
+		return SendMessage(data, data.Length);
+	}
 
 	public bool SendMessage(byte[] data, int length)
 	{
 		if (State != LobbyState.Active)
+		{
 			return false;
-
+		}
 		return SteamMatchmaking.SendLobbyChatMsg(Id, data, length);
 	}
 
@@ -79,7 +104,8 @@ public class Lobby
 
 	public void SetPlayedWith(CSteamID userId)
 	{
-		if (!_usersSeen.Contains(userId)) {
+		if (!_usersSeen.Contains(userId))
+		{
 			SteamFriends.SetPlayedWith(userId);
 			_usersSeen.Add(userId);
 		}
@@ -88,20 +114,25 @@ public class Lobby
 	public void Leave()
 	{
 		if (State == LobbyState.Active)
+		{
 			SteamMatchmaking.LeaveLobby(Id);
-
+		}
 		State = LobbyState.Inactive;
 		_usersSeen.Clear();
 	}
 
 	private void OnLobbyEntered(LobbyEnter_t result, bool failure)
 	{
-		if (State == LobbyState.Connecting) {
+		if (State == LobbyState.Connecting)
+		{
 			if (failure)
+			{
 				State = LobbyState.Inactive;
+			}
 			else
+			{
 				State = LobbyState.Active;
-
+			}
 			Id = new CSteamID(result.m_ulSteamIDLobby);
 			Owner = SteamMatchmaking.GetLobbyOwner(Id);
 			_lobbyEnterExternalCallback(result, failure);
@@ -110,12 +141,16 @@ public class Lobby
 
 	private void OnLobbyCreated(LobbyCreated_t result, bool failure)
 	{
-		if (State == LobbyState.Creating) {
+		if (State == LobbyState.Creating)
+		{
 			if (failure)
+			{
 				State = LobbyState.Inactive;
+			}
 			else
+			{
 				State = LobbyState.Active;
-
+			}
 			Id = new CSteamID(result.m_ulSteamIDLobby);
 			Owner = SteamMatchmaking.GetLobbyOwner(Id);
 			_lobbyCreatedExternalCallback(result, failure);

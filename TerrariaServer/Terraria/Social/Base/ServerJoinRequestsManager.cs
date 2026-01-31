@@ -6,9 +6,11 @@ namespace Terraria.Social.Base;
 public class ServerJoinRequestsManager
 {
 	private readonly List<UserJoinToServerRequest> _requests;
+
 	public readonly ReadOnlyCollection<UserJoinToServerRequest> CurrentRequests;
 
 	public event ServerJoinRequestEvent OnRequestAdded;
+
 	public event ServerJoinRequestEvent OnRequestRemoved;
 
 	public ServerJoinRequestsManager()
@@ -19,30 +21,37 @@ public class ServerJoinRequestsManager
 
 	public void Update()
 	{
-		for (int num = _requests.Count - 1; num >= 0; num--) {
+		for (int num = _requests.Count - 1; num >= 0; num--)
+		{
 			if (!_requests[num].IsValid())
+			{
 				RemoveRequestAtIndex(num);
+			}
 		}
 	}
 
 	public void Add(UserJoinToServerRequest request)
 	{
-		for (int num = _requests.Count - 1; num >= 0; num--) {
+		for (int num = _requests.Count - 1; num >= 0; num--)
+		{
 			if (_requests[num].Equals(request))
+			{
 				RemoveRequestAtIndex(num);
+			}
 		}
-
 		_requests.Add(request);
-		request.OnAccepted += delegate {
+		request.OnAccepted += delegate
+		{
 			RemoveRequest(request);
 		};
-
-		request.OnRejected += delegate {
+		request.OnRejected += delegate
+		{
 			RemoveRequest(request);
 		};
-
 		if (this.OnRequestAdded != null)
+		{
 			this.OnRequestAdded(request);
+		}
 	}
 
 	private void RemoveRequestAtIndex(int i)
@@ -50,12 +59,16 @@ public class ServerJoinRequestsManager
 		UserJoinToServerRequest request = _requests[i];
 		_requests.RemoveAt(i);
 		if (this.OnRequestRemoved != null)
+		{
 			this.OnRequestRemoved(request);
+		}
 	}
 
 	private void RemoveRequest(UserJoinToServerRequest request)
 	{
 		if (_requests.Remove(request) && this.OnRequestRemoved != null)
+		{
 			this.OnRequestRemoved(request);
+		}
 	}
 }

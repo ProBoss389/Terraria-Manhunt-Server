@@ -21,6 +21,7 @@ public class IceHouseBuilder : HouseBuilder
 		base.BookcaseStyle = 25;
 		base.ChairStyle = 30;
 		base.ChestStyle = 11;
+		PotentiallyConvertToSeedHouse();
 	}
 
 	protected override void AgeRoom(Rectangle room)

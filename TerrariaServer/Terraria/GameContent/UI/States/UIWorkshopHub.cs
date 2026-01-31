@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
@@ -13,13 +14,21 @@ namespace Terraria.GameContent.UI.States;
 public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 {
 	private UIState _previousUIState;
+
 	private UIText _descriptionText;
+
 	private UIElement _buttonUseResourcePacks;
+
 	private UIElement _buttonPublishResourcePacks;
+
 	private UIElement _buttonImportWorlds;
+
 	private UIElement _buttonPublishWorlds;
+
 	private UIElement _buttonBack;
+
 	private UIElement _buttonLogs;
+
 	private UIGamepadHelper _helper;
 
 	public static event Action OnWorkshopHubMenuOpened;
@@ -167,12 +176,12 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 
 	private static void AddHorizontalSeparator(UIElement Container, float accumualtedHeight)
 	{
-		UIHorizontalSeparator element = new UIHorizontalSeparator {
+		UIHorizontalSeparator element = new UIHorizontalSeparator
+		{
 			Width = StyleDimension.FromPercent(1f),
 			Top = StyleDimension.FromPixels(accumualtedHeight - 8f),
 			Color = Color.Lerp(Color.White, new Color(63, 65, 151, 255), 0.85f) * 0.9f
 		};
-
 		Container.Append(element);
 	}
 
@@ -180,19 +189,25 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 	{
 		LocalizedText localizedText = null;
 		if (listeningElement == _buttonUseResourcePacks)
+		{
 			localizedText = Language.GetText("Workshop.HubDescriptionUseResourcePacks");
-
+		}
 		if (listeningElement == _buttonPublishResourcePacks)
+		{
 			localizedText = Language.GetText("Workshop.HubDescriptionPublishResourcePacks");
-
+		}
 		if (listeningElement == _buttonImportWorlds)
+		{
 			localizedText = Language.GetText("Workshop.HubDescriptionImportWorlds");
-
+		}
 		if (listeningElement == _buttonPublishWorlds)
+		{
 			localizedText = Language.GetText("Workshop.HubDescriptionPublishWorlds");
-
+		}
 		if (localizedText != null)
+		{
 			_descriptionText.SetText(localizedText);
+		}
 	}
 
 	public void ClearOptionDescription(UIMouseEvent evt, UIElement listeningElement)
@@ -203,7 +218,8 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 	private void AddDescriptionPanel(UIElement container, float accumulatedHeight, float height, string tagGroup)
 	{
 		float num = 0f;
-		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight")) {
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 0.5f,
 			VAlign = 1f,
 			Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f),
@@ -211,18 +227,17 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 			Height = StyleDimension.FromPixelsAndPercent(height, 0f),
 			Top = StyleDimension.FromPixels(2f)
 		};
-
 		uISlicedImage.SetSliceDepths(10);
 		uISlicedImage.Color = Color.LightGray * 0.7f;
 		container.Append(uISlicedImage);
-		UIText uIText = new UIText(Language.GetText("Workshop.HubDescriptionDefault")) {
+		UIText uIText = new UIText(Language.GetText("Workshop.HubDescriptionDefault"))
+		{
 			HAlign = 0f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
 			Top = StyleDimension.FromPixelsAndPercent(5f, 0f)
 		};
-
 		uIText.PaddingLeft = 20f;
 		uIText.PaddingRight = 20f;
 		uIText.PaddingTop = 6f;
@@ -243,16 +258,17 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 		uIPanel.BackgroundColor = new Color(63, 82, 151) * 0.7f;
 		uIPanel.BorderColor = new Color(89, 116, 213) * 0.7f;
 		uIPanel.SetPadding(6f);
-		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>(iconImagePath)) {
+		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>(iconImagePath, AssetRequestMode.ImmediateLoad))
+		{
 			IgnoresMouseInteraction = true,
 			VAlign = 0.5f
 		};
-
 		uIImage.Left.Set(2f, 0f);
 		uIPanel.Append(uIImage);
 		uIPanel.OnMouseOver += ShowOptionDescription;
 		uIPanel.OnMouseOut += ClearOptionDescription;
-		UIText uIText = new UIText(Language.GetText(textKey), 0.45f, large: true) {
+		UIText uIText = new UIText(Language.GetText(textKey), 0.45f, large: true)
+		{
 			HAlign = 0f,
 			VAlign = 0.5f,
 			Width = StyleDimension.FromPixelsAndPercent(-80f, 1f),
@@ -263,7 +279,6 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 			TextOriginX = 0f,
 			TextOriginY = 0f
 		};
-
 		uIText.PaddingLeft = 0f;
 		uIText.PaddingRight = 20f;
 		uIText.PaddingTop = 10f;
@@ -315,11 +330,11 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 
 	public void HandleBackButtonUsage()
 	{
-		if (_previousUIState == null) {
+		if (_previousUIState == null)
+		{
 			Main.menuMode = 0;
 			return;
 		}
-
 		Main.menuMode = 888;
 		Main.MenuUI.SetState(_previousUIState);
 		SoundEngine.PlaySound(11);
@@ -354,7 +369,8 @@ public class UIWorkshopHub : UIState, IHaveBackButtonCommand
 
 	static UIWorkshopHub()
 	{
-		UIWorkshopHub.OnWorkshopHubMenuOpened = delegate {
+		UIWorkshopHub.OnWorkshopHubMenuOpened = delegate
+		{
 		};
 	}
 }

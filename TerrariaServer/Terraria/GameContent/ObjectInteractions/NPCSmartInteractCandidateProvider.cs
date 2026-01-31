@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Terraria.DataStructures;
 
 namespace Terraria.GameContent.ObjectInteractions;
 
@@ -34,24 +35,28 @@ public class NPCSmartInteractCandidateProvider : ISmartInteractCandidateProvider
 	{
 		candidate = null;
 		if (!settings.FullInteraction)
+		{
 			return false;
-
-		Rectangle value = Utils.CenteredRectangle(settings.player.Center, new Vector2(Player.tileRangeX, Player.tileRangeY) * 16f * 2f);
+		}
+		Rectangle worldRegion = TileReachCheckSettings.Simple.GetWorldRegion(settings.player);
 		Vector2 mousevec = settings.mousevec;
 		mousevec.ToPoint();
 		bool flag = false;
 		int num = -1;
 		float npcDistanceFromCursor = -1f;
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			NPC nPC = Main.npc[i];
-			if (nPC.active && nPC.townNPC && nPC.Hitbox.Intersects(value) && !flag) {
+			if (nPC.active && nPC.townNPC && nPC.Hitbox.Intersects(worldRegion) && !flag)
+			{
 				float num2 = nPC.Hitbox.Distance(mousevec);
-				if (num == -1 || Main.npc[num].Hitbox.Distance(mousevec) > num2) {
+				if (num == -1 || Main.npc[num].Hitbox.Distance(mousevec) > num2)
+				{
 					num = i;
 					npcDistanceFromCursor = num2;
 				}
-
-				if (num2 == 0f) {
+				if (num2 == 0f)
+				{
 					flag = true;
 					num = i;
 					npcDistanceFromCursor = num2;
@@ -59,16 +64,16 @@ public class NPCSmartInteractCandidateProvider : ISmartInteractCandidateProvider
 				}
 			}
 		}
-
 		if (settings.DemandOnlyZeroDistanceTargets && !flag)
+		{
 			return false;
-
-		if (num != -1) {
+		}
+		if (num != -1)
+		{
 			_candidate.Reuse(num, npcDistanceFromCursor);
 			candidate = _candidate;
 			return true;
 		}
-
 		return false;
 	}
 }

@@ -56,7 +56,9 @@ public class WingStatsInitializer
 		array[32] = new WingStats(flyTime7, flySpeedOverride9, 2.5f);
 		array[30] = new WingStats(flyTime7, flySpeedOverride4, 1.5f, hasHoldDownHoverFeatures: true, 12f, 12f);
 		array[31] = new WingStats(flyTime7, flySpeedOverride4, 1.5f, hasHoldDownHoverFeatures: true, 12f, 12f);
-		array[43] = (array[41] = (array[42] = (array[40] = (array[39] = (array[38] = (array[36] = (array[35] = (array[34] = (array[33] = (array[28] = (array[19] = (array[18] = (array[17] = (array[16] = (array[3] = new WingStats(flyTime8, flySpeedOverride6))))))))))))))));
+		array[48] = new WingStats(flyTime8, flySpeedOverride6);
+		array[49] = new WingStats(flyTime8, flySpeedOverride6);
+		array[51] = (array[50] = (array[47] = (array[43] = (array[41] = (array[42] = (array[40] = (array[39] = (array[38] = (array[36] = (array[35] = (array[34] = (array[33] = (array[28] = (array[19] = (array[18] = (array[17] = (array[16] = (array[3] = new WingStats(flyTime8, flySpeedOverride6)))))))))))))))))));
 		ArmorIDs.Wing.Sets.Stats = array;
 	}
 }

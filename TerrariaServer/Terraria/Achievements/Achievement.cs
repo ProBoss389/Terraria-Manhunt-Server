@@ -12,14 +12,22 @@ public class Achievement
 	public delegate void AchievementCompleted(Achievement achievement);
 
 	private static int _totalAchievements;
+
 	public readonly string Name;
+
 	public readonly LocalizedText FriendlyName;
+
 	public readonly LocalizedText Description;
+
 	public readonly int Id = _totalAchievements++;
+
 	private AchievementCategory _category;
+
 	private IAchievementTracker _tracker;
+
 	[JsonProperty("Conditions")]
 	private Dictionary<string, AchievementCondition> _conditions = new Dictionary<string, AchievementCondition>();
+
 	private int _completedCount;
 
 	public AchievementCategory Category => _category;
@@ -30,7 +38,10 @@ public class Achievement
 
 	public event AchievementCompleted OnCompleted;
 
-	public IAchievementTracker GetTracker() => _tracker;
+	public IAchievementTracker GetTracker()
+	{
+		return _tracker;
+	}
 
 	public Achievement(string name)
 	{
@@ -42,26 +53,33 @@ public class Achievement
 	public void ClearProgress()
 	{
 		_completedCount = 0;
-		foreach (KeyValuePair<string, AchievementCondition> condition in _conditions) {
+		foreach (KeyValuePair<string, AchievementCondition> condition in _conditions)
+		{
 			condition.Value.Clear();
 		}
-
 		if (_tracker != null)
+		{
 			_tracker.Clear();
+		}
 	}
 
 	public void Load(Dictionary<string, JObject> conditions)
 	{
-		foreach (KeyValuePair<string, JObject> condition in conditions) {
-			if (_conditions.TryGetValue(condition.Key, out var value)) {
+		foreach (KeyValuePair<string, JObject> condition in conditions)
+		{
+			if (_conditions.TryGetValue(condition.Key, out var value))
+			{
 				value.Load(condition.Value);
 				if (value.IsCompleted)
+				{
 					_completedCount++;
+				}
 			}
 		}
-
 		if (_tracker != null)
+		{
 			_tracker.Load();
+		}
 	}
 
 	public void AddCondition(AchievementCondition condition)
@@ -73,12 +91,16 @@ public class Achievement
 	private void OnConditionComplete(AchievementCondition condition)
 	{
 		_completedCount++;
-		if (_completedCount == _conditions.Count) {
+		if (_completedCount == _conditions.Count)
+		{
 			if (_tracker == null && SocialAPI.Achievements != null)
+			{
 				SocialAPI.Achievements.CompleteAchievement(Name);
-
+			}
 			if (this.OnCompleted != null)
+			{
 				this.OnCompleted(this);
+			}
 		}
 	}
 
@@ -96,20 +118,20 @@ public class Achievement
 	public void UseConditionsCompletedTracker()
 	{
 		ConditionsCompletedTracker conditionsCompletedTracker = new ConditionsCompletedTracker();
-		foreach (KeyValuePair<string, AchievementCondition> condition in _conditions) {
+		foreach (KeyValuePair<string, AchievementCondition> condition in _conditions)
+		{
 			conditionsCompletedTracker.AddCondition(condition.Value);
 		}
-
 		UseTracker(conditionsCompletedTracker);
 	}
 
 	public void UseConditionsCompletedTracker(params string[] conditions)
 	{
 		ConditionsCompletedTracker conditionsCompletedTracker = new ConditionsCompletedTracker();
-		foreach (string key in conditions) {
+		foreach (string key in conditions)
+		{
 			conditionsCompletedTracker.AddCondition(_conditions[key]);
 		}
-
 		UseTracker(conditionsCompletedTracker);
 	}
 
@@ -118,11 +140,15 @@ public class Achievement
 		_tracker = null;
 	}
 
-	private IAchievementTracker GetConditionTracker(string name) => _conditions[name].GetAchievementTracker();
+	private IAchievementTracker GetConditionTracker(string name)
+	{
+		return _conditions[name].GetAchievementTracker();
+	}
 
 	public void AddConditions(params AchievementCondition[] conditions)
 	{
-		for (int i = 0; i < conditions.Length; i++) {
+		for (int i = 0; i < conditions.Length; i++)
+		{
 			AddCondition(conditions[i]);
 		}
 	}
@@ -130,8 +156,9 @@ public class Achievement
 	public AchievementCondition GetCondition(string conditionName)
 	{
 		if (_conditions.TryGetValue(conditionName, out var value))
+		{
 			return value;
-
+		}
 		return null;
 	}
 

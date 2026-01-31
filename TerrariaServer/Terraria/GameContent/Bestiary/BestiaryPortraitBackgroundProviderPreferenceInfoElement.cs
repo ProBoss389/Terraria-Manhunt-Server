@@ -11,7 +11,18 @@ public class BestiaryPortraitBackgroundProviderPreferenceInfoElement : IPreferen
 		_preferredProvider = preferredProvider;
 	}
 
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
-	public bool Matches(IBestiaryBackgroundImagePathAndColorProvider provider) => provider == _preferredProvider;
-	public IBestiaryBackgroundImagePathAndColorProvider GetPreferredProvider() => _preferredProvider;
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
+
+	public bool Matches(IBestiaryBackgroundImagePathAndColorProvider provider)
+	{
+		return provider == _preferredProvider;
+	}
+
+	public IBestiaryBackgroundImagePathAndColorProvider GetPreferredProvider()
+	{
+		return _preferredProvider;
+	}
 }

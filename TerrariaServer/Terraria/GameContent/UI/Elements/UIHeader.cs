@@ -9,19 +9,23 @@ public class UIHeader : UIElement
 {
 	private string _text;
 
-	public string Text {
-		get {
+	public string Text
+	{
+		get
+		{
 			return _text;
 		}
-		set {
-			if (_text != value) {
+		set
+		{
+			if (_text != value)
+			{
 				_text = value;
-				if (!Main.dedServ) {
+				if (!Main.dedServ)
+				{
 					Vector2 vector = FontAssets.DeathText.Value.MeasureString(Text);
 					Width.Pixels = vector.X;
 					Height.Pixels = vector.Y;
 				}
-
 				Width.Precent = 0f;
 				Height.Precent = 0f;
 				Recalculate();
@@ -47,9 +51,13 @@ public class UIHeader : UIElement
 		spriteBatch.DrawString(FontAssets.DeathText.Value, Text, new Vector2(dimensions.X + num, dimensions.Y - num), Color.Black);
 		spriteBatch.DrawString(FontAssets.DeathText.Value, Text, new Vector2(dimensions.X - num, dimensions.Y + num), Color.Black);
 		spriteBatch.DrawString(FontAssets.DeathText.Value, Text, new Vector2(dimensions.X + num, dimensions.Y + num), Color.Black);
-		if (WorldGen.tenthAnniversaryWorldGen && !WorldGen.remixWorldGen)
+		if (WorldGen.tenthAnniversaryWorldGen && !Main.zenithWorld)
+		{
 			spriteBatch.DrawString(FontAssets.DeathText.Value, Text, new Vector2(dimensions.X, dimensions.Y), Color.HotPink);
+		}
 		else
+		{
 			spriteBatch.DrawString(FontAssets.DeathText.Value, Text, new Vector2(dimensions.X, dimensions.Y), Color.White);
+		}
 	}
 }

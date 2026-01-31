@@ -10,22 +10,32 @@ namespace Terraria.IO;
 public class PlayerFileData : FileData
 {
 	private Player _player;
+
 	private TimeSpan _playTime = TimeSpan.Zero;
+
 	private readonly Stopwatch _timer = new Stopwatch();
+
 	private bool _isTimerActive;
 
-	public Player Player {
-		get {
+	public Player Player
+	{
+		get
+		{
 			return _player;
 		}
-		set {
+		set
+		{
 			_player = value;
 			if (value != null)
+			{
 				Name = _player.name;
+			}
 		}
 	}
 
 	public bool ServerSideCharacter { get; private set; }
+
+	public DateTime LastPlayed => DateTime.FromBinary(Player.lastTimePlayerWasSaved);
 
 	public PlayerFileData()
 		: base("Player")
@@ -63,22 +73,26 @@ public class PlayerFileData : FileData
 	public override void MoveToCloud()
 	{
 		if (base.IsCloudSave || SocialAPI.Cloud == null)
+		{
 			return;
-
+		}
 		string playerPathFromName = Main.GetPlayerPathFromName(Name, cloudSave: true);
 		if (!FileUtilities.MoveToCloud(base.Path, playerPathFromName))
+		{
 			return;
-
+		}
 		string fileName = GetFileName(includeExtension: false);
 		string path = Main.PlayerPath + System.IO.Path.DirectorySeparatorChar + fileName + System.IO.Path.DirectorySeparatorChar;
-		if (Directory.Exists(path)) {
+		string text = playerPathFromName.Substring(0, playerPathFromName.Length - 4);
+		if (Directory.Exists(path))
+		{
 			string[] files = Directory.GetFiles(path);
-			for (int i = 0; i < files.Length; i++) {
-				string cloudPath = Main.CloudPlayerPath + "/" + fileName + "/" + FileUtilities.GetFileName(files[i]);
+			for (int i = 0; i < files.Length; i++)
+			{
+				string cloudPath = text + "/" + FileUtilities.GetFileName(files[i]);
 				FileUtilities.MoveToCloud(files[i], cloudPath);
 			}
 		}
-
 		Main.LocalFavoriteData.ClearEntry(this);
 		_isCloudSave = true;
 		_path = playerPathFromName;
@@ -88,21 +102,23 @@ public class PlayerFileData : FileData
 	public override void MoveToLocal()
 	{
 		if (!base.IsCloudSave || SocialAPI.Cloud == null)
+		{
 			return;
-
+		}
 		string playerPathFromName = Main.GetPlayerPathFromName(Name, cloudSave: false);
 		if (!FileUtilities.MoveToLocal(base.Path, playerPathFromName))
+		{
 			return;
-
+		}
 		string fileName = GetFileName(includeExtension: false);
 		string mapPath = System.IO.Path.Combine(Main.CloudPlayerPath, fileName);
 		foreach (string item in (from path in SocialAPI.Cloud.GetFiles().ToList()
-								 where MapBelongsToPath(mapPath, path)
-								 select path).ToList()) {
+			where MapBelongsToPath(mapPath, path)
+			select path).ToList())
+		{
 			string localPath = System.IO.Path.Combine(Main.PlayerPath, fileName, FileUtilities.GetFileName(item));
 			FileUtilities.MoveToLocal(item, localPath);
 		}
-
 		Main.CloudFavoritesData.ClearEntry(this);
 		_isCloudSave = false;
 		_path = playerPathFromName;
@@ -112,8 +128,9 @@ public class PlayerFileData : FileData
 	private bool MapBelongsToPath(string mapPath, string filePath)
 	{
 		if (!filePath.EndsWith(".map", StringComparison.CurrentCultureIgnoreCase))
+		{
 			return false;
-
+		}
 		string value = mapPath.Replace('\\', '/');
 		return filePath.StartsWith(value, StringComparison.CurrentCultureIgnoreCase);
 	}
@@ -123,20 +140,28 @@ public class PlayerFileData : FileData
 		bool flag = Main.gamePaused && !Main.hasFocus;
 		bool flag2 = Main.instance.IsActive && !flag;
 		if (Main.gameMenu)
+		{
 			flag2 = false;
-
+		}
 		if (flag2)
+		{
 			StartPlayTimer();
+		}
 		else
+		{
 			PausePlayTimer();
+		}
 	}
 
 	public void StartPlayTimer()
 	{
-		if (!_isTimerActive) {
+		if (!_isTimerActive)
+		{
 			_isTimerActive = true;
 			if (!_timer.IsRunning)
+			{
 				_timer.Start();
+			}
 		}
 	}
 
@@ -148,8 +173,9 @@ public class PlayerFileData : FileData
 	public TimeSpan GetPlayTime()
 	{
 		if (_timer.IsRunning)
+		{
 			return _playTime + _timer.Elapsed;
-
+		}
 		return _playTime;
 	}
 
@@ -159,14 +185,18 @@ public class PlayerFileData : FileData
 		_playTime += _timer.Elapsed;
 		_timer.Reset();
 		if (isRunning)
+		{
 			_timer.Start();
+		}
 	}
 
 	public void StopPlayTimer()
 	{
-		if (_isTimerActive) {
+		if (_isTimerActive)
+		{
 			_isTimerActive = false;
-			if (_timer.IsRunning) {
+			if (_timer.IsRunning)
+			{
 				_playTime += _timer.Elapsed;
 				_timer.Reset();
 			}
@@ -181,8 +211,9 @@ public class PlayerFileData : FileData
 	public void Rename(string newName)
 	{
 		if (Player != null)
+		{
 			Player.name = newName.Trim();
-
+		}
 		Player.SavePlayer(this);
 	}
 }

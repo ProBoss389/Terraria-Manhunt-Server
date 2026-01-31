@@ -9,22 +9,29 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIVerticalSlider : UISliderBase
 {
 	public float FillPercent;
+
 	public Color FilledColor = Main.OurFavoriteColor;
+
 	public Color EmptyColor = Color.Black;
+
 	private Func<float> _getSliderValue;
+
 	private Action<float> _slideKeyboardAction;
-	private Func<float, Color> _blipFunc;
+
 	private Action _slideGamepadAction;
+
 	private bool _isReallyMouseOvered;
+
 	private bool _soundedUsage;
+
 	private bool _alreadyHovered;
 
 	public UIVerticalSlider(Func<float> getStatus, Action<float> setStatusKeyboard, Action setStatusGamepad, Color color)
 	{
 		_getSliderValue = ((getStatus != null) ? getStatus : ((Func<float>)(() => 0f)));
-		_slideKeyboardAction = ((setStatusKeyboard != null) ? setStatusKeyboard : ((Action<float>)delegate {
+		_slideKeyboardAction = ((setStatusKeyboard != null) ? setStatusKeyboard : ((Action<float>)delegate
+		{
 		}));
-
 		_slideGamepadAction = setStatusGamepad;
 		_isReallyMouseOvered = false;
 	}
@@ -32,35 +39,43 @@ public class UIVerticalSlider : UISliderBase
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		UISliderBase.CurrentAimedSlider = null;
-		if (!Main.mouseLeft)
+		if (!Main.mouseLeft || PlayerInput.IgnoreMouseInterface)
+		{
 			UISliderBase.CurrentLockedSlider = null;
-
+		}
 		GetUsageLevel();
 		FillPercent = _getSliderValue();
 		float sliderValueThatWasSet = FillPercent;
 		bool flag = false;
 		if (DrawValueBarDynamicWidth(spriteBatch, out sliderValueThatWasSet))
+		{
 			flag = true;
-
-		if (UISliderBase.CurrentLockedSlider == this || flag) {
+		}
+		if (UISliderBase.CurrentLockedSlider == this || flag)
+		{
 			UISliderBase.CurrentAimedSlider = this;
-			if (PlayerInput.Triggers.Current.MouseLeft && !PlayerInput.UsingGamepad && UISliderBase.CurrentLockedSlider == this) {
+			if (PlayerInput.Triggers.Current.MouseLeft && !PlayerInput.UsingGamepad && UISliderBase.CurrentLockedSlider == this)
+			{
 				_slideKeyboardAction(sliderValueThatWasSet);
 				if (!_soundedUsage)
+				{
 					SoundEngine.PlaySound(12);
-
+				}
 				_soundedUsage = true;
 			}
-			else {
+			else
+			{
 				_soundedUsage = false;
 			}
 		}
-
 		if (UISliderBase.CurrentAimedSlider != null && UISliderBase.CurrentLockedSlider == null)
+		{
 			UISliderBase.CurrentLockedSlider = UISliderBase.CurrentAimedSlider;
-
+		}
 		if (_isReallyMouseOvered)
+		{
 			_slideGamepadAction();
+		}
 	}
 
 	private bool DrawValueBarDynamicWidth(SpriteBatch spriteBatch, out float sliderValueThatWasSet)
@@ -91,32 +106,37 @@ public class UIVerticalSlider : UISliderBase
 		spriteBatch.Draw(value2, rectangle4, value3, Color.White);
 		Rectangle rectangle5 = rectangle3;
 		rectangle5.Inflate(4, 0);
-		bool flag = (_isReallyMouseOvered = rectangle5.Contains(Main.MouseScreen.ToPoint()));
+		bool flag = (_isReallyMouseOvered = rectangle5.Contains(Main.MouseScreen.ToPoint()) && !PlayerInput.IgnoreMouseInterface);
 		if (IgnoresMouseInteraction)
+		{
 			flag = false;
-
+		}
 		int usageLevel = GetUsageLevel();
 		if (usageLevel == 2)
+		{
 			flag = false;
-
+		}
 		if (usageLevel == 1)
+		{
 			flag = true;
-
-		if (flag || usageLevel == 1) {
+		}
+		if (flag || usageLevel == 1)
+		{
 			if (!_alreadyHovered)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_alreadyHovered = true;
 		}
-		else {
+		else
+		{
 			_alreadyHovered = false;
 		}
-
-		if (flag) {
+		if (flag)
+		{
 			sliderValueThatWasSet = Utils.GetLerpValue(rectangle3.Bottom, rectangle3.Top, Main.mouseY, clamped: true);
 			return true;
 		}
-
 		return false;
 	}
 }

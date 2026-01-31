@@ -11,5 +11,8 @@ public class ItemVariant
 		Description = description;
 	}
 
-	public override string ToString() => Description.ToString();
+	public override string ToString()
+	{
+		return Description.ToString();
+	}
 }

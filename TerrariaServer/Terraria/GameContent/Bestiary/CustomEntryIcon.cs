@@ -9,19 +9,25 @@ namespace Terraria.GameContent.Bestiary;
 public class CustomEntryIcon : IEntryIcon
 {
 	private LocalizedText _text;
+
 	private Asset<Texture2D> _textureAsset;
+
 	private Rectangle _sourceRectangle;
+
 	private Func<bool> _unlockCondition;
 
 	public CustomEntryIcon(string nameLanguageKey, string texturePath, Func<bool> unlockCondition)
 	{
 		_text = Language.GetText(nameLanguageKey);
-		_textureAsset = Main.Assets.Request<Texture2D>(texturePath);
+		_textureAsset = Main.Assets.Request<Texture2D>(texturePath, AssetRequestMode.ImmediateLoad);
 		_unlockCondition = unlockCondition;
 		UpdateUnlockState(state: false);
 	}
 
-	public IEntryIcon CreateClone() => new CustomEntryIcon(_text.Key, _textureAsset.Name, _unlockCondition);
+	public IEntryIcon CreateClone()
+	{
+		return new CustomEntryIcon(_text.Key, _textureAsset.Name, _unlockCondition);
+	}
 
 	public void Update(BestiaryUICollectionInfo providedInfo, Rectangle hitbox, EntryIconDrawSettings settings)
 	{
@@ -37,8 +43,9 @@ public class CustomEntryIcon : IEntryIcon
 	public string GetHoverText(BestiaryUICollectionInfo providedInfo)
 	{
 		if (GetUnlockState(providedInfo))
+		{
 			return _text.Value;
-
+		}
 		return "???";
 	}
 
@@ -48,5 +55,8 @@ public class CustomEntryIcon : IEntryIcon
 		_sourceRectangle.Inflate(-2, -2);
 	}
 
-	public bool GetUnlockState(BestiaryUICollectionInfo providedInfo) => providedInfo.UnlockState > BestiaryEntryUnlockState.NotKnownAtAll_0;
+	public bool GetUnlockState(BestiaryUICollectionInfo providedInfo)
+	{
+		return providedInfo.UnlockState > BestiaryEntryUnlockState.NotKnownAtAll_0;
+	}
 }

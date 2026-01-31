@@ -6,11 +6,17 @@ namespace Terraria.UI.Gamepad;
 public class UILinkPoint
 {
 	public int ID;
+
 	public bool Enabled;
+
 	public Vector2 Position;
+
 	public int Left;
+
 	public int Right;
+
 	public int Up;
+
 	public int Down;
 
 	public int Page { get; private set; }
@@ -43,8 +49,9 @@ public class UILinkPoint
 	public string SpecialInteractions()
 	{
 		if (this.OnSpecialInteracts != null)
+		{
 			return this.OnSpecialInteracts();
-
+		}
 		return string.Empty;
 	}
 }

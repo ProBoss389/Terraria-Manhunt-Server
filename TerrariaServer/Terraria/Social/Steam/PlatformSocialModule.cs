@@ -9,16 +9,18 @@ public class PlatformSocialModule : Terraria.Social.Base.PlatformSocialModule
 {
 	public override void Initialize()
 	{
-		if (!Main.dedServ) {
+		if (!Main.dedServ)
+		{
 			bool num = (PlayerInput.UseSteamDeckIfPossible = SteamUtils.IsSteamRunningOnSteamDeck());
-			if (num) {
+			if (num)
+			{
 				PlayerInput.SettingsForUI.SetCursorMode(CursorMode.Gamepad);
 				PlayerInput.CurrentInputMode = InputMode.XBoxGamepadUI;
 				GamepadMainMenuHandler.MoveCursorOnNextRun = true;
 				PlayerInput.PreventFirstMousePositionGrab = true;
 			}
-
-			if (num) {
+			if (num)
+			{
 				Main.graphics.PreferredBackBufferWidth = (Main.screenWidth = 1280);
 				Main.graphics.PreferredBackBufferHeight = (Main.screenHeight = 800);
 				Main.startFullscreen = true;

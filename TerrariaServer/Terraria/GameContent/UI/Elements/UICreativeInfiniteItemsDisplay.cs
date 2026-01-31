@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent.Creative;
-using Terraria.GameContent.UI.States;
 using Terraria.Graphics.Renderers;
 using Terraria.ID;
 using Terraria.Localization;
@@ -22,47 +20,61 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		InfiniteItemsResearch
 	}
 
-	private List<int> _itemIdsAvailableTotal;
-	private List<int> _itemIdsAvailableToShow;
 	private CreativeUnlocksTracker _lastTrackerCheckedForEdits;
-	private int _lastCheckedVersionForEdits = -1;
-	private UISearchBar _searchBar;
-	private UIPanel _searchBoxPanel;
-	private UIState _parentUIState;
-	private string _searchString;
-	private UIDynamicItemCollection _itemGrid;
-	private EntryFilterer<Item, IItemEntryFilter> _filterer;
-	private EntrySorter<int, ICreativeItemSortStep> _sorter;
-	private UIElement _containerInfinites;
-	private UIElement _containerSacrifice;
-	private bool _showSacrificesInsteadOfInfinites;
-	public const string SnapPointName_SacrificeSlot = "CreativeSacrificeSlot";
-	public const string SnapPointName_SacrificeConfirmButton = "CreativeSacrificeConfirm";
-	public const string SnapPointName_InfinitesFilter = "CreativeInfinitesFilter";
-	public const string SnapPointName_InfinitesSearch = "CreativeInfinitesSearch";
-	public const string SnapPointName_InfinitesItemSlot = "CreativeInfinitesSlot";
-	private List<UIImage> _sacrificeCogsSmall = new List<UIImage>();
-	private List<UIImage> _sacrificeCogsMedium = new List<UIImage>();
-	private List<UIImage> _sacrificeCogsBig = new List<UIImage>();
-	private UIImageFramed _sacrificePistons;
-	private UIParticleLayer _pistonParticleSystem;
-	private Asset<Texture2D> _pistonParticleAsset;
-	private int _sacrificeAnimationTimeLeft;
-	private bool _researchComplete;
-	private bool _hovered;
-	private int _lastItemIdSacrificed;
-	private int _lastItemAmountWeHad;
-	private int _lastItemAmountWeNeededTotal;
-	private bool _didClickSomething;
-	private bool _didClickSearchBar;
 
-	public UICreativeInfiniteItemsDisplay(UIState uiStateThatHoldsThis)
+	private int _lastCheckedVersionForEdits = -1;
+
+	private UICreativeItemGrid _itemGrid;
+
+	private EntryFilterer<Item, IItemEntryFilter> _filterer;
+
+	private EntrySorter<Item, ICreativeItemSortStep> _sorter;
+
+	private UIElement _containerInfinites;
+
+	private UIElement _containerSacrifice;
+
+	private bool _showSacrificesInsteadOfInfinites;
+
+	public const string SnapPointName_SacrificeSlot = "CreativeSacrificeSlot";
+
+	public const string SnapPointName_SacrificeConfirmButton = "CreativeSacrificeConfirm";
+
+	public const string SnapPointName_InfinitesFilter = "CreativeInfinitesFilter";
+
+	public const string SnapPointName_InfinitesSearch = "CreativeInfinitesSearch";
+
+	private List<UIImage> _sacrificeCogsSmall = new List<UIImage>();
+
+	private List<UIImage> _sacrificeCogsMedium = new List<UIImage>();
+
+	private List<UIImage> _sacrificeCogsBig = new List<UIImage>();
+
+	private UIImageFramed _sacrificePistons;
+
+	private UIParticleLayer _pistonParticleSystem;
+
+	private Asset<Texture2D> _pistonParticleAsset;
+
+	private int _sacrificeAnimationTimeLeft;
+
+	private bool _researchComplete;
+
+	private bool _hovered;
+
+	private int _lastItemIdSacrificed;
+
+	private int _lastItemAmountWeHad;
+
+	private int _lastItemAmountWeNeededTotal;
+
+	private List<Item> _itemList = new List<Item>();
+
+	public UICreativeInfiniteItemsDisplay()
 	{
-		_parentUIState = uiStateThatHoldsThis;
-		_itemIdsAvailableTotal = new List<int>();
-		_itemIdsAvailableToShow = new List<int>();
 		_filterer = new EntryFilterer<Item, IItemEntryFilter>();
-		List<IItemEntryFilter> list = new List<IItemEntryFilter> {
+		List<IItemEntryFilter> list = new List<IItemEntryFilter>
+		{
 			new ItemFilters.Weapon(),
 			new ItemFilters.Armor(),
 			new ItemFilters.Vanity(),
@@ -74,19 +86,18 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 			new ItemFilters.Tools(),
 			new ItemFilters.Materials()
 		};
-
 		List<IItemEntryFilter> list2 = new List<IItemEntryFilter>();
 		list2.AddRange(list);
 		list2.Add(new ItemFilters.MiscFallback(list));
 		_filterer.AddFilters(list2);
 		_filterer.SetSearchFilterObject(new ItemFilters.BySearch());
-		_sorter = new EntrySorter<int, ICreativeItemSortStep>();
-		_sorter.AddSortSteps(new List<ICreativeItemSortStep> {
+		_sorter = new EntrySorter<Item, ICreativeItemSortStep>();
+		_sorter.AddSortSteps(new List<ICreativeItemSortStep>
+		{
+			new SortingSteps.ByUnlockStatus(),
 			new SortingSteps.ByCreativeSortingId(),
 			new SortingSteps.Alphabetical()
 		});
-
-		_itemIdsAvailableTotal.AddRange(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.Keys.ToList());
 		BuildPage();
 	}
 
@@ -95,18 +106,18 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		_lastCheckedVersionForEdits = -1;
 		RemoveAllChildren();
 		SetPadding(0f);
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = StyleDimension.Fill,
 			Height = StyleDimension.Fill
 		};
-
 		uIElement.SetPadding(0f);
 		_containerInfinites = uIElement;
-		UIElement uIElement2 = new UIElement {
+		UIElement uIElement2 = new UIElement
+		{
 			Width = StyleDimension.Fill,
 			Height = StyleDimension.Fill
 		};
-
 		uIElement2.SetPadding(0f);
 		_containerSacrifice = uIElement2;
 		BuildInfinitesMenuContents(uIElement);
@@ -118,7 +129,9 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 	private void Hover_OnUpdate(UIElement affectedElement)
 	{
 		if (_hovered)
+		{
 			Main.LocalPlayer.mouseInterface = true;
+		}
 	}
 
 	private void Hover_OnMouseOut(UIMouseEvent evt, UIElement listeningElement)
@@ -154,35 +167,31 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		uIPanel.OnUpdate += Hover_OnUpdate;
 		uIPanel.OnMouseOver += Hover_OnMouseOver;
 		uIPanel.OnMouseOut += Hover_OnMouseOut;
-		UIDynamicItemCollection item = (_itemGrid = new UIDynamicItemCollection());
-		UIElement uIElement = new UIElement {
-			Height = new StyleDimension(24f, 0f),
-			Width = new StyleDimension(0f, 1f)
-		};
-
-		uIElement.SetPadding(0f);
-		uIPanel.Append(uIElement);
-		AddSearchBar(uIElement);
-		_searchBar.SetContents(null, forced: true);
-		UIList uIList = new UIList {
+		_itemGrid = new UICreativeItemGrid();
+		UIWrappedSearchBar uIWrappedSearchBar = new UIWrappedSearchBar(GoBackFromVirtualKeyboard);
+		uIWrappedSearchBar.CustomOpenVirtualKeyboard = IngameFancyUI.OpenUIState;
+		uIWrappedSearchBar.OnSearchContentsChanged += OnSearchContentsChanged;
+		uIWrappedSearchBar.SetSearchSnapPoint("CreativeInfinitesSearch", 0);
+		uIPanel.Append(uIWrappedSearchBar);
+		UIList uIList = new UIList
+		{
 			Width = new StyleDimension(-25f, 1f),
 			Height = new StyleDimension(-28f, 1f),
 			VAlign = 1f,
 			HAlign = 0f
 		};
-
 		uIPanel.Append(uIList);
 		float num = 4f;
-		UIScrollbar uIScrollbar = new UIScrollbar {
+		UIScrollbar uIScrollbar = new UIScrollbar
+		{
 			Height = new StyleDimension(-28f - num * 2f, 1f),
 			Top = new StyleDimension(0f - num, 0f),
 			VAlign = 1f,
 			HAlign = 1f
 		};
-
 		uIPanel.Append(uIScrollbar);
 		uIList.SetScrollbar(uIScrollbar);
-		uIList.Add(item);
+		uIList.Add(_itemGrid);
 		UICreativeItemsInfiniteFilteringOptions uICreativeItemsInfiniteFilteringOptions = new UICreativeItemsInfiniteFilteringOptions(_filterer, "CreativeInfinitesFilter");
 		uICreativeItemsInfiniteFilteringOptions.OnClickingOption += filtersHelper_OnClickingOption;
 		uICreativeItemsInfiniteFilteringOptions.Left = new StyleDimension(20f, 0f);
@@ -204,34 +213,34 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		uIPanel.OnMouseOver += Hover_OnMouseOver;
 		uIPanel.OnMouseOut += Hover_OnMouseOut;
 		AddCogsForSacrificeMenu(uIPanel);
-		_pistonParticleAsset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Research_Spark");
+		_pistonParticleAsset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Research_Spark", AssetRequestMode.ImmediateLoad);
 		float pixels = 0f;
-		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Creative/Research_Slots")) {
+		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Creative/Research_Slots", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			Top = new StyleDimension(-20f, 0f),
 			Left = new StyleDimension(pixels, 0f)
 		};
-
 		uIPanel.Append(uIImage);
-		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Research_FramedPistons");
-		UIImageFramed uIImageFramed = new UIImageFramed(asset, asset.Frame(1, 9)) {
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/Creative/Research_FramedPistons", AssetRequestMode.ImmediateLoad);
+		UIImageFramed uIImageFramed = new UIImageFramed(asset, asset.Frame(1, 9))
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			Top = new StyleDimension(-20f, 0f),
 			Left = new StyleDimension(pixels, 0f),
 			IgnoresMouseInteraction = true
 		};
-
 		uIPanel.Append(uIImageFramed);
 		_sacrificePistons = uIImageFramed;
-		UIParticleLayer pistonParticleSystem = new UIParticleLayer {
+		UIParticleLayer pistonParticleSystem = new UIParticleLayer
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(0f, 1f),
 			AnchorPositionOffsetByPercents = Vector2.One / 2f,
 			AnchorPositionOffsetByPixels = Vector2.Zero
 		};
-
 		_pistonParticleSystem = pistonParticleSystem;
 		uIImageFramed.Append(_pistonParticleSystem);
 		UIElement uIElement = Main.CreativeMenu.ProvideItemSlotElement(0);
@@ -241,17 +250,18 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		uIElement.Left = new StyleDimension(pixels, 0f);
 		uIElement.SetSnapPoint("CreativeSacrificeSlot", 0);
 		uIImage.Append(uIElement);
-		UIText uIText = new UIText("(0/50)", 0.8f) {
+		UIText uIText = new UIText("(0/50)", 0.8f)
+		{
 			Top = new StyleDimension(10f, 0f),
 			Left = new StyleDimension(pixels, 0f),
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			IgnoresMouseInteraction = true
 		};
-
 		uIText.OnUpdate += descriptionText_OnUpdate;
 		uIPanel.Append(uIText);
-		UIPanel uIPanel2 = new UIPanel {
+		UIPanel uIPanel2 = new UIPanel
+		{
 			Top = new StyleDimension(0f, 0f),
 			Left = new StyleDimension(pixels, 0f),
 			HAlign = 0.5f,
@@ -259,13 +269,12 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 			Width = new StyleDimension(124f, 0f),
 			Height = new StyleDimension(30f, 0f)
 		};
-
-		UIText element = new UIText(Language.GetText("CreativePowers.ConfirmInfiniteItemSacrifice"), 0.8f) {
+		UIText element = new UIText(Language.GetText("CreativePowers.ConfirmInfiniteItemSacrifice"), 0.8f)
+		{
 			IgnoresMouseInteraction = true,
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		uIPanel2.Append(element);
 		uIPanel2.SetSnapPoint("CreativeSacrificeConfirm", 0);
 		uIPanel2.OnLeftClick += sacrificeButton_OnClick;
@@ -279,19 +288,19 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 	private void research_OnUpdate(UIElement affectedElement)
 	{
 		if (affectedElement.IsMouseHovering)
-			Main.instance.MouseText(Language.GetTextValue("CreativePowers.ResearchButtonTooltip"), 0, 0);
+		{
+			Main.instance.MouseTextNoOverride(Language.GetTextValue("CreativePowers.ResearchButtonTooltip"), 0, 0);
+		}
 	}
 
 	private void FadedMouseOver(UIMouseEvent evt, UIElement listeningElement)
 	{
 		SoundEngine.PlaySound(12);
-		((UIPanel)evt.Target).BackgroundColor = new Color(73, 94, 171);
 		((UIPanel)evt.Target).BorderColor = Colors.FancyUIFatButtonMouseOver;
 	}
 
 	private void FadedMouseOut(UIMouseEvent evt, UIElement listeningElement)
 	{
-		((UIPanel)evt.Target).BackgroundColor = new Color(63, 82, 151) * 0.8f;
 		((UIPanel)evt.Target).BorderColor = Color.Black;
 	}
 
@@ -332,32 +341,36 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		OffsetRotationsForCogs(num4 * num, _sacrificeCogsMedium);
 		OffsetRotationsForCogs((0f - num5) * num, _sacrificeCogsBig);
 		int frameY = 0;
-		if (_sacrificeAnimationTimeLeft != 0) {
+		if (_sacrificeAnimationTimeLeft != 0)
+		{
 			float num6 = 0.1f;
 			float num7 = 1f / 15f;
 			frameY = ((sacrificeAnimationProgress >= 1f - num6) ? 8 : ((sacrificeAnimationProgress >= 1f - num6 * 2f) ? 7 : ((sacrificeAnimationProgress >= 1f - num6 * 3f) ? 6 : ((sacrificeAnimationProgress >= num7 * 4f) ? 5 : ((sacrificeAnimationProgress >= num7 * 3f) ? 4 : ((sacrificeAnimationProgress >= num7 * 2f) ? 3 : ((!(sacrificeAnimationProgress >= num7)) ? 1 : 2)))))));
-			if (_sacrificeAnimationTimeLeft == 56) {
+			if (_sacrificeAnimationTimeLeft == 56)
+			{
 				SoundEngine.PlaySound(63);
 				Vector2 accelerationPerFrame = new Vector2(0f, 0.16350001f);
-				for (int i = 0; i < 15; i++) {
+				for (int i = 0; i < 15; i++)
+				{
 					Vector2 initialVelocity = Main.rand.NextVector2Circular(4f, 3f);
 					if (initialVelocity.Y > 0f)
+					{
 						initialVelocity.Y = 0f - initialVelocity.Y;
-
+					}
 					initialVelocity.Y -= 2f;
-					_pistonParticleSystem.AddParticle(new CreativeSacrificeParticle(_pistonParticleAsset, null, initialVelocity, Vector2.Zero) {
+					_pistonParticleSystem.AddParticle(new CreativeSacrificeParticle(_pistonParticleAsset, null, initialVelocity, Vector2.Zero)
+					{
 						AccelerationPerFrame = accelerationPerFrame,
 						ScaleOffsetPerFrame = -1f / 60f
 					});
 				}
 			}
-
-			if (_sacrificeAnimationTimeLeft == 40 && _researchComplete) {
+			if (_sacrificeAnimationTimeLeft == 40 && _researchComplete)
+			{
 				_researchComplete = false;
 				SoundEngine.PlaySound(64);
 			}
 		}
-
 		_sacrificePistons.SetFrame(1, 9, 0, frameY, 0, 0);
 	}
 
@@ -369,23 +382,23 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 
 	private void AddSymetricalCogsPair(UIElement sacrificesContainer, Vector2 cogOFfsetsInPixels, string assetPath, List<UIImage> imagesList)
 	{
-		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>(assetPath);
+		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>(assetPath, AssetRequestMode.ImmediateLoad);
 		cogOFfsetsInPixels += -asset.Size() / 2f;
-		UIImage uIImage = new UIImage(asset) {
+		UIImage uIImage = new UIImage(asset)
+		{
 			NormalizedOrigin = Vector2.One / 2f,
 			Left = new StyleDimension(cogOFfsetsInPixels.X, 0f),
 			Top = new StyleDimension(cogOFfsetsInPixels.Y, 0f)
 		};
-
 		imagesList.Add(uIImage);
 		sacrificesContainer.Append(uIImage);
-		uIImage = new UIImage(asset) {
+		uIImage = new UIImage(asset)
+		{
 			NormalizedOrigin = Vector2.One / 2f,
 			HAlign = 1f,
 			Left = new StyleDimension(0f - cogOFfsetsInPixels.X, 0f),
 			Top = new StyleDimension(cogOFfsetsInPixels.Y, 0f)
 		};
-
 		imagesList.Add(uIImage);
 		sacrificesContainer.Append(uIImage);
 	}
@@ -399,22 +412,30 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 		bool sacrificeNumbers = Main.CreativeMenu.GetSacrificeNumbers(out itemIdChecked, out amountWeHave, out amountNeededTotal);
 		Main.CreativeMenu.ShouldDrawSacrificeArea();
 		if (!Main.mouseItem.IsAir)
+		{
 			ForgetItemSacrifice();
-
-		if (itemIdChecked == 0) {
+		}
+		if (itemIdChecked == 0)
+		{
 			if (_lastItemIdSacrificed != 0 && _lastItemAmountWeNeededTotal != _lastItemAmountWeHad)
+			{
 				uIText.SetText($"({_lastItemAmountWeHad}/{_lastItemAmountWeNeededTotal})");
+			}
 			else
+			{
 				uIText.SetText("???");
-
+			}
 			return;
 		}
-
 		ForgetItemSacrifice();
 		if (!sacrificeNumbers)
+		{
 			uIText.SetText("X");
+		}
 		else
+		{
 			uIText.SetText($"({amountWeHave}/{amountNeededTotal})");
+		}
 	}
 
 	private void sacrificeButton_OnClick(UIMouseEvent evt, UIElement listeningElement)
@@ -426,17 +447,18 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 	{
 		Main.CreativeMenu.GetSacrificeNumbers(out var itemIdChecked, out var amountWeHave, out var amountNeededTotal);
 		int amountWeSacrificed;
-		switch (Main.CreativeMenu.SacrificeItem(out amountWeSacrificed)) {
-			case CreativeUI.ItemSacrificeResult.SacrificedAndDone:
-				_researchComplete = true;
-				BeginSacrificeAnimation();
-				RememberItemSacrifice(itemIdChecked, amountWeHave + amountWeSacrificed, amountNeededTotal);
-				break;
-			case CreativeUI.ItemSacrificeResult.SacrificedButNotDone:
-				_researchComplete = false;
-				BeginSacrificeAnimation();
-				RememberItemSacrifice(itemIdChecked, amountWeHave + amountWeSacrificed, amountNeededTotal);
-				break;
+		switch (Main.CreativeMenu.SacrificeItem(out amountWeSacrificed))
+		{
+		case CreativeUI.ItemSacrificeResult.SacrificedAndDone:
+			_researchComplete = true;
+			BeginSacrificeAnimation();
+			RememberItemSacrifice(itemIdChecked, amountWeHave + amountWeSacrificed, amountNeededTotal);
+			break;
+		case CreativeUI.ItemSacrificeResult.SacrificedButNotDone:
+			_researchComplete = false;
+			BeginSacrificeAnimation();
+			RememberItemSacrifice(itemIdChecked, amountWeHave + amountWeSacrificed, amountNeededTotal);
+			break;
 		}
 	}
 
@@ -470,10 +492,15 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 	private void UpdateSacrificeAnimation()
 	{
 		if (_sacrificeAnimationTimeLeft > 0)
+		{
 			_sacrificeAnimationTimeLeft--;
+		}
 	}
 
-	private float GetSacrificeAnimationProgress() => Utils.GetLerpValue(60f, 0f, _sacrificeAnimationTimeLeft, clamped: true);
+	private float GetSacrificeAnimationProgress()
+	{
+		return Utils.GetLerpValue(60f, 0f, _sacrificeAnimationTimeLeft, clamped: true);
+	}
 
 	public void SetPageTypeToShow(InfiniteItemsDisplayPage page)
 	{
@@ -484,22 +511,25 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 	{
 		RemoveAllChildren();
 		CreativeUnlocksTracker localPlayerCreativeTracker = Main.LocalPlayerCreativeTracker;
-		if (_lastTrackerCheckedForEdits != localPlayerCreativeTracker) {
+		if (_lastTrackerCheckedForEdits != localPlayerCreativeTracker)
+		{
 			_lastTrackerCheckedForEdits = localPlayerCreativeTracker;
 			_lastCheckedVersionForEdits = -1;
 		}
-
 		int lastEditId = localPlayerCreativeTracker.ItemSacrifices.LastEditId;
-		if (_lastCheckedVersionForEdits != lastEditId) {
+		if (_lastCheckedVersionForEdits != lastEditId)
+		{
 			_lastCheckedVersionForEdits = lastEditId;
 			UpdateContents();
 		}
-
 		if (_showSacrificesInsteadOfInfinites)
+		{
 			Append(_containerSacrifice);
+		}
 		else
+		{
 			Append(_containerInfinites);
-
+		}
 		UpdateSacrificeAnimation();
 	}
 
@@ -510,180 +540,44 @@ public class UICreativeInfiniteItemsDisplay : UIElement
 
 	private void UpdateContents()
 	{
-		_itemIdsAvailableTotal.Clear();
-		Main.LocalPlayerCreativeTracker.ItemSacrifices.FillListOfItemsThatCanBeObtainedInfinitely(_itemIdsAvailableTotal);
-		_itemIdsAvailableToShow.Clear();
-		_itemIdsAvailableToShow.AddRange(_itemIdsAvailableTotal.Where((int x) => _filterer.FitsFilter(ContentSamples.ItemsByType[x])));
-		_itemIdsAvailableToShow.Sort(_sorter);
-		_itemGrid.SetContentsToShow(_itemIdsAvailableToShow);
-	}
-
-	private void AddSearchBar(UIElement searchArea)
-	{
-		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Search")) {
-			VAlign = 0.5f,
-			HAlign = 0f
-		};
-
-		uIImageButton.OnLeftClick += Click_SearchArea;
-		uIImageButton.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Search_Border"));
-		uIImageButton.SetVisibility(1f, 1f);
-		uIImageButton.SetSnapPoint("CreativeInfinitesSearch", 0);
-		searchArea.Append(uIImageButton);
-		UIPanel uIPanel = (_searchBoxPanel = new UIPanel {
-			Width = new StyleDimension(0f - uIImageButton.Width.Pixels - 3f, 1f),
-			Height = new StyleDimension(0f, 1f),
-			VAlign = 0.5f,
-			HAlign = 1f
+		_itemList.Clear();
+		Main.LocalPlayerCreativeTracker.ItemSacrifices.ForEachItemWithResearchProgress(delegate(int type)
+		{
+			Item item = ContentSamples.ItemsByType[type];
+			if (_filterer.FitsFilter(item))
+			{
+				_itemList.Add(item);
+			}
 		});
-
-		uIPanel.BackgroundColor = new Color(35, 40, 83);
-		uIPanel.BorderColor = new Color(35, 40, 83);
-		uIPanel.SetPadding(0f);
-		searchArea.Append(uIPanel);
-		UISearchBar uISearchBar = (_searchBar = new UISearchBar(Language.GetText("UI.PlayerNameSlot"), 0.8f) {
-			Width = new StyleDimension(0f, 1f),
-			Height = new StyleDimension(0f, 1f),
-			HAlign = 0f,
-			VAlign = 0.5f,
-			Left = new StyleDimension(0f, 0f),
-			IgnoresMouseInteraction = true
-		});
-
-		uIPanel.OnLeftClick += Click_SearchArea;
-		uISearchBar.OnContentsChanged += OnSearchContentsChanged;
-		uIPanel.Append(uISearchBar);
-		uISearchBar.OnStartTakingInput += OnStartTakingInput;
-		uISearchBar.OnEndTakingInput += OnEndTakingInput;
-		uISearchBar.OnNeedingVirtualKeyboard += OpenVirtualKeyboardWhenNeeded;
-		uISearchBar.OnCanceledTakingInput += OnCanceledInput;
-		UIImageButton uIImageButton2 = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/SearchCancel")) {
-			HAlign = 1f,
-			VAlign = 0.5f,
-			Left = new StyleDimension(-2f, 0f)
-		};
-
-		uIImageButton2.OnMouseOver += searchCancelButton_OnMouseOver;
-		uIImageButton2.OnLeftClick += searchCancelButton_OnClick;
-		uIPanel.Append(uIImageButton2);
-	}
-
-	private void searchCancelButton_OnClick(UIMouseEvent evt, UIElement listeningElement)
-	{
-		if (_searchBar.HasContents) {
-			_searchBar.SetContents(null, forced: true);
-			SoundEngine.PlaySound(11);
-		}
-		else {
-			SoundEngine.PlaySound(12);
-		}
-	}
-
-	private void searchCancelButton_OnMouseOver(UIMouseEvent evt, UIElement listeningElement)
-	{
-		SoundEngine.PlaySound(12);
-	}
-
-	private void OnCanceledInput()
-	{
-		Main.LocalPlayer.ToggleInv();
-	}
-
-	private void Click_SearchArea(UIMouseEvent evt, UIElement listeningElement)
-	{
-		if (evt.Target.Parent != _searchBoxPanel) {
-			_searchBar.ToggleTakingText();
-			_didClickSearchBar = true;
-		}
-	}
-
-	public override void LeftClick(UIMouseEvent evt)
-	{
-		base.LeftClick(evt);
-		AttemptStoppingUsingSearchbar(evt);
-	}
-
-	public override void RightClick(UIMouseEvent evt)
-	{
-		base.RightClick(evt);
-		AttemptStoppingUsingSearchbar(evt);
-	}
-
-	private void AttemptStoppingUsingSearchbar(UIMouseEvent evt)
-	{
-		_didClickSomething = true;
-	}
-
-	public override void Update(GameTime gameTime)
-	{
-		base.Update(gameTime);
-		if (_didClickSomething && !_didClickSearchBar && _searchBar.IsWritingText)
-			_searchBar.ToggleTakingText();
-
-		_didClickSomething = false;
-		_didClickSearchBar = false;
+		_itemList.Sort(_sorter);
+		_itemGrid.SetContentsToShow(_itemList);
 	}
 
 	private void OnSearchContentsChanged(string contents)
 	{
-		_searchString = contents;
 		_filterer.SetSearchFilter(contents);
 		UpdateContents();
-	}
-
-	private void OnStartTakingInput()
-	{
-		_searchBoxPanel.BorderColor = Main.OurFavoriteColor;
-	}
-
-	private void OnEndTakingInput()
-	{
-		_searchBoxPanel.BorderColor = new Color(35, 40, 83);
-	}
-
-	private void OpenVirtualKeyboardWhenNeeded()
-	{
-		int maxInputLength = 40;
-		UIVirtualKeyboard uIVirtualKeyboard = new UIVirtualKeyboard(Language.GetText("UI.PlayerNameSlot").Value, _searchString, OnFinishedSettingName, GoBackHere, 3, allowEmpty: true);
-		uIVirtualKeyboard.SetMaxInputLength(maxInputLength);
-		uIVirtualKeyboard.CustomEscapeAttempt = EscapeVirtualKeyboard;
-		IngameFancyUI.OpenUIState(uIVirtualKeyboard);
-	}
-
-	private bool EscapeVirtualKeyboard()
-	{
-		IngameFancyUI.Close();
-		Main.playerInventory = true;
-		if (_searchBar.IsWritingText)
-			_searchBar.ToggleTakingText();
-
-		Main.CreativeMenu.ToggleMenu();
-		return true;
 	}
 
 	private static UserInterface GetCurrentInterface()
 	{
 		UserInterface activeInstance = UserInterface.ActiveInstance;
 		if (Main.gameMenu)
+		{
 			return Main.MenuUI;
-
+		}
 		return Main.InGameUI;
 	}
 
-	private void OnFinishedSettingName(string name)
+	private void GoBackFromVirtualKeyboard()
 	{
-		string contents = name.Trim();
-		_searchBar.SetContents(contents);
-		GoBackHere();
+		IngameFancyUI.Close(quiet: true);
+		Main.playerInventory = true;
+		Main.CreativeMenu.ResumeMenuFromGamepadSearch();
 	}
 
-	private void GoBackHere()
+	public int GetItemsPerLine()
 	{
-		IngameFancyUI.Close();
-		Main.CreativeMenu.ToggleMenu();
-		_searchBar.ToggleTakingText();
-		Main.CreativeMenu.GamepadMoveToSearchButtonHack = true;
+		return _itemGrid.GetItemsPerLine();
 	}
-
-	public int GetItemsPerLine() => _itemGrid.GetItemsPerLine();
 }

@@ -11,5 +11,8 @@ public class GeneralIssueReporter : IProvideReports
 		_reports.Add(new IssueReport(textToShow));
 	}
 
-	public List<IssueReport> GetReports() => _reports;
+	public List<IssueReport> GetReports()
+	{
+		return _reports;
+	}
 }

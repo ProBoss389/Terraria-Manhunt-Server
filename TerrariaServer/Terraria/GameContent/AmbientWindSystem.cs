@@ -7,34 +7,40 @@ namespace Terraria.GameContent;
 public class AmbientWindSystem
 {
 	private UnifiedRandom _random = new UnifiedRandom();
+
 	private List<Point> _spotsForAirboneWind = new List<Point>();
+
 	private int _updatesCounter;
 
 	public void Update()
 	{
 		if (!Main.LocalPlayer.ZoneGraveyard)
+		{
 			return;
-
+		}
 		_updatesCounter++;
 		Rectangle tileWorkSpace = GetTileWorkSpace();
 		int num = tileWorkSpace.X + tileWorkSpace.Width;
 		int num2 = tileWorkSpace.Y + tileWorkSpace.Height;
-		for (int i = tileWorkSpace.X; i < num; i++) {
-			for (int j = tileWorkSpace.Y; j < num2; j++) {
+		for (int i = tileWorkSpace.X; i < num; i++)
+		{
+			for (int j = tileWorkSpace.Y; j < num2; j++)
+			{
 				TrySpawningWind(i, j);
 			}
 		}
-
 		if (_updatesCounter % 30 == 0)
+		{
 			SpawnAirborneWind();
+		}
 	}
 
 	private void SpawnAirborneWind()
 	{
-		foreach (Point item in _spotsForAirboneWind) {
+		foreach (Point item in _spotsForAirboneWind)
+		{
 			SpawnAirborneCloud(item.X, item.Y);
 		}
-
 		_spotsForAirboneWind.Clear();
 	}
 
@@ -49,18 +55,23 @@ public class AmbientWindSystem
 	private void TrySpawningWind(int x, int y)
 	{
 		if (!WorldGen.InWorld(x, y, 10) || Main.tile[x, y] == null)
+		{
 			return;
-
+		}
 		TestAirCloud(x, y);
 		Tile tile = Main.tile[x, y];
 		if (!tile.active() || tile.slope() > 0 || tile.halfBrick() || !Main.tileSolid[tile.type])
+		{
 			return;
-
+		}
 		tile = Main.tile[x, y - 1];
-		if (!WorldGen.SolidTile(tile) && _random.Next(120) == 0) {
+		if (!WorldGen.SolidTile(tile) && _random.Next(120) == 0)
+		{
 			SpawnFloorCloud(x, y);
 			if (_random.Next(3) == 0)
+			{
 				SpawnFloorCloud(x, y - 1);
+			}
 		}
 	}
 
@@ -71,29 +82,32 @@ public class AmbientWindSystem
 		float num3 = 2.2f;
 		float num4 = 0.023561945f * _random.NextFloatDirection();
 		float num5 = 0.023561945f * _random.NextFloatDirection();
-		while (num5 > -0.011780973f && num5 < 0.011780973f) {
+		while (num5 > -0.011780973f && num5 < 0.011780973f)
+		{
 			num5 = 0.023561945f * _random.NextFloatDirection();
 		}
-
-		if (_random.Next(4) == 0) {
+		if (_random.Next(4) == 0)
+		{
 			num = _random.Next(9, 16);
 			num2 = 1.1f;
 			num3 = 1.2f;
 		}
-		else if (_random.Next(4) == 0) {
+		else if (_random.Next(4) == 0)
+		{
 			num = _random.Next(9, 16);
 			num2 = 1.1f;
 			num3 = 0.2f;
 		}
-
 		Vector2 vector = new Vector2(-10f, 0f);
 		Vector2 vector2 = new Point(x, y).ToWorldCoordinates();
 		num4 -= num5 * (float)num * 0.5f;
 		float num6 = num4;
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++)
+		{
 			if (Main.rand.Next(10) == 0)
+			{
 				num5 *= _random.NextFloatDirection();
-
+			}
 			Vector2 vector3 = _random.NextVector2Circular(4f, 4f);
 			int type = 1091 + _random.Next(2) * 2;
 			float num7 = 1.4f;
@@ -113,8 +127,9 @@ public class AmbientWindSystem
 		float num = 16f * _random.NextFloat();
 		position.Y -= num;
 		if (num < 4f)
+		{
 			type = 1090;
-
+		}
 		float num2 = 0.4f;
 		float scale = 0.8f + _random.NextFloat() * 0.2f;
 		Gore.NewGorePerfect(position, Vector2.UnitX * num2 * Main.WindForVisuals, type, scale);
@@ -123,28 +138,34 @@ public class AmbientWindSystem
 	private void TestAirCloud(int x, int y)
 	{
 		if (_random.Next(120000) != 0)
+		{
 			return;
-
-		for (int i = -2; i <= 2; i++) {
-			if (i != 0) {
+		}
+		for (int i = -2; i <= 2; i++)
+		{
+			if (i != 0)
+			{
 				Tile t = Main.tile[x + i, y];
 				if (!DoesTileAllowWind(t))
+				{
 					return;
-
+				}
 				t = Main.tile[x, y + i];
 				if (!DoesTileAllowWind(t))
+				{
 					return;
+				}
 			}
 		}
-
 		_spotsForAirboneWind.Add(new Point(x, y));
 	}
 
 	private bool DoesTileAllowWind(Tile t)
 	{
 		if (t.active())
+		{
 			return !Main.tileSolid[t.type];
-
+		}
 		return true;
 	}
 }

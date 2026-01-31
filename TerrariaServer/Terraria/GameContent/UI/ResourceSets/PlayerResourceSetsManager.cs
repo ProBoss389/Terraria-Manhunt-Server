@@ -8,8 +8,11 @@ namespace Terraria.GameContent.UI.ResourceSets;
 public class PlayerResourceSetsManager
 {
 	private Dictionary<string, IPlayerResourcesDisplaySet> _sets = new Dictionary<string, IPlayerResourcesDisplaySet>();
+
 	private IPlayerResourcesDisplaySet _activeSet;
+
 	private string _activeSetConfigKey;
+
 	private bool _loadedContent;
 
 	public string ActiveSetKeyName { get; private set; }
@@ -24,7 +27,9 @@ public class PlayerResourceSetsManager
 	{
 		_activeSetConfigKey = obj.Get("PlayerResourcesSet", "New");
 		if (_loadedContent)
+		{
 			SetActiveFromLoadedConfigKey();
+		}
 	}
 
 	private void Configuration_OnSave(Preferences obj)
@@ -53,8 +58,9 @@ public class PlayerResourceSetsManager
 	{
 		IPlayerResourcesDisplaySet playerResourcesDisplaySet = _sets.FirstOrDefault((KeyValuePair<string, IPlayerResourcesDisplaySet> pair) => pair.Key == name).Value;
 		if (playerResourcesDisplaySet == null)
+		{
 			playerResourcesDisplaySet = _sets.Values.First();
-
+		}
 		SetActiveFrame(playerResourcesDisplaySet);
 	}
 
@@ -78,17 +84,19 @@ public class PlayerResourceSetsManager
 	public void CycleResourceSet()
 	{
 		IPlayerResourcesDisplaySet lastFrame = null;
-		_sets.Values.FirstOrDefault(delegate (IPlayerResourcesDisplaySet frame) {
+		_sets.Values.FirstOrDefault(delegate(IPlayerResourcesDisplaySet frame)
+		{
 			if (frame == _activeSet)
+			{
 				return true;
-
+			}
 			lastFrame = frame;
 			return false;
 		});
-
 		if (lastFrame == null)
+		{
 			lastFrame = _sets.Values.Last();
-
+		}
 		SetActiveFrame(lastFrame);
 	}
 }

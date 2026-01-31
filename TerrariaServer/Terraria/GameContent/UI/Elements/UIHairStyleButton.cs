@@ -9,22 +9,28 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIHairStyleButton : UIImageButton
 {
 	private readonly Player _player;
+
 	public readonly int HairStyleId;
+
 	private readonly Asset<Texture2D> _selectedBorderTexture;
+
 	private readonly Asset<Texture2D> _hoveredBorderTexture;
+
 	private bool _hovered;
+
 	private bool _soundedHover;
+
 	private int _framesToSkip;
 
 	public UIHairStyleButton(Player player, int hairStyleId)
-		: base(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel"))
+		: base(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel", AssetRequestMode.ImmediateLoad))
 	{
 		_player = player;
 		HairStyleId = hairStyleId;
 		Width = StyleDimension.FromPixels(44f);
 		Height = StyleDimension.FromPixels(44f);
-		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
-		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder");
+		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
+		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder", AssetRequestMode.ImmediateLoad);
 	}
 
 	public void SkipRenderingContent(int timeInFrames)
@@ -34,33 +40,40 @@ public class UIHairStyleButton : UIImageButton
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		if (_hovered) {
+		if (_hovered)
+		{
 			if (!_soundedHover)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_soundedHover = true;
 		}
-		else {
+		else
+		{
 			_soundedHover = false;
 		}
-
 		Vector2 vector = new Vector2(-5f, -5f);
 		base.DrawSelf(spriteBatch);
 		if (_player.hair == HairStyleId)
+		{
 			spriteBatch.Draw(_selectedBorderTexture.Value, GetDimensions().Center() - _selectedBorderTexture.Size() / 2f, Color.White);
-
+		}
 		if (_hovered)
+		{
 			spriteBatch.Draw(_hoveredBorderTexture.Value, GetDimensions().Center() - _hoveredBorderTexture.Size() / 2f, Color.White);
-
-		if (_framesToSkip > 0) {
+		}
+		if (_framesToSkip > 0)
+		{
 			_framesToSkip--;
 			return;
 		}
-
+		int head = _player.head;
+		_player.head = -1;
 		int hair = _player.hair;
 		_player.hair = HairStyleId;
 		Main.PlayerRenderer.DrawPlayerHead(Main.Camera, _player, GetDimensions().Center() + vector);
 		_player.hair = hair;
+		_player.head = head;
 	}
 
 	public override void LeftMouseDown(UIMouseEvent evt)

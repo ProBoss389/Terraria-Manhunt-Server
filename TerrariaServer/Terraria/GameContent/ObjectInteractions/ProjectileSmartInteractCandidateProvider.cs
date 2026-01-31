@@ -35,25 +35,29 @@ public class ProjectileSmartInteractCandidateProvider : ISmartInteractCandidateP
 	{
 		candidate = null;
 		if (!settings.FullInteraction)
+		{
 			return false;
-
+		}
 		List<int> listOfProjectilesToInteractWithHack = settings.player.GetListOfProjectilesToInteractWithHack();
 		bool flag = false;
 		Vector2 mousevec = settings.mousevec;
 		mousevec.ToPoint();
 		int num = -1;
 		float projectileDistanceFromCursor = -1f;
-		for (int i = 0; i < listOfProjectilesToInteractWithHack.Count; i++) {
+		for (int i = 0; i < listOfProjectilesToInteractWithHack.Count; i++)
+		{
 			int num2 = listOfProjectilesToInteractWithHack[i];
 			Projectile projectile = Main.projectile[num2];
-			if (projectile.active) {
+			if (projectile.active)
+			{
 				float num3 = projectile.Hitbox.Distance(mousevec);
-				if (num == -1 || Main.projectile[num].Hitbox.Distance(mousevec) > num3) {
+				if (num == -1 || Main.projectile[num].Hitbox.Distance(mousevec) > num3)
+				{
 					num = num2;
 					projectileDistanceFromCursor = num3;
 				}
-
-				if (num3 == 0f) {
+				if (num3 == 0f)
+				{
 					flag = true;
 					num = num2;
 					projectileDistanceFromCursor = num3;
@@ -61,16 +65,16 @@ public class ProjectileSmartInteractCandidateProvider : ISmartInteractCandidateP
 				}
 			}
 		}
-
 		if (settings.DemandOnlyZeroDistanceTargets && !flag)
+		{
 			return false;
-
-		if (num != -1) {
+		}
+		if (num != -1)
+		{
 			_candidate.Reuse(num, projectileDistanceFromCursor);
 			candidate = _candidate;
 			return true;
 		}
-
 		return false;
 	}
 }

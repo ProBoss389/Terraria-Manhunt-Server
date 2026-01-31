@@ -16,11 +16,17 @@ namespace Terraria.GameContent.UI.States;
 public class UIWorkshopSelectWorldToPublish : UIState, IHaveBackButtonCommand
 {
 	private UIList _entryList;
+
 	private UITextPanel<LocalizedText> _backPanel;
+
 	private UIPanel _containerPanel;
+
 	private UIScrollbar _scrollbar;
+
 	private bool _isScrollbarAttached;
+
 	private UIState _menuToGoBackTo;
+
 	private bool skipDraw;
 
 	public UIWorkshopSelectWorldToPublish(UIState menuToGoBackTo)
@@ -74,19 +80,21 @@ public class UIWorkshopSelectWorldToPublish : UIState, IHaveBackButtonCommand
 
 	public override void Recalculate()
 	{
-		if (_scrollbar != null) {
-			if (_isScrollbarAttached && !_scrollbar.CanScroll) {
+		if (_scrollbar != null)
+		{
+			if (_isScrollbarAttached && !_scrollbar.CanScroll)
+			{
 				_containerPanel.RemoveChild(_scrollbar);
 				_isScrollbarAttached = false;
 				_entryList.Width.Set(0f, 1f);
 			}
-			else if (!_isScrollbarAttached && _scrollbar.CanScroll) {
+			else if (!_isScrollbarAttached && _scrollbar.CanScroll)
+			{
 				_containerPanel.Append(_scrollbar);
 				_isScrollbarAttached = true;
 				_entryList.Width.Set(-25f, 1f);
 			}
 		}
-
 		base.Recalculate();
 	}
 
@@ -118,31 +126,35 @@ public class UIWorkshopSelectWorldToPublish : UIState, IHaveBackButtonCommand
 	{
 		PopulateEntries();
 		if (PlayerInput.UsingGamepadUI)
+		{
 			UILinkPointNavigator.ChangePoint(3000 + ((_entryList.Count != 0) ? 1 : 0));
+		}
 	}
 
 	private void PopulateEntries()
 	{
 		Main.LoadWorlds();
 		_entryList.Clear();
-		IOrderedEnumerable<WorldFileData> orderedEnumerable = from x in new List<WorldFileData>(Main.WorldList)
-															  orderby x.IsFavorite descending, x.Name, x.GetFileName()
-															  select x;
-
+		List<WorldFileData> list = new List<WorldFileData>(Main.WorldList);
+		list.RemoveAll((WorldFileData x) => !x.IsValid);
+		IOrderedEnumerable<WorldFileData> orderedEnumerable = from x in list
+			orderby x.IsFavorite descending, x.Name, x.GetFileName()
+			select x;
 		_entryList.Clear();
 		int num = 0;
-		foreach (WorldFileData item in orderedEnumerable) {
+		foreach (WorldFileData item in orderedEnumerable)
+		{
 			_entryList.Add(new UIWorkshopPublishWorldListItem(this, item, num++));
 		}
 	}
 
 	public override void Draw(SpriteBatch spriteBatch)
 	{
-		if (skipDraw) {
+		if (skipDraw)
+		{
 			skipDraw = false;
 			return;
 		}
-
 		base.Draw(spriteBatch);
 		SetupGamepadPoints(spriteBatch);
 	}
@@ -161,55 +173,61 @@ public class UIWorkshopSelectWorldToPublish : UIState, IHaveBackButtonCommand
 		Vector2 minimum = clippingRectangle.TopLeft() * num3;
 		Vector2 maximum = clippingRectangle.BottomRight() * num3;
 		List<SnapPoint> snapPoints = GetSnapPoints();
-		for (int i = 0; i < snapPoints.Count; i++) {
-			if (!snapPoints[i].Position.Between(minimum, maximum)) {
+		for (int i = 0; i < snapPoints.Count; i++)
+		{
+			if (!snapPoints[i].Position.Between(minimum, maximum))
+			{
 				snapPoints.Remove(snapPoints[i]);
 				i--;
 			}
 		}
-
 		int num4 = 1;
 		SnapPoint[,] array = new SnapPoint[_entryList.Count, num4];
-		foreach (SnapPoint item in snapPoints.Where((SnapPoint a) => a.Name == "Publish")) {
+		foreach (SnapPoint item in snapPoints.Where((SnapPoint a) => a.Name == "Publish"))
+		{
 			array[item.Id, 0] = item;
 		}
-
 		num2 = num + 1;
 		int[] array2 = new int[_entryList.Count];
-		for (int j = 0; j < array2.Length; j++) {
-			array2[j] = -1;
+		for (int num5 = 0; num5 < array2.Length; num5++)
+		{
+			array2[num5] = -1;
 		}
-
-		for (int k = 0; k < num4; k++) {
-			int num5 = -1;
-			for (int l = 0; l < array.GetLength(0); l++) {
-				if (array[l, k] != null) {
+		for (int num6 = 0; num6 < num4; num6++)
+		{
+			int num7 = -1;
+			for (int num8 = 0; num8 < array.GetLength(0); num8++)
+			{
+				if (array[num8, num6] != null)
+				{
 					uILinkPoint = UILinkPointNavigator.Points[num2];
 					uILinkPoint.Unlink();
-					UILinkPointNavigator.SetPosition(num2, array[l, k].Position);
-					if (num5 != -1) {
-						uILinkPoint.Up = num5;
-						UILinkPointNavigator.Points[num5].Down = num2;
+					UILinkPointNavigator.SetPosition(num2, array[num8, num6].Position);
+					if (num7 != -1)
+					{
+						uILinkPoint.Up = num7;
+						UILinkPointNavigator.Points[num7].Down = num2;
 					}
-
-					if (array2[l] != -1) {
-						uILinkPoint.Left = array2[l];
-						UILinkPointNavigator.Points[array2[l]].Right = num2;
+					if (array2[num8] != -1)
+					{
+						uILinkPoint.Left = array2[num8];
+						UILinkPointNavigator.Points[array2[num8]].Right = num2;
 					}
-
 					uILinkPoint.Down = num;
-					if (k == 0)
+					if (num6 == 0)
+					{
 						UILinkPointNavigator.Points[num].Up = (UILinkPointNavigator.Points[num + 1].Up = num2);
-
-					num5 = num2;
-					array2[l] = num2;
+					}
+					num7 = num2;
+					array2[num8] = num2;
 					UILinkPointNavigator.Shortcuts.FANCYUI_HIGHEST_INDEX = num2;
 					num2++;
 				}
 			}
 		}
-
 		if (PlayerInput.UsingGamepadUI && _entryList.Count == 0 && UILinkPointNavigator.CurrentPoint > 3000)
+		{
 			UILinkPointNavigator.ChangePoint(3000);
+		}
 	}
 }

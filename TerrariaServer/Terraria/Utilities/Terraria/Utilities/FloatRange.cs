@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 
 namespace Terraria.Utilities.Terraria.Utilities;
@@ -6,6 +7,7 @@ public struct FloatRange
 {
 	[JsonProperty("Min")]
 	public readonly float Minimum;
+
 	[JsonProperty("Max")]
 	public readonly float Maximum;
 
@@ -13,6 +15,20 @@ public struct FloatRange
 	{
 		Minimum = minimum;
 		Maximum = maximum;
+	}
+
+	public bool Contains(float f)
+	{
+		if (Minimum <= f)
+		{
+			return f <= Maximum;
+		}
+		return false;
+	}
+
+	public float Lerp(float amount)
+	{
+		return MathHelper.Lerp(Minimum, Maximum, amount);
 	}
 
 	public static FloatRange operator *(FloatRange range, float scale)

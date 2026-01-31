@@ -8,20 +8,27 @@ public class CustomIntCondition : AchievementCondition
 {
 	[JsonProperty("Value")]
 	private int _value;
+
 	private int _maxValue;
 
-	public int Value {
-		get {
+	public int Value
+	{
+		get
+		{
 			return _value;
 		}
-		set {
+		set
+		{
 			int num = Utils.Clamp(value, 0, _maxValue);
 			if (_tracker != null)
+			{
 				((ConditionIntTracker)_tracker).SetValue(num);
-
+			}
 			_value = num;
 			if (_value == _maxValue)
+			{
 				Complete();
+			}
 		}
 	}
 
@@ -43,17 +50,27 @@ public class CustomIntCondition : AchievementCondition
 		base.Load(state);
 		_value = (int)state["Value"];
 		if (_tracker != null)
+		{
 			((ConditionIntTracker)_tracker).SetValue(_value, reportUpdate: false);
+		}
 	}
 
-	protected override IAchievementTracker CreateAchievementTracker() => new ConditionIntTracker(_maxValue);
-	public static AchievementCondition Create(string name, int maxValue) => new CustomIntCondition(name, maxValue);
+	protected override IAchievementTracker CreateAchievementTracker()
+	{
+		return new ConditionIntTracker(_maxValue);
+	}
+
+	public static AchievementCondition Create(string name, int maxValue)
+	{
+		return new CustomIntCondition(name, maxValue);
+	}
 
 	public override void Complete()
 	{
 		if (_tracker != null)
+		{
 			((ConditionIntTracker)_tracker).SetValue(_maxValue);
-
+		}
 		_value = _maxValue;
 		base.Complete();
 	}

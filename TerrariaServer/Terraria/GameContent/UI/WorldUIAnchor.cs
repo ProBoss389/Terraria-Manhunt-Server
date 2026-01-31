@@ -14,8 +14,11 @@ public class WorldUIAnchor
 	}
 
 	public AnchorType type;
+
 	public Entity entity;
+
 	public Vector2 pos = Vector2.Zero;
+
 	public Vector2 size = Vector2.Zero;
 
 	public WorldUIAnchor()
@@ -44,21 +47,28 @@ public class WorldUIAnchor
 
 	public bool InRange(Vector2 target, float tileRangeX, float tileRangeY)
 	{
-		switch (type) {
-			case AnchorType.Entity:
-				if (Math.Abs(target.X - entity.Center.X) <= tileRangeX * 16f + (float)entity.width / 2f)
-					return Math.Abs(target.Y - entity.Center.Y) <= tileRangeY * 16f + (float)entity.height / 2f;
-				return false;
-			case AnchorType.Pos:
-				if (Math.Abs(target.X - pos.X) <= tileRangeX * 16f)
-					return Math.Abs(target.Y - pos.Y) <= tileRangeY * 16f;
-				return false;
-			case AnchorType.Tile:
-				if (Math.Abs(target.X - pos.X) <= tileRangeX * 16f + size.X / 2f)
-					return Math.Abs(target.Y - pos.Y) <= tileRangeY * 16f + size.Y / 2f;
-				return false;
-			default:
-				return true;
+		switch (type)
+		{
+		case AnchorType.Entity:
+			if (Math.Abs(target.X - entity.Center.X) <= tileRangeX * 16f + (float)entity.width / 2f)
+			{
+				return Math.Abs(target.Y - entity.Center.Y) <= tileRangeY * 16f + (float)entity.height / 2f;
+			}
+			return false;
+		case AnchorType.Pos:
+			if (Math.Abs(target.X - pos.X) <= tileRangeX * 16f)
+			{
+				return Math.Abs(target.Y - pos.Y) <= tileRangeY * 16f;
+			}
+			return false;
+		case AnchorType.Tile:
+			if (Math.Abs(target.X - pos.X) <= tileRangeX * 16f + size.X / 2f)
+			{
+				return Math.Abs(target.Y - pos.Y) <= tileRangeY * 16f + size.Y / 2f;
+			}
+			return false;
+		default:
+			return true;
 		}
 	}
 }

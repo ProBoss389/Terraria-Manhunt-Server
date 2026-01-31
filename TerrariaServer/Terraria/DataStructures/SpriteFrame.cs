@@ -6,26 +6,37 @@ namespace Terraria.DataStructures;
 public struct SpriteFrame
 {
 	public int PaddingX;
+
 	public int PaddingY;
+
 	private byte _currentColumn;
+
 	private byte _currentRow;
+
 	public readonly byte ColumnCount;
+
 	public readonly byte RowCount;
 
-	public byte CurrentColumn {
-		get {
+	public byte CurrentColumn
+	{
+		get
+		{
 			return _currentColumn;
 		}
-		set {
+		set
+		{
 			_currentColumn = value;
 		}
 	}
 
-	public byte CurrentRow {
-		get {
+	public byte CurrentRow
+	{
+		get
+		{
 			return _currentRow;
 		}
-		set {
+		set
+		{
 			_currentRow = value;
 		}
 	}
@@ -60,8 +71,8 @@ public struct SpriteFrame
 
 	public Rectangle GetSourceRectangle(Texture2D texture)
 	{
-		int num = texture.Width / (int)ColumnCount;
-		int num2 = texture.Height / (int)RowCount;
+		int num = texture.Width / ColumnCount;
+		int num2 = texture.Height / RowCount;
 		return new Rectangle(CurrentColumn * num, CurrentRow * num2, num - ((ColumnCount != 1) ? PaddingX : 0), num2 - ((RowCount != 1) ? PaddingY : 0));
 	}
 }

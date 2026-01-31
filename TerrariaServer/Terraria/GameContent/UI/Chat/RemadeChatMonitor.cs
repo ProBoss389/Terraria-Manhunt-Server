@@ -1,5 +1,7 @@
+#define TRACE
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Terraria.UI.Chat;
 
@@ -8,10 +10,14 @@ namespace Terraria.GameContent.UI.Chat;
 public class RemadeChatMonitor : IChatMonitor
 {
 	private const int MaxMessages = 500;
+
 	private int _showCount;
+
 	private int _startChatLine;
+
 	private List<ChatMessageContainer> _messages;
-	private bool _recalculateOnNextUpdate;
+
+	private int _lastChatWidthLimit;
 
 	public RemadeChatMonitor()
 	{
@@ -32,10 +38,12 @@ public class RemadeChatMonitor : IChatMonitor
 
 	public void AddNewMessage(string text, Color color, int widthLimitInPixels = -1)
 	{
+		Trace.WriteLine("[chat] " + text);
 		ChatMessageContainer chatMessageContainer = new ChatMessageContainer();
 		chatMessageContainer.SetContents(text, color, widthLimitInPixels);
 		_messages.Insert(0, chatMessageContainer);
-		while (_messages.Count > 500) {
+		while (_messages.Count > 500)
+		{
 			_messages.RemoveAt(_messages.Count - 1);
 		}
 	}
@@ -45,47 +53,54 @@ public class RemadeChatMonitor : IChatMonitor
 		int num = _startChatLine;
 		int num2 = 0;
 		int num3 = 0;
-		while (num > 0 && num2 < _messages.Count) {
+		while (num > 0 && num2 < _messages.Count)
+		{
 			int num4 = Math.Min(num, _messages[num2].LineCount);
 			num -= num4;
 			num3 += num4;
-			if (num3 == _messages[num2].LineCount) {
+			if (num3 == _messages[num2].LineCount)
+			{
 				num3 = 0;
 				num2++;
 			}
 		}
-
 		int num5 = 0;
 		int? num6 = null;
 		int snippetIndex = -1;
 		int? num7 = null;
 		int hoveredSnippet = -1;
-		while (num5 < _showCount && num2 < _messages.Count) {
+		while (num5 < _showCount && num2 < _messages.Count)
+		{
 			ChatMessageContainer chatMessageContainer = _messages[num2];
 			if (!chatMessageContainer.Prepared || !(drawingPlayerChat | chatMessageContainer.CanBeShownWhenChatIsClosed))
+			{
 				break;
-
+			}
 			TextSnippet[] snippetWithInversedIndex = chatMessageContainer.GetSnippetWithInversedIndex(num3);
-			ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, snippetWithInversedIndex, new Vector2(88f, Main.screenHeight - 30 - 28 - num5 * 21), 0f, Vector2.Zero, Vector2.One, out hoveredSnippet);
-			if (hoveredSnippet >= 0) {
+			ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, snippetWithInversedIndex, new Vector2(88f, Main.screenHeight - 30 - 28 - num5 * 22), 0f, Vector2.Zero, Vector2.One, out hoveredSnippet);
+			if (hoveredSnippet >= 0)
+			{
 				num7 = hoveredSnippet;
 				num6 = num2;
 				snippetIndex = num3;
 			}
-
 			num5++;
 			num3++;
-			if (num3 >= chatMessageContainer.LineCount) {
+			if (num3 >= chatMessageContainer.LineCount)
+			{
 				num3 = 0;
 				num2++;
 			}
 		}
-
-		if (num6.HasValue && num7.HasValue) {
+		if (num6.HasValue && num7.HasValue)
+		{
 			TextSnippet[] snippetWithInversedIndex2 = _messages[num6.Value].GetSnippetWithInversedIndex(snippetIndex);
 			snippetWithInversedIndex2[num7.Value].OnHover();
+			Main.LocalPlayer.mouseInterface = true;
 			if (Main.mouseLeft && Main.mouseLeftRelease)
+			{
 				snippetWithInversedIndex2[num7.Value].OnClick();
+			}
 		}
 	}
 
@@ -96,15 +111,17 @@ public class RemadeChatMonitor : IChatMonitor
 
 	public void Update()
 	{
-		if (_recalculateOnNextUpdate) {
-			_recalculateOnNextUpdate = false;
-			for (int i = 0; i < _messages.Count; i++) {
-				_messages[i].MarkToNeedRefresh();
+		if (_lastChatWidthLimit != Main.ChatLineWidthLimit)
+		{
+			_lastChatWidthLimit = Main.ChatLineWidthLimit;
+			foreach (ChatMessageContainer message in _messages)
+			{
+				message.OnWidthLimitChanged();
 			}
 		}
-
-		for (int j = 0; j < _messages.Count; j++) {
-			_messages[j].Update();
+		foreach (ChatMessageContainer message2 in _messages)
+		{
+			message2.Update();
 		}
 	}
 
@@ -120,42 +137,41 @@ public class RemadeChatMonitor : IChatMonitor
 		int num2 = 0;
 		int num3 = 0;
 		int num4 = _startChatLine + _showCount;
-		while (num < num4 && num2 < _messages.Count) {
+		while (num < num4 && num2 < _messages.Count)
+		{
 			int num5 = Math.Min(num4 - num, _messages[num2].LineCount);
 			num += num5;
-			if (num < num4) {
+			if (num < num4)
+			{
 				num2++;
 				num3 = 0;
 			}
-			else {
+			else
+			{
 				num3 = num5;
 			}
 		}
-
 		int num6 = _showCount;
-		while (num6 > 0 && num > 0) {
+		while (num6 > 0 && num > 0)
+		{
 			num3--;
 			num6--;
 			num--;
-			if (num3 < 0) {
+			if (num3 < 0)
+			{
 				num2--;
 				if (num2 == -1)
+				{
 					break;
-
+				}
 				num3 = _messages[num2].LineCount - 1;
 			}
 		}
-
 		_startChatLine = num;
 	}
 
 	public void ResetOffset()
 	{
 		_startChatLine = 0;
-	}
-
-	public void OnResolutionChange()
-	{
-		_recalculateOnNextUpdate = true;
 	}
 }

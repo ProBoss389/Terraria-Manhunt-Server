@@ -6,9 +6,13 @@ namespace Terraria.Graphics;
 public struct EmpressBladeDrawer
 {
 	public const int TotalIllusions = 1;
+
 	public const int FramesPerImportantTrail = 60;
+
 	private static VertexStrip _vertexStrip = new VertexStrip();
+
 	public Color ColorStart;
+
 	public Color ColorEnd;
 
 	public void Draw(Projectile proj)
@@ -33,5 +37,8 @@ public struct EmpressBladeDrawer
 		return result;
 	}
 
-	private float StripWidth(float progressOnStrip) => 36f;
+	private float StripWidth(float progressOnStrip)
+	{
+		return 36f;
+	}
 }

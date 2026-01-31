@@ -8,10 +8,10 @@ namespace Terraria.GameContent.UI.BigProgressBar;
 public class PirateShipBigProgressBar : IBigProgressBar
 {
 	private BigProgressBarCache _cache;
+
 	private NPC _referenceDummy;
-	private HashSet<int> ValidIds = new HashSet<int> {
-		491
-	};
+
+	private HashSet<int> ValidIds = new HashSet<int> { 491 };
 
 	public PirateShipBigProgressBar()
 	{
@@ -20,30 +20,35 @@ public class PirateShipBigProgressBar : IBigProgressBar
 
 	public bool ValidateAndCollectNecessaryInfo(ref BigProgressBarInfo info)
 	{
-		if (info.npcIndexToAimAt < 0 || info.npcIndexToAimAt > 200)
+		if (info.npcIndexToAimAt < 0 || info.npcIndexToAimAt > Main.maxNPCs)
+		{
 			return false;
-
+		}
 		NPC nPC = Main.npc[info.npcIndexToAimAt];
-		if (!nPC.active || nPC.type != 491) {
+		if (!nPC.active || nPC.type != 491)
+		{
 			if (!TryFindingAnotherPirateShipPiece(ref info))
+			{
 				return false;
-
+			}
 			nPC = Main.npc[info.npcIndexToAimAt];
 		}
-
 		int num = 0;
 		_referenceDummy.SetDefaults(492, nPC.GetMatchingSpawnParams());
 		num += _referenceDummy.lifeMax * 4;
 		float num2 = 0f;
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 4; i++)
+		{
 			int num3 = (int)nPC.ai[i];
-			if (Main.npc.IndexInRange(num3)) {
+			if (Main.npc.IndexInRange(num3))
+			{
 				NPC nPC2 = Main.npc[num3];
 				if (nPC2.active && nPC2.type == 492)
+				{
 					num2 += (float)nPC2.life;
+				}
 			}
 		}
-
 		_cache.SetLife(num2, num);
 		return true;
 	}
@@ -58,14 +63,15 @@ public class PirateShipBigProgressBar : IBigProgressBar
 
 	private bool TryFindingAnotherPirateShipPiece(ref BigProgressBarInfo info)
 	{
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			NPC nPC = Main.npc[i];
-			if (nPC.active && ValidIds.Contains(nPC.type)) {
+			if (nPC.active && ValidIds.Contains(nPC.type))
+			{
 				info.npcIndexToAimAt = i;
 				return true;
 			}
 		}
-
 		return false;
 	}
 }

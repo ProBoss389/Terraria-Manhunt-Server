@@ -5,6 +5,13 @@ namespace Terraria.ID;
 
 public static class TorchID
 {
+	public class Sets
+	{
+		public static SetFactory Factory = new SetFactory(Count);
+
+		public static bool[] IsABiomeTorch = Factory.CreateBoolSet(false, 0, 18, 19, 20, 21, 23, 13, 7, 9, 22, 16);
+	}
+
 	private interface ITorchLightProvider
 	{
 		void GetRGB(out float r, out float g, out float b);
@@ -13,7 +20,9 @@ public static class TorchID
 	private struct ConstantTorchLight : ITorchLightProvider
 	{
 		public float R;
+
 		public float G;
+
 		public float B;
 
 		public ConstantTorchLight(float Red, float Green, float Blue)
@@ -70,57 +79,63 @@ public static class TorchID
 		}
 	}
 
-	public static int[] Dust = new int[24] {
-		6,
-		59,
-		60,
-		61,
-		62,
-		63,
-		64,
-		65,
-		75,
-		135,
-		158,
-		169,
-		156,
-		234,
-		66,
-		242,
-		293,
-		294,
-		295,
-		296,
-		297,
-		298,
-		307,
-		310
+	public static int[] Dust = new int[24]
+	{
+		6, 59, 60, 61, 62, 63, 64, 65, 75, 135,
+		158, 169, 156, 234, 66, 242, 293, 294, 295, 296,
+		297, 298, 307, 310
 	};
+
 	private static ITorchLightProvider[] _lights;
+
 	public const short Torch = 0;
+
 	public const short Blue = 1;
+
 	public const short Red = 2;
+
 	public const short Green = 3;
+
 	public const short Purple = 4;
+
 	public const short White = 5;
+
 	public const short Yellow = 6;
+
 	public const short Demon = 7;
+
 	public const short Cursed = 8;
+
 	public const short Ice = 9;
+
 	public const short Orange = 10;
+
 	public const short Ichor = 11;
+
 	public const short UltraBright = 12;
+
 	public const short Bone = 13;
+
 	public const short Rainbow = 14;
+
 	public const short Pink = 15;
+
 	public const short Desert = 16;
+
 	public const short Coral = 17;
+
 	public const short Corrupt = 18;
+
 	public const short Crimson = 19;
+
 	public const short Hallowed = 20;
+
 	public const short Jungle = 21;
+
 	public const short Mushroom = 22;
+
 	public const short Shimmer = 23;
+
 	public static readonly short Count = 24;
 
 	public static void Initialize()
@@ -156,8 +171,12 @@ public static class TorchID
 	public static void TorchColor(int torchID, out float R, out float G, out float B)
 	{
 		if (torchID < 0 || torchID >= _lights.Length)
+		{
 			R = (G = (B = 0f));
+		}
 		else
+		{
 			_lights[torchID].GetRGB(out R, out G, out B);
+		}
 	}
 }

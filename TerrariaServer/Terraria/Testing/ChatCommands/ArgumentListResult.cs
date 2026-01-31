@@ -7,8 +7,11 @@ namespace Terraria.Testing.ChatCommands;
 public class ArgumentListResult : IEnumerable<string>, IEnumerable
 {
 	public static readonly ArgumentListResult Empty = new ArgumentListResult(isValid: true);
+
 	public static readonly ArgumentListResult Invalid = new ArgumentListResult(isValid: false);
+
 	public readonly bool IsValid;
+
 	private readonly List<string> _results;
 
 	public int Count => _results.Count;
@@ -27,6 +30,13 @@ public class ArgumentListResult : IEnumerable<string>, IEnumerable
 		IsValid = isValid;
 	}
 
-	public IEnumerator<string> GetEnumerator() => _results.GetEnumerator();
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	public IEnumerator<string> GetEnumerator()
+	{
+		return _results.GetEnumerator();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
+	}
 }

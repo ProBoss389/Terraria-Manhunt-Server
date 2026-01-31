@@ -16,7 +16,9 @@ public class UIProgressBar : UIElement
 	}
 
 	private UIInnerProgressBar _progressBar = new UIInnerProgressBar();
+
 	private float _visualProgress;
+
 	private float _targetProgress;
 
 	public UIProgressBar()
@@ -30,7 +32,9 @@ public class UIProgressBar : UIElement
 	{
 		_targetProgress = value;
 		if (value < _visualProgress)
+		{
 			_visualProgress = value;
+		}
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)

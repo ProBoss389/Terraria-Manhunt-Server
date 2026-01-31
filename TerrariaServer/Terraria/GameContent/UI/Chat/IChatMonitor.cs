@@ -17,6 +17,4 @@ public interface IChatMonitor
 	void Offset(int linesOffset);
 
 	void ResetOffset();
-
-	void OnResolutionChange();
 }

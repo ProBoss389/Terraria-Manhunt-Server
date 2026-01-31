@@ -8,7 +8,9 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIParticleLayer : UIElement
 {
 	public ParticleRenderer ParticleSystem;
+
 	public Vector2 AnchorPositionOffsetByPercents;
+
 	public Vector2 AnchorPositionOffsetByPixels;
 
 	public UIParticleLayer()

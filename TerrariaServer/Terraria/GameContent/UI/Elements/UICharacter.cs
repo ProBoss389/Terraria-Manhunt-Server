@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -9,13 +10,23 @@ namespace Terraria.GameContent.UI.Elements;
 public class UICharacter : UIElement
 {
 	private Player _player;
+
 	private Projectile[] _petProjectiles;
+
 	private Asset<Texture2D> _texture;
+
 	private static Item _blankItem = new Item();
+
 	private bool _animated;
+
 	private bool _drawsBackPanel;
+
 	private float _characterScale = 1f;
+
 	private int _animationCounter;
+
+	public Action PrepareAction;
+
 	private static readonly Projectile[] NoPets = new Projectile[0];
 
 	public bool IsAnimated => _animated;
@@ -23,15 +34,15 @@ public class UICharacter : UIElement
 	public UICharacter(Player player, bool animated = false, bool hasBackPanel = true, float characterScale = 1f, bool useAClone = false)
 	{
 		_player = player;
-		if (useAClone) {
+		if (useAClone)
+		{
 			_player = player.SerializedClone();
 			_player.dead = false;
 			_player.PlayerFrame();
 		}
-
 		Width.Set(59f, 0f);
 		Height.Set(58f, 0f);
-		_texture = Main.Assets.Request<Texture2D>("Images/UI/PlayerBackground");
+		_texture = Main.Assets.Request<Texture2D>("Images/UI/PlayerBackground", AssetRequestMode.ImmediateLoad);
 		UseImmediateMode = true;
 		_animated = animated;
 		_drawsBackPanel = hasBackPanel;
@@ -43,13 +54,13 @@ public class UICharacter : UIElement
 
 	private void PreparePetProjectiles()
 	{
-		if (!_player.hideMisc[0]) {
+		if (!_player.hideMisc[0])
+		{
 			Item item = _player.miscEquips[0];
-			if (!item.IsAir) {
+			if (!item.IsAir)
+			{
 				int shoot = item.shoot;
-				_petProjectiles = new Projectile[1] {
-					PreparePetProjectiles_CreatePetProjectileDummy(shoot)
-				};
+				_petProjectiles = new Projectile[1] { PreparePetProjectiles_CreatePetProjectileDummy(shoot) };
 			}
 		}
 	}
@@ -64,24 +75,20 @@ public class UICharacter : UIElement
 
 	public override void Update(GameTime gameTime)
 	{
-		_player.ResetEffects();
-		_player.ResetVisibleAccessories();
-		_player.UpdateMiscCounter();
-		_player.UpdateDyes();
-		_player.PlayerFrame();
 		if (_animated)
+		{
 			_animationCounter++;
-
+		}
 		base.Update(gameTime);
 	}
 
 	private void UpdateAnim()
 	{
-		if (!_animated) {
+		if (!_animated)
+		{
 			_player.bodyFrame.Y = (_player.legFrame.Y = (_player.headFrame.Y = 0));
 			return;
 		}
-
 		int num = (int)(Main.GlobalTimeWrappedHourly / 0.07f) % 14 + 6;
 		_player.bodyFrame.Y = (_player.legFrame.Y = (_player.headFrame.Y = num * 56));
 		_player.WingFrame(wingFlap: false);
@@ -91,8 +98,18 @@ public class UICharacter : UIElement
 	{
 		CalculatedStyle dimensions = GetDimensions();
 		if (_drawsBackPanel)
+		{
 			spriteBatch.Draw(_texture.Value, dimensions.Position(), Color.White);
-
+		}
+		_player.ResetEffects();
+		_player.ResetVisibleAccessories();
+		_player.UpdateMiscCounter();
+		_player.UpdateDyes();
+		if (PrepareAction != null)
+		{
+			PrepareAction();
+		}
+		_player.PlayerFrame();
 		UpdateAnim();
 		DrawPets(spriteBatch);
 		Vector2 playerPosition = GetPlayerPosition(ref dimensions);
@@ -106,8 +123,9 @@ public class UICharacter : UIElement
 	{
 		Vector2 result = dimensions.Position() + new Vector2(dimensions.Width * 0.5f - (float)(_player.width >> 1), dimensions.Height * 0.5f - (float)(_player.height >> 1));
 		if (_petProjectiles.Length != 0)
+		{
 			result.X -= 10f;
-
+		}
 		return result;
 	}
 
@@ -115,7 +133,8 @@ public class UICharacter : UIElement
 	{
 		CalculatedStyle dimensions = GetDimensions();
 		Vector2 playerPosition = GetPlayerPosition(ref dimensions);
-		for (int i = 0; i < _petProjectiles.Length; i++) {
+		for (int i = 0; i < _petProjectiles.Length; i++)
+		{
 			Projectile projectile = _petProjectiles[i];
 			Vector2 vector = playerPosition + new Vector2(0f, _player.height) + new Vector2(20f, 0f) + new Vector2(0f, -projectile.height);
 			projectile.position = vector + Main.screenPosition;
@@ -128,7 +147,6 @@ public class UICharacter : UIElement
 			Main.instance.DrawProjDirect(projectile);
 			Main.player[Main.myPlayer] = player;
 		}
-
 		spriteBatch.End();
 		spriteBatch.Begin(SpriteSortMode.Immediate, spriteBatch.GraphicsDevice.BlendState, spriteBatch.GraphicsDevice.SamplerStates[0], spriteBatch.GraphicsDevice.DepthStencilState, spriteBatch.GraphicsDevice.RasterizerState, null, Main.UIScaleMatrix);
 	}

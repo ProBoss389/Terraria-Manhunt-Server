@@ -7,6 +7,7 @@ namespace Terraria.GameContent.UI.Elements;
 public class PowerStripUIElement : UIElement
 {
 	private List<UIElement> _buttonsBySorting;
+
 	private string _gamepadPointGroupname;
 
 	public PowerStripUIElement(string gamepadGroupName, List<UIElement> buttons)
@@ -18,11 +19,11 @@ public class PowerStripUIElement : UIElement
 		int num2 = 40;
 		int num3 = 40;
 		int num4 = num3 + num;
-		UIPanel uIPanel = new UIPanel {
+		UIPanel uIPanel = new UIPanel
+		{
 			Width = new StyleDimension(num2 + num * 2, 0f),
 			Height = new StyleDimension(num3 * count + num * (1 + count), 0f)
 		};
-
 		SetPadding(0f);
 		Width = uIPanel.Width;
 		Height = uIPanel.Height;
@@ -30,7 +31,8 @@ public class PowerStripUIElement : UIElement
 		uIPanel.BackgroundColor = new Color(73, 94, 171) * 0.9f;
 		uIPanel.SetPadding(0f);
 		Append(uIPanel);
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++)
+		{
 			UIElement uIElement = buttons[i];
 			uIElement.HAlign = 0.5f;
 			uIElement.Top = new StyleDimension(num + num4 * i, 0f);

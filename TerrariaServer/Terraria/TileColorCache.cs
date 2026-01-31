@@ -3,7 +3,9 @@ namespace Terraria;
 public struct TileColorCache
 {
 	public byte Color;
+
 	public bool FullBright;
+
 	public bool Invisible;
 
 	public void ApplyToBlock(Tile tile)

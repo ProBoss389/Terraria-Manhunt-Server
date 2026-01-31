@@ -1,20 +1,26 @@
 using System;
 using System.Threading;
-using System.Windows.Forms;
 using ReLogic.OS;
 using Steamworks;
 using Terraria.Localization;
+using Terraria.Utilities;
 
 namespace Terraria.Social.Steam;
 
 public class CoreSocialModule : ISocialModule
 {
 	private static CoreSocialModule _instance;
+
 	public const int SteamAppId = 105600;
+
 	private bool IsSteamValid;
+
 	private object _steamTickLock = new object();
+
 	private object _steamCallbackLock = new object();
+
 	private Callback<GameOverlayActivated_t> _onOverlayActivated;
+
 	private bool _skipPulsing;
 
 	public static event Action OnTick;
@@ -26,16 +32,17 @@ public class CoreSocialModule : ISocialModule
 	public void Initialize()
 	{
 		_instance = this;
-		if (!Main.dedServ && SteamAPI.RestartAppIfNecessary(new AppId_t(105600u))) {
+		if (!Main.dedServ && SteamAPI.RestartAppIfNecessary(new AppId_t(105600u)))
+		{
 			Environment.Exit(1);
 			return;
 		}
-
-		if (!SteamAPI.Init()) {
-			MessageBox.Show(Language.GetTextValue("Error.LaunchFromSteam"), Language.GetTextValue("Error.Error"));
+		if (!SteamAPI.Init())
+		{
+			MessageBox.Show(Language.GetTextValue("Error.LaunchFromSteam"), Language.GetTextValue("Error.Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 			Environment.Exit(1);
 		}
-
+		SteamInput.Init(bExplicitlyCallRunFrame: false);
 		IsSteamValid = true;
 		Thread thread = new Thread(SteamCallbackLoop);
 		thread.IsBackground = true;
@@ -46,12 +53,15 @@ public class CoreSocialModule : ISocialModule
 		Main.OnTickForThirdPartySoftwareOnly += PulseSteamTick;
 		Main.OnTickForThirdPartySoftwareOnly += PulseSteamCallback;
 		if (Platform.IsOSX && !Main.dedServ)
+		{
 			_onOverlayActivated = Callback<GameOverlayActivated_t>.Create(OnOverlayActivated);
+		}
 	}
 
 	public void PulseSteamTick()
 	{
-		if (Monitor.TryEnter(_steamTickLock)) {
+		if (Monitor.TryEnter(_steamTickLock))
+		{
 			Monitor.Pulse(_steamTickLock);
 			Monitor.Exit(_steamTickLock);
 		}
@@ -59,7 +69,8 @@ public class CoreSocialModule : ISocialModule
 
 	public void PulseSteamCallback()
 	{
-		if (Monitor.TryEnter(_steamCallbackLock)) {
+		if (Monitor.TryEnter(_steamCallbackLock))
+		{
 			Monitor.Pulse(_steamCallbackLock);
 			Monitor.Exit(_steamCallbackLock);
 		}
@@ -74,34 +85,35 @@ public class CoreSocialModule : ISocialModule
 	private void SteamTickLoop(object context)
 	{
 		Monitor.Enter(_steamTickLock);
-		while (IsSteamValid) {
-			if (_skipPulsing) {
+		while (IsSteamValid)
+		{
+			if (_skipPulsing)
+			{
 				Monitor.Wait(_steamCallbackLock);
 				continue;
 			}
-
 			if (CoreSocialModule.OnTick != null)
+			{
 				CoreSocialModule.OnTick();
-
+			}
 			Monitor.Wait(_steamTickLock);
 		}
-
 		Monitor.Exit(_steamTickLock);
 	}
 
 	private void SteamCallbackLoop(object context)
 	{
 		Monitor.Enter(_steamCallbackLock);
-		while (IsSteamValid) {
-			if (_skipPulsing) {
+		while (IsSteamValid)
+		{
+			if (_skipPulsing)
+			{
 				Monitor.Wait(_steamCallbackLock);
 				continue;
 			}
-
 			SteamAPI.RunCallbacks();
 			Monitor.Wait(_steamCallbackLock);
 		}
-
 		Monitor.Exit(_steamCallbackLock);
 		SteamAPI.Shutdown();
 	}

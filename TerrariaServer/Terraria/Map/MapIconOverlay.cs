@@ -13,10 +13,11 @@ public class MapIconOverlay
 		return this;
 	}
 
-	public void Draw(Vector2 mapPosition, Vector2 mapOffset, Rectangle? clippingRect, float mapScale, float drawScale, ref string text)
+	public void Draw(Vector2 mapPosition, Vector2 mapOffset, Rectangle? clippingRect, float mapScale, float drawScale, int alpha, ref string text)
 	{
-		MapOverlayDrawContext context = new MapOverlayDrawContext(mapPosition, mapOffset, clippingRect, mapScale, drawScale);
-		foreach (IMapLayer layer in _layers) {
+		MapOverlayDrawContext context = new MapOverlayDrawContext(mapPosition, mapOffset, clippingRect, mapScale, drawScale, (float)alpha / 255f);
+		foreach (IMapLayer layer in _layers)
+		{
 			layer.Draw(ref context, ref text);
 		}
 	}

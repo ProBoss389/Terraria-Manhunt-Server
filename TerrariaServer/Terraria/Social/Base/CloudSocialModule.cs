@@ -53,5 +53,8 @@ public abstract class CloudSocialModule : ISocialModule
 		Read(path, buffer, buffer.Length);
 	}
 
-	public bool Write(string path, byte[] data) => Write(path, data, data.Length);
+	public bool Write(string path, byte[] data)
+	{
+		return Write(path, data, data.Length);
+	}
 }

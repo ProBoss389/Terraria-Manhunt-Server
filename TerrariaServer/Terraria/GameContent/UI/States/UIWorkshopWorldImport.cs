@@ -18,13 +18,21 @@ namespace Terraria.GameContent.UI.States;
 public class UIWorkshopWorldImport : UIState, IHaveBackButtonCommand
 {
 	private UIList _worldList;
+
 	private UITextPanel<LocalizedText> _backPanel;
+
 	private UIPanel _containerPanel;
+
 	private UIScrollbar _scrollbar;
+
 	private bool _isScrollbarAttached;
+
 	private List<Tuple<string, bool>> favoritesCache = new List<Tuple<string, bool>>();
+
 	private UIState _uiStateToGoBackTo;
+
 	public static List<WorldFileData> WorkshopWorldList = new List<WorldFileData>();
+
 	private bool skipDraw;
 
 	public UIWorkshopWorldImport(UIState uiStateToGoBackTo)
@@ -78,19 +86,21 @@ public class UIWorkshopWorldImport : UIState, IHaveBackButtonCommand
 
 	public override void Recalculate()
 	{
-		if (_scrollbar != null) {
-			if (_isScrollbarAttached && !_scrollbar.CanScroll) {
+		if (_scrollbar != null)
+		{
+			if (_isScrollbarAttached && !_scrollbar.CanScroll)
+			{
 				_containerPanel.RemoveChild(_scrollbar);
 				_isScrollbarAttached = false;
 				_worldList.Width.Set(0f, 1f);
 			}
-			else if (!_isScrollbarAttached && _scrollbar.CanScroll) {
+			else if (!_isScrollbarAttached && _scrollbar.CanScroll)
+			{
 				_containerPanel.Append(_scrollbar);
 				_isScrollbarAttached = true;
 				_worldList.Width.Set(-25f, 1f);
 			}
 		}
-
 		base.Recalculate();
 	}
 
@@ -124,21 +134,21 @@ public class UIWorkshopWorldImport : UIState, IHaveBackButtonCommand
 		UpdateWorkshopWorldList();
 		UpdateWorldsList();
 		if (PlayerInput.UsingGamepadUI)
+		{
 			UILinkPointNavigator.ChangePoint(3000 + ((_worldList.Count == 0) ? 1 : 2));
+		}
 	}
 
 	public void UpdateWorkshopWorldList()
 	{
 		WorkshopWorldList.Clear();
 		if (SocialAPI.Workshop == null)
+		{
 			return;
-
-		foreach (string listOfSubscribedWorldPath in SocialAPI.Workshop.GetListOfSubscribedWorldPaths()) {
-			WorldFileData allMetadata = WorldFile.GetAllMetadata(listOfSubscribedWorldPath, cloudSave: false);
-			if (allMetadata != null)
-				WorkshopWorldList.Add(allMetadata);
-			else
-				WorkshopWorldList.Add(WorldFileData.FromInvalidWorld(listOfSubscribedWorldPath, cloudSave: false));
+		}
+		foreach (string listOfSubscribedWorldPath in SocialAPI.Workshop.GetListOfSubscribedWorldPaths())
+		{
+			WorkshopWorldList.Add(WorldFile.GetAllMetadata(listOfSubscribedWorldPath, cloudSave: false));
 		}
 	}
 
@@ -146,22 +156,22 @@ public class UIWorkshopWorldImport : UIState, IHaveBackButtonCommand
 	{
 		_worldList.Clear();
 		IOrderedEnumerable<WorldFileData> orderedEnumerable = from x in new List<WorldFileData>(WorkshopWorldList)
-															  orderby x.IsFavorite descending, x.Name, x.GetFileName()
-															  select x;
-
+			orderby x.IsFavorite descending, x.Name, x.GetFileName()
+			select x;
 		int num = 0;
-		foreach (WorldFileData item in orderedEnumerable) {
+		foreach (WorldFileData item in orderedEnumerable)
+		{
 			_worldList.Add(new UIWorkshopImportWorldListItem(this, item, num++));
 		}
 	}
 
 	public override void Draw(SpriteBatch spriteBatch)
 	{
-		if (skipDraw) {
+		if (skipDraw)
+		{
 			skipDraw = false;
 			return;
 		}
-
 		base.Draw(spriteBatch);
 		SetupGamepadPoints(spriteBatch);
 	}
@@ -179,54 +189,60 @@ public class UIWorkshopWorldImport : UIState, IHaveBackButtonCommand
 		Vector2 minimum = clippingRectangle.TopLeft() * num2;
 		Vector2 maximum = clippingRectangle.BottomRight() * num2;
 		List<SnapPoint> snapPoints = GetSnapPoints();
-		for (int i = 0; i < snapPoints.Count; i++) {
-			if (!snapPoints[i].Position.Between(minimum, maximum)) {
+		for (int i = 0; i < snapPoints.Count; i++)
+		{
+			if (!snapPoints[i].Position.Between(minimum, maximum))
+			{
 				snapPoints.Remove(snapPoints[i]);
 				i--;
 			}
 		}
-
 		SnapPoint[,] array = new SnapPoint[_worldList.Count, 1];
-		foreach (SnapPoint item in snapPoints.Where((SnapPoint a) => a.Name == "Import")) {
+		foreach (SnapPoint item in snapPoints.Where((SnapPoint a) => a.Name == "Import"))
+		{
 			array[item.Id, 0] = item;
 		}
-
 		key = num + 2;
 		int[] array2 = new int[_worldList.Count];
-		for (int j = 0; j < array2.Length; j++) {
-			array2[j] = -1;
+		for (int num3 = 0; num3 < array2.Length; num3++)
+		{
+			array2[num3] = -1;
 		}
-
-		for (int k = 0; k < 1; k++) {
-			int num3 = -1;
-			for (int l = 0; l < array.GetLength(0); l++) {
-				if (array[l, k] != null) {
+		for (int num4 = 0; num4 < 1; num4++)
+		{
+			int num5 = -1;
+			for (int num6 = 0; num6 < array.GetLength(0); num6++)
+			{
+				if (array[num6, num4] != null)
+				{
 					uILinkPoint = UILinkPointNavigator.Points[key];
 					uILinkPoint.Unlink();
-					UILinkPointNavigator.SetPosition(key, array[l, k].Position);
-					if (num3 != -1) {
-						uILinkPoint.Up = num3;
-						UILinkPointNavigator.Points[num3].Down = key;
+					UILinkPointNavigator.SetPosition(key, array[num6, num4].Position);
+					if (num5 != -1)
+					{
+						uILinkPoint.Up = num5;
+						UILinkPointNavigator.Points[num5].Down = key;
 					}
-
-					if (array2[l] != -1) {
-						uILinkPoint.Left = array2[l];
-						UILinkPointNavigator.Points[array2[l]].Right = key;
+					if (array2[num6] != -1)
+					{
+						uILinkPoint.Left = array2[num6];
+						UILinkPointNavigator.Points[array2[num6]].Right = key;
 					}
-
 					uILinkPoint.Down = num;
-					if (k == 0)
+					if (num4 == 0)
+					{
 						UILinkPointNavigator.Points[num].Up = (UILinkPointNavigator.Points[num + 1].Up = key);
-
-					num3 = key;
-					array2[l] = key;
+					}
+					num5 = key;
+					array2[num6] = key;
 					UILinkPointNavigator.Shortcuts.FANCYUI_HIGHEST_INDEX = key;
 					key++;
 				}
 			}
 		}
-
 		if (PlayerInput.UsingGamepadUI && _worldList.Count == 0 && UILinkPointNavigator.CurrentPoint > 3001)
+		{
 			UILinkPointNavigator.ChangePoint(3001);
+		}
 	}
 }

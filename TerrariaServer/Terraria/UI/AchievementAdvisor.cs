@@ -3,6 +3,8 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
+using Terraria.Audio;
+using Terraria.Enums;
 using Terraria.GameInput;
 
 namespace Terraria.UI;
@@ -10,27 +12,35 @@ namespace Terraria.UI;
 public class AchievementAdvisor
 {
 	private List<AchievementAdvisorCard> _cards = new List<AchievementAdvisorCard>();
+
 	private Asset<Texture2D> _achievementsTexture;
+
 	private Asset<Texture2D> _achievementsBorderTexture;
+
 	private Asset<Texture2D> _achievementsBorderMouseHoverFatTexture;
+
 	private Asset<Texture2D> _achievementsBorderMouseHoverThinTexture;
+
 	private AchievementAdvisorCard _hoveredCard;
 
-	public bool CanDrawAboveCoins {
-		get {
+	public bool CanDrawAboveCoins
+	{
+		get
+		{
 			if (Main.screenWidth >= 1000 && !PlayerInput.UsingGamepad)
+			{
 				return !PlayerInput.SteamDeckIsUsed;
-
+			}
 			return false;
 		}
 	}
 
 	public void LoadContent()
 	{
-		_achievementsTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievements");
-		_achievementsBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders");
-		_achievementsBorderMouseHoverFatTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders_MouseHover");
-		_achievementsBorderMouseHoverThinTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders_MouseHoverThin");
+		_achievementsTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievements", AssetRequestMode.ImmediateLoad);
+		_achievementsBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders", AssetRequestMode.ImmediateLoad);
+		_achievementsBorderMouseHoverFatTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders_MouseHover", AssetRequestMode.ImmediateLoad);
+		_achievementsBorderMouseHoverThinTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders_MouseHoverThin", AssetRequestMode.ImmediateLoad);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -41,26 +51,28 @@ public class AchievementAdvisor
 	{
 		List<AchievementAdvisorCard> bestCards = GetBestCards(1);
 		if (bestCards.Count < 1)
+		{
 			return;
-
+		}
 		AchievementAdvisorCard hoveredCard = bestCards[0];
 		float num = 0.35f;
 		if (large)
+		{
 			num = 0.75f;
-
+		}
 		_hoveredCard = null;
 		DrawCard(bestCards[0], spriteBatch, position + new Vector2(8f) * num, num, out var hovered);
-		if (!hovered)
-			return;
-
-		_hoveredCard = hoveredCard;
-		if (!PlayerInput.IgnoreMouseInterface) {
-			Main.player[Main.myPlayer].mouseInterface = true;
-			if (Main.mouseLeft && Main.mouseLeftRelease) {
+		if (hovered)
+		{
+			_hoveredCard = hoveredCard;
+			if (Main.mouseLeft && Main.mouseLeftRelease)
+			{
 				Main.ingameOptionsWindow = false;
 				IngameFancyUI.OpenAchievementsAndGoto(_hoveredCard.achievement);
+				SoundEngine.PlaySound(12);
 			}
 		}
+		Main.DoStatefulTickSound(ref Main.achievementAdvisorMouseOver, hovered);
 	}
 
 	public void Update()
@@ -74,30 +86,34 @@ public class AchievementAdvisor
 		_hoveredCard = null;
 		int num = bestCards.Count;
 		if (num > 5)
+		{
 			num = 5;
-
+		}
 		bool hovered;
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++)
+		{
 			DrawCard(bestCards[i], spriteBatch, leftPosition + new Vector2(42 * i, 0f), 0.5f, out hovered);
 			if (hovered)
+			{
 				_hoveredCard = bestCards[i];
+			}
 		}
-
-		for (int j = 5; j < bestCards.Count; j++) {
+		for (int j = 5; j < bestCards.Count; j++)
+		{
 			DrawCard(bestCards[j], spriteBatch, rightPosition + new Vector2(42 * j, 0f), 0.5f, out hovered);
 			if (hovered)
+			{
 				_hoveredCard = bestCards[j];
+			}
 		}
-
-		if (_hoveredCard == null)
-			return;
-
-		if (_hoveredCard.achievement.IsCompleted) {
-			_hoveredCard = null;
-		}
-		else if (!PlayerInput.IgnoreMouseInterface) {
-			Main.player[Main.myPlayer].mouseInterface = true;
-			if (Main.mouseLeft && Main.mouseLeftRelease) {
+		if (_hoveredCard != null)
+		{
+			if (_hoveredCard.achievement.IsCompleted)
+			{
+				_hoveredCard = null;
+			}
+			else if (Main.mouseLeft && Main.mouseLeftRelease)
+			{
 				Main.ingameOptionsWindow = false;
 				IngameFancyUI.OpenAchievementsAndGoto(_hoveredCard.achievement);
 			}
@@ -106,64 +122,63 @@ public class AchievementAdvisor
 
 	public void DrawMouseHover()
 	{
-		if (_hoveredCard != null) {
+		if (_hoveredCard != null)
+		{
 			Main.spriteBatch.End();
 			Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.UIScaleMatrix);
 			PlayerInput.SetZoom_UI();
-			Item item = new Item();
-			item.SetDefaults(0, noMatCheck: true);
+			Item item = Main.DisplayAndGetFakeItem(ItemRarityColor.StrongRed10);
 			item.SetNameOverride(_hoveredCard.achievement.FriendlyName.Value);
 			item.ToolTip = ItemTooltip.FromLanguageKey(_hoveredCard.achievement.Description.Key);
-			item.type = 1;
-			item.scale = 0f;
-			item.rare = 10;
-			item.value = -1;
-			Main.HoverItem = item;
-			Main.instance.MouseText("", 0, 0);
-			Main.mouseText = true;
 		}
 	}
 
 	private void DrawCard(AchievementAdvisorCard card, SpriteBatch spriteBatch, Vector2 position, float scale, out bool hovered)
 	{
 		hovered = false;
-		if (Main.MouseScreen.Between(position, position + card.frame.Size() * scale)) {
+		if (Main.MouseScreen.Between(position, position + card.frame.Size() * scale) && !PlayerInput.IgnoreMouseInterface)
+		{
 			Main.LocalPlayer.mouseInterface = true;
 			hovered = true;
 		}
-
 		Color color = Color.White;
 		if (!hovered)
+		{
 			color = new Color(220, 220, 220, 220);
-
+		}
 		Vector2 vector = new Vector2(-4f) * scale;
 		Vector2 vector2 = new Vector2(-8f) * scale;
 		Texture2D value = _achievementsBorderMouseHoverFatTexture.Value;
-		if (scale > 0.5f) {
+		if (scale > 0.5f)
+		{
 			value = _achievementsBorderMouseHoverThinTexture.Value;
 			vector2 = new Vector2(-5f) * scale;
 		}
-
 		Rectangle frame = card.frame;
 		frame.X += 528;
 		spriteBatch.Draw(_achievementsTexture.Value, position, frame, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 		spriteBatch.Draw(_achievementsBorderTexture.Value, position + vector, null, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 		if (hovered)
+		{
 			spriteBatch.Draw(value, position + vector2, null, Main.OurFavoriteColor, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+		}
 	}
 
 	private List<AchievementAdvisorCard> GetBestCards(int cardsAmount = 10)
 	{
 		List<AchievementAdvisorCard> list = new List<AchievementAdvisorCard>();
-		for (int i = 0; i < _cards.Count; i++) {
+		for (int i = 0; i < _cards.Count; i++)
+		{
 			AchievementAdvisorCard achievementAdvisorCard = _cards[i];
-			if (!achievementAdvisorCard.achievement.IsCompleted && achievementAdvisorCard.IsAchievableInWorld()) {
+			if (!achievementAdvisorCard.achievement.IsCompleted && achievementAdvisorCard.IsAchievableInWorld())
+			{
 				list.Add(achievementAdvisorCard);
 				if (list.Count >= cardsAmount)
+				{
 					break;
+				}
 			}
 		}
-
 		return list;
 	}
 

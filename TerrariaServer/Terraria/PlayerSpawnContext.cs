@@ -4,5 +4,6 @@ public enum PlayerSpawnContext
 {
 	ReviveFromDeath,
 	SpawningIntoWorld,
-	RecallFromItem
+	RecallFromItem,
+	TeamSwap
 }

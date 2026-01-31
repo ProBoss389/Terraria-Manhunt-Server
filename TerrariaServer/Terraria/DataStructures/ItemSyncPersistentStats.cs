@@ -5,17 +5,20 @@ namespace Terraria.DataStructures;
 public struct ItemSyncPersistentStats
 {
 	private Color color;
+
 	private int type;
 
-	public void CopyFrom(Item item)
+	public void CopyFrom(WorldItem item)
 	{
 		type = item.type;
 		color = item.color;
 	}
 
-	public void PasteInto(Item item)
+	public void PasteInto(WorldItem item)
 	{
 		if (type == item.type)
+		{
 			item.color = color;
+		}
 	}
 }

@@ -9,9 +9,13 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIBestiaryEntryIcon : UIElement
 {
 	private BestiaryEntry _entry;
+
 	private Asset<Texture2D> _notUnlockedTexture;
+
 	private bool _isPortrait;
+
 	public bool ForceHover;
+
 	private BestiaryUICollectionInfo _collectionInfo;
 
 	public UIBestiaryEntryIcon(BestiaryEntry entry, bool isPortrait)
@@ -22,7 +26,7 @@ public class UIBestiaryEntryIcon : UIElement
 		UseImmediateMode = true;
 		Width.Set(0f, 1f);
 		Height.Set(0f, 1f);
-		_notUnlockedTexture = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Locked");
+		_notUnlockedTexture = Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Icon_Locked", AssetRequestMode.ImmediateLoad);
 		_isPortrait = isPortrait;
 		_collectionInfo = _entry.UIInfoProvider.GetEntryUICollectionInfo();
 	}
@@ -32,12 +36,12 @@ public class UIBestiaryEntryIcon : UIElement
 		_collectionInfo = _entry.UIInfoProvider.GetEntryUICollectionInfo();
 		CalculatedStyle dimensions = GetDimensions();
 		bool isHovered = base.IsMouseHovering || ForceHover;
-		_entry.Icon.Update(_collectionInfo, dimensions.ToRectangle(), new EntryIconDrawSettings {
+		_entry.Icon.Update(_collectionInfo, dimensions.ToRectangle(), new EntryIconDrawSettings
+		{
 			iconbox = dimensions.ToRectangle(),
 			IsPortrait = _isPortrait,
 			IsHovered = isHovered
 		});
-
 		base.Update(gameTime);
 	}
 
@@ -46,18 +50,24 @@ public class UIBestiaryEntryIcon : UIElement
 		CalculatedStyle dimensions = GetDimensions();
 		bool unlockState = _entry.Icon.GetUnlockState(_collectionInfo);
 		bool isHovered = base.IsMouseHovering || ForceHover;
-		if (unlockState) {
-			_entry.Icon.Draw(_collectionInfo, spriteBatch, new EntryIconDrawSettings {
+		if (unlockState)
+		{
+			_entry.Icon.Draw(_collectionInfo, spriteBatch, new EntryIconDrawSettings
+			{
 				iconbox = dimensions.ToRectangle(),
 				IsPortrait = _isPortrait,
 				IsHovered = isHovered
 			});
 		}
-		else {
+		else
+		{
 			Texture2D value = _notUnlockedTexture.Value;
 			spriteBatch.Draw(value, dimensions.Center(), null, Color.White * 0.15f, 0f, value.Size() / 2f, 1f, SpriteEffects.None, 0f);
 		}
 	}
 
-	public string GetHoverText() => _entry.Icon.GetHoverText(_collectionInfo);
+	public string GetHoverText()
+	{
+		return _entry.Icon.GetHoverText(_collectionInfo);
+	}
 }

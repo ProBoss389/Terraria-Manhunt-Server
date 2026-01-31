@@ -15,8 +15,11 @@ public class Segments
 	public class LocalizedTextSegment : IAnimationSegment
 	{
 		private const int PixelsForALine = 120;
+
 		private LocalizedText _text;
+
 		private float _timeToShowPeak;
+
 		private Vector2 _anchorOffset;
 
 		public float DedicatedTimeNeeded => 240f;
@@ -40,15 +43,17 @@ public class Segments
 			float num2 = 250f;
 			int timeInAnimation = info.TimeInAnimation;
 			float num3 = Utils.GetLerpValue(_timeToShowPeak - num, _timeToShowPeak, timeInAnimation, clamped: true) * Utils.GetLerpValue(_timeToShowPeak + num2, _timeToShowPeak, timeInAnimation, clamped: true);
-			if (!(num3 <= 0f)) {
+			if (!(num3 <= 0f))
+			{
 				float num4 = _timeToShowPeak - (float)timeInAnimation;
 				Vector2 position = info.AnchorPositionOnScreen + new Vector2(0f, num4 * 0.5f);
 				position += _anchorOffset;
 				Vector2 baseScale = new Vector2(0.7f);
 				float num5 = Main.GlobalTimeWrappedHourly * 0.02f % 1f;
 				if (num5 < 0f)
+				{
 					num5 += 1f;
-
+				}
 				Color color = Main.hslToRgb(num5, 1f, 0.5f);
 				string value = _text.Value;
 				Vector2 origin = FontAssets.DeathText.Value.MeasureString(value);
@@ -63,8 +68,11 @@ public class Segments
 	public abstract class AnimationSegmentWithActions<T> : IAnimationSegment
 	{
 		private int _dedicatedTimeNeeded;
+
 		private int _lastDedicatedTimeNeeded;
+
 		protected int _targetTime;
+
 		private List<IAnimationSegmentAction<T>> _actions = new List<IAnimationSegmentAction<T>>();
 
 		public float DedicatedTimeNeeded => _dedicatedTimeNeeded;
@@ -77,7 +85,8 @@ public class Segments
 
 		protected void ProcessActions(T obj, float localTimeForObject)
 		{
-			for (int i = 0; i < _actions.Count; i++) {
+			for (int i = 0; i < _actions.Count; i++)
+			{
 				_actions[i].ApplyTo(obj, localTimeForObject);
 			}
 		}
@@ -130,9 +139,13 @@ public class Segments
 		}
 
 		private Player _player;
+
 		private Vector2 _anchorOffset;
+
 		private Vector2 _normalizedOriginForHitbox;
+
 		private IShaderEffect _shaderEffect;
+
 		private static Item _blankItem = new Item();
 
 		public PlayerSegment(int targetTime, Vector2 anchorOffset, Vector2 normalizedHitboxOrigin)
@@ -157,12 +170,14 @@ public class Segments
 		public override void Draw(ref GameAnimationSegment info)
 		{
 			if ((float)info.TimeInAnimation > (float)_targetTime + base.DedicatedTimeNeeded || info.TimeInAnimation < _targetTime)
+			{
 				return;
-
+			}
 			ResetPlayerAnimation(ref info);
 			float localTimeForObject = info.TimeInAnimation - _targetTime;
 			ProcessActions(_player, localTimeForObject);
-			if (info.DisplayOpacity != 0f) {
+			if (info.DisplayOpacity != 0f)
+			{
 				_player.ResetEffects();
 				_player.ResetVisibleAccessories();
 				_player.UpdateMiscCounter();
@@ -177,12 +192,14 @@ public class Segments
 				float num = 1f - _player.opacityForAnimation;
 				num = 0f;
 				if (_shaderEffect != null)
+				{
 					_shaderEffect.BeforeDrawing(ref info);
-
+				}
 				Main.PlayerRenderer.DrawPlayer(Main.Camera, _player, _player.position, 0f, _player.fullRotationOrigin, num);
 				if (_shaderEffect != null)
+				{
 					_shaderEffect.AfterDrawing(ref info);
-
+				}
 				_player.inventory[_player.selectedItem] = item;
 			}
 		}
@@ -198,21 +215,21 @@ public class Segments
 	public class NPCSegment : AnimationSegmentWithActions<NPC>
 	{
 		private NPC _npc;
+
 		private Vector2 _anchorOffset;
+
 		private Vector2 _normalizedOriginForHitbox;
 
 		public NPCSegment(int targetTime, int npcId, Vector2 anchorOffset, Vector2 normalizedNPCHitboxOrigin)
 			: base(targetTime)
 		{
 			_npc = new NPC();
-			_npc.SetDefaults(npcId, new NPCSpawnParams {
-				gameModeData = Main.RegisteredGameModes[0],
-				playerCountForMultiplayerDifficultyOverride = 1,
-				sizeScaleOverride = null,
-				strengthMultiplierOverride = 1f
-			});
-
 			_npc.IsABestiaryIconDummy = true;
+			_npc.SetDefaults(npcId, new NPCSpawnParams
+			{
+				playerCountForMultiplayerDifficultyOverride = 1,
+				difficultyOverride = GameDifficultyLevel.Classic
+			});
 			_anchorOffset = anchorOffset;
 			_normalizedOriginForHitbox = normalizedNPCHitboxOrigin;
 		}
@@ -225,16 +242,19 @@ public class Segments
 		public override void Draw(ref GameAnimationSegment info)
 		{
 			if ((float)info.TimeInAnimation > (float)_targetTime + base.DedicatedTimeNeeded || info.TimeInAnimation < _targetTime)
+			{
 				return;
-
+			}
 			ResetNPCAnimation(ref info);
 			float localTimeForObject = info.TimeInAnimation - _targetTime;
 			ProcessActions(_npc, localTimeForObject);
-			if (_npc.alpha < 255) {
+			if (_npc.alpha < 255)
+			{
 				_npc.FindFrame();
 				if (TownNPCProfiles.Instance.GetProfile(_npc.type, out var profile))
+				{
 					TextureAssets.Npc[_npc.type] = profile.GetTextureNPCShouldUse(_npc);
-
+				}
 				_npc.Opacity *= info.DisplayOpacity;
 				Main.instance.DrawNPCDirect(info.SpriteBatch, _npc, _npc.behindTiles, Vector2.Zero);
 			}
@@ -251,8 +271,11 @@ public class Segments
 	public class LooseSprite
 	{
 		private DrawData _originalDrawData;
+
 		private Asset<Texture2D> _asset;
+
 		public DrawData CurrentDrawData;
+
 		public float CurrentOpacity;
 
 		public LooseSprite(DrawData data, Asset<Texture2D> asset)
@@ -284,10 +307,15 @@ public class Segments
 			public delegate Matrix GetMatrixAction();
 
 			private readonly string _shaderKey;
+
 			private readonly int _verticalFrameCount;
+
 			private readonly int _verticalFrameWait;
+
 			private Panning _panX;
+
 			private Panning _panY;
+
 			private GetMatrixAction _fetchMatrix;
 
 			public MaskedFadeEffect(GetMatrixAction fetchMatrixMethod = null, string shaderKey = "MaskedFade", int verticalFrameCount = 1, int verticalFrameWait = 1)
@@ -296,14 +324,20 @@ public class Segments
 				_shaderKey = shaderKey;
 				_verticalFrameCount = verticalFrameCount;
 				if (verticalFrameWait < 1)
+				{
 					verticalFrameWait = 1;
-
+				}
 				_verticalFrameWait = verticalFrameWait;
 				if (_fetchMatrix == null)
+				{
 					_fetchMatrix = DefaultFetchMatrix;
+				}
 			}
 
-			private Matrix DefaultFetchMatrix() => Main.CurrentFrameFlags.Hacks.CurrentBackgroundMatrixForCreditsRoll;
+			private Matrix DefaultFetchMatrix()
+			{
+				return Main.CurrentFrameFlags.Hacks.CurrentBackgroundMatrixForCreditsRoll;
+			}
 
 			public void BeforeDrawing(ref GameAnimationSegment info, ref DrawData drawData)
 			{
@@ -335,7 +369,9 @@ public class Segments
 		}
 
 		private LooseSprite _sprite;
+
 		private Vector2 _anchorOffset;
+
 		private IShaderEffect _shaderEffect;
 
 		public SpriteSegment(Asset<Texture2D> asset, int targetTime, DrawData data, Vector2 anchorOffset)
@@ -358,7 +394,8 @@ public class Segments
 
 		public override void Draw(ref GameAnimationSegment info)
 		{
-			if (!((float)info.TimeInAnimation > (float)_targetTime + base.DedicatedTimeNeeded) && info.TimeInAnimation >= _targetTime) {
+			if (!((float)info.TimeInAnimation > (float)_targetTime + base.DedicatedTimeNeeded) && info.TimeInAnimation >= _targetTime)
+			{
 				ResetSpriteAnimation(ref info);
 				float localTimeForObject = info.TimeInAnimation - _targetTime;
 				ProcessActions(_sprite, localTimeForObject);
@@ -366,11 +403,14 @@ public class Segments
 				drawData.position += info.AnchorPositionOnScreen + _anchorOffset;
 				drawData.color *= _sprite.CurrentOpacity * info.DisplayOpacity;
 				if (_shaderEffect != null)
+				{
 					_shaderEffect.BeforeDrawing(ref info, ref drawData);
-
+				}
 				drawData.Draw(info.SpriteBatch);
 				if (_shaderEffect != null)
+				{
 					_shaderEffect.AfterDrawing(ref info, ref drawData);
+				}
 			}
 		}
 
@@ -383,8 +423,11 @@ public class Segments
 	public struct Panning
 	{
 		public float AmountOverTime;
+
 		public float StartAmount;
+
 		public float Delay;
+
 		public float Duration;
 
 		public float GetPanAmount(float time)
@@ -397,9 +440,13 @@ public class Segments
 	public class EmoteSegment : IAnimationSegment
 	{
 		private int _targetTime;
+
 		private Vector2 _offset;
+
 		private SpriteEffects _effect;
+
 		private int _emoteId;
+
 		private Vector2 _velocity;
 
 		public float DedicatedTimeNeeded { get; private set; }
@@ -418,8 +465,9 @@ public class Segments
 		{
 			int num = info.TimeInAnimation - _targetTime;
 			if (num < 0 || (float)num >= DedicatedTimeNeeded)
+			{
 				return;
-
+			}
 			Vector2 vec = info.AnchorPositionOnScreen + _offset + _velocity * num;
 			vec = vec.Floor();
 			bool flag = num < 6 || (float)num >= DedicatedTimeNeeded - 6f;
@@ -428,13 +476,14 @@ public class Segments
 			Vector2 origin = new Vector2(value2.Width / 2, value2.Height);
 			SpriteEffects spriteEffects = _effect;
 			info.SpriteBatch.Draw(value, vec, value2, Color.White * info.DisplayOpacity, 0f, origin, 1f, spriteEffects, 0f);
-			if (!flag) {
+			if (!flag)
+			{
 				int emoteId = _emoteId;
-				if ((emoteId == 87 || emoteId == 89) && spriteEffects.HasFlag(SpriteEffects.FlipHorizontally)) {
+				if ((emoteId == 87 || emoteId == 89) && (spriteEffects & SpriteEffects.FlipHorizontally) != SpriteEffects.None)
+				{
 					spriteEffects &= ~SpriteEffects.FlipHorizontally;
 					vec.X += 4f;
 				}
-
 				info.SpriteBatch.Draw(value, vec, GetFrame(num % 20), Color.White, 0f, origin, 1f, spriteEffects, 0f);
 			}
 		}

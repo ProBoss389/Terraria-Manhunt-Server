@@ -4,12 +4,19 @@ namespace Terraria.ID;
 
 public class StatusID
 {
-	public const int Ok = 0;
-	public const int LaterVersion = 1;
-	public const int UnknownError = 2;
-	public const int EmptyFile = 3;
-	public const int DecryptionError = 4;
-	public const int BadSectionPointer = 5;
-	public const int BadFooter = 6;
+	public static readonly int Ok = 0;
+
+	public static readonly int LaterVersion = 1;
+
+	public static readonly int UnknownError = 2;
+
+	public static readonly int EmptyFile = 3;
+
+	public static readonly int DecryptionError = 4;
+
+	public static readonly int BadSectionPointer = 5;
+
+	public static readonly int BadFooter = 6;
+
 	public static readonly IdDictionary Search = IdDictionary.Create<StatusID, int>();
 }

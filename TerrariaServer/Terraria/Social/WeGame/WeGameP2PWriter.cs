@@ -9,6 +9,7 @@ public class WeGameP2PWriter
 	public class WriteInformation
 	{
 		public byte[] Data;
+
 		public int Size;
 
 		public WriteInformation()
@@ -25,28 +26,36 @@ public class WeGameP2PWriter
 	}
 
 	private const int BUFFER_SIZE = 1024;
+
 	private RailID _local_id;
+
 	private Dictionary<RailID, Queue<WriteInformation>> _pendingSendData = new Dictionary<RailID, Queue<WriteInformation>>();
+
 	private Dictionary<RailID, Queue<WriteInformation>> _pendingSendDataSwap = new Dictionary<RailID, Queue<WriteInformation>>();
+
 	private Queue<byte[]> _bufferPool = new Queue<byte[]>();
+
 	private object _lock = new object();
 
 	public void QueueSend(RailID user, byte[] data, int length)
 	{
-		lock (_lock) {
-			Queue<WriteInformation> queue2 = (_pendingSendData.ContainsKey(user) ? _pendingSendData[user] : (_pendingSendData[user] = new Queue<WriteInformation>()));
+		lock (_lock)
+		{
+			Queue<WriteInformation> queue = (_pendingSendData.ContainsKey(user) ? _pendingSendData[user] : (_pendingSendData[user] = new Queue<WriteInformation>()));
 			int num = length;
 			int num2 = 0;
-			while (num > 0) {
+			while (num > 0)
+			{
 				WriteInformation writeInformation;
-				if (queue2.Count == 0 || 1024 - queue2.Peek().Size == 0) {
+				if (queue.Count == 0 || 1024 - queue.Peek().Size == 0)
+				{
 					writeInformation = ((_bufferPool.Count <= 0) ? new WriteInformation() : new WriteInformation(_bufferPool.Dequeue()));
-					queue2.Enqueue(writeInformation);
+					queue.Enqueue(writeInformation);
 				}
-				else {
-					writeInformation = queue2.Peek();
+				else
+				{
+					writeInformation = queue.Peek();
 				}
-
 				int num3 = Math.Min(num, 1024 - writeInformation.Size);
 				Array.Copy(data, num2, writeInformation.Data, writeInformation.Size, num3);
 				writeInformation.Size += num3;
@@ -58,17 +67,21 @@ public class WeGameP2PWriter
 
 	public void ClearUser(RailID user)
 	{
-		lock (_lock) {
-			if (_pendingSendData.ContainsKey(user)) {
+		lock (_lock)
+		{
+			if (_pendingSendData.ContainsKey(user))
+			{
 				Queue<WriteInformation> queue = _pendingSendData[user];
-				while (queue.Count > 0) {
+				while (queue.Count > 0)
+				{
 					_bufferPool.Enqueue(queue.Dequeue().Data);
 				}
 			}
-
-			if (_pendingSendDataSwap.ContainsKey(user)) {
+			if (_pendingSendDataSwap.ContainsKey(user))
+			{
 				Queue<WriteInformation> queue2 = _pendingSendDataSwap[user];
-				while (queue2.Count > 0) {
+				while (queue2.Count > 0)
+				{
 					_bufferPool.Enqueue(queue2.Dequeue().Data);
 				}
 			}
@@ -78,33 +91,41 @@ public class WeGameP2PWriter
 	public void SetLocalPeer(RailID rail_id)
 	{
 		if (_local_id == null)
+		{
 			_local_id = new RailID();
-
+		}
 		_local_id.id_ = rail_id.id_;
 	}
 
-	private RailID GetLocalPeer() => _local_id;
+	private RailID GetLocalPeer()
+	{
+		return _local_id;
+	}
 
 	private bool IsValid()
 	{
 		if (_local_id != null)
+		{
 			return _local_id.IsValid();
-
+		}
 		return false;
 	}
 
 	public void SendAll()
 	{
 		if (!IsValid())
+		{
 			return;
-
-		lock (_lock) {
+		}
+		lock (_lock)
+		{
 			Utils.Swap(ref _pendingSendData, ref _pendingSendDataSwap);
 		}
-
-		foreach (KeyValuePair<RailID, Queue<WriteInformation>> item in _pendingSendDataSwap) {
+		foreach (KeyValuePair<RailID, Queue<WriteInformation>> item in _pendingSendDataSwap)
+		{
 			Queue<WriteInformation> value = item.Value;
-			while (value.Count > 0) {
+			while (value.Count > 0)
+			{
 				WriteInformation writeInformation = value.Dequeue();
 				_ = rail_api.RailFactory().RailNetworkHelper().SendData(GetLocalPeer(), item.Key, writeInformation.Data, (uint)writeInformation.Size) == RailResult.kSuccess;
 				_bufferPool.Enqueue(writeInformation.Data);

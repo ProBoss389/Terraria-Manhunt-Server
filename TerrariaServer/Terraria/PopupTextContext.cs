@@ -7,5 +7,6 @@ public enum PopupTextContext
 	SonarAlert,
 	ItemReforge,
 	ItemCraft,
-	Advanced
+	Advanced,
+	ItemReforge_Best
 }

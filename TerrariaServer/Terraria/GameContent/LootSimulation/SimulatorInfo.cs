@@ -5,11 +5,17 @@ namespace Terraria.GameContent.LootSimulation;
 public class SimulatorInfo
 {
 	public Player player;
+
 	private double _originalDayTimeCounter;
+
 	private bool _originalDayTimeFlag;
+
 	private Vector2 _originalPlayerPosition;
+
 	public bool runningExpertMode;
+
 	public LootSimulationItemCounter itemCounter;
+
 	public NPC npcVictim;
 
 	public SimulatorInfo()

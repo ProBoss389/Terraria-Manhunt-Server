@@ -7,23 +7,30 @@ namespace Terraria;
 public struct BitsByte
 {
 	private static bool Null;
-	private byte value;
 
-	public bool this[int key] {
-		get {
+	private byte value = 0;
+
+	public bool this[int key]
+	{
+		get
+		{
 			return (value & (1 << key)) != 0;
 		}
-		set {
+		set
+		{
 			if (value)
+			{
 				this.value |= (byte)(1 << key);
+			}
 			else
+			{
 				this.value &= (byte)(~(1 << key));
+			}
 		}
 	}
 
 	public BitsByte(bool b1 = false, bool b2 = false, bool b3 = false, bool b4 = false, bool b5 = false, bool b6 = false, bool b7 = false, bool b8 = false)
 	{
-		value = 0;
 		this[0] = b1;
 		this[1] = b2;
 		this[2] = b3;
@@ -98,43 +105,45 @@ public struct BitsByte
 
 	public static implicit operator BitsByte(byte b)
 	{
-		BitsByte result = default(BitsByte);
-		result.value = b;
-		return result;
+		return new BitsByte
+		{
+			value = b
+		};
 	}
 
 	public static BitsByte[] ComposeBitsBytesChain(bool optimizeLength, params bool[] flags)
 	{
 		int num = flags.Length;
 		int num2 = 0;
-		while (num > 0) {
+		while (num > 0)
+		{
 			num2++;
 			num -= 7;
 		}
-
 		BitsByte[] array = new BitsByte[num2];
 		int num3 = 0;
 		int num4 = 0;
-		for (int i = 0; i < flags.Length; i++) {
+		for (int i = 0; i < flags.Length; i++)
+		{
 			array[num4][num3] = flags[i];
 			num3++;
-			if (num3 == 7 && num4 < num2 - 1) {
+			if (num3 == 7 && num4 < num2 - 1)
+			{
 				array[num4][num3] = true;
 				num3 = 0;
 				num4++;
 			}
 		}
-
-		if (optimizeLength) {
+		if (optimizeLength)
+		{
 			int num5 = array.Length - 1;
-			while ((byte)array[num5] == 0 && num5 > 0) {
+			while ((byte)array[num5] == 0 && num5 > 0)
+			{
 				array[num5 - 1][7] = false;
 				num5--;
 			}
-
 			Array.Resize(ref array, num5 + 1);
 		}
-
 		return array;
 	}
 
@@ -142,11 +151,12 @@ public struct BitsByte
 	{
 		List<BitsByte> list = new List<BitsByte>();
 		BitsByte item;
-		do {
+		do
+		{
 			item = reader.ReadByte();
 			list.Add(item);
-		} while (item[7]);
-
+		}
+		while (item[7]);
 		return list.ToArray();
 	}
 }

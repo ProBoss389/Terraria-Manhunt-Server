@@ -7,6 +7,7 @@ namespace Terraria.GameContent.RGB;
 public class QueenBeeShader : ChromaShader
 {
 	private readonly Vector4 _primaryColor;
+
 	private readonly Vector4 _secondaryColor;
 
 	public QueenBeeShader(Color primaryColor, Color secondaryColor)
@@ -15,24 +16,23 @@ public class QueenBeeShader : ChromaShader
 		_secondaryColor = secondaryColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.Low
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.Low })]
 	private void ProcessLowDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
-			Vector4 color = Vector4.Lerp(amount: (float)Math.Sin(time * 2f + fragment.GetCanvasPositionOfIndex(i).X * 10f) * 0.5f + 0.5f, value1: _primaryColor, value2: _secondaryColor);
+		for (int i = 0; i < fragment.Count; i++)
+		{
+			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
+			Vector4 color = Vector4.Lerp(_primaryColor, _secondaryColor, (float)Math.Sin(time * 2f + canvasPositionOfIndex.X * 10f) * 0.5f + 0.5f);
 			fragment.SetColor(i, color);
 		}
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.High
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.High })]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
 		time *= 0.5f;
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			float amount = MathHelper.Clamp((float)Math.Sin((double)fragment.GetCanvasPositionOfIndex(i).X * 5.0 - (double)(4f * time)) * 1.5f, 0f, 1f);
 			Vector4 color = Vector4.Lerp(_primaryColor, _secondaryColor, amount);
 			fragment.SetColor(i, color);

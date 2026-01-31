@@ -16,12 +16,17 @@ public static class Chains
 			this.hideLootReport = hideLootReport;
 		}
 
-		public bool CanChainIntoRule(ItemDropAttemptResult parentResult) => parentResult.State == ItemDropAttemptResultState.FailedRandomRoll;
+		public bool CanChainIntoRule(ItemDropAttemptResult parentResult)
+		{
+			return parentResult.State == ItemDropAttemptResultState.FailedRandomRoll;
+		}
 
 		public void ReportDroprates(float personalDropRate, List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 		{
 			if (!hideLootReport)
+			{
 				RuleToChain.ReportDroprates(drops, ratesInfo.With(1f - personalDropRate));
+			}
 		}
 	}
 
@@ -37,12 +42,17 @@ public static class Chains
 			this.hideLootReport = hideLootReport;
 		}
 
-		public bool CanChainIntoRule(ItemDropAttemptResult parentResult) => parentResult.State == ItemDropAttemptResultState.Success;
+		public bool CanChainIntoRule(ItemDropAttemptResult parentResult)
+		{
+			return parentResult.State == ItemDropAttemptResultState.Success;
+		}
 
 		public void ReportDroprates(float personalDropRate, List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 		{
 			if (!hideLootReport)
+			{
 				RuleToChain.ReportDroprates(drops, ratesInfo.With(personalDropRate));
+			}
 		}
 	}
 
@@ -58,18 +68,24 @@ public static class Chains
 			this.hideLootReport = hideLootReport;
 		}
 
-		public bool CanChainIntoRule(ItemDropAttemptResult parentResult) => parentResult.State == ItemDropAttemptResultState.DoesntFillConditions;
+		public bool CanChainIntoRule(ItemDropAttemptResult parentResult)
+		{
+			return parentResult.State == ItemDropAttemptResultState.DoesntFillConditions;
+		}
 
 		public void ReportDroprates(float personalDropRate, List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 		{
 			if (!hideLootReport)
+			{
 				RuleToChain.ReportDroprates(drops, ratesInfo.With(personalDropRate));
+			}
 		}
 	}
 
 	public static void ReportDroprates(List<IItemDropRuleChainAttempt> ChainedRules, float personalDropRate, List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 	{
-		foreach (IItemDropRuleChainAttempt ChainedRule in ChainedRules) {
+		foreach (IItemDropRuleChainAttempt ChainedRule in ChainedRules)
+		{
 			ChainedRule.ReportDroprates(personalDropRate, drops, ratesInfo);
 		}
 	}

@@ -9,7 +9,9 @@ public class Film
 	private class Sequence
 	{
 		private FrameEvent _frameEvent;
+
 		private int _duration;
+
 		private int _start;
 
 		public FrameEvent Event => _frameEvent;
@@ -27,9 +29,13 @@ public class Film
 	}
 
 	private int _frame;
+
 	private int _frameCount;
+
 	private int _nextSequenceAppendTime;
+
 	private bool _isActive;
+
 	private List<Sequence> _sequences = new List<Sequence>();
 
 	public int Frame => _frame;
@@ -54,7 +60,8 @@ public class Film
 
 	public void AddSequences(int start, int duration, params FrameEvent[] frameEvents)
 	{
-		foreach (FrameEvent frameEvent in frameEvents) {
+		foreach (FrameEvent frameEvent in frameEvents)
+		{
 			AddSequence(start, duration, frameEvent);
 		}
 	}
@@ -62,7 +69,8 @@ public class Film
 	public void AppendSequences(int duration, params FrameEvent[] frameEvents)
 	{
 		int nextSequenceAppendTime = _nextSequenceAppendTime;
-		foreach (FrameEvent frameEvent in frameEvents) {
+		foreach (FrameEvent frameEvent in frameEvents)
+		{
 			_sequences.Add(new Sequence(frameEvent, nextSequenceAppendTime, duration));
 			_nextSequenceAppendTime = Math.Max(_nextSequenceAppendTime, nextSequenceAppendTime + duration);
 			_frameCount = Math.Max(_frameCount, nextSequenceAppendTime + duration);
@@ -82,10 +90,10 @@ public class Film
 	public void AppendKeyFrames(params FrameEvent[] frameEvents)
 	{
 		int nextSequenceAppendTime = _nextSequenceAppendTime;
-		foreach (FrameEvent frameEvent in frameEvents) {
+		foreach (FrameEvent frameEvent in frameEvents)
+		{
 			_sequences.Add(new Sequence(frameEvent, nextSequenceAppendTime, 1));
 		}
-
 		_frameCount = Math.Max(_frameCount, nextSequenceAppendTime + 1);
 	}
 
@@ -97,7 +105,8 @@ public class Film
 
 	public void AddKeyFrames(int frame, params FrameEvent[] frameEvents)
 	{
-		foreach (FrameEvent frameEvent in frameEvents) {
+		foreach (FrameEvent frameEvent in frameEvents)
+		{
 			AddKeyFrame(frame, frameEvent);
 		}
 	}
@@ -105,14 +114,17 @@ public class Film
 	public bool OnUpdate(GameTime gameTime)
 	{
 		if (_sequences.Count == 0)
+		{
 			return false;
-
-		foreach (Sequence sequence in _sequences) {
+		}
+		foreach (Sequence sequence in _sequences)
+		{
 			int num = _frame - sequence.Start;
 			if (num >= 0 && num < sequence.Duration)
+			{
 				sequence.Event(new FrameEventData(_frame, sequence.Start, sequence.Duration));
+			}
 		}
-
 		return ++_frame != _frameCount;
 	}
 

@@ -18,18 +18,24 @@ public class AmbientSky : CustomSky
 	private abstract class SkyEntity
 	{
 		public Vector2 Position;
+
 		public Asset<Texture2D> Texture;
+
 		public SpriteFrame Frame;
+
 		public float Depth;
+
 		public SpriteEffects Effects;
+
 		public bool IsActive = true;
+
 		public float Rotation;
 
 		public Rectangle SourceRectangle => Frame.GetSourceRectangle(Texture.Value);
 
 		protected void NextFrame()
 		{
-			Frame.CurrentRow = (byte)((Frame.CurrentRow + 1) % (int)Frame.RowCount);
+			Frame.CurrentRow = (byte)((Frame.CurrentRow + 1) % Frame.RowCount);
 		}
 
 		public abstract Color GetColor(Color backgroundColor);
@@ -52,7 +58,8 @@ public class AmbientSky : CustomSky
 
 		public void CommonDraw(SpriteBatch spriteBatch, float depthScale, float minDepth, float maxDepth)
 		{
-			if (!(Depth <= minDepth) && !(Depth > maxDepth)) {
+			if (!(Depth <= minDepth) && !(Depth > maxDepth))
+			{
 				Vector2 drawPositionByDepth = GetDrawPositionByDepth();
 				Color color = GetColor(Main.ColorOfTheSkies) * Main.atmo;
 				Vector2 origin = SourceRectangle.Size() / 2f;
@@ -61,7 +68,10 @@ public class AmbientSky : CustomSky
 			}
 		}
 
-		internal Vector2 GetDrawPositionByDepth() => (GetDrawPosition() - Main.Camera.Center) * new Vector2(1f / Depth, 0.9f / Depth) + Main.Camera.Center;
+		internal Vector2 GetDrawPositionByDepth()
+		{
+			return (GetDrawPosition() - Main.Camera.Center) * new Vector2(1f / Depth, 0.9f / Depth) + Main.Camera.Center;
+		}
 
 		internal float Helper_GetOpacityWithAccountingForOceanWaterLine()
 		{
@@ -78,14 +88,23 @@ public class AmbientSky : CustomSky
 	private class FadingSkyEntity : SkyEntity
 	{
 		protected int LifeTime;
+
 		protected Vector2 Velocity;
+
 		protected int FramingSpeed;
+
 		protected int TimeEntitySpawnedIn;
+
 		protected float Opacity;
+
 		protected float BrightnessLerper;
+
 		protected float FinalOpacityMultiplier;
+
 		protected float OpacityNormalizedTimeToFadeIn;
+
 		protected float OpacityNormalizedTimeToFadeOut;
+
 		protected int FrameOffset;
 
 		public FadingSkyEntity()
@@ -100,11 +119,13 @@ public class AmbientSky : CustomSky
 
 		public override void Update(int frameCount)
 		{
-			if (!IsMovementDone(frameCount)) {
+			if (!IsMovementDone(frameCount))
+			{
 				UpdateOpacity(frameCount);
 				if ((frameCount + FrameOffset) % FramingSpeed == 0)
+				{
 					NextFrame();
-
+				}
 				UpdateVelocity(frameCount);
 				Position += Velocity;
 			}
@@ -118,35 +139,48 @@ public class AmbientSky : CustomSky
 		{
 			int num = frameCount - TimeEntitySpawnedIn;
 			if ((float)num >= (float)LifeTime * OpacityNormalizedTimeToFadeOut)
+			{
 				Opacity = Utils.GetLerpValue(LifeTime, (float)LifeTime * OpacityNormalizedTimeToFadeOut, num, clamped: true);
+			}
 			else
+			{
 				Opacity = Utils.GetLerpValue(0f, (float)LifeTime * OpacityNormalizedTimeToFadeIn, num, clamped: true);
+			}
 		}
 
 		private bool IsMovementDone(int frameCount)
 		{
 			if (TimeEntitySpawnedIn == -1)
+			{
 				TimeEntitySpawnedIn = frameCount;
-
-			if (frameCount - TimeEntitySpawnedIn >= LifeTime) {
+			}
+			if (frameCount - TimeEntitySpawnedIn >= LifeTime)
+			{
 				IsActive = false;
 				return true;
 			}
-
 			return false;
 		}
 
-		public override Color GetColor(Color backgroundColor) => Color.Lerp(backgroundColor, Color.White, BrightnessLerper) * Opacity * FinalOpacityMultiplier * Helper_GetOpacityWithAccountingForOceanWaterLine();
+		public override Color GetColor(Color backgroundColor)
+		{
+			return Color.Lerp(backgroundColor, Color.White, BrightnessLerper) * Opacity * FinalOpacityMultiplier * Helper_GetOpacityWithAccountingForOceanWaterLine();
+		}
 
 		public void StartFadingOut(int currentFrameCount)
 		{
 			int num = (int)((float)LifeTime * OpacityNormalizedTimeToFadeOut);
 			int num2 = currentFrameCount - num;
 			if (num2 < TimeEntitySpawnedIn)
+			{
 				TimeEntitySpawnedIn = num2;
+			}
 		}
 
-		public override Vector2 GetDrawPosition() => Position;
+		public override Vector2 GetDrawPosition()
+		{
+			return Position;
+		}
 	}
 
 	private class ButterfliesSkyEntity : FadingSkyEntity
@@ -157,15 +191,18 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 4000f) + 4000f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
 			int num2 = random.Next(2) + 1;
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/ButterflySwarm" + num2);
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/ButterflySwarm" + num2, AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, (byte)((num2 == 2) ? 19u : 17u));
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -185,7 +222,9 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 	}
 
@@ -197,14 +236,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/LostKite");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/LostKite", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 42);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -213,7 +255,8 @@ public class AmbientSky : CustomSky
 			FinalOpacityMultiplier = 1f;
 			FramingSpeed = 6;
 			int num2 = random.Next(Frame.RowCount);
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				NextFrame();
 			}
 		}
@@ -222,20 +265,24 @@ public class AmbientSky : CustomSky
 		{
 			float num = 1.2f + Math.Abs(Main.WindForVisuals) * 3f;
 			if (Main.IsItStorming)
+			{
 				num *= 1.5f;
-
+			}
 			Velocity = new Vector2(num * (float)((Effects != SpriteEffects.FlipHorizontally) ? 1 : (-1)), 0f);
 		}
 
 		public override void Update(int frameCount)
 		{
 			if (Main.IsItStorming)
+			{
 				FramingSpeed = 4;
-
+			}
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			base.Update(frameCount);
 			if (!Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 	}
 
@@ -247,14 +294,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Pegasus");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Pegasus", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 11);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -274,10 +324,15 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
-		public override Color GetColor(Color backgroundColor) => base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[6];
+		public override Color GetColor(Color backgroundColor)
+		{
+			return base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[6];
+		}
 	}
 
 	private class VultureSkyEntity : FadingSkyEntity
@@ -288,14 +343,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Vulture");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Vulture", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 10);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -315,10 +373,17 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
-		public override Color GetColor(Color backgroundColor) => base.GetColor(backgroundColor) * Math.Max(Main.bgAlphaFrontLayer[2], Main.bgAlphaFrontLayer[5]);
+		public override Color GetColor(Color backgroundColor)
+		{
+			float val = Math.Max(Main.bgAlphaFrontLayer[5], Main.bgAlphaFrontLayer[14]);
+			val = Math.Max(val, Main.bgAlphaFrontLayer[13]);
+			return base.GetColor(backgroundColor) * Math.Max(Main.bgAlphaFrontLayer[2], val);
+		}
 	}
 
 	private class PixiePosseSkyEntity : FadingSkyEntity
@@ -331,17 +396,21 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 4000f) + 4000f;
 			Depth = random.NextFloat() * 3f + 2f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
 			if (!Main.dayTime)
+			{
 				pixieType = 2;
-
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/PixiePosse" + pixieType);
+			}
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/PixiePosse" + pixieType, AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 25);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -361,7 +430,9 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if ((pixieType == 1 && !Main.dayTime) || (pixieType == 2 && Main.dayTime) || Main.IsItRaining || Main.eclipse || Main.bloodMoon || Main.pumpkinMoon || Main.snowMoon)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, float depthScale, float minDepth, float maxDepth)
@@ -378,14 +449,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/BirdsVShape");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/BirdsVShape", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 4);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -405,15 +479,20 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 	}
 
 	private class SeagullsGroupSkyEntity : FadingSkyEntity
 	{
 		private Vector2 _magnetAccelerations;
+
 		private Vector2 _magnetPointTarget;
+
 		private Vector2 _positionVsMagnet;
+
 		private Vector2 _velocityVsMagnet;
 
 		public SeagullsGroupSkyEntity(Player player, FastRandom random)
@@ -422,14 +501,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Seagull");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Seagull", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 9);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.1f;
@@ -439,7 +521,8 @@ public class AmbientSky : CustomSky
 			FramingSpeed = 4;
 			FrameOffset = random.Next(0, Frame.RowCount);
 			int num2 = random.Next(Frame.RowCount);
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				NextFrame();
 			}
 		}
@@ -457,7 +540,9 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
 		public void SetMagnetization(Vector2 accelerations, Vector2 targetOffset)
@@ -466,7 +551,10 @@ public class AmbientSky : CustomSky
 			_magnetPointTarget = targetOffset;
 		}
 
-		public override Color GetColor(Color backgroundColor) => base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[4];
+		public override Color GetColor(Color backgroundColor)
+		{
+			return base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[4];
+		}
 
 		public override void Draw(SpriteBatch spriteBatch, float depthScale, float minDepth, float maxDepth)
 		{
@@ -483,16 +571,20 @@ public class AmbientSky : CustomSky
 			SpriteEffects spriteEffects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			Vector2 vector = default(Vector2);
 			if (spriteEffects == SpriteEffects.FlipHorizontally)
+			{
 				vector.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				vector.X = virtualCamera.Position.X - (float)num;
-
+			}
 			vector.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			float num4 = random.NextFloat() * 2f + 1f;
 			int num5 = random.Next(30, 61) * 60;
 			Vector2 vector2 = new Vector2(random.NextFloat() * 0.5f + 0.5f, random.NextFloat() * 0.5f + 0.5f);
 			Vector2 targetOffset = new Vector2(random.NextFloat() * 2f - 1f, random.NextFloat() * 2f - 1f) * num3;
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				SeagullsGroupSkyEntity seagullsGroupSkyEntity = new SeagullsGroupSkyEntity(player, random);
 				seagullsGroupSkyEntity.Depth = num4 + random.NextFloat() * 0.5f;
 				seagullsGroupSkyEntity.Position = vector + new Vector2(random.NextFloat() * 20f - 10f, random.NextFloat() * 3f) * 50f;
@@ -502,7 +594,6 @@ public class AmbientSky : CustomSky
 				seagullsGroupSkyEntity.SetMagnetization(vector2 * (random.NextFloat() * 0.3f + 0.85f) * 0.05f, targetOffset);
 				list.Add(seagullsGroupSkyEntity);
 			}
-
 			return list;
 		}
 	}
@@ -510,8 +601,11 @@ public class AmbientSky : CustomSky
 	private class GastropodGroupSkyEntity : FadingSkyEntity
 	{
 		private Vector2 _magnetAccelerations;
+
 		private Vector2 _magnetPointTarget;
+
 		private Vector2 _positionVsMagnet;
+
 		private Vector2 _velocityVsMagnet;
 
 		public GastropodGroupSkyEntity(Player player, FastRandom random)
@@ -520,14 +614,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 3200f) + 3200f;
 			Depth = random.NextFloat() * 3f + 2f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Gastropod");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Gastropod", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 1);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.1f;
@@ -551,10 +648,15 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || Main.dayTime || Main.bloodMoon || Main.pumpkinMoon || Main.snowMoon)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
-		public override Color GetColor(Color backgroundColor) => Color.Lerp(backgroundColor, Colors.AmbientNPCGastropodLight, BrightnessLerper) * Opacity * FinalOpacityMultiplier;
+		public override Color GetColor(Color backgroundColor)
+		{
+			return Color.Lerp(backgroundColor, Colors.AmbientNPCGastropodLight, BrightnessLerper) * Opacity * FinalOpacityMultiplier;
+		}
 
 		public override void Draw(SpriteBatch spriteBatch, float depthScale, float minDepth, float maxDepth)
 		{
@@ -576,16 +678,20 @@ public class AmbientSky : CustomSky
 			SpriteEffects spriteEffects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			Vector2 vector = default(Vector2);
 			if (spriteEffects == SpriteEffects.FlipHorizontally)
+			{
 				vector.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				vector.X = virtualCamera.Position.X - (float)num;
-
+			}
 			vector.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 3200f) + 3200f;
 			float num3 = random.NextFloat() * 3f + 2f;
 			int num4 = random.Next(30, 61) * 60;
 			Vector2 vector2 = new Vector2(random.NextFloat() * 0.1f + 0.1f, random.NextFloat() * 0.3f + 0.3f);
 			Vector2 targetOffset = new Vector2(random.NextFloat() * 2f - 1f, random.NextFloat() * 2f - 1f) * 120f;
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				GastropodGroupSkyEntity gastropodGroupSkyEntity = new GastropodGroupSkyEntity(player, random);
 				gastropodGroupSkyEntity.Depth = num3 + random.NextFloat() * 0.5f;
 				gastropodGroupSkyEntity.Position = vector + new Vector2(random.NextFloat() * 20f - 10f, random.NextFloat() * 3f) * 60f;
@@ -595,7 +701,6 @@ public class AmbientSky : CustomSky
 				gastropodGroupSkyEntity.SetMagnetization(vector2 * (random.NextFloat() * 0.5f) * 0.05f, targetOffset);
 				list.Add(gastropodGroupSkyEntity);
 			}
-
 			return list;
 		}
 	}
@@ -603,8 +708,11 @@ public class AmbientSky : CustomSky
 	private class SlimeBalloonGroupSkyEntity : FadingSkyEntity
 	{
 		private Vector2 _magnetAccelerations;
+
 		private Vector2 _magnetPointTarget;
+
 		private Vector2 _positionVsMagnet;
+
 		private Vector2 _velocityVsMagnet;
 
 		public SlimeBalloonGroupSkyEntity(Player player, FastRandom random)
@@ -613,14 +721,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 4000f) + 4000f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/SlimeBalloons");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/SlimeBalloons", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 7);
 			Frame.CurrentRow = (byte)random.Next(7);
 			LifeTime = random.Next(60, 121) * 60;
@@ -646,7 +757,9 @@ public class AmbientSky : CustomSky
 			base.Update(frameCount);
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			if (!Main.IsItAHappyWindyDay || Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
 		public void SetMagnetization(Vector2 accelerations, Vector2 targetOffset)
@@ -664,16 +777,20 @@ public class AmbientSky : CustomSky
 			SpriteEffects spriteEffects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			Vector2 vector = default(Vector2);
 			if (spriteEffects == SpriteEffects.FlipHorizontally)
+			{
 				vector.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				vector.X = virtualCamera.Position.X - (float)num;
-
+			}
 			vector.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			float num3 = random.NextFloat() * 3f + 3f;
 			int num4 = random.Next(80, 121) * 60;
 			Vector2 vector2 = new Vector2(random.NextFloat() * 0.1f + 0.1f, random.NextFloat() * 0.1f + 0.1f);
 			Vector2 targetOffset = new Vector2(random.NextFloat() * 2f - 1f, random.NextFloat() * 2f - 1f) * 150f;
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				SlimeBalloonGroupSkyEntity slimeBalloonGroupSkyEntity = new SlimeBalloonGroupSkyEntity(player, random);
 				slimeBalloonGroupSkyEntity.Depth = num3 + random.NextFloat() * 0.5f;
 				slimeBalloonGroupSkyEntity.Position = vector + new Vector2(random.NextFloat() * 20f - 10f, random.NextFloat() * 3f) * 80f;
@@ -683,7 +800,6 @@ public class AmbientSky : CustomSky
 				slimeBalloonGroupSkyEntity.SetMagnetization(vector2 * (random.NextFloat() * 0.2f) * 0.05f, targetOffset);
 				list.Add(slimeBalloonGroupSkyEntity);
 			}
-
 			return list;
 		}
 	}
@@ -691,8 +807,11 @@ public class AmbientSky : CustomSky
 	private class HellBatsGoupSkyEntity : FadingSkyEntity
 	{
 		private Vector2 _magnetAccelerations;
+
 		private Vector2 _magnetPointTarget;
+
 		private Vector2 _positionVsMagnet;
+
 		private Vector2 _velocityVsMagnet;
 
 		public HellBatsGoupSkyEntity(Player player, FastRandom random)
@@ -701,14 +820,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * 400f + (float)(Main.UnderworldLayer * 16);
 			Depth = random.NextFloat() * 5f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/HellBat" + random.Next(1, 3));
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/HellBat" + random.Next(1, 3), AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 10);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.1f;
@@ -718,7 +840,8 @@ public class AmbientSky : CustomSky
 			FramingSpeed = 4;
 			FrameOffset = random.Next(0, Frame.RowCount);
 			int num2 = random.Next(Frame.RowCount);
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				NextFrame();
 			}
 		}
@@ -743,7 +866,10 @@ public class AmbientSky : CustomSky
 			_magnetPointTarget = targetOffset;
 		}
 
-		public override Color GetColor(Color backgroundColor) => Color.Lerp(Color.White, Color.Gray, Depth / 15f) * Opacity * FinalOpacityMultiplier * Helper_GetOpacityWithAccountingForBackgroundsOff();
+		public override Color GetColor(Color backgroundColor)
+		{
+			return Color.Lerp(Color.White, Color.Gray, Depth / 15f) * Opacity * FinalOpacityMultiplier * Helper_GetOpacityWithAccountingForBackgroundsOff();
+		}
 
 		public static List<HellBatsGoupSkyEntity> CreateGroup(Player player, FastRandom random)
 		{
@@ -754,16 +880,20 @@ public class AmbientSky : CustomSky
 			SpriteEffects spriteEffects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			Vector2 vector = default(Vector2);
 			if (spriteEffects == SpriteEffects.FlipHorizontally)
+			{
 				vector.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				vector.X = virtualCamera.Position.X - (float)num;
-
+			}
 			vector.Y = random.NextFloat() * 800f + (float)(Main.UnderworldLayer * 16);
 			float num3 = random.NextFloat() * 5f + 3f;
 			int num4 = random.Next(30, 61) * 60;
 			Vector2 vector2 = new Vector2(random.NextFloat() * 0.5f + 0.5f, random.NextFloat() * 0.5f + 0.5f);
 			Vector2 targetOffset = new Vector2(random.NextFloat() * 2f - 1f, random.NextFloat() * 2f - 1f) * 100f;
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				HellBatsGoupSkyEntity hellBatsGoupSkyEntity = new HellBatsGoupSkyEntity(player, random);
 				hellBatsGoupSkyEntity.Depth = num3 + random.NextFloat() * 0.5f;
 				hellBatsGoupSkyEntity.Position = vector + new Vector2(random.NextFloat() * 20f - 10f, random.NextFloat() * 3f) * 50f;
@@ -773,15 +903,15 @@ public class AmbientSky : CustomSky
 				hellBatsGoupSkyEntity.SetMagnetization(vector2 * (random.NextFloat() * 0.3f + 0.85f) * 0.05f, targetOffset);
 				list.Add(hellBatsGoupSkyEntity);
 			}
-
 			return list;
 		}
 
 		internal float Helper_GetOpacityWithAccountingForBackgroundsOff()
 		{
 			if (Main.netMode == 2 || Main.BackgroundEnabled)
+			{
 				return 1f;
-
+			}
 			return 0f;
 		}
 	}
@@ -789,8 +919,11 @@ public class AmbientSky : CustomSky
 	private class BatsGroupSkyEntity : FadingSkyEntity
 	{
 		private Vector2 _magnetAccelerations;
+
 		private Vector2 _magnetPointTarget;
+
 		private Vector2 _positionVsMagnet;
+
 		private Vector2 _velocityVsMagnet;
 
 		public BatsGroupSkyEntity(Player player, FastRandom random)
@@ -799,14 +932,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Bat" + random.Next(1, 4));
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Bat" + random.Next(1, 4), AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 10);
 			LifeTime = random.Next(60, 121) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.1f;
@@ -816,7 +952,8 @@ public class AmbientSky : CustomSky
 			FramingSpeed = 4;
 			FrameOffset = random.Next(0, Frame.RowCount);
 			int num2 = random.Next(Frame.RowCount);
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				NextFrame();
 			}
 		}
@@ -834,7 +971,9 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 
 		public void SetMagnetization(Vector2 accelerations, Vector2 targetOffset)
@@ -843,7 +982,10 @@ public class AmbientSky : CustomSky
 			_magnetPointTarget = targetOffset;
 		}
 
-		public override Color GetColor(Color backgroundColor) => base.GetColor(backgroundColor) * Utils.Max<float>(Main.bgAlphaFrontLayer[3], Main.bgAlphaFrontLayer[0], Main.bgAlphaFrontLayer[10], Main.bgAlphaFrontLayer[11], Main.bgAlphaFrontLayer[12]);
+		public override Color GetColor(Color backgroundColor)
+		{
+			return base.GetColor(backgroundColor) * Utils.Max<float>(Main.bgAlphaFrontLayer[3], Main.bgAlphaFrontLayer[0], Main.bgAlphaFrontLayer[10], Main.bgAlphaFrontLayer[11], Main.bgAlphaFrontLayer[12]);
+		}
 
 		public static List<BatsGroupSkyEntity> CreateGroup(Player player, FastRandom random)
 		{
@@ -854,16 +996,20 @@ public class AmbientSky : CustomSky
 			SpriteEffects spriteEffects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			Vector2 vector = default(Vector2);
 			if (spriteEffects == SpriteEffects.FlipHorizontally)
+			{
 				vector.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				vector.X = virtualCamera.Position.X - (float)num;
-
+			}
 			vector.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			float num3 = random.NextFloat() * 3f + 3f;
 			int num4 = random.Next(30, 61) * 60;
 			Vector2 vector2 = new Vector2(random.NextFloat() * 0.5f + 0.5f, random.NextFloat() * 0.5f + 0.5f);
 			Vector2 targetOffset = new Vector2(random.NextFloat() * 2f - 1f, random.NextFloat() * 2f - 1f) * 100f;
-			for (int i = 0; i < num2; i++) {
+			for (int i = 0; i < num2; i++)
+			{
 				BatsGroupSkyEntity batsGroupSkyEntity = new BatsGroupSkyEntity(player, random);
 				batsGroupSkyEntity.Depth = num3 + random.NextFloat() * 0.5f;
 				batsGroupSkyEntity.Position = vector + new Vector2(random.NextFloat() * 20f - 10f, random.NextFloat() * 3f) * 50f;
@@ -873,7 +1019,6 @@ public class AmbientSky : CustomSky
 				batsGroupSkyEntity.SetMagnetization(vector2 * (random.NextFloat() * 0.3f + 0.85f) * 0.05f, targetOffset);
 				list.Add(batsGroupSkyEntity);
 			}
-
 			return list;
 		}
 	}
@@ -886,14 +1031,17 @@ public class AmbientSky : CustomSky
 			Effects = ((!(Main.WindForVisuals > 0f)) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Wyvern");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Wyvern", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 5);
 			LifeTime = random.Next(40, 71) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.15f;
@@ -912,8 +1060,15 @@ public class AmbientSky : CustomSky
 
 	private class NormalizedBackgroundLayerSpaceSkyEntity : SkyEntity
 	{
-		public override Color GetColor(Color backgroundColor) => Color.Lerp(backgroundColor, Color.White, 0.3f);
-		public override Vector2 GetDrawPosition() => Position;
+		public override Color GetColor(Color backgroundColor)
+		{
+			return Color.Lerp(backgroundColor, Color.White, 0.3f);
+		}
+
+		public override Vector2 GetDrawPosition()
+		{
+			return Position;
+		}
 
 		public override void Update(int frameCount)
 		{
@@ -932,14 +1087,17 @@ public class AmbientSky : CustomSky
 			Effects = ((random.Next(2) != 0) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			int num = 100;
 			if (Effects == SpriteEffects.FlipHorizontally)
+			{
 				Position.X = virtualCamera.Position.X + virtualCamera.Size.X + (float)num;
+			}
 			else
+			{
 				Position.X = virtualCamera.Position.X - (float)num;
-
+			}
 			Position.Y = random.NextFloat() * ((float)Main.worldSurface * 16f - 1600f - 2400f) + 2400f;
 			Depth = random.NextFloat() * 3f + 3f;
 			SetPositionInWorldBasedOnScreenSpace(Position);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/FlyingShip");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/FlyingShip", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 4);
 			LifeTime = random.Next(40, 71) * 60;
 			OpacityNormalizedTimeToFadeIn = 0.05f;
@@ -959,7 +1117,9 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 	}
 
@@ -975,7 +1135,7 @@ public class AmbientSky : CustomSky
 			Position.X = ((float)x + 100f * (random.NextFloat() * 2f - 1f)) * 16f;
 			Position.Y = (float)Main.worldSurface * 16f - (float)random.Next(50, 81) * 16f;
 			Depth = random.NextFloat() * 3f + 3f;
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/AirBalloons_" + ((random.Next(2) == 0) ? "Large" : "Small"));
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/AirBalloons_" + ((random.Next(2) == 0) ? "Large" : "Small"), AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 5);
 			Frame.CurrentRow = (byte)random.Next(5);
 			LifeTime = random.Next(20, 51) * 60;
@@ -991,14 +1151,17 @@ public class AmbientSky : CustomSky
 			float x = Main.WindForVisuals * 4f;
 			float num = 3f + Math.Abs(Main.WindForVisuals) * 1f;
 			if ((double)Position.Y < Main.worldSurface * 12.0)
+			{
 				num *= 0.5f;
-
+			}
 			if ((double)Position.Y < Main.worldSurface * 8.0)
+			{
 				num *= 0.5f;
-
+			}
 			if ((double)Position.Y < Main.worldSurface * 4.0)
+			{
 				num *= 0.5f;
-
+			}
 			Velocity = new Vector2(x, 0f - num);
 		}
 
@@ -1006,7 +1169,9 @@ public class AmbientSky : CustomSky
 		{
 			base.Update(frameCount);
 			if (Main.IsItRaining || !Main.dayTime || Main.eclipse)
+			{
 				StartFadingOut(frameCount);
+			}
 		}
 	}
 
@@ -1017,16 +1182,21 @@ public class AmbientSky : CustomSky
 		{
 			int num = 3;
 			if (Depth <= 6f)
+			{
 				num = 2;
-
+			}
 			if (Depth <= 5f)
+			{
 				num = 1;
-
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Crimera" + num);
+			}
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Crimera" + num, AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 3);
 		}
 
-		public override Color GetColor(Color backgroundColor) => base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[8];
+		public override Color GetColor(Color backgroundColor)
+		{
+			return base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[8];
+		}
 	}
 
 	private class EOSSkyEntity : EOCSkyEntity
@@ -1036,37 +1206,49 @@ public class AmbientSky : CustomSky
 		{
 			int num = 3;
 			if (Depth <= 6f)
+			{
 				num = 2;
-
+			}
 			if (Depth <= 5f)
+			{
 				num = 1;
-
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/EOS" + num);
+			}
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/EOS" + num, AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 4);
 		}
 
-		public override Color GetColor(Color backgroundColor) => base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[1];
+		public override Color GetColor(Color backgroundColor)
+		{
+			return base.GetColor(backgroundColor) * Main.bgAlphaFrontLayer[1];
+		}
 	}
 
 	private class EOCSkyEntity : FadingSkyEntity
 	{
 		private const int STATE_ZIGZAG = 1;
+
 		private const int STATE_GOOVERPLAYER = 2;
+
 		private int _state;
+
 		private int _direction;
+
 		private float _waviness;
 
 		public EOCSkyEntity(Player player, FastRandom random)
 		{
 			VirtualCamera camera = new VirtualCamera(player);
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/EOC");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/EOC", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 3);
 			Depth = random.NextFloat() * 3f + 4.5f;
 			if (random.Next(4) != 0)
+			{
 				BeginZigZag(ref random, camera, (random.Next(2) == 1) ? 1 : (-1));
+			}
 			else
+			{
 				BeginChasingPlayer(ref random, camera);
-
+			}
 			SetPositionInWorldBasedOnScreenSpace(Position);
 			OpacityNormalizedTimeToFadeIn = 0.1f;
 			OpacityNormalizedTimeToFadeOut = 0.9f;
@@ -1084,9 +1266,13 @@ public class AmbientSky : CustomSky
 			Position.Y = camera.Position.Y;
 			int num = 100;
 			if (_direction == 1)
+			{
 				Position.X = camera.Position.X - (float)num;
+			}
 			else
+			{
 				Position.X = camera.Position.X + camera.Size.X + (float)num;
+			}
 		}
 
 		private void BeginChasingPlayer(ref FastRandom random, VirtualCamera camera)
@@ -1098,15 +1284,15 @@ public class AmbientSky : CustomSky
 
 		public override void UpdateVelocity(int frameCount)
 		{
-			switch (_state) {
-				case 1:
-					ZigzagMove(frameCount);
-					break;
-				case 2:
-					ChasePlayerTop(frameCount);
-					break;
+			switch (_state)
+			{
+			case 1:
+				ZigzagMove(frameCount);
+				break;
+			case 2:
+				ChasePlayerTop(frameCount);
+				break;
 			}
-
 			Rotation = Velocity.ToRotation();
 		}
 
@@ -1118,7 +1304,8 @@ public class AmbientSky : CustomSky
 		private void ChasePlayerTop(int frameCount)
 		{
 			Vector2 vector = Main.LocalPlayer.Center + new Vector2(0f, -500f) - Position;
-			if (vector.Length() >= 100f) {
+			if (vector.Length() >= 100f)
+			{
 				Velocity.X += 0.1f * (float)Math.Sign(vector.X);
 				Velocity.Y += 0.1f * (float)Math.Sign(vector.Y);
 				Velocity = Vector2.Clamp(Velocity, new Vector2(-18f), new Vector2(18f));
@@ -1133,7 +1320,7 @@ public class AmbientSky : CustomSky
 			new VirtualCamera(player);
 			Effects = ((random.Next(2) != 0) ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
 			Depth = random.NextFloat() * 3f + 3f;
-			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Meteor");
+			Texture = Main.Assets.Request<Texture2D>("Images/Backgrounds/Ambience/Meteor", AssetRequestMode.ImmediateLoad);
 			Frame = new SpriteFrame(1, 4);
 			Vector2 vector = ((float)Math.PI / 4f + random.NextFloat() * ((float)Math.PI / 2f)).ToRotationVector2();
 			float num = (float)(Main.worldSurface * 16.0 - 0.0) / vector.Y;
@@ -1157,7 +1344,9 @@ public class AmbientSky : CustomSky
 	private delegate SkyEntity EntityFactoryMethod(Player player, int seed);
 
 	private bool _isActive;
+
 	private readonly SlotVector<SkyEntity> _entities = new SlotVector<SkyEntity>(500);
+
 	private int _frameCounter;
 
 	public override void Activate(Vector2 position, params object[] args)
@@ -1173,44 +1362,55 @@ public class AmbientSky : CustomSky
 	private bool AnActiveSkyConflictsWithAmbience()
 	{
 		if (!SkyManager.Instance["MonolithMoonLord"].IsActive())
+		{
 			return SkyManager.Instance["MoonLord"].IsActive();
-
+		}
 		return true;
 	}
 
 	public override void Update(GameTime gameTime)
 	{
 		if (Main.gamePaused)
+		{
 			return;
-
+		}
 		_frameCounter++;
 		if (Main.netMode != 2 && AnActiveSkyConflictsWithAmbience() && SkyManager.Instance["Ambience"].IsActive())
+		{
 			SkyManager.Instance.Deactivate("Ambience");
-
-		foreach (SlotVector<SkyEntity>.ItemPair item in (IEnumerable<SlotVector<SkyEntity>.ItemPair>)_entities) {
+		}
+		foreach (SlotVector<SkyEntity>.ItemPair item in (IEnumerable<SlotVector<SkyEntity>.ItemPair>)_entities)
+		{
 			SkyEntity value = item.Value;
 			value.Update(_frameCounter);
-			if (!value.IsActive) {
+			if (!value.IsActive)
+			{
 				_entities.Remove(item.Id);
 				if (Main.netMode != 2 && _entities.Count == 0 && SkyManager.Instance["Ambience"].IsActive())
+				{
 					SkyManager.Instance.Deactivate("Ambience");
+				}
 			}
 		}
 	}
 
 	public override void Draw(SpriteBatch spriteBatch, float minDepth, float maxDepth)
 	{
-		if (Main.gameMenu && Main.netMode == 0 && SkyManager.Instance["Ambience"].IsActive()) {
+		if (Main.gameMenu && Main.netMode == 0 && SkyManager.Instance["Ambience"].IsActive())
+		{
 			_entities.Clear();
 			SkyManager.Instance.Deactivate("Ambience");
 		}
-
-		foreach (SlotVector<SkyEntity>.ItemPair item in (IEnumerable<SlotVector<SkyEntity>.ItemPair>)_entities) {
+		foreach (SlotVector<SkyEntity>.ItemPair item in (IEnumerable<SlotVector<SkyEntity>.ItemPair>)_entities)
+		{
 			item.Value.Draw(spriteBatch, 3f, minDepth, maxDepth);
 		}
 	}
 
-	public override bool IsActive() => _isActive;
+	public override bool IsActive()
+	{
+		return _isActive;
+	}
 
 	public override void Reset()
 	{
@@ -1219,89 +1419,96 @@ public class AmbientSky : CustomSky
 	public void Spawn(Player player, SkyEntityType type, int seed)
 	{
 		FastRandom random = new FastRandom(seed);
-		switch (type) {
-			case SkyEntityType.AirBalloon:
-				_entities.Add(new AirBalloonSkyEntity(player, random));
-				break;
-			case SkyEntityType.Airship:
-				_entities.Add(new AirshipSkyEntity(player, random));
-				break;
-			case SkyEntityType.BirdsV:
-				_entities.Add(new BirdsPackSkyEntity(player, random));
-				break;
-			case SkyEntityType.Eyeball:
-				_entities.Add(new EOCSkyEntity(player, random));
-				break;
-			case SkyEntityType.Meteor:
-				_entities.Add(new MeteorSkyEntity(player, random));
-				break;
-			case SkyEntityType.Wyvern:
-				_entities.Add(new WyvernSkyEntity(player, random));
-				break;
-			case SkyEntityType.Bats: {
-				List<BatsGroupSkyEntity> list5 = BatsGroupSkyEntity.CreateGroup(player, random);
-				for (int m = 0; m < list5.Count; m++) {
-					_entities.Add(list5[m]);
-				}
-
-				break;
+		switch (type)
+		{
+		case SkyEntityType.AirBalloon:
+			_entities.Add(new AirBalloonSkyEntity(player, random));
+			break;
+		case SkyEntityType.Airship:
+			_entities.Add(new AirshipSkyEntity(player, random));
+			break;
+		case SkyEntityType.BirdsV:
+			_entities.Add(new BirdsPackSkyEntity(player, random));
+			break;
+		case SkyEntityType.Eyeball:
+			_entities.Add(new EOCSkyEntity(player, random));
+			break;
+		case SkyEntityType.Meteor:
+			_entities.Add(new MeteorSkyEntity(player, random));
+			break;
+		case SkyEntityType.Wyvern:
+			_entities.Add(new WyvernSkyEntity(player, random));
+			break;
+		case SkyEntityType.Bats:
+		{
+			List<BatsGroupSkyEntity> list5 = BatsGroupSkyEntity.CreateGroup(player, random);
+			for (int m = 0; m < list5.Count; m++)
+			{
+				_entities.Add(list5[m]);
 			}
-			case SkyEntityType.Butterflies:
-				_entities.Add(new ButterfliesSkyEntity(player, random));
-				break;
-			case SkyEntityType.LostKite:
-				_entities.Add(new LostKiteSkyEntity(player, random));
-				break;
-			case SkyEntityType.Vulture:
-				_entities.Add(new VultureSkyEntity(player, random));
-				break;
-			case SkyEntityType.PixiePosse:
-				_entities.Add(new PixiePosseSkyEntity(player, random));
-				break;
-			case SkyEntityType.Seagulls: {
-				List<SeagullsGroupSkyEntity> list4 = SeagullsGroupSkyEntity.CreateGroup(player, random);
-				for (int l = 0; l < list4.Count; l++) {
-					_entities.Add(list4[l]);
-				}
-
-				break;
-			}
-			case SkyEntityType.SlimeBalloons: {
-				List<SlimeBalloonGroupSkyEntity> list3 = SlimeBalloonGroupSkyEntity.CreateGroup(player, random);
-				for (int k = 0; k < list3.Count; k++) {
-					_entities.Add(list3[k]);
-				}
-
-				break;
-			}
-			case SkyEntityType.Gastropods: {
-				List<GastropodGroupSkyEntity> list2 = GastropodGroupSkyEntity.CreateGroup(player, random);
-				for (int j = 0; j < list2.Count; j++) {
-					_entities.Add(list2[j]);
-				}
-
-				break;
-			}
-			case SkyEntityType.Pegasus:
-				_entities.Add(new PegasusSkyEntity(player, random));
-				break;
-			case SkyEntityType.EaterOfSouls:
-				_entities.Add(new EOSSkyEntity(player, random));
-				break;
-			case SkyEntityType.Crimera:
-				_entities.Add(new CrimeraSkyEntity(player, random));
-				break;
-			case SkyEntityType.Hellbats: {
-				List<HellBatsGoupSkyEntity> list = HellBatsGoupSkyEntity.CreateGroup(player, random);
-				for (int i = 0; i < list.Count; i++) {
-					_entities.Add(list[i]);
-				}
-
-				break;
-			}
+			break;
 		}
-
+		case SkyEntityType.Butterflies:
+			_entities.Add(new ButterfliesSkyEntity(player, random));
+			break;
+		case SkyEntityType.LostKite:
+			_entities.Add(new LostKiteSkyEntity(player, random));
+			break;
+		case SkyEntityType.Vulture:
+			_entities.Add(new VultureSkyEntity(player, random));
+			break;
+		case SkyEntityType.PixiePosse:
+			_entities.Add(new PixiePosseSkyEntity(player, random));
+			break;
+		case SkyEntityType.Seagulls:
+		{
+			List<SeagullsGroupSkyEntity> list4 = SeagullsGroupSkyEntity.CreateGroup(player, random);
+			for (int l = 0; l < list4.Count; l++)
+			{
+				_entities.Add(list4[l]);
+			}
+			break;
+		}
+		case SkyEntityType.SlimeBalloons:
+		{
+			List<SlimeBalloonGroupSkyEntity> list3 = SlimeBalloonGroupSkyEntity.CreateGroup(player, random);
+			for (int k = 0; k < list3.Count; k++)
+			{
+				_entities.Add(list3[k]);
+			}
+			break;
+		}
+		case SkyEntityType.Gastropods:
+		{
+			List<GastropodGroupSkyEntity> list2 = GastropodGroupSkyEntity.CreateGroup(player, random);
+			for (int j = 0; j < list2.Count; j++)
+			{
+				_entities.Add(list2[j]);
+			}
+			break;
+		}
+		case SkyEntityType.Pegasus:
+			_entities.Add(new PegasusSkyEntity(player, random));
+			break;
+		case SkyEntityType.EaterOfSouls:
+			_entities.Add(new EOSSkyEntity(player, random));
+			break;
+		case SkyEntityType.Crimera:
+			_entities.Add(new CrimeraSkyEntity(player, random));
+			break;
+		case SkyEntityType.Hellbats:
+		{
+			List<HellBatsGoupSkyEntity> list = HellBatsGoupSkyEntity.CreateGroup(player, random);
+			for (int i = 0; i < list.Count; i++)
+			{
+				_entities.Add(list[i]);
+			}
+			break;
+		}
+		}
 		if (Main.netMode != 2 && !AnActiveSkyConflictsWithAmbience() && !SkyManager.Instance["Ambience"].IsActive())
+		{
 			SkyManager.Instance.Activate("Ambience", default(Vector2));
+		}
 	}
 }

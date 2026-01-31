@@ -13,12 +13,18 @@ public static class Passes
 
 		protected override void ApplyPass(GenerationProgress progress, GameConfiguration configuration)
 		{
-			for (int i = 0; i < GenBase._worldWidth; i++) {
-				for (int j = 0; j < GenBase._worldHeight; j++) {
+			for (int i = 0; i < GenBase._worldWidth; i++)
+			{
+				for (int j = 0; j < GenBase._worldHeight; j++)
+				{
 					if (GenBase._tiles[i, j] == null)
+					{
 						GenBase._tiles[i, j] = new Tile();
+					}
 					else
+					{
 						GenBase._tiles[i, j].ClearEverything();
+					}
 				}
 			}
 		}
@@ -27,6 +33,7 @@ public static class Passes
 	public class ScatterCustom : GenPass
 	{
 		private CustomPerUnitAction _perUnit;
+
 		private int _count;
 
 		public ScatterCustom(string name, double loadWeight, int count, CustomPerUnitAction perUnit = null)
@@ -44,9 +51,12 @@ public static class Passes
 		protected override void ApplyPass(GenerationProgress progress, GameConfiguration configuration)
 		{
 			int num = _count;
-			while (num > 0) {
+			while (num > 0)
+			{
 				if (_perUnit(GenBase._random.Next(1, GenBase._worldWidth), GenBase._random.Next(1, GenBase._worldHeight)))
+				{
 					num--;
+				}
 			}
 		}
 	}

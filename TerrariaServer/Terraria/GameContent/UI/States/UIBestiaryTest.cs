@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent.Bestiary;
@@ -17,26 +18,38 @@ namespace Terraria.GameContent.UI.States;
 public class UIBestiaryTest : UIState
 {
 	private UIElement _bestiarySpace;
+
 	private UIBestiaryEntryInfoPage _infoSpace;
+
 	private UIBestiaryEntryButton _selectedEntryButton;
+
 	private List<BestiaryEntry> _originalEntriesList;
+
 	private List<BestiaryEntry> _workingSetEntries;
+
 	private UIText _indexesRangeText;
+
 	private EntryFilterer<BestiaryEntry, IBestiaryEntryFilter> _filterer = new EntryFilterer<BestiaryEntry, IBestiaryEntryFilter>();
+
 	private EntrySorter<BestiaryEntry, IBestiarySortStep> _sorter = new EntrySorter<BestiaryEntry, IBestiarySortStep>();
+
 	private UIBestiaryEntryGrid _entryGrid;
+
 	private UIBestiarySortingOptionsGrid _sortingGrid;
+
 	private UIBestiaryFilteringOptionsGrid _filteringGrid;
-	private UISearchBar _searchBar;
-	private UIPanel _searchBoxPanel;
+
 	private UIText _sortingText;
+
 	private UIText _filteringText;
-	private string _searchString;
+
 	private BestiaryUnlockProgressReport _progressReport;
+
 	private UIText _progressPercentText;
+
 	private UIColoredSliderSimple _unlocksProgressBar;
-	private bool _didClickSomething;
-	private bool _didClickSearchBar;
+
+	private UILinkPoint searchButtonLink;
 
 	public UIBestiaryTest(BestiaryDatabase database)
 	{
@@ -61,7 +74,7 @@ public class UIBestiaryTest : UIState
 		uIElement.Width.Set(0f, 0.875f);
 		uIElement.MaxWidth.Set(800f + (float)num, 0f);
 		uIElement.MinWidth.Set(600f + (float)num, 0f);
-		uIElement.Top.Set(220f, 0f);
+		uIElement.Top.Set(180f, 0f);
 		uIElement.Height.Set(-220f, 1f);
 		uIElement.HAlign = 0.5f;
 		Append(uIElement);
@@ -74,46 +87,54 @@ public class UIBestiaryTest : UIState
 		uIPanel.PaddingTop -= 4f;
 		uIPanel.PaddingBottom -= 4f;
 		int num2 = 24;
-		UIElement uIElement2 = new UIElement {
+		UIElement uIElement2 = new UIElement
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(num2, 0f),
 			VAlign = 0f
 		};
-
 		uIElement2.SetPadding(0f);
 		uIPanel.Append(uIElement2);
-		UIBestiaryEntryInfoPage uIBestiaryEntryInfoPage = new UIBestiaryEntryInfoPage {
+		UIBestiaryEntryInfoPage uIBestiaryEntryInfoPage = new UIBestiaryEntryInfoPage
+		{
 			Height = new StyleDimension(12f, 1f),
 			HAlign = 1f
 		};
-
 		AddSortAndFilterButtons(uIElement2, uIBestiaryEntryInfoPage);
-		AddSearchBar(uIElement2, uIBestiaryEntryInfoPage);
+		UIWrappedSearchBar uIWrappedSearchBar = new UIWrappedSearchBar(GoBackFromVirtualKeyboard)
+		{
+			Width = new StyleDimension(uIBestiaryEntryInfoPage.Width.Pixels, 0f),
+			HAlign = 1f
+		};
+		uIWrappedSearchBar.CustomOpenVirtualKeyboard = IngameFancyUI.OpenUIState;
+		uIWrappedSearchBar.OnSearchContentsChanged += OnSearchContentsChanged;
+		uIWrappedSearchBar.SetSearchSnapPoint("SearchButton", 0);
+		uIElement2.Append(uIWrappedSearchBar);
 		int num3 = 20;
-		UIElement uIElement3 = new UIElement {
+		UIElement uIElement3 = new UIElement
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(-num2 - 6 - num3, 1f),
 			VAlign = 1f,
 			Top = new StyleDimension(-num3, 0f)
 		};
-
 		uIElement3.SetPadding(0f);
 		uIPanel.Append(uIElement3);
-		UIElement uIElement4 = new UIElement {
+		UIElement uIElement4 = new UIElement
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(20f, 0f),
 			VAlign = 1f
 		};
-
 		uIPanel.Append(uIElement4);
 		uIElement4.SetPadding(0f);
 		FillProgressBottomBar(uIElement4);
-		UIElement uIElement5 = new UIElement {
+		UIElement uIElement5 = new UIElement
+		{
 			Width = new StyleDimension(-12f - uIBestiaryEntryInfoPage.Width.Pixels, 1f),
 			Height = new StyleDimension(-4f, 1f),
 			VAlign = 1f
 		};
-
 		uIElement3.Append(uIElement5);
 		uIElement5.SetPadding(0f);
 		_bestiarySpace = uIElement5;
@@ -131,21 +152,21 @@ public class UIBestiaryTest : UIState
 		_filteringGrid.OnLeftClick += Click_CloseFilteringGrid;
 		_filteringGrid.OnClickingOption += UpdateBestiaryContents;
 		_filteringGrid.SetupAvailabilityTest(_originalEntriesList);
-		_searchBar.SetContents(null, forced: true);
 		UpdateBestiaryContents();
 	}
 
 	private void FillProgressBottomBar(UIElement container)
 	{
-		UIText progressPercentText = new UIText("", 0.8f) {
+		UIText progressPercentText = new UIText("", 0.8f)
+		{
 			HAlign = 0f,
 			VAlign = 1f,
 			TextOriginX = 0f,
 			TextOriginY = 0f
 		};
-
 		_progressPercentText = progressPercentText;
-		UIColoredSliderSimple uIColoredSliderSimple = new UIColoredSliderSimple {
+		UIColoredSliderSimple uIColoredSliderSimple = new UIColoredSliderSimple
+		{
 			Width = new StyleDimension(0f, 1f),
 			Height = new StyleDimension(15f, 0f),
 			VAlign = 1f,
@@ -153,7 +174,6 @@ public class UIBestiaryTest : UIState
 			EmptyColor = new Color(35, 43, 81),
 			FillPercent = 0f
 		};
-
 		uIColoredSliderSimple.OnUpdate += ShowStats_Completion;
 		_unlocksProgressBar = uIColoredSliderSimple;
 		container.Append(uIColoredSliderSimple);
@@ -161,7 +181,8 @@ public class UIBestiaryTest : UIState
 
 	private void ShowStats_Completion(UIElement element)
 	{
-		if (element.IsMouseHovering) {
+		if (element.IsMouseHovering)
+		{
 			string completionPercentText = GetCompletionPercentText();
 			Main.instance.MouseText(completionPercentText, 0, 0);
 		}
@@ -170,12 +191,16 @@ public class UIBestiaryTest : UIState
 	private string GetCompletionPercentText()
 	{
 		string percent = Utils.PrettifyPercentDisplay(GetProgressPercent(), "P2");
-		return Language.GetTextValueWith("BestiaryInfo.PercentCollected", new {
+		return Language.GetTextValueWith("BestiaryInfo.PercentCollected", new
+		{
 			Percent = percent
 		});
 	}
 
-	private float GetProgressPercent() => _progressReport.CompletionPercent;
+	private float GetProgressPercent()
+	{
+		return _progressReport.CompletionPercent;
+	}
 
 	private void EmptyInteraction(float input)
 	{
@@ -188,44 +213,45 @@ public class UIBestiaryTest : UIState
 	private Color GetColorAtBlip(float percentile)
 	{
 		if (percentile < GetProgressPercent())
+		{
 			return new Color(51, 137, 255);
-
+		}
 		return new Color(35, 40, 83);
 	}
 
 	private void AddBackAndForwardButtons(UIElement innerTopContainer)
 	{
-		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Back"));
-		uIImageButton.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Border"));
+		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Back", AssetRequestMode.ImmediateLoad));
+		uIImageButton.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Border", AssetRequestMode.ImmediateLoad));
 		uIImageButton.SetVisibility(1f, 1f);
 		uIImageButton.SetSnapPoint("BackPage", 0);
 		_entryGrid.MakeButtonGoByOffset(uIImageButton, -1);
 		innerTopContainer.Append(uIImageButton);
-		UIImageButton uIImageButton2 = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Forward")) {
+		UIImageButton uIImageButton2 = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Forward", AssetRequestMode.ImmediateLoad))
+		{
 			Left = new StyleDimension(uIImageButton.Width.Pixels + 1f, 0f)
 		};
-
-		uIImageButton2.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Border"));
+		uIImageButton2.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Border", AssetRequestMode.ImmediateLoad));
 		uIImageButton2.SetVisibility(1f, 1f);
 		uIImageButton2.SetSnapPoint("NextPage", 0);
 		_entryGrid.MakeButtonGoByOffset(uIImageButton2, 1);
 		innerTopContainer.Append(uIImageButton2);
-		UIPanel uIPanel = new UIPanel {
+		UIPanel uIPanel = new UIPanel
+		{
 			Left = new StyleDimension(uIImageButton.Width.Pixels + 1f + uIImageButton2.Width.Pixels + 3f, 0f),
 			Width = new StyleDimension(135f, 0f),
 			Height = new StyleDimension(0f, 1f),
 			VAlign = 0.5f
 		};
-
 		uIPanel.BackgroundColor = new Color(35, 40, 83);
 		uIPanel.BorderColor = new Color(35, 40, 83);
 		uIPanel.SetPadding(0f);
 		innerTopContainer.Append(uIPanel);
-		UIText uIText = new UIText("9000-9999 (9001)", 0.8f) {
+		UIText uIText = new UIText("9000-9999 (9001)", 0.8f)
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		uIPanel.Append(uIText);
 		_indexesRangeText = uIText;
 	}
@@ -233,184 +259,58 @@ public class UIBestiaryTest : UIState
 	private void AddSortAndFilterButtons(UIElement innerTopContainer, UIBestiaryEntryInfoPage infoSpace)
 	{
 		int num = 17;
-		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Filtering")) {
+		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Filtering", AssetRequestMode.ImmediateLoad))
+		{
 			Left = new StyleDimension(0f - infoSpace.Width.Pixels - (float)num, 0f),
 			HAlign = 1f
 		};
-
-		uIImageButton.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Wide_Border"));
+		uIImageButton.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Wide_Border", AssetRequestMode.ImmediateLoad));
 		uIImageButton.SetVisibility(1f, 1f);
 		uIImageButton.SetSnapPoint("FilterButton", 0);
 		uIImageButton.OnLeftClick += OpenOrCloseFilteringGrid;
 		innerTopContainer.Append(uIImageButton);
-		UIText uIText = new UIText("", 0.8f) {
+		UIText uIText = new UIText("", 0.8f)
+		{
 			Left = new StyleDimension(34f, 0f),
 			Top = new StyleDimension(2f, 0f),
 			VAlign = 0.5f,
 			TextOriginX = 0f,
 			TextOriginY = 0f
 		};
-
 		uIImageButton.Append(uIText);
 		_filteringText = uIText;
-		UIImageButton uIImageButton2 = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Sorting")) {
+		UIImageButton uIImageButton2 = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Sorting", AssetRequestMode.ImmediateLoad))
+		{
 			Left = new StyleDimension(0f - infoSpace.Width.Pixels - uIImageButton.Width.Pixels - 3f - (float)num, 0f),
 			HAlign = 1f
 		};
-
-		uIImageButton2.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Wide_Border"));
+		uIImageButton2.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Wide_Border", AssetRequestMode.ImmediateLoad));
 		uIImageButton2.SetVisibility(1f, 1f);
 		uIImageButton2.SetSnapPoint("SortButton", 0);
 		uIImageButton2.OnLeftClick += OpenOrCloseSortingOptions;
 		innerTopContainer.Append(uIImageButton2);
-		UIText uIText2 = new UIText("", 0.8f) {
+		UIText uIText2 = new UIText("", 0.8f)
+		{
 			Left = new StyleDimension(34f, 0f),
 			Top = new StyleDimension(2f, 0f),
 			VAlign = 0.5f,
 			TextOriginX = 0f,
 			TextOriginY = 0f
 		};
-
 		uIImageButton2.Append(uIText2);
 		_sortingText = uIText2;
 	}
 
-	private void AddSearchBar(UIElement innerTopContainer, UIBestiaryEntryInfoPage infoSpace)
-	{
-		UIImageButton uIImageButton = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Search")) {
-			Left = new StyleDimension(0f - infoSpace.Width.Pixels, 1f),
-			VAlign = 0.5f
-		};
-
-		uIImageButton.OnLeftClick += Click_SearchArea;
-		uIImageButton.SetHoverImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Button_Search_Border"));
-		uIImageButton.SetVisibility(1f, 1f);
-		uIImageButton.SetSnapPoint("SearchButton", 0);
-		innerTopContainer.Append(uIImageButton);
-		UIPanel uIPanel = (_searchBoxPanel = new UIPanel {
-			Left = new StyleDimension(0f - infoSpace.Width.Pixels + uIImageButton.Width.Pixels + 3f, 1f),
-			Width = new StyleDimension(infoSpace.Width.Pixels - uIImageButton.Width.Pixels - 3f, 0f),
-			Height = new StyleDimension(0f, 1f),
-			VAlign = 0.5f
-		});
-
-		uIPanel.BackgroundColor = new Color(35, 40, 83);
-		uIPanel.BorderColor = new Color(35, 40, 83);
-		uIPanel.SetPadding(0f);
-		innerTopContainer.Append(uIPanel);
-		UISearchBar uISearchBar = (_searchBar = new UISearchBar(Language.GetText("UI.PlayerNameSlot"), 0.8f) {
-			Width = new StyleDimension(0f, 1f),
-			Height = new StyleDimension(0f, 1f),
-			HAlign = 0f,
-			VAlign = 0.5f,
-			Left = new StyleDimension(0f, 0f),
-			IgnoresMouseInteraction = true
-		});
-
-		uIPanel.OnLeftClick += Click_SearchArea;
-		uISearchBar.OnContentsChanged += OnSearchContentsChanged;
-		uIPanel.Append(uISearchBar);
-		uISearchBar.OnStartTakingInput += OnStartTakingInput;
-		uISearchBar.OnEndTakingInput += OnEndTakingInput;
-		uISearchBar.OnNeedingVirtualKeyboard += OpenVirtualKeyboardWhenNeeded;
-		UIImageButton uIImageButton2 = new UIImageButton(Main.Assets.Request<Texture2D>("Images/UI/SearchCancel")) {
-			HAlign = 1f,
-			VAlign = 0.5f,
-			Left = new StyleDimension(-2f, 0f)
-		};
-
-		uIImageButton2.OnMouseOver += searchCancelButton_OnMouseOver;
-		uIImageButton2.OnLeftClick += searchCancelButton_OnClick;
-		uIPanel.Append(uIImageButton2);
-	}
-
-	private void searchCancelButton_OnClick(UIMouseEvent evt, UIElement listeningElement)
-	{
-		if (_searchBar.HasContents) {
-			_searchBar.SetContents(null, forced: true);
-			SoundEngine.PlaySound(11);
-		}
-		else {
-			SoundEngine.PlaySound(12);
-		}
-	}
-
-	private void searchCancelButton_OnMouseOver(UIMouseEvent evt, UIElement listeningElement)
-	{
-		SoundEngine.PlaySound(12);
-	}
-
-	private void OpenVirtualKeyboardWhenNeeded()
-	{
-		int maxInputLength = 40;
-		UIVirtualKeyboard uIVirtualKeyboard = new UIVirtualKeyboard(Language.GetText("UI.PlayerNameSlot").Value, _searchString, OnFinishedSettingName, GoBackHere, 0, allowEmpty: true);
-		uIVirtualKeyboard.SetMaxInputLength(maxInputLength);
-		UserInterface.ActiveInstance.SetState(uIVirtualKeyboard);
-	}
-
-	private void OnFinishedSettingName(string name)
-	{
-		string contents = name.Trim();
-		_searchBar.SetContents(contents);
-		GoBackHere();
-	}
-
-	private void GoBackHere()
+	private void GoBackFromVirtualKeyboard()
 	{
 		UserInterface.ActiveInstance.SetState(this);
-		_searchBar.ToggleTakingText();
-	}
-
-	private void OnStartTakingInput()
-	{
-		_searchBoxPanel.BorderColor = Main.OurFavoriteColor;
-	}
-
-	private void OnEndTakingInput()
-	{
-		_searchBoxPanel.BorderColor = new Color(35, 40, 83);
+		UILinkPointNavigator.ChangePoint(searchButtonLink.ID);
 	}
 
 	private void OnSearchContentsChanged(string contents)
 	{
-		_searchString = contents;
 		_filterer.SetSearchFilter(contents);
 		UpdateBestiaryContents();
-	}
-
-	private void Click_SearchArea(UIMouseEvent evt, UIElement listeningElement)
-	{
-		if (evt.Target.Parent != _searchBoxPanel) {
-			_searchBar.ToggleTakingText();
-			_didClickSearchBar = true;
-		}
-	}
-
-	public override void LeftClick(UIMouseEvent evt)
-	{
-		base.LeftClick(evt);
-		AttemptStoppingUsingSearchbar(evt);
-	}
-
-	public override void RightClick(UIMouseEvent evt)
-	{
-		base.RightClick(evt);
-		AttemptStoppingUsingSearchbar(evt);
-	}
-
-	private void AttemptStoppingUsingSearchbar(UIMouseEvent evt)
-	{
-		_didClickSomething = true;
-	}
-
-	public override void Update(GameTime gameTime)
-	{
-		base.Update(gameTime);
-		if (_didClickSomething && !_didClickSearchBar && _searchBar.IsWritingText)
-			_searchBar.ToggleTakingText();
-
-		_didClickSomething = false;
-		_didClickSearchBar = false;
 	}
 
 	private void FilterEntries()
@@ -421,19 +321,23 @@ public class UIBestiaryTest : UIState
 
 	private void SortEntries()
 	{
-		foreach (BestiaryEntry workingSetEntry in _workingSetEntries) {
-			foreach (IBestiaryInfoElement item in workingSetEntry.Info) {
+		foreach (BestiaryEntry workingSetEntry in _workingSetEntries)
+		{
+			foreach (IBestiaryInfoElement item in workingSetEntry.Info)
+			{
 				if (item is IUpdateBeforeSorting updateBeforeSorting)
+				{
 					updateBeforeSorting.UpdateBeforeSorting();
+				}
 			}
 		}
-
 		_workingSetEntries.Sort(_sorter);
 	}
 
 	private void FillBestiarySpaceWithEntries()
 	{
-		if (_entryGrid != null && _entryGrid.Parent != null) {
+		if (_entryGrid != null && _entryGrid.Parent != null)
+		{
 			DeselectEntryButton();
 			_progressReport = GetUnlockProgress();
 			_entryGrid.FillBestiarySpaceWithEntries();
@@ -462,14 +366,14 @@ public class UIBestiaryTest : UIState
 
 	private void MakeExitButton(UIElement outerContainer)
 	{
-		UITextPanel<LocalizedText> uITextPanel = new UITextPanel<LocalizedText>(Language.GetText("UI.Back"), 0.7f, large: true) {
+		UITextPanel<LocalizedText> uITextPanel = new UITextPanel<LocalizedText>(Language.GetText("UI.Back"), 0.7f, large: true)
+		{
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 0.5f),
 			Height = StyleDimension.FromPixels(50f),
 			VAlign = 1f,
 			HAlign = 0.5f,
 			Top = StyleDimension.FromPixels(-25f)
 		};
-
 		uITextPanel.OnMouseOver += FadedMouseOver;
 		uITextPanel.OnMouseOut += FadedMouseOut;
 		uITextPanel.OnLeftMouseDown += Click_GoBack;
@@ -481,18 +385,22 @@ public class UIBestiaryTest : UIState
 	{
 		SoundEngine.PlaySound(11);
 		if (Main.gameMenu)
+		{
 			Main.menuMode = 0;
+		}
 		else
-			IngameFancyUI.Close();
+		{
+			IngameFancyUI.Close(quiet: true);
+		}
 	}
 
 	private void OpenOrCloseSortingOptions(UIMouseEvent evt, UIElement listeningElement)
 	{
-		if (_sortingGrid.Parent != null) {
+		if (_sortingGrid.Parent != null)
+		{
 			CloseSortingGrid();
 			return;
 		}
-
 		_bestiarySpace.RemoveChild(_sortingGrid);
 		_bestiarySpace.RemoveChild(_filteringGrid);
 		_bestiarySpace.Append(_sortingGrid);
@@ -500,11 +408,11 @@ public class UIBestiaryTest : UIState
 
 	private void OpenOrCloseFilteringGrid(UIMouseEvent evt, UIElement listeningElement)
 	{
-		if (_filteringGrid.Parent != null) {
+		if (_filteringGrid.Parent != null)
+		{
 			CloseFilteringGrid();
 			return;
 		}
-
 		_bestiarySpace.RemoveChild(_sortingGrid);
 		_bestiarySpace.RemoveChild(_filteringGrid);
 		_bestiarySpace.Append(_filteringGrid);
@@ -513,7 +421,9 @@ public class UIBestiaryTest : UIState
 	private void Click_CloseFilteringGrid(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (evt.Target == _filteringGrid)
+		{
 			CloseFilteringGrid();
+		}
 	}
 
 	private void CloseFilteringGrid()
@@ -539,7 +449,9 @@ public class UIBestiaryTest : UIState
 	private void Click_CloseSortingGrid(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (evt.Target == _sortingGrid)
+		{
 			CloseSortingGrid();
+		}
 	}
 
 	private void CloseSortingGrid()
@@ -565,14 +477,17 @@ public class UIBestiaryTest : UIState
 	{
 		UIBestiaryEntryButton uIBestiaryEntryButton = (UIBestiaryEntryButton)listeningElement;
 		if (uIBestiaryEntryButton != null)
+		{
 			SelectEntryButton(uIBestiaryEntryButton);
+		}
 	}
 
 	private void SelectEntryButton(UIBestiaryEntryButton button)
 	{
 		DeselectEntryButton();
 		_selectedEntryButton = button;
-		_infoSpace.FillInfoForEntry(button.Entry, new ExtraBestiaryInfoPageInformation {
+		_infoSpace.FillInfoForEntry(button.Entry, new ExtraBestiaryInfoPageInformation
+		{
 			BestiaryProgressReport = _progressReport
 		});
 	}
@@ -587,16 +502,17 @@ public class UIBestiaryTest : UIState
 		float num = 0f;
 		int num2 = 0;
 		List<BestiaryEntry> originalEntriesList = _originalEntriesList;
-		for (int i = 0; i < originalEntriesList.Count; i++) {
+		for (int i = 0; i < originalEntriesList.Count; i++)
+		{
 			int num3 = ((originalEntriesList[i].UIInfoProvider.GetEntryUICollectionInfo().UnlockState > BestiaryEntryUnlockState.NotKnownAtAll_0) ? 1 : 0);
 			num2++;
 			num += (float)num3;
 		}
-
-		BestiaryUnlockProgressReport result = default(BestiaryUnlockProgressReport);
-		result.EntriesTotal = num2;
-		result.CompletionAmountTotal = num;
-		return result;
+		return new BestiaryUnlockProgressReport
+		{
+			EntriesTotal = num2,
+			CompletionAmountTotal = num
+		};
 	}
 
 	public override void Draw(SpriteBatch spriteBatch)
@@ -617,128 +533,157 @@ public class UIBestiaryTest : UIState
 		SnapPoint snap4 = null;
 		SnapPoint snap5 = null;
 		SnapPoint snap6 = null;
-		for (int i = 0; i < snapPoints.Count; i++) {
+		for (int i = 0; i < snapPoints.Count; i++)
+		{
 			SnapPoint snapPoint = snapPoints[i];
-			switch (snapPoint.Name) {
-				case "BackPage":
-					snap = snapPoint;
-					break;
-				case "NextPage":
-					snap2 = snapPoint;
-					break;
-				case "ExitButton":
-					snap6 = snapPoint;
-					break;
-				case "FilterButton":
-					snap4 = snapPoint;
-					break;
-				case "SortButton":
-					snap3 = snapPoint;
-					break;
-				case "SearchButton":
-					snap5 = snapPoint;
-					break;
+			switch (snapPoint.Name)
+			{
+			case "BackPage":
+				snap = snapPoint;
+				break;
+			case "NextPage":
+				snap2 = snapPoint;
+				break;
+			case "ExitButton":
+				snap6 = snapPoint;
+				break;
+			case "FilterButton":
+				snap4 = snapPoint;
+				break;
+			case "SortButton":
+				snap3 = snapPoint;
+				break;
+			case "SearchButton":
+				snap5 = snapPoint;
+				break;
 			}
 		}
-
 		UILinkPoint uILinkPoint = MakeLinkPointFromSnapPoint(currentID++, snap);
 		UILinkPoint uILinkPoint2 = MakeLinkPointFromSnapPoint(currentID++, snap2);
 		UILinkPoint uILinkPoint3 = MakeLinkPointFromSnapPoint(currentID++, snap6);
 		UILinkPoint uILinkPoint4 = MakeLinkPointFromSnapPoint(currentID++, snap4);
 		UILinkPoint uILinkPoint5 = MakeLinkPointFromSnapPoint(currentID++, snap3);
-		UILinkPoint rightSide = MakeLinkPointFromSnapPoint(currentID++, snap5);
+		searchButtonLink = MakeLinkPointFromSnapPoint(currentID++, snap5);
 		PairLeftRight(uILinkPoint, uILinkPoint2);
 		PairLeftRight(uILinkPoint2, uILinkPoint5);
 		PairLeftRight(uILinkPoint5, uILinkPoint4);
-		PairLeftRight(uILinkPoint4, rightSide);
+		PairLeftRight(uILinkPoint4, searchButtonLink);
 		uILinkPoint3.Up = uILinkPoint2.ID;
 		UILinkPoint[,] gridPoints = new UILinkPoint[1, 1];
 		int gridWidth;
 		int gridHeight;
-		if (_filteringGrid.Parent != null) {
+		if (_filteringGrid.Parent != null)
+		{
 			SetupPointsForFilterGrid(ref currentID, snapPoints, out gridWidth, out gridHeight, out gridPoints);
 			PairUpDown(uILinkPoint2, uILinkPoint3);
 			PairUpDown(uILinkPoint, uILinkPoint3);
-			for (int num2 = gridWidth - 1; num2 >= 0; num2--) {
+			for (int num2 = gridWidth - 1; num2 >= 0; num2--)
+			{
 				UILinkPoint uILinkPoint6 = gridPoints[num2, gridHeight - 1];
 				if (uILinkPoint6 != null)
+				{
 					PairUpDown(uILinkPoint6, uILinkPoint3);
-
+				}
 				UILinkPoint uILinkPoint7 = gridPoints[num2, gridHeight - 2];
 				if (uILinkPoint7 != null && uILinkPoint6 == null)
+				{
 					PairUpDown(uILinkPoint7, uILinkPoint3);
-
+				}
 				UILinkPoint uILinkPoint8 = gridPoints[num2, 0];
-				if (uILinkPoint8 != null) {
+				if (uILinkPoint8 != null)
+				{
 					if (num2 < gridWidth - 3)
+					{
 						PairUpDown(uILinkPoint5, uILinkPoint8);
+					}
 					else
+					{
 						PairUpDown(uILinkPoint4, uILinkPoint8);
+					}
 				}
 			}
 		}
-		else if (_sortingGrid.Parent != null) {
+		else if (_sortingGrid.Parent != null)
+		{
 			SetupPointsForSortingGrid(ref currentID, snapPoints, out gridWidth, out gridHeight, out gridPoints);
 			PairUpDown(uILinkPoint2, uILinkPoint3);
 			PairUpDown(uILinkPoint, uILinkPoint3);
-			for (int num3 = gridWidth - 1; num3 >= 0; num3--) {
+			for (int num3 = gridWidth - 1; num3 >= 0; num3--)
+			{
 				UILinkPoint uILinkPoint9 = gridPoints[num3, gridHeight - 1];
 				if (uILinkPoint9 != null)
+				{
 					PairUpDown(uILinkPoint9, uILinkPoint3);
-
+				}
 				UILinkPoint uILinkPoint10 = gridPoints[num3, 0];
-				if (uILinkPoint10 != null) {
+				if (uILinkPoint10 != null)
+				{
 					PairUpDown(uILinkPoint4, uILinkPoint10);
 					PairUpDown(uILinkPoint5, uILinkPoint10);
 				}
 			}
 		}
-		else if (_entryGrid.Parent != null) {
+		else if (_entryGrid.Parent != null)
+		{
 			SetupPointsForEntryGrid(ref currentID, snapPoints, out gridWidth, out gridHeight, out gridPoints);
-			for (int j = 0; j < gridWidth; j++) {
-				if (gridHeight - 1 >= 0) {
+			for (int j = 0; j < gridWidth; j++)
+			{
+				if (gridHeight - 1 >= 0)
+				{
 					UILinkPoint uILinkPoint11 = gridPoints[j, gridHeight - 1];
 					if (uILinkPoint11 != null)
+					{
 						PairUpDown(uILinkPoint11, uILinkPoint3);
-
-					if (gridHeight - 2 >= 0) {
+					}
+					if (gridHeight - 2 >= 0)
+					{
 						UILinkPoint uILinkPoint12 = gridPoints[j, gridHeight - 2];
 						if (uILinkPoint12 != null && uILinkPoint11 == null)
+						{
 							PairUpDown(uILinkPoint12, uILinkPoint3);
+						}
 					}
 				}
-
 				UILinkPoint uILinkPoint13 = gridPoints[j, 0];
-				if (uILinkPoint13 != null) {
+				if (uILinkPoint13 != null)
+				{
 					if (j < gridWidth / 2)
+					{
 						PairUpDown(uILinkPoint2, uILinkPoint13);
+					}
 					else if (j == gridWidth - 1)
+					{
 						PairUpDown(uILinkPoint4, uILinkPoint13);
+					}
 					else
+					{
 						PairUpDown(uILinkPoint5, uILinkPoint13);
+					}
 				}
 			}
-
 			UILinkPoint uILinkPoint14 = gridPoints[0, 0];
-			if (uILinkPoint14 != null) {
+			if (uILinkPoint14 != null)
+			{
 				PairUpDown(uILinkPoint2, uILinkPoint14);
 				PairUpDown(uILinkPoint, uILinkPoint14);
 			}
-			else {
+			else
+			{
 				PairUpDown(uILinkPoint2, uILinkPoint3);
 				PairUpDown(uILinkPoint, uILinkPoint3);
 				PairUpDown(uILinkPoint4, uILinkPoint3);
 				PairUpDown(uILinkPoint5, uILinkPoint3);
 			}
 		}
-
 		List<UILinkPoint> list = new List<UILinkPoint>();
-		for (int k = num; k < currentID; k++) {
+		for (int k = num; k < currentID; k++)
+		{
 			list.Add(UILinkPointNavigator.Points[k]);
 		}
-
 		if (PlayerInput.UsingGamepadUI && UILinkPointNavigator.CurrentPoint >= currentID)
+		{
 			MoveToVisuallyClosestPoint(list);
+		}
 	}
 
 	private void MoveToVisuallyClosestPoint(List<UILinkPoint> lostrefpoints)
@@ -746,13 +691,17 @@ public class UIBestiaryTest : UIState
 		_ = UILinkPointNavigator.Points;
 		Vector2 mouseScreen = Main.MouseScreen;
 		UILinkPoint uILinkPoint = null;
-		foreach (UILinkPoint lostrefpoint in lostrefpoints) {
+		foreach (UILinkPoint lostrefpoint in lostrefpoints)
+		{
 			if (uILinkPoint == null || Vector2.Distance(mouseScreen, uILinkPoint.Position) > Vector2.Distance(mouseScreen, lostrefpoint.Position))
+			{
 				uILinkPoint = lostrefpoint;
+			}
 		}
-
 		if (uILinkPoint != null)
+		{
 			UILinkPointNavigator.ChangePoint(uILinkPoint.ID);
+		}
 	}
 
 	private void SetupPointsForEntryGrid(ref int currentID, List<SnapPoint> pts, out int gridWidth, out int gridHeight, out UILinkPoint[,] gridPoints)
@@ -760,25 +709,32 @@ public class UIBestiaryTest : UIState
 		List<SnapPoint> orderedPointsByCategoryName = GetOrderedPointsByCategoryName(pts, "Entries");
 		_entryGrid.GetEntriesToShow(out gridWidth, out gridHeight, out var _);
 		gridPoints = new UILinkPoint[gridWidth, gridHeight];
-		for (int i = 0; i < orderedPointsByCategoryName.Count; i++) {
+		for (int i = 0; i < orderedPointsByCategoryName.Count; i++)
+		{
 			int num = i % gridWidth;
 			int num2 = i / gridWidth;
 			gridPoints[num, num2] = MakeLinkPointFromSnapPoint(currentID++, orderedPointsByCategoryName[i]);
 		}
-
-		for (int j = 0; j < gridWidth; j++) {
-			for (int k = 0; k < gridHeight; k++) {
+		for (int j = 0; j < gridWidth; j++)
+		{
+			for (int k = 0; k < gridHeight; k++)
+			{
 				UILinkPoint uILinkPoint = gridPoints[j, k];
-				if (j < gridWidth - 1) {
+				if (j < gridWidth - 1)
+				{
 					UILinkPoint uILinkPoint2 = gridPoints[j + 1, k];
 					if (uILinkPoint != null && uILinkPoint2 != null)
+					{
 						PairLeftRight(uILinkPoint, uILinkPoint2);
+					}
 				}
-
-				if (k < gridHeight - 1) {
+				if (k < gridHeight - 1)
+				{
 					UILinkPoint uILinkPoint3 = gridPoints[j, k + 1];
 					if (uILinkPoint != null && uILinkPoint3 != null)
+					{
 						PairUpDown(uILinkPoint, uILinkPoint3);
+					}
 				}
 			}
 		}
@@ -789,25 +745,32 @@ public class UIBestiaryTest : UIState
 		List<SnapPoint> orderedPointsByCategoryName = GetOrderedPointsByCategoryName(pts, "Filters");
 		_filteringGrid.GetEntriesToShow(out gridWidth, out gridHeight, out var _);
 		gridPoints = new UILinkPoint[gridWidth, gridHeight];
-		for (int i = 0; i < orderedPointsByCategoryName.Count; i++) {
+		for (int i = 0; i < orderedPointsByCategoryName.Count; i++)
+		{
 			int num = i % gridWidth;
 			int num2 = i / gridWidth;
 			gridPoints[num, num2] = MakeLinkPointFromSnapPoint(currentID++, orderedPointsByCategoryName[i]);
 		}
-
-		for (int j = 0; j < gridWidth; j++) {
-			for (int k = 0; k < gridHeight; k++) {
+		for (int j = 0; j < gridWidth; j++)
+		{
+			for (int k = 0; k < gridHeight; k++)
+			{
 				UILinkPoint uILinkPoint = gridPoints[j, k];
-				if (j < gridWidth - 1) {
+				if (j < gridWidth - 1)
+				{
 					UILinkPoint uILinkPoint2 = gridPoints[j + 1, k];
 					if (uILinkPoint != null && uILinkPoint2 != null)
+					{
 						PairLeftRight(uILinkPoint, uILinkPoint2);
+					}
 				}
-
-				if (k < gridHeight - 1) {
+				if (k < gridHeight - 1)
+				{
 					UILinkPoint uILinkPoint3 = gridPoints[j, k + 1];
 					if (uILinkPoint != null && uILinkPoint3 != null)
+					{
 						PairUpDown(uILinkPoint, uILinkPoint3);
+					}
 				}
 			}
 		}
@@ -818,25 +781,32 @@ public class UIBestiaryTest : UIState
 		List<SnapPoint> orderedPointsByCategoryName = GetOrderedPointsByCategoryName(pts, "SortSteps");
 		_sortingGrid.GetEntriesToShow(out gridWidth, out gridHeight, out var _);
 		gridPoints = new UILinkPoint[gridWidth, gridHeight];
-		for (int i = 0; i < orderedPointsByCategoryName.Count; i++) {
+		for (int i = 0; i < orderedPointsByCategoryName.Count; i++)
+		{
 			int num = i % gridWidth;
 			int num2 = i / gridWidth;
 			gridPoints[num, num2] = MakeLinkPointFromSnapPoint(currentID++, orderedPointsByCategoryName[i]);
 		}
-
-		for (int j = 0; j < gridWidth; j++) {
-			for (int k = 0; k < gridHeight; k++) {
+		for (int j = 0; j < gridWidth; j++)
+		{
+			for (int k = 0; k < gridHeight; k++)
+			{
 				UILinkPoint uILinkPoint = gridPoints[j, k];
-				if (j < gridWidth - 1) {
+				if (j < gridWidth - 1)
+				{
 					UILinkPoint uILinkPoint2 = gridPoints[j + 1, k];
 					if (uILinkPoint != null && uILinkPoint2 != null)
+					{
 						PairLeftRight(uILinkPoint, uILinkPoint2);
+					}
 				}
-
-				if (k < gridHeight - 1) {
+				if (k < gridHeight - 1)
+				{
 					UILinkPoint uILinkPoint3 = gridPoints[j, k + 1];
 					if (uILinkPoint != null && uILinkPoint3 != null)
+					{
 						PairUpDown(uILinkPoint, uILinkPoint3);
+					}
 				}
 			}
 		}
@@ -845,9 +815,9 @@ public class UIBestiaryTest : UIState
 	private static List<SnapPoint> GetOrderedPointsByCategoryName(List<SnapPoint> pts, string name)
 	{
 		return (from x in pts
-				where x.Name == name
-				orderby x.Id
-				select x).ToList();
+			where x.Name == name
+			orderby x.Id
+			select x).ToList();
 	}
 
 	private void PairLeftRight(UILinkPoint leftSide, UILinkPoint rightSide)

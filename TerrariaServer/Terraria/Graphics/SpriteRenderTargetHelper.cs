@@ -12,14 +12,16 @@ public struct SpriteRenderTargetHelper
 	{
 		lowest = Vector2.Zero;
 		highest = Vector2.Zero;
-		for (int i = 0; i <= playerDrawData.Count; i++) {
-			if (i != playerDrawData.Count) {
+		for (int i = 0; i <= playerDrawData.Count; i++)
+		{
+			if (i != playerDrawData.Count)
+			{
 				DrawData cdd = playerDrawData[i];
-				if (i == 0) {
+				if (i == 0)
+				{
 					lowest = cdd.position;
 					highest = cdd.position;
 				}
-
 				GetHighsAndLowsOf(ref lowest, ref highest, ref cdd);
 			}
 		}
@@ -30,11 +32,13 @@ public struct SpriteRenderTargetHelper
 		Vector2 origin = cdd.origin;
 		Rectangle rectangle = cdd.destinationRectangle;
 		if (cdd.sourceRect.HasValue)
+		{
 			rectangle = cdd.sourceRect.Value;
-
+		}
 		if (!cdd.sourceRect.HasValue)
+		{
 			rectangle = cdd.texture.Frame();
-
+		}
 		rectangle.X = 0;
 		rectangle.Y = 0;
 		Vector2 pos = cdd.position;

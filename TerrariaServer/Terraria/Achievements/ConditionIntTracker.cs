@@ -18,7 +18,9 @@ public class ConditionIntTracker : AchievementTracker<int>
 	public override void ReportUpdate()
 	{
 		if (SocialAPI.Achievements != null && _name != null)
+		{
 			SocialAPI.Achievements.UpdateIntStat(_name, _value);
+		}
 	}
 
 	protected override void Load()

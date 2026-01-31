@@ -13,8 +13,9 @@ public class LuckyCoinConditionSetter : ISimulationConditionSetter
 	{
 		int netID = info.npcVictim.netID;
 		if (netID != 216 && netID != 491)
+		{
 			return 0;
-
+		}
 		return _timesToRun;
 	}
 

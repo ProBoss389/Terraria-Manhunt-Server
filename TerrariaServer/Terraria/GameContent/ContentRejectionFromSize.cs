@@ -6,8 +6,11 @@ namespace Terraria.GameContent;
 public class ContentRejectionFromSize : IRejectionReason
 {
 	private int _neededWidth;
+
 	private int _neededHeight;
+
 	private int _actualWidth;
+
 	private int _actualHeight;
 
 	public ContentRejectionFromSize(int neededWidth, int neededHeight, int actualWidth, int actualHeight)
@@ -20,7 +23,8 @@ public class ContentRejectionFromSize : IRejectionReason
 
 	public string GetReason()
 	{
-		return Language.GetTextValueWith("AssetRejections.BadSize", new {
+		return Language.GetTextValueWith("AssetRejections.BadSize", new
+		{
 			NeededWidth = _neededWidth,
 			NeededHeight = _neededHeight,
 			ActualWidth = _actualWidth,

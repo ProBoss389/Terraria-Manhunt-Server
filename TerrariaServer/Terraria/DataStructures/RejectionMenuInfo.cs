@@ -5,6 +5,7 @@ namespace Terraria.DataStructures;
 public class RejectionMenuInfo
 {
 	public ReturnFromRejectionMenuAction ExitAction;
+
 	public string TextToShow;
 
 	public void DefaultExitAction()

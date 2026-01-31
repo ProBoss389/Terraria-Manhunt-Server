@@ -10,17 +10,22 @@ public static class SoundInstanceGarbageCollector
 	public static void Track(SoundEffectInstance sound)
 	{
 		if (Program.IsFna)
+		{
 			_activeSounds.Add(sound);
+		}
 	}
 
 	public static void Update()
 	{
-		for (int i = 0; i < _activeSounds.Count; i++) {
-			if (_activeSounds[i] == null) {
+		for (int i = 0; i < _activeSounds.Count; i++)
+		{
+			if (_activeSounds[i] == null)
+			{
 				_activeSounds.RemoveAt(i);
 				i--;
 			}
-			else if (_activeSounds[i].State == SoundState.Stopped) {
+			else if (_activeSounds[i].State == SoundState.Stopped)
+			{
 				_activeSounds[i].Dispose();
 				_activeSounds.RemoveAt(i);
 				i--;

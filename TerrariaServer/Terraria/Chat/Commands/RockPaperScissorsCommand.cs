@@ -11,15 +11,21 @@ public class RockPaperScissorsCommand : IChatCommand
 
 	public void ProcessOutgoingMessage(ChatMessage message)
 	{
+		if (Main.netMode != 2 && Main.LocalPlayer.dead)
+		{
+			message.Consume();
+			return;
+		}
 		int num = Main.rand.NextFromList<int>(37, 38, 36);
-		if (Main.netMode == 0) {
+		if (Main.netMode == 0)
+		{
 			EmoteBubble.NewBubble(num, new WorldUIAnchor(Main.LocalPlayer), 360);
 			EmoteBubble.CheckForNPCsToReactToEmoteBubble(num, Main.LocalPlayer);
 		}
-		else {
+		else
+		{
 			NetMessage.SendData(120, -1, -1, null, Main.myPlayer, num);
 		}
-
 		message.Consume();
 	}
 }

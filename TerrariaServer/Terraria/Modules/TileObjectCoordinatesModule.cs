@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework;
 using Terraria.DataStructures;
 
 namespace Terraria.Modules;
@@ -6,17 +7,27 @@ namespace Terraria.Modules;
 public class TileObjectCoordinatesModule
 {
 	public int width;
+
 	public int[] heights;
+
 	public int padding;
+
 	public Point16 paddingFix;
+
 	public int styleWidth;
+
 	public int styleHeight;
+
 	public bool calculated;
+
 	public int drawStyleOffset;
 
-	public TileObjectCoordinatesModule(TileObjectCoordinatesModule copyFrom = null, int[] drawHeight = null)
+	public Rectangle[,] drawFrameOffsets;
+
+	public TileObjectCoordinatesModule(TileObjectCoordinatesModule copyFrom = null, int[] drawHeight = null, Rectangle[,] drawFrameOffs = null)
 	{
-		if (copyFrom == null) {
+		if (copyFrom == null)
+		{
 			width = 0;
 			padding = 0;
 			paddingFix = Point16.Zero;
@@ -25,9 +36,9 @@ public class TileObjectCoordinatesModule
 			styleHeight = 0;
 			calculated = false;
 			heights = drawHeight;
+			drawFrameOffsets = drawFrameOffs;
 			return;
 		}
-
 		width = copyFrom.width;
 		padding = copyFrom.padding;
 		paddingFix = copyFrom.paddingFix;
@@ -35,17 +46,35 @@ public class TileObjectCoordinatesModule
 		styleWidth = copyFrom.styleWidth;
 		styleHeight = copyFrom.styleHeight;
 		calculated = copyFrom.calculated;
-		if (drawHeight == null) {
-			if (copyFrom.heights == null) {
+		if (drawHeight == null)
+		{
+			if (copyFrom.heights == null)
+			{
 				heights = null;
+			}
+			else
+			{
+				heights = new int[copyFrom.heights.Length];
+				Array.Copy(copyFrom.heights, heights, heights.Length);
+			}
+		}
+		else
+		{
+			heights = drawHeight;
+		}
+		if (drawFrameOffs == null)
+		{
+			if (copyFrom.drawFrameOffsets == null)
+			{
+				drawFrameOffsets = null;
 				return;
 			}
-
-			heights = new int[copyFrom.heights.Length];
-			Array.Copy(copyFrom.heights, heights, heights.Length);
+			drawFrameOffsets = new Rectangle[copyFrom.drawFrameOffsets.GetLength(0), copyFrom.drawFrameOffsets.GetLength(1)];
+			Array.Copy(copyFrom.drawFrameOffsets, drawFrameOffsets, drawFrameOffsets.Length);
 		}
-		else {
-			heights = drawHeight;
+		else
+		{
+			drawFrameOffsets = drawFrameOffs;
 		}
 	}
 }

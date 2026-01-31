@@ -9,7 +9,9 @@ public abstract class AchievementCondition
 	public delegate void AchievementUpdate(AchievementCondition condition);
 
 	public readonly string Name;
+
 	protected IAchievementTracker _tracker;
+
 	[JsonProperty("Completed")]
 	private bool _isCompleted;
 
@@ -34,20 +36,27 @@ public abstract class AchievementCondition
 
 	public virtual void Complete()
 	{
-		if (!_isCompleted) {
+		if (!_isCompleted)
+		{
 			_isCompleted = true;
 			if (this.OnComplete != null)
+			{
 				this.OnComplete(this);
+			}
 		}
 	}
 
-	protected virtual IAchievementTracker CreateAchievementTracker() => null;
+	protected virtual IAchievementTracker CreateAchievementTracker()
+	{
+		return null;
+	}
 
 	public IAchievementTracker GetAchievementTracker()
 	{
 		if (_tracker == null)
+		{
 			_tracker = CreateAchievementTracker();
-
+		}
 		return _tracker;
 	}
 }

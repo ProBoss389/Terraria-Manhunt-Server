@@ -8,7 +8,7 @@ namespace Terraria.GameContent;
 
 public class PlayerRainbowWingsTextureContent : ARenderTargetContentByRequest
 {
-	protected override void HandleUseReqest(GraphicsDevice device, SpriteBatch spriteBatch)
+	protected override void HandleUseRequest(GraphicsDevice device, SpriteBatch spriteBatch)
 	{
 		Asset<Texture2D> asset = TextureAssets.Extra[171];
 		PrepareARenderTarget_AndListenToEvents(ref _target, device, asset.Width(), asset.Height(), RenderTargetUsage.PreserveContents);

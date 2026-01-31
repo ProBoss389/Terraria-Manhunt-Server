@@ -11,5 +11,7 @@ public enum TeleportPylonType : byte
 	Snow,
 	GlowingMushroom,
 	Victory,
+	Underworld,
+	Shimmer,
 	Count
 }

@@ -16,38 +16,42 @@ public class MechBossSpawnersDropRule : IItemDropRule
 	public bool CanDrop(DropAttemptInfo info)
 	{
 		if (info.npc.value > 0f && Main.hardMode && (!NPC.downedMechBoss1 || !NPC.downedMechBoss2 || !NPC.downedMechBoss3))
+		{
 			return !info.IsInSimulation;
-
+		}
 		return false;
 	}
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
-		ItemDropAttemptResult result;
-		if (!NPC.downedMechBoss1 && info.player.RollLuck(2500) == 0) {
+		if (!NPC.downedMechBoss1 && info.player.RollLuck(2500) == 0)
+		{
 			CommonCode.DropItemFromNPC(info.npc, 556, 1);
-			result = default(ItemDropAttemptResult);
-			result.State = ItemDropAttemptResultState.Success;
-			return result;
+			return new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.Success
+			};
 		}
-
-		if (!NPC.downedMechBoss2 && info.player.RollLuck(2500) == 0) {
+		if (!NPC.downedMechBoss2 && info.player.RollLuck(2500) == 0)
+		{
 			CommonCode.DropItemFromNPC(info.npc, 544, 1);
-			result = default(ItemDropAttemptResult);
-			result.State = ItemDropAttemptResultState.Success;
-			return result;
+			return new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.Success
+			};
 		}
-
-		if (!NPC.downedMechBoss3 && info.player.RollLuck(2500) == 0) {
+		if (!NPC.downedMechBoss3 && info.player.RollLuck(2500) == 0)
+		{
 			CommonCode.DropItemFromNPC(info.npc, 557, 1);
-			result = default(ItemDropAttemptResult);
-			result.State = ItemDropAttemptResultState.Success;
-			return result;
+			return new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.Success
+			};
 		}
-
-		result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.FailedRandomRoll;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.FailedRandomRoll
+		};
 	}
 
 	public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)

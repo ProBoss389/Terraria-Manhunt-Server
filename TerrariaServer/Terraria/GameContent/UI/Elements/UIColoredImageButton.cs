@@ -9,14 +9,23 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIColoredImageButton : UIElement
 {
 	private Asset<Texture2D> _backPanelTexture;
+
 	private Asset<Texture2D> _texture;
+
 	private Asset<Texture2D> _middleTexture;
+
 	private Asset<Texture2D> _backPanelHighlightTexture;
+
 	private Asset<Texture2D> _backPanelBorderTexture;
+
 	private Color _color;
+
 	private float _visibilityActive = 1f;
+
 	private float _visibilityInactive = 0.4f;
+
 	private bool _selected;
+
 	private bool _hovered;
 
 	public UIColoredImageButton(Asset<Texture2D> texture, bool isSmall = false)
@@ -24,17 +33,24 @@ public class UIColoredImageButton : UIElement
 		_color = Color.White;
 		_texture = texture;
 		if (isSmall)
-			_backPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/SmallPanel");
+		{
+			_backPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/SmallPanel", AssetRequestMode.ImmediateLoad);
+		}
 		else
-			_backPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel");
-
+		{
+			_backPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel", AssetRequestMode.ImmediateLoad);
+		}
 		Width.Set(_backPanelTexture.Width(), 0f);
 		Height.Set(_backPanelTexture.Height(), 0f);
-		_backPanelHighlightTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
+		_backPanelHighlightTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
 		if (isSmall)
-			_backPanelBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/SmallPanelBorder");
+		{
+			_backPanelBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/SmallPanelBorder", AssetRequestMode.ImmediateLoad);
+		}
 		else
-			_backPanelBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder");
+		{
+			_backPanelBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder", AssetRequestMode.ImmediateLoad);
+		}
 	}
 
 	public void SetImage(Asset<Texture2D> texture)
@@ -56,15 +72,21 @@ public class UIColoredImageButton : UIElement
 		spriteBatch.Draw(_backPanelTexture.Value, position, null, Color.White * (base.IsMouseHovering ? _visibilityActive : _visibilityInactive), 0f, _backPanelTexture.Size() / 2f, 1f, SpriteEffects.None, 0f);
 		_ = Color.White;
 		if (_hovered)
+		{
 			spriteBatch.Draw(_backPanelBorderTexture.Value, position, null, Color.White, 0f, _backPanelBorderTexture.Size() / 2f, 1f, SpriteEffects.None, 0f);
-
+		}
 		if (_selected)
+		{
 			spriteBatch.Draw(_backPanelHighlightTexture.Value, position, null, Color.White, 0f, _backPanelHighlightTexture.Size() / 2f, 1f, SpriteEffects.None, 0f);
-
+		}
 		if (_middleTexture != null)
+		{
 			spriteBatch.Draw(_middleTexture.Value, position, null, Color.White, 0f, _middleTexture.Size() / 2f, 1f, SpriteEffects.None, 0f);
-
-		spriteBatch.Draw(_texture.Value, position, null, _color, 0f, _texture.Size() / 2f, 1f, SpriteEffects.None, 0f);
+		}
+		if (_texture != null)
+		{
+			spriteBatch.Draw(_texture.Value, position, null, _color, 0f, _texture.Size() / 2f, 1f, SpriteEffects.None, 0f);
+		}
 	}
 
 	public override void MouseOver(UIMouseEvent evt)

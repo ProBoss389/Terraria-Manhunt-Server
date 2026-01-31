@@ -5,6 +5,7 @@ namespace Terraria.GameContent.ItemDropRules;
 public class DropBasedOnExpertMode : IItemDropRule, INestedItemDropRule
 {
 	public IItemDropRule ruleForNormalMode;
+
 	public IItemDropRule ruleForExpertMode;
 
 	public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
@@ -19,23 +20,26 @@ public class DropBasedOnExpertMode : IItemDropRule, INestedItemDropRule
 	public bool CanDrop(DropAttemptInfo info)
 	{
 		if (info.IsExpertMode)
+		{
 			return ruleForExpertMode.CanDrop(info);
-
+		}
 		return ruleForNormalMode.CanDrop(info);
 	}
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
-		ItemDropAttemptResult result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.DidNotRunCode;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.DidNotRunCode
+		};
 	}
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info, ItemDropRuleResolveAction resolveAction)
 	{
 		if (info.IsExpertMode)
+		{
 			return resolveAction(ruleForExpertMode, info);
-
+		}
 		return resolveAction(ruleForNormalMode, info);
 	}
 

@@ -6,8 +6,11 @@ namespace Terraria.GameContent.Achievements;
 public class TileDestroyedCondition : AchievementCondition
 {
 	private const string Identifier = "TILE_DESTROYED";
+
 	private static Dictionary<ushort, List<TileDestroyedCondition>> _listeners = new Dictionary<ushort, List<TileDestroyedCondition>>();
+
 	private static bool _isListenerHooked;
+
 	private ushort[] _tileIds;
 
 	private TileDestroyedCondition(ushort[] tileIds)
@@ -19,15 +22,17 @@ public class TileDestroyedCondition : AchievementCondition
 
 	private static void ListenForDestruction(TileDestroyedCondition condition)
 	{
-		if (!_isListenerHooked) {
+		if (!_isListenerHooked)
+		{
 			AchievementsHelper.OnTileDestroyed += TileDestroyedListener;
 			_isListenerHooked = true;
 		}
-
-		for (int i = 0; i < condition._tileIds.Length; i++) {
+		for (int i = 0; i < condition._tileIds.Length; i++)
+		{
 			if (!_listeners.ContainsKey(condition._tileIds[i]))
+			{
 				_listeners[condition._tileIds[i]] = new List<TileDestroyedCondition>();
-
+			}
 			_listeners[condition._tileIds[i]].Add(condition);
 		}
 	}
@@ -35,12 +40,17 @@ public class TileDestroyedCondition : AchievementCondition
 	private static void TileDestroyedListener(Player player, ushort tileId)
 	{
 		if (player.whoAmI != Main.myPlayer || !_listeners.ContainsKey(tileId))
+		{
 			return;
-
-		foreach (TileDestroyedCondition item in _listeners[tileId]) {
+		}
+		foreach (TileDestroyedCondition item in _listeners[tileId])
+		{
 			item.Complete();
 		}
 	}
 
-	public static AchievementCondition Create(params ushort[] tileIds) => new TileDestroyedCondition(tileIds);
+	public static AchievementCondition Create(params ushort[] tileIds)
+	{
+		return new TileDestroyedCondition(tileIds);
+	}
 }

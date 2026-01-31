@@ -25,7 +25,8 @@ public class GolfBallTrackRecord
 		hitsMade = 0;
 		totalDistancePassed = 0.0;
 		int num = 0;
-		while (num < _hitLocations.Count - 1) {
+		while (num < _hitLocations.Count - 1)
+		{
 			totalDistancePassed += Vector2.Distance(_hitLocations[num], _hitLocations[num + 1]);
 			num++;
 			hitsMade++;

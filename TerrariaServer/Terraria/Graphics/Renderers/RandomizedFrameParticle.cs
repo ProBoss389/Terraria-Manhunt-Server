@@ -6,12 +6,19 @@ namespace Terraria.Graphics.Renderers;
 public class RandomizedFrameParticle : ABasicParticle
 {
 	public float FadeInNormalizedTime;
+
 	public float FadeOutNormalizedTime = 1f;
+
 	public Color ColorTint = Color.White;
+
 	public int AnimationFramesAmount;
+
 	public int GameFramesPerAnimationFrame;
+
 	private float _timeTolive;
+
 	private float _timeSinceSpawn;
+
 	private int _gameFramesCounted;
 
 	public override void FetchFromPool()
@@ -46,9 +53,11 @@ public class RandomizedFrameParticle : ABasicParticle
 		base.Update(ref settings);
 		_timeSinceSpawn += 1f;
 		if (_timeSinceSpawn >= _timeTolive)
+		{
 			base.ShouldBeRemovedFromRenderer = true;
-
-		if (++_gameFramesCounted >= GameFramesPerAnimationFrame) {
+		}
+		if (++_gameFramesCounted >= GameFramesPerAnimationFrame)
+		{
 			_gameFramesCounted = 0;
 			RandomizeFrame();
 		}

@@ -7,16 +7,27 @@ namespace Terraria.Graphics.Renderers;
 public abstract class ABasicParticle : IPooledParticle, IParticle
 {
 	public Vector2 AccelerationPerFrame;
+
 	public Vector2 Velocity;
+
 	public Vector2 LocalPosition;
+
 	protected Asset<Texture2D> _texture;
+
 	protected Rectangle _frame;
+
 	protected Vector2 _origin;
+
 	public float Rotation;
+
 	public float RotationVelocity;
+
 	public float RotationAcceleration;
+
 	public Vector2 Scale;
+
 	public Vector2 ScaleVelocity;
+
 	public Vector2 ScaleAcceleration;
 
 	public bool ShouldBeRemovedFromRenderer { get; protected set; }

@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net472</TargetFramework>
-		<Version>1.4.4.9</Version>
+		<Version>1.4.5.3</Version>
 		<Company>Re-Logic</Company>
 		<Copyright>Copyright © 2022 Re-Logic</Copyright>
 		<RootNamespace>Terraria</RootNamespace>
@@ -17,8 +17,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="../ReLogic/ReLogic.csproj" />
-		<EmbeddedResource Include="../ReLogic/bin/$(Configuration)/$(TargetFramework)/ReLogic.dll">
+		<Reference Include="ReLogic">
+			<HintPath>Libraries\ReLogic.dll</HintPath>
+		</Reference>
+
+		<EmbeddedResource Include="Libraries\ReLogic.dll">
 			<LogicalName>Terraria.Libraries.ReLogic.ReLogic.dll</LogicalName>
 		</EmbeddedResource>
 		<PackageReference Include="Costura.Fody" Version="6.0.0">
@@ -27,7 +30,8 @@
 		</PackageReference>
 
 		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-
+		<Compile Include="..\BCrypt\Net\BCrypt.cs" Link="Libraries\BCrypt\BCrypt.cs" />
+		<Compile Include="..\nativefiledialog.cs" Link="Libraries\NativeFileDialog\nativefiledialog.cs" />
 		<Reference Include="CsvHelper">
 			<HintPath>Libraries\CsvHelper\CsvHelper.dll</HintPath>
 		</Reference>
@@ -52,7 +56,6 @@
 		<Reference Include="NVorbis.System.ValueTuple">
 			<HintPath>Libraries\NVorbis.System.ValueTuple.dll</HintPath>
 		</Reference>
-
 		<Reference Include="Microsoft.Xna.Framework">
 			<HintPath>Libraries\XNA\Microsoft.Xna.Framework.dll</HintPath>
 		</Reference>
@@ -84,4 +87,19 @@
 		</EmbeddedResource>
 		<EmbeddedResource Include="Microsoft/**" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <COMReference Include="NATUPNPLib">
+	    <WrapperTool>tlbimp</WrapperTool>
+	    <VersionMinor>0</VersionMinor>
+	    <VersionMajor>1</VersionMajor>
+	    <Guid>1c565858-f302-471e-b409-f180aa4abec6</Guid>
+	    <Lcid>0</Lcid>
+	    <Isolated>false</Isolated>
+	    <EmbedInteropTypes>true</EmbedInteropTypes>
+	  </COMReference>
+	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="copy /Y &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\X\Desktop\terraria-server-1449\1449\ManhuntWindows\TerrariaServer.exe&quot;" />
+	</Target>
 </Project>

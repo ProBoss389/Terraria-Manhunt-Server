@@ -7,8 +7,9 @@ public class PotionOfReturnGateInteractionChecker : AHoverInteractionChecker
 	internal override bool? AttemptOverridingHoverStatus(Player player, Rectangle rectangle)
 	{
 		if (Main.SmartInteractPotionOfReturn)
+		{
 			return true;
-
+		}
 		return null;
 	}
 
@@ -19,7 +20,10 @@ public class PotionOfReturnGateInteractionChecker : AHoverInteractionChecker
 		player.cursorItemIconID = 4870;
 	}
 
-	internal override bool ShouldBlockInteraction(Player player, Rectangle hitbox) => Player.BlockInteractionWithProjectiles != 0;
+	internal override bool ShouldBlockInteraction(Player player, Rectangle hitbox)
+	{
+		return Player.BlockInteractionWithProjectiles != 0;
+	}
 
 	internal override void PerformInteraction(Player player, Rectangle hitbox)
 	{

@@ -12,7 +12,10 @@ public class ItemDropWithConditionRule : CommonDrop
 		this.condition = condition;
 	}
 
-	public override bool CanDrop(DropAttemptInfo info) => condition.CanDrop(info);
+	public override bool CanDrop(DropAttemptInfo info)
+	{
+		return condition.CanDrop(info);
+	}
 
 	public override void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 	{

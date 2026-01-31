@@ -2,9 +2,9 @@ namespace Terraria.DataStructures;
 
 public class EntitySource_FishedOut : IEntitySource
 {
-	public readonly Entity Entity;
+	public readonly IEntitySourceTarget Entity;
 
-	public EntitySource_FishedOut(Entity entity)
+	public EntitySource_FishedOut(IEntitySourceTarget entity)
 	{
 		Entity = entity;
 	}

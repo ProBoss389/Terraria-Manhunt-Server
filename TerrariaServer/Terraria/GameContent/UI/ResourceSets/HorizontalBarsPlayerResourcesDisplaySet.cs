@@ -9,21 +9,37 @@ namespace Terraria.GameContent.UI.ResourceSets;
 public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySet, IConfigKeyHolder
 {
 	private int _maxSegmentCount;
+
 	private int _hpSegmentsCount;
+
 	private int _mpSegmentsCount;
+
 	private int _hpFruitCount;
+
 	private float _hpPercent;
+
 	private float _mpPercent;
+
 	private byte _drawTextStyle;
+
 	private bool _hpHovered;
+
 	private bool _mpHovered;
+
 	private Asset<Texture2D> _hpFill;
+
 	private Asset<Texture2D> _hpFillHoney;
+
 	private Asset<Texture2D> _mpFill;
+
 	private Asset<Texture2D> _panelLeft;
+
 	private Asset<Texture2D> _panelMiddleHP;
+
 	private Asset<Texture2D> _panelRightHP;
+
 	private Asset<Texture2D> _panelMiddleMP;
+
 	private Asset<Texture2D> _panelRightMP;
 
 	public string NameKey { get; private set; }
@@ -35,12 +51,17 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 		NameKey = nameKey;
 		ConfigKey = configKey;
 		if (configKey == "HorizontalBarsWithFullText")
+		{
 			_drawTextStyle = 2;
+		}
 		else if (configKey == "HorizontalBarsWithText")
+		{
 			_drawTextStyle = 1;
+		}
 		else
+		{
 			_drawTextStyle = 0;
-
+		}
 		string text = "Images\\UI\\PlayerResourceSets\\" + resourceFolderName;
 		_hpFill = Main.Assets.Request<Texture2D>(text + "\\HP_Fill", mode);
 		_hpFillHoney = Main.Assets.Request<Texture2D>(text + "\\HP_Fill_Honey", mode);
@@ -59,16 +80,17 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 		int num = 16;
 		int num2 = 18;
 		int num3 = Main.screenWidth - 300 - 22 + num;
-		if (_drawTextStyle == 2) {
+		if (_drawTextStyle == 2)
+		{
 			num2 += 2;
 			DrawLifeBarText(spriteBatch, new Vector2(num3, num2));
 			DrawManaText(spriteBatch);
 		}
-		else if (_drawTextStyle == 1) {
+		else if (_drawTextStyle == 1)
+		{
 			num2 += 4;
 			DrawLifeBarText(spriteBatch, new Vector2(num3, num2));
 		}
-
 		Vector2 vector = new Vector2(num3, num2);
 		vector.X += (_maxSegmentCount - _hpSegmentsCount) * _panelMiddleHP.Width();
 		bool isHovered = false;
@@ -129,8 +151,8 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 		Vector2 vector = new Vector2(Main.screenWidth - num, 65f);
 		string text3 = text + " " + text2;
 		Vector2 vector2 = FontAssets.MouseText.Value.MeasureString(text3);
-		spriteBatch.DrawString(FontAssets.MouseText.Value, text, vector + new Vector2((0f - vector2.X) * 0.5f, 0f), color, 0f, default(Vector2), 1f, SpriteEffects.None, 0f);
-		spriteBatch.DrawString(FontAssets.MouseText.Value, text2, vector + new Vector2(vector2.X * 0.5f, 0f), color, 0f, new Vector2(FontAssets.MouseText.Value.MeasureString(text2).X, 0f), 1f, SpriteEffects.None, 0f);
+		DynamicSpriteFontExtensionMethods.DrawString(spriteBatch, FontAssets.MouseText.Value, text, vector + new Vector2((0f - vector2.X) * 0.5f, 0f), color, 0f, default(Vector2), 1f, SpriteEffects.None, 0f, (Vector2[])null, (Color[])null);
+		DynamicSpriteFontExtensionMethods.DrawString(spriteBatch, FontAssets.MouseText.Value, text2, vector + new Vector2(vector2.X * 0.5f, 0f), color, 0f, new Vector2(FontAssets.MouseText.Value.MeasureString(text2).X, 0f), 1f, SpriteEffects.None, 0f, (Vector2[])null, (Color[])null);
 	}
 
 	private static void DrawLifeBarText(SpriteBatch spriteBatch, Vector2 topLeftAnchor)
@@ -140,8 +162,8 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 		Color color = new Color(Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor);
 		string text = Lang.inter[0].Value + " " + localPlayer.statLifeMax2 + "/" + localPlayer.statLifeMax2;
 		Vector2 vector2 = FontAssets.MouseText.Value.MeasureString(text);
-		spriteBatch.DrawString(FontAssets.MouseText.Value, Lang.inter[0].Value, vector + new Vector2((0f - vector2.X) * 0.5f, 0f), color, 0f, default(Vector2), 1f, SpriteEffects.None, 0f);
-		spriteBatch.DrawString(FontAssets.MouseText.Value, localPlayer.statLife + "/" + localPlayer.statLifeMax2, vector + new Vector2(vector2.X * 0.5f, 0f), color, 0f, new Vector2(FontAssets.MouseText.Value.MeasureString(localPlayer.statLife + "/" + localPlayer.statLifeMax2).X, 0f), 1f, SpriteEffects.None, 0f);
+		DynamicSpriteFontExtensionMethods.DrawString(spriteBatch, FontAssets.MouseText.Value, Lang.inter[0].Value, vector + new Vector2((0f - vector2.X) * 0.5f, 0f), color, 0f, default(Vector2), 1f, SpriteEffects.None, 0f, (Vector2[])null, (Color[])null);
+		DynamicSpriteFontExtensionMethods.DrawString(spriteBatch, FontAssets.MouseText.Value, localPlayer.statLife + "/" + localPlayer.statLifeMax2, vector + new Vector2(vector2.X * 0.5f, 0f), color, 0f, new Vector2(FontAssets.MouseText.Value.MeasureString(localPlayer.statLife + "/" + localPlayer.statLifeMax2).X, 0f), 1f, SpriteEffects.None, 0f, (Vector2[])null, (Color[])null);
 	}
 
 	private void PrepareFields(Player player)
@@ -161,11 +183,13 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 		offset = Vector2.Zero;
 		sprite = _panelLeft;
 		drawScale = 1f;
-		if (elementIndex == lastElementIndex) {
+		if (elementIndex == lastElementIndex)
+		{
 			sprite = _panelRightHP;
 			offset = new Vector2(-16f, -10f);
 		}
-		else if (elementIndex != firstElementIndex) {
+		else if (elementIndex != firstElementIndex)
+		{
 			sprite = _panelMiddleHP;
 		}
 	}
@@ -176,11 +200,13 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 		offset = Vector2.Zero;
 		sprite = _panelLeft;
 		drawScale = 1f;
-		if (elementIndex == lastElementIndex) {
+		if (elementIndex == lastElementIndex)
+		{
 			sprite = _panelRightMP;
 			offset = new Vector2(-16f, -6f);
 		}
-		else if (elementIndex != firstElementIndex) {
+		else if (elementIndex != firstElementIndex)
+		{
 			sprite = _panelMiddleMP;
 		}
 	}
@@ -189,8 +215,9 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 	{
 		sprite = _hpFill;
 		if (elementIndex >= _hpSegmentsCount - _hpFruitCount)
+		{
 			sprite = _hpFillHoney;
-
+		}
 		FillBarByValues(elementIndex, sprite, _hpSegmentsCount, _hpPercent, out offset, out drawScale, out sourceRect);
 	}
 
@@ -221,9 +248,12 @@ public class HorizontalBarsPlayerResourcesDisplaySet : IPlayerResourcesDisplaySe
 	public void TryToHover()
 	{
 		if (_hpHovered)
+		{
 			CommonResourceBarMethods.DrawLifeMouseOver();
-
+		}
 		if (_mpHovered)
+		{
 			CommonResourceBarMethods.DrawManaMouseOver();
+		}
 	}
 }

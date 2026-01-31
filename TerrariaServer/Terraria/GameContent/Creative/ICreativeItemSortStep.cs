@@ -3,6 +3,6 @@ using Terraria.DataStructures;
 
 namespace Terraria.GameContent.Creative;
 
-public interface ICreativeItemSortStep : IEntrySortStep<int>, IComparer<int>
+public interface ICreativeItemSortStep : IEntrySortStep<Item>, IComparer<Item>
 {
 }

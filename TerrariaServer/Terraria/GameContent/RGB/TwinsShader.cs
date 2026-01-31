@@ -7,12 +7,19 @@ namespace Terraria.GameContent.RGB;
 public class TwinsShader : ChromaShader
 {
 	private readonly Vector4 _eyeColor;
+
 	private readonly Vector4 _veinColor;
+
 	private readonly Vector4 _laserColor;
+
 	private readonly Vector4 _mouthColor;
+
 	private readonly Vector4 _flameColor;
+
 	private readonly Vector4 _backgroundColor;
-	private static readonly Vector4[] _irisColors = new Vector4[2] {
+
+	private static readonly Vector4[] _irisColors = new Vector4[2]
+	{
 		Color.Green.ToVector4(),
 		Color.Blue.ToVector4()
 	};
@@ -27,12 +34,11 @@ public class TwinsShader : ChromaShader
 		_backgroundColor = backgroundColor.ToVector4();
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.Low
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.Low })]
 	private void ProcessLowDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			Point gridPositionOfIndex = fragment.GetGridPositionOfIndex(i);
 			Vector4 value = Vector4.Lerp(_veinColor, _eyeColor, (float)Math.Sin(time + canvasPositionOfIndex.X * 4f) * 0.5f + 0.5f);
@@ -43,60 +49,63 @@ public class TwinsShader : ChromaShader
 		}
 	}
 
-	[RgbProcessor(new EffectDetailLevel[] {
-		EffectDetailLevel.High
-	})]
+	[RgbProcessor(new EffectDetailLevel[] { EffectDetailLevel.High })]
 	private void ProcessHighDetail(RgbDevice device, Fragment fragment, EffectDetailLevel quality, float time)
 	{
-		if (device.Type != 0 && device.Type != RgbDeviceType.Virtual) {
+		if (device.Type != RgbDeviceType.Keyboard && device.Type != RgbDeviceType.Virtual)
+		{
 			ProcessLowDetail(device, fragment, quality, time);
 			return;
 		}
-
 		bool flag = true;
 		float num = time * 0.1f % 2f;
-		if (num > 1f) {
+		if (num > 1f)
+		{
 			num = 2f - num;
 			flag = false;
 		}
-
 		Vector2 vector = new Vector2(num * 7f - 3.5f, 0f) + fragment.CanvasCenter;
-		for (int i = 0; i < fragment.Count; i++) {
+		for (int i = 0; i < fragment.Count; i++)
+		{
 			Vector2 canvasPositionOfIndex = fragment.GetCanvasPositionOfIndex(i);
 			Point gridPositionOfIndex = fragment.GetGridPositionOfIndex(i);
 			Vector4 vector2 = _backgroundColor;
 			Vector2 vector3 = canvasPositionOfIndex - vector;
 			float num2 = vector3.Length();
-			if (num2 < 0.5f) {
+			if (num2 < 0.5f)
+			{
 				float amount = 1f - MathHelper.Clamp((num2 - 0.5f + 0.2f) / 0.2f, 0f, 1f);
 				float num3 = MathHelper.Clamp((vector3.X + 0.5f - 0.2f) / 0.6f, 0f, 1f);
 				if (flag)
+				{
 					num3 = 1f - num3;
-
+				}
 				Vector4 value = Vector4.Lerp(_eyeColor, _veinColor, num3);
 				float value2 = (float)Math.Atan2(vector3.Y, vector3.X);
 				if (!flag && (float)Math.PI - Math.Abs(value2) < 0.6f)
+				{
 					value = _mouthColor;
-
+				}
 				vector2 = Vector4.Lerp(vector2, value, amount);
 			}
-
-			if (flag && gridPositionOfIndex.Y == 3 && canvasPositionOfIndex.X > vector.X) {
+			if (flag && gridPositionOfIndex.Y == 3 && canvasPositionOfIndex.X > vector.X)
+			{
 				float value3 = 1f - Math.Abs(canvasPositionOfIndex.X - vector.X * 2f - 0.5f) / 0.5f;
 				vector2 = Vector4.Lerp(vector2, _laserColor, MathHelper.Clamp(value3, 0f, 1f));
 			}
-			else if (!flag) {
+			else if (!flag)
+			{
 				Vector2 vector4 = canvasPositionOfIndex - (vector - new Vector2(1.2f, 0f));
 				vector4.Y *= 3.5f;
 				float num4 = vector4.Length();
-				if (num4 < 0.7f) {
+				if (num4 < 0.7f)
+				{
 					float dynamicNoise = NoiseHelper.GetDynamicNoise(canvasPositionOfIndex, time);
 					dynamicNoise = dynamicNoise * dynamicNoise * dynamicNoise;
 					dynamicNoise *= 1f - MathHelper.Clamp((num4 - 0.7f + 0.3f) / 0.3f, 0f, 1f);
 					vector2 = Vector4.Lerp(vector2, _flameColor, dynamicNoise);
 				}
 			}
-
 			fragment.SetColor(i, vector2);
 		}
 	}

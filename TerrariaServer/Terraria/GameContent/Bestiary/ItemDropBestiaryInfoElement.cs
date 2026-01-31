@@ -18,26 +18,30 @@ public class ItemDropBestiaryInfoElement : IItemBestiaryInfoElement, IBestiaryIn
 	{
 		bool flag = ShouldShowItem(ref _droprateInfo);
 		if (info.UnlockState < BestiaryEntryUnlockState.CanShowStats_2)
+		{
 			flag = false;
-
+		}
 		if (!flag)
+		{
 			return null;
-
+		}
 		return new UIBestiaryInfoItemLine(_droprateInfo, info);
 	}
 
 	private static bool ShouldShowItem(ref DropRateInfo dropRateInfo)
 	{
 		bool result = true;
-		if (dropRateInfo.conditions != null && dropRateInfo.conditions.Count > 0) {
-			for (int i = 0; i < dropRateInfo.conditions.Count; i++) {
-				if (!dropRateInfo.conditions[i].CanShowItemDropInUI()) {
+		if (dropRateInfo.conditions != null && dropRateInfo.conditions.Count > 0)
+		{
+			for (int i = 0; i < dropRateInfo.conditions.Count; i++)
+			{
+				if (!dropRateInfo.conditions[i].CanShowItemDropInUI())
+				{
 					result = false;
 					break;
 				}
 			}
 		}
-
 		return result;
 	}
 
@@ -45,11 +49,13 @@ public class ItemDropBestiaryInfoElement : IItemBestiaryInfoElement, IBestiaryIn
 	{
 		bool flag = ShouldShowItem(ref _droprateInfo);
 		if (info.UnlockState < BestiaryEntryUnlockState.CanShowStats_2)
+		{
 			flag = false;
-
+		}
 		if (!flag)
+		{
 			return null;
-
+		}
 		return ContentSamples.ItemsByType[_droprateInfo.itemId].Name;
 	}
 }

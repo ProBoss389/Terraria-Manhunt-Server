@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Graphics;
 using Terraria.UI;
 
 namespace Terraria.GameContent.UI.Elements;
@@ -7,52 +8,103 @@ namespace Terraria.GameContent.UI.Elements;
 public class UITextPanel<T> : UIPanel
 {
 	protected T _text;
+
 	protected float _textScale = 1f;
+
 	protected Vector2 _textSize = Vector2.Zero;
+
 	protected bool _isLarge;
+
 	protected Color _color = Color.White;
+
 	protected bool _drawPanel = true;
+
 	public float TextHAlign = 0.5f;
+
 	public bool HideContents;
+
 	private string _asterisks;
 
 	public bool IsLarge => _isLarge;
 
-	public bool DrawPanel {
-		get {
+	public bool DrawPanel
+	{
+		get
+		{
 			return _drawPanel;
 		}
-		set {
+		set
+		{
 			_drawPanel = value;
 		}
 	}
 
-	public float TextScale {
-		get {
+	public float TextScale
+	{
+		get
+		{
 			return _textScale;
 		}
-		set {
+		set
+		{
 			_textScale = value;
 		}
 	}
 
 	public Vector2 TextSize => _textSize;
 
-	public string Text {
-		get {
+	public string Text
+	{
+		get
+		{
 			if (_text != null)
+			{
 				return _text.ToString();
-
+			}
 			return "";
 		}
 	}
 
-	public Color TextColor {
-		get {
+	public Color TextColor
+	{
+		get
+		{
 			return _color;
 		}
-		set {
+		set
+		{
 			_color = value;
+		}
+	}
+
+	protected DynamicSpriteFont Font
+	{
+		get
+		{
+			if (!_isLarge)
+			{
+				return FontAssets.MouseText.Value;
+			}
+			return FontAssets.DeathText.Value;
+		}
+	}
+
+	protected virtual Vector2 TextDrawPosition
+	{
+		get
+		{
+			CalculatedStyle innerDimensions = GetInnerDimensions();
+			Vector2 result = innerDimensions.Position();
+			result.X += (innerDimensions.Width - _textSize.X) * TextHAlign;
+			if (_isLarge)
+			{
+				result.Y -= 10f * _textScale * _textScale;
+			}
+			else
+			{
+				result.Y -= 2f * _textScale;
+			}
+			return result;
 		}
 	}
 
@@ -74,44 +126,46 @@ public class UITextPanel<T> : UIPanel
 
 	public virtual void SetText(T text, float textScale, bool large)
 	{
-		Vector2 textSize = new Vector2((large ? FontAssets.DeathText.Value : FontAssets.MouseText.Value).MeasureString(text.ToString()).X, large ? 32f : 16f) * textScale;
 		_text = text;
 		_textScale = textScale;
-		_textSize = textSize;
 		_isLarge = large;
-		MinWidth.Set(textSize.X + PaddingLeft + PaddingRight, 0f);
-		MinHeight.Set(textSize.Y + PaddingTop + PaddingBottom, 0f);
+		_textSize = new Vector2(Font.MeasureString(text.ToString()).X, large ? 32f : 16f) * textScale;
+		MinWidth.Set(_textSize.X + PaddingLeft + PaddingRight, 0f);
+		MinHeight.Set(_textSize.Y + PaddingTop + PaddingBottom, 0f);
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		if (_drawPanel)
+		{
 			base.DrawSelf(spriteBatch);
-
+		}
 		DrawText(spriteBatch);
 	}
 
 	protected void DrawText(SpriteBatch spriteBatch)
 	{
-		CalculatedStyle innerDimensions = GetInnerDimensions();
-		Vector2 pos = innerDimensions.Position();
-		if (_isLarge)
-			pos.Y -= 10f * _textScale * _textScale;
-		else
-			pos.Y -= 2f * _textScale;
-
-		pos.X += (innerDimensions.Width - _textSize.X) * TextHAlign;
 		string text = Text;
-		if (HideContents) {
+		if (HideContents)
+		{
 			if (_asterisks == null || _asterisks.Length != text.Length)
+			{
 				_asterisks = new string('*', text.Length);
-
+			}
 			text = _asterisks;
 		}
+		DrawText(spriteBatch, text, TextDrawPosition, _color);
+	}
 
+	protected void DrawText(SpriteBatch spriteBatch, string text, Vector2 position, Color color)
+	{
 		if (_isLarge)
-			Utils.DrawBorderStringBig(spriteBatch, text, pos, _color, _textScale);
+		{
+			Utils.DrawBorderStringBig(spriteBatch, text, position, color, _textScale);
+		}
 		else
-			Utils.DrawBorderString(spriteBatch, text, pos, _color, _textScale);
+		{
+			Utils.DrawBorderString(spriteBatch, text, position, color, _textScale);
+		}
 	}
 }

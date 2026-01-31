@@ -15,4 +15,8 @@ public interface INetDiagnosticsUI
 	void CountReadModuleMessage(int moduleMessageId, int messageLength);
 
 	void CountSentModuleMessage(int moduleMessageId, int messageLength);
+
+	void RotateSendRecvCounters();
+
+	void GetLastSentRecvBytes(out int sent, out int recv);
 }

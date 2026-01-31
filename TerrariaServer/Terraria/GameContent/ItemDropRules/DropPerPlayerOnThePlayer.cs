@@ -13,16 +13,18 @@ public class DropPerPlayerOnThePlayer : CommonDrop
 	public override bool CanDrop(DropAttemptInfo info)
 	{
 		if (condition != null)
+		{
 			return condition.CanDrop(info);
-
+		}
 		return true;
 	}
 
 	public override ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
 		CommonCode.DropItemForEachInteractingPlayerOnThePlayer(info.npc, itemId, info.rng, chanceNumerator, chanceDenominator, info.rng.Next(amountDroppedMinimum, amountDroppedMaximum + 1));
-		ItemDropAttemptResult result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.Success;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.Success
+		};
 	}
 }

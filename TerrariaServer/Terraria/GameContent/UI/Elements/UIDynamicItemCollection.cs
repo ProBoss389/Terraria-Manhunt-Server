@@ -4,21 +4,28 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.GameInput;
-using Terraria.ID;
 using Terraria.UI;
 using Terraria.UI.Gamepad;
 
 namespace Terraria.GameContent.UI.Elements;
 
-public class UIDynamicItemCollection : UIElement
+public abstract class UIDynamicItemCollection : UIElement
 {
-	private List<int> _itemIdsAvailableToShow = new List<int>();
-	private List<int> _itemIdsToLoadTexturesFor = new List<int>();
+	public const string SnapPointName_ItemSlot = "DynamicItemCollectionSlot";
+}
+public abstract class UIDynamicItemCollection<TEntry> : UIDynamicItemCollection
+{
+	private List<TEntry> _contents = new List<TEntry>();
+
 	private int _itemsPerLine;
+
 	private const int sizePerEntryX = 44;
+
 	private const int sizePerEntryY = 44;
+
 	private List<SnapPoint> _dummySnapPoints = new List<SnapPoint>();
-	private Item _item = new Item();
+
+	public int Count => _contents.Count;
 
 	public UIDynamicItemCollection()
 	{
@@ -27,46 +34,49 @@ public class UIDynamicItemCollection : UIElement
 		UpdateSize();
 	}
 
+	protected abstract Item GetItem(TEntry entry);
+
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		Main.inventoryScale = 0.84615386f;
 		GetGridParameters(out var startX, out var startY, out var startItemIndex, out var endItemIndex);
 		int num = _itemsPerLine;
-		for (int i = startItemIndex; i < endItemIndex; i++) {
-			int num2 = _itemIdsAvailableToShow[i];
-			Rectangle itemSlotHitbox = GetItemSlotHitbox(startX, startY, startItemIndex, i);
-			Item inv = ContentSamples.ItemsByType[num2];
-			int context = 29;
-			if (TextureAssets.Item[num2].State == AssetState.NotLoaded)
-				num--;
-
-			bool cREATIVE_ItemSlotShouldHighlightAsSelected = false;
-			if (base.IsMouseHovering && itemSlotHitbox.Contains(Main.MouseScreen.ToPoint()) && !PlayerInput.IgnoreMouseInterface) {
-				_item.SetDefaults(inv.type);
-				inv = _item;
-				Main.LocalPlayer.mouseInterface = true;
-				ItemSlot.OverrideHover(ref inv, context);
-				ItemSlot.LeftClick(ref inv, context);
-				ItemSlot.RightClick(ref inv, context);
-				ItemSlot.MouseHover(ref inv, context);
-				cREATIVE_ItemSlotShouldHighlightAsSelected = true;
-			}
-
-			UILinkPointNavigator.Shortcuts.CREATIVE_ItemSlotShouldHighlightAsSelected = cREATIVE_ItemSlotShouldHighlightAsSelected;
-			ItemSlot.Draw(spriteBatch, ref inv, context, itemSlotHitbox.TopLeft());
-			if (num <= 0)
-				break;
+		Vector2 v = Main.MouseScreen;
+		if (PlayerInput.UsingGamepad)
+		{
+			v = UILinkPointNavigator.GetPosition(UILinkPointNavigator.CurrentPoint);
 		}
-
-		while (_itemIdsToLoadTexturesFor.Count > 0 && num > 0) {
-			int num3 = _itemIdsToLoadTexturesFor[0];
-			_itemIdsToLoadTexturesFor.RemoveAt(0);
-			if (TextureAssets.Item[num3].State == AssetState.NotLoaded) {
-				Main.instance.LoadItem(num3);
+		for (int i = startItemIndex; i < endItemIndex; i++)
+		{
+			TEntry entry = _contents[i];
+			Rectangle itemSlotHitbox = GetItemSlotHitbox(startX, startY, startItemIndex, i);
+			if (TextureAssets.Item[GetItem(entry).type].State == AssetState.NotLoaded)
+			{
+				num--;
+			}
+			bool hovering = base.IsMouseHovering && itemSlotHitbox.Contains(v.ToPoint()) && !PlayerInput.IgnoreMouseInterface;
+			DrawSlot(spriteBatch, entry, itemSlotHitbox.TopLeft(), hovering);
+			if (num <= 0)
+			{
+				break;
+			}
+		}
+		for (int j = 0; j < _contents.Count; j++)
+		{
+			if (num <= 0)
+			{
+				break;
+			}
+			Item item = GetItem(_contents[(j + endItemIndex) % _contents.Count]);
+			if (TextureAssets.Item[item.type].State == AssetState.NotLoaded)
+			{
+				Main.instance.LoadItem(item.type);
 				num -= 4;
 			}
 		}
 	}
+
+	protected abstract void DrawSlot(SpriteBatch spriteBatch, TEntry entry, Vector2 pos, bool hovering);
 
 	private Rectangle GetItemSlotHitbox(int startX, int startY, int startItemIndex, int i)
 	{
@@ -84,13 +94,15 @@ public class UIDynamicItemCollection : UIElement
 		startX = x - (int)((float)(44 * _itemsPerLine) * 0.5f);
 		startY = rectangle.Top;
 		startItemIndex = 0;
-		endItemIndex = _itemIdsAvailableToShow.Count;
+		endItemIndex = _contents.Count;
 		int num = (Math.Min(viewCullingArea.Top, rectangle.Top) - viewCullingArea.Top) / 44;
 		startY += -num * 44;
 		startItemIndex += -num * _itemsPerLine;
 		int num2 = (int)Math.Ceiling((float)viewCullingArea.Height / 44f) * _itemsPerLine;
 		if (endItemIndex > num2 + startItemIndex + _itemsPerLine)
+		{
 			endItemIndex = num2 + startItemIndex + _itemsPerLine;
+		}
 	}
 
 	public override void Recalculate()
@@ -103,19 +115,22 @@ public class UIDynamicItemCollection : UIElement
 	{
 		base.Update(gameTime);
 		if (base.IsMouseHovering)
+		{
 			Main.LocalPlayer.mouseInterface = true;
+		}
 	}
 
-	public void SetContentsToShow(List<int> itemIdsToShow)
+	public void SetContentsToShow(List<TEntry> itemsToShow)
 	{
-		_itemIdsAvailableToShow.Clear();
-		_itemIdsToLoadTexturesFor.Clear();
-		_itemIdsAvailableToShow.AddRange(itemIdsToShow);
-		_itemIdsToLoadTexturesFor.AddRange(itemIdsToShow);
+		_contents.Clear();
+		_contents.AddRange(itemsToShow);
 		UpdateSize();
 	}
 
-	public int GetItemsPerLine() => _itemsPerLine;
+	public int GetItemsPerLine()
+	{
+		return _itemsPerLine;
+	}
 
 	public override List<SnapPoint> GetSnapPoints()
 	{
@@ -124,34 +139,35 @@ public class UIDynamicItemCollection : UIElement
 		_ = _itemsPerLine;
 		Rectangle viewCullingArea = base.Parent.GetViewCullingArea();
 		int num = endItemIndex - startItemIndex;
-		while (_dummySnapPoints.Count < num) {
-			_dummySnapPoints.Add(new SnapPoint("CreativeInfinitesSlot", 0, Vector2.Zero, Vector2.Zero));
+		while (_dummySnapPoints.Count < num)
+		{
+			_dummySnapPoints.Add(new SnapPoint("DynamicItemCollectionSlot", 0, Vector2.Zero, Vector2.Zero));
 		}
-
 		int num2 = 0;
 		Vector2 vector = GetDimensions().Position();
-		for (int i = startItemIndex; i < endItemIndex; i++) {
+		for (int i = startItemIndex; i < endItemIndex; i++)
+		{
 			Point center = GetItemSlotHitbox(startX, startY, startItemIndex, i).Center;
-			if (viewCullingArea.Contains(center)) {
+			if (viewCullingArea.Contains(center))
+			{
 				SnapPoint snapPoint = _dummySnapPoints[num2];
-				snapPoint.ThisIsAHackThatChangesTheSnapPointsInfo(Vector2.Zero, center.ToVector2() - vector, num2);
+				snapPoint.ThisIsAHackThatChangesTheSnapPointsInfo(Vector2.Zero, center.ToVector2() - vector, i);
 				snapPoint.Calculate(this);
 				num2++;
 				list.Add(snapPoint);
 			}
 		}
-
-		foreach (UIElement element in Elements) {
+		foreach (UIElement element in Elements)
+		{
 			list.AddRange(element.GetSnapPoints());
 		}
-
 		return list;
 	}
 
 	public void UpdateSize()
 	{
 		int num = (_itemsPerLine = GetDimensions().ToRectangle().Width / 44);
-		int num2 = (int)Math.Ceiling((float)_itemIdsAvailableToShow.Count / (float)num);
+		int num2 = (int)Math.Ceiling((float)_contents.Count / (float)num);
 		MinHeight.Set(44 * num2, 0f);
 	}
 }

@@ -9,6 +9,7 @@ public abstract class UserJoinToServerRequest
 	internal string UserFullIdentifier { get; private set; }
 
 	public event Action OnAccepted;
+
 	public event Action OnRejected;
 
 	public UserJoinToServerRequest(string userDisplayName, string fullIdentifier)
@@ -20,13 +21,17 @@ public abstract class UserJoinToServerRequest
 	public void Accept()
 	{
 		if (this.OnAccepted != null)
+		{
 			this.OnAccepted();
+		}
 	}
 
 	public void Reject()
 	{
 		if (this.OnRejected != null)
+		{
 			this.OnRejected();
+		}
 	}
 
 	public abstract bool IsValid();

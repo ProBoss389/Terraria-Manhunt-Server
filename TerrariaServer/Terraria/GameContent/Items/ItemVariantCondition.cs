@@ -7,6 +7,7 @@ public class ItemVariantCondition
 	public delegate bool Condition();
 
 	public readonly NetworkText Description;
+
 	public readonly Condition IsMet;
 
 	public ItemVariantCondition(NetworkText description, Condition condition)
@@ -15,5 +16,8 @@ public class ItemVariantCondition
 		IsMet = condition;
 	}
 
-	public override string ToString() => Description.ToString();
+	public override string ToString()
+	{
+		return Description.ToString();
+	}
 }

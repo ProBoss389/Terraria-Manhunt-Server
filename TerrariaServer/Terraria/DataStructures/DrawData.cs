@@ -6,17 +6,29 @@ namespace Terraria.DataStructures;
 public struct DrawData
 {
 	public Texture2D texture;
+
 	public Vector2 position;
+
 	public Rectangle destinationRectangle;
+
 	public Rectangle? sourceRect;
+
 	public Color color;
+
 	public float rotation;
+
 	public Vector2 origin;
+
 	public Vector2 scale;
+
 	public SpriteEffects effect;
+
 	public int shader;
+
 	public bool ignorePlayerRotation;
+
 	public readonly bool useDestinationRectangle;
+
 	public static Rectangle? nullRectangle;
 
 	public DrawData(Texture2D texture, Vector2 position, Color color)
@@ -134,16 +146,28 @@ public struct DrawData
 	public void Draw(SpriteBatch sb)
 	{
 		if (useDestinationRectangle)
+		{
 			sb.Draw(texture, destinationRectangle, sourceRect, color, rotation, origin, effect, 0f);
+		}
 		else
+		{
 			sb.Draw(texture, position, sourceRect, color, rotation, origin, scale, effect, 0f);
+		}
 	}
 
 	public void Draw(SpriteDrawBuffer sb)
 	{
 		if (useDestinationRectangle)
+		{
 			sb.Draw(texture, destinationRectangle, sourceRect, color, rotation, origin, effect);
+		}
 		else
+		{
 			sb.Draw(texture, position, sourceRect, color, rotation, origin, scale, effect);
+		}
+	}
+
+	static DrawData()
+	{
 	}
 }

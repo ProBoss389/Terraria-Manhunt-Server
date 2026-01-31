@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -9,29 +10,40 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIClothStyleButton : UIElement
 {
 	private readonly Player _player;
+
 	public readonly int ClothStyleId;
+
 	private readonly Asset<Texture2D> _BasePanelTexture;
+
 	private readonly Asset<Texture2D> _selectedBorderTexture;
+
 	private readonly Asset<Texture2D> _hoveredBorderTexture;
+
 	private readonly UICharacter _char;
+
 	private bool _hovered;
+
 	private bool _soundedHover;
+
 	private int _realSkinVariant;
 
-	public UIClothStyleButton(Player player, int clothStyleId)
+	private Action PrepareAction;
+
+	public UIClothStyleButton(Player player, int clothStyleId, Action prepareAction = null)
 	{
 		_player = player;
 		ClothStyleId = clothStyleId;
+		PrepareAction = prepareAction;
 		Width = StyleDimension.FromPixels(44f);
 		Height = StyleDimension.FromPixels(80f);
-		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel");
-		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
-		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder");
-		_char = new UICharacter(_player, animated: false, hasBackPanel: false) {
+		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanel", AssetRequestMode.ImmediateLoad);
+		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
+		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder", AssetRequestMode.ImmediateLoad);
+		_char = new UICharacter(_player, animated: false, hasBackPanel: false)
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		Append(_char);
 	}
 
@@ -39,35 +51,45 @@ public class UIClothStyleButton : UIElement
 	{
 		_realSkinVariant = _player.skinVariant;
 		_player.skinVariant = ClothStyleId;
+		int hair = _player.hair;
+		if (PrepareAction != null)
+		{
+			PrepareAction();
+		}
+		_player.PlayerFrame();
 		base.Draw(spriteBatch);
 		_player.skinVariant = _realSkinVariant;
+		_player.hair = hair;
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		if (_hovered) {
+		if (_hovered)
+		{
 			if (!_soundedHover)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_soundedHover = true;
 		}
-		else {
+		else
+		{
 			_soundedHover = false;
 		}
-
 		CalculatedStyle dimensions = GetDimensions();
 		Utils.DrawSplicedPanel(spriteBatch, _BasePanelTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, Color.White * 0.5f);
 		if (_realSkinVariant == ClothStyleId)
+		{
 			Utils.DrawSplicedPanel(spriteBatch, _selectedBorderTexture.Value, (int)dimensions.X + 3, (int)dimensions.Y + 3, (int)dimensions.Width - 6, (int)dimensions.Height - 6, 10, 10, 10, 10, Color.White);
-
+		}
 		if (_hovered)
+		{
 			Utils.DrawSplicedPanel(spriteBatch, _hoveredBorderTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, 10, 10, 10, 10, Color.White);
+		}
 	}
 
 	public override void LeftMouseDown(UIMouseEvent evt)
 	{
-		_player.skinVariant = ClothStyleId;
-		SoundEngine.PlaySound(12);
 		base.LeftMouseDown(evt);
 	}
 

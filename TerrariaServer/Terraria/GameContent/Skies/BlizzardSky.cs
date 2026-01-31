@@ -9,8 +9,11 @@ namespace Terraria.GameContent.Skies;
 public class BlizzardSky : CustomSky
 {
 	private UnifiedRandom _random = new UnifiedRandom();
+
 	private bool _isActive;
+
 	private bool _isLeaving;
+
 	private float _opacity;
 
 	public override void OnLoad()
@@ -20,25 +23,32 @@ public class BlizzardSky : CustomSky
 	public override void Update(GameTime gameTime)
 	{
 		if (Main.gamePaused || !Main.hasFocus)
+		{
 			return;
-
-		if (_isLeaving) {
+		}
+		if (_isLeaving)
+		{
 			_opacity -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-			if (_opacity < 0f) {
+			if (_opacity < 0f)
+			{
 				_isActive = false;
 				_opacity = 0f;
 			}
 		}
-		else {
+		else
+		{
 			_opacity += (float)gameTime.ElapsedGameTime.TotalSeconds;
 			if (_opacity > 1f)
+			{
 				_opacity = 1f;
+			}
 		}
 	}
 
 	public override void Draw(SpriteBatch spriteBatch, float minDepth, float maxDepth)
 	{
-		if (minDepth < 1f || maxDepth == float.MaxValue) {
+		if (minDepth < 1f || maxDepth == float.MaxValue)
+		{
 			float num = Math.Min(1f, Main.cloudAlpha * 2f);
 			Color color = new Color(new Vector4(1f) * Main.ColorOfTheSkies.ToVector4()) * _opacity * 0.7f * num;
 			spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), color);
@@ -62,5 +72,8 @@ public class BlizzardSky : CustomSky
 		_isActive = false;
 	}
 
-	public override bool IsActive() => _isActive;
+	public override bool IsActive()
+	{
+		return _isActive;
+	}
 }

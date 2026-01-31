@@ -7,37 +7,49 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIBestiaryInfoLine<T> : UIElement, IManuallyOrderedUIElement
 {
 	private T _text;
+
 	private float _textScale = 1f;
+
 	private Vector2 _textSize = Vector2.Zero;
+
 	private Color _color = Color.White;
 
 	public int OrderInUIList { get; set; }
 
-	public float TextScale {
-		get {
+	public float TextScale
+	{
+		get
+		{
 			return _textScale;
 		}
-		set {
+		set
+		{
 			_textScale = value;
 		}
 	}
 
 	public Vector2 TextSize => _textSize;
 
-	public string Text {
-		get {
+	public string Text
+	{
+		get
+		{
 			if (_text != null)
+			{
 				return _text.ToString();
-
+			}
 			return "";
 		}
 	}
 
-	public Color TextColor {
-		get {
+	public Color TextColor
+	{
+		get
+		{
 			return _color;
 		}
-		set {
+		set
+		{
 			_color = value;
 		}
 	}
@@ -80,8 +92,9 @@ public class UIBestiaryInfoLine<T> : UIElement, IManuallyOrderedUIElement
 	public override int CompareTo(object obj)
 	{
 		if (obj is IManuallyOrderedUIElement manuallyOrderedUIElement)
+		{
 			return OrderInUIList.CompareTo(manuallyOrderedUIElement.OrderInUIList);
-
+		}
 		return base.CompareTo(obj);
 	}
 }

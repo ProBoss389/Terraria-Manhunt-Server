@@ -15,38 +15,54 @@ namespace Terraria.GameContent.UI.Elements;
 public class UICharacterListItem : UIPanel
 {
 	private PlayerFileData _data;
+
 	private Asset<Texture2D> _dividerTexture;
+
 	private Asset<Texture2D> _innerPanelTexture;
+
 	private UICharacter _playerPanel;
+
 	private UIText _buttonLabel;
+
 	private UIText _deleteButtonLabel;
+
 	private Asset<Texture2D> _buttonCloudActiveTexture;
+
 	private Asset<Texture2D> _buttonCloudInactiveTexture;
+
 	private Asset<Texture2D> _buttonFavoriteActiveTexture;
+
 	private Asset<Texture2D> _buttonFavoriteInactiveTexture;
+
 	private Asset<Texture2D> _buttonPlayTexture;
+
 	private Asset<Texture2D> _buttonRenameTexture;
+
 	private Asset<Texture2D> _buttonDeleteTexture;
+
 	private UIImageButton _deleteButton;
+
+	private int _orderInList;
 
 	public bool IsFavorite => _data.IsFavorite;
 
-	public UICharacterListItem(PlayerFileData data, int snapPointIndex)
+	public UICharacterListItem(PlayerFileData data, int orderInList)
 	{
 		BorderColor = new Color(89, 116, 213) * 0.7f;
-		_dividerTexture = Main.Assets.Request<Texture2D>("Images/UI/Divider");
-		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground");
-		_buttonCloudActiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonCloudActive");
-		_buttonCloudInactiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonCloudInactive");
-		_buttonFavoriteActiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonFavoriteActive");
-		_buttonFavoriteInactiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonFavoriteInactive");
-		_buttonPlayTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonPlay");
-		_buttonRenameTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonRename");
-		_buttonDeleteTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonDelete");
+		_dividerTexture = Main.Assets.Request<Texture2D>("Images/UI/Divider", AssetRequestMode.ImmediateLoad);
+		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground", AssetRequestMode.ImmediateLoad);
+		_buttonCloudActiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonCloudActive", AssetRequestMode.ImmediateLoad);
+		_buttonCloudInactiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonCloudInactive", AssetRequestMode.ImmediateLoad);
+		_buttonFavoriteActiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonFavoriteActive", AssetRequestMode.ImmediateLoad);
+		_buttonFavoriteInactiveTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonFavoriteInactive", AssetRequestMode.ImmediateLoad);
+		_buttonPlayTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonPlay", AssetRequestMode.ImmediateLoad);
+		_buttonRenameTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonRename", AssetRequestMode.ImmediateLoad);
+		_buttonDeleteTexture = Main.Assets.Request<Texture2D>("Images/UI/ButtonDelete", AssetRequestMode.ImmediateLoad);
 		Height.Set(96f, 0f);
 		Width.Set(0f, 1f);
 		SetPadding(6f);
 		_data = data;
+		_orderInList = orderInList;
 		_playerPanel = new UICharacter(data.Player, animated: false, hasBackPanel: true, 1f, useAClone: true);
 		_playerPanel.Left.Set(4f, 0f);
 		_playerPanel.OnLeftDoubleClick += PlayGame;
@@ -70,7 +86,8 @@ public class UICharacterListItem : UIPanel
 		uIImageButton2.SetVisibility(1f, _data.IsFavorite ? 0.8f : 0.4f);
 		Append(uIImageButton2);
 		num += 24f;
-		if (SocialAPI.Cloud != null) {
+		if (SocialAPI.Cloud != null)
+		{
 			UIImageButton uIImageButton3 = new UIImageButton(_data.IsCloudSave ? _buttonCloudActiveTexture : _buttonCloudInactiveTexture);
 			uIImageButton3.VAlign = 1f;
 			uIImageButton3.Left.Set(num, 0f);
@@ -78,10 +95,9 @@ public class UICharacterListItem : UIPanel
 			uIImageButton3.OnMouseOver += CloudMouseOver;
 			uIImageButton3.OnMouseOut += ButtonMouseOut;
 			Append(uIImageButton3);
-			uIImageButton3.SetSnapPoint("Cloud", snapPointIndex);
+			uIImageButton3.SetSnapPoint("Cloud", orderInList);
 			num += 24f;
 		}
-
 		UIImageButton uIImageButton4 = new UIImageButton(_buttonRenameTexture);
 		uIImageButton4.VAlign = 1f;
 		uIImageButton4.Left.Set(num, 0f);
@@ -90,14 +106,15 @@ public class UICharacterListItem : UIPanel
 		uIImageButton4.OnMouseOut += ButtonMouseOut;
 		Append(uIImageButton4);
 		num += 24f;
-		UIImageButton uIImageButton5 = new UIImageButton(_buttonDeleteTexture) {
+		UIImageButton uIImageButton5 = new UIImageButton(_buttonDeleteTexture)
+		{
 			VAlign = 1f,
 			HAlign = 1f
 		};
-
 		if (!_data.IsFavorite)
+		{
 			uIImageButton5.OnLeftClick += DeleteButtonClick;
-
+		}
 		uIImageButton5.OnMouseOver += DeleteMouseOver;
 		uIImageButton5.OnMouseOut += DeleteMouseOut;
 		_deleteButton = uIImageButton5;
@@ -114,10 +131,10 @@ public class UICharacterListItem : UIPanel
 		_deleteButtonLabel.Left.Set(-30f, 0f);
 		_deleteButtonLabel.Top.Set(-3f, 0f);
 		Append(_deleteButtonLabel);
-		uIImageButton.SetSnapPoint("Play", snapPointIndex);
-		uIImageButton2.SetSnapPoint("Favorite", snapPointIndex);
-		uIImageButton4.SetSnapPoint("Rename", snapPointIndex);
-		uIImageButton5.SetSnapPoint("Delete", snapPointIndex);
+		uIImageButton.SetSnapPoint("Play", orderInList);
+		uIImageButton2.SetSnapPoint("Favorite", orderInList);
+		uIImageButton4.SetSnapPoint("Rename", orderInList);
+		uIImageButton5.SetSnapPoint("Delete", orderInList);
 	}
 
 	private void RenameMouseOver(UIMouseEvent evt, UIElement listeningElement)
@@ -128,17 +145,25 @@ public class UICharacterListItem : UIPanel
 	private void FavoriteMouseOver(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (_data.IsFavorite)
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.Unfavorite"));
+		}
 		else
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.Favorite"));
+		}
 	}
 
 	private void CloudMouseOver(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (_data.IsCloudSave)
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.MoveOffCloud"));
+		}
 		else
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.MoveToCloud"));
+		}
 	}
 
 	private void PlayMouseOver(UIMouseEvent evt, UIElement listeningElement)
@@ -149,9 +174,13 @@ public class UICharacterListItem : UIPanel
 	private void DeleteMouseOver(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (_data.IsFavorite)
+		{
 			_deleteButtonLabel.SetText(Language.GetTextValue("UI.CannotDeleteFavorited"));
+		}
 		else
+		{
 			_deleteButtonLabel.SetText(Language.GetTextValue("UI.Delete"));
+		}
 	}
 
 	private void DeleteMouseOut(UIMouseEvent evt, UIElement listeningElement)
@@ -168,11 +197,12 @@ public class UICharacterListItem : UIPanel
 	{
 		SoundEngine.PlaySound(10);
 		Main.clrInput();
-		UIVirtualKeyboard uIVirtualKeyboard = new UIVirtualKeyboard(Lang.menu[45].Value, "", OnFinishedSettingName, GoBackHere, 0, allowEmpty: true);
-		uIVirtualKeyboard.SetMaxInputLength(20);
-		Main.MenuUI.SetState(uIVirtualKeyboard);
+		UIVirtualKeyboard state = new UIVirtualKeyboard(Lang.menu[45].Value, _data.Name, OnFinishedSettingName, GoBackHere, 0, allowEmpty: true);
+		Main.MenuUI.SetState(state);
 		if (base.Parent.Parent is UIList uIList)
+		{
 			uIList.UpdateOrder();
+		}
 	}
 
 	private void OnFinishedSettingName(string name)
@@ -191,21 +221,30 @@ public class UICharacterListItem : UIPanel
 	private void CloudButtonClick(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (_data.IsCloudSave)
+		{
 			_data.MoveToLocal();
+		}
 		else
+		{
 			_data.MoveToCloud();
-
+		}
 		((UIImageButton)evt.Target).SetImage(_data.IsCloudSave ? _buttonCloudActiveTexture : _buttonCloudInactiveTexture);
 		if (_data.IsCloudSave)
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.MoveOffCloud"));
+		}
 		else
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.MoveToCloud"));
+		}
 	}
 
 	private void DeleteButtonClick(UIMouseEvent evt, UIElement listeningElement)
 	{
-		for (int i = 0; i < Main.PlayerList.Count; i++) {
-			if (Main.PlayerList[i] == _data) {
+		for (int i = 0; i < Main.PlayerList.Count; i++)
+		{
+			if (Main.PlayerList[i] == _data)
+			{
 				SoundEngine.PlaySound(10);
 				Main.selectedPlayer = i;
 				Main.menuMode = 5;
@@ -216,8 +255,10 @@ public class UICharacterListItem : UIPanel
 
 	private void PlayGame(UIMouseEvent evt, UIElement listeningElement)
 	{
-		if (listeningElement == evt.Target && _data.Player.loadStatus == 0)
+		if (listeningElement == evt.Target && _data.Player.loadStatus == StatusID.Ok)
+		{
 			Main.SelectPlayer(_data);
+		}
 	}
 
 	private void FavoriteButtonClick(UIMouseEvent evt, UIElement listeningElement)
@@ -225,34 +266,28 @@ public class UICharacterListItem : UIPanel
 		_data.ToggleFavorite();
 		((UIImageButton)evt.Target).SetImage(_data.IsFavorite ? _buttonFavoriteActiveTexture : _buttonFavoriteInactiveTexture);
 		((UIImageButton)evt.Target).SetVisibility(1f, _data.IsFavorite ? 0.8f : 0.4f);
-		if (_data.IsFavorite) {
+		if (_data.IsFavorite)
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.Unfavorite"));
 			_deleteButton.OnLeftClick -= DeleteButtonClick;
 		}
-		else {
+		else
+		{
 			_buttonLabel.SetText(Language.GetTextValue("UI.Favorite"));
 			_deleteButton.OnLeftClick += DeleteButtonClick;
 		}
-
 		if (base.Parent.Parent is UIList uIList)
+		{
 			uIList.UpdateOrder();
+		}
 	}
 
 	public override int CompareTo(object obj)
 	{
-		if (obj is UICharacterListItem uICharacterListItem) {
-			if (IsFavorite && !uICharacterListItem.IsFavorite)
-				return -1;
-
-			if (!IsFavorite && uICharacterListItem.IsFavorite)
-				return 1;
-
-			if (_data.Name.CompareTo(uICharacterListItem._data.Name) != 0)
-				return _data.Name.CompareTo(uICharacterListItem._data.Name);
-
-			return _data.GetFileName().CompareTo(uICharacterListItem._data.GetFileName());
+		if (obj is UICharacterListItem uICharacterListItem)
+		{
+			return _orderInList.CompareTo(uICharacterListItem._orderInList);
 		}
-
 		return base.CompareTo(obj);
 	}
 
@@ -287,12 +322,12 @@ public class UICharacterListItem : UIPanel
 		float num = dimensions.X + dimensions.Width;
 		Color color = Color.White;
 		string text = _data.Name;
-		if (_data.Player.loadStatus != 0) {
+		if (_data.Player.loadStatus != StatusID.Ok)
+		{
 			color = Color.Gray;
 			string name = StatusID.Search.GetName(_data.Player.loadStatus);
 			text = "(" + name + ") " + text;
 		}
-
 		Utils.DrawBorderString(spriteBatch, text, new Vector2(num + 6f, dimensions.Y - 2f), color);
 		spriteBatch.Draw(_dividerTexture.Value, new Vector2(num, innerDimensions.Y + 21f), null, Color.White, 0f, Vector2.Zero, new Vector2((GetDimensions().X + GetDimensions().Width - num) / 8f, 1f), SpriteEffects.None, 0f);
 		Vector2 vector = new Vector2(num + 6f, innerDimensions.Y + 29f);
@@ -310,29 +345,30 @@ public class UICharacterListItem : UIPanel
 		Vector2 vector3 = vector;
 		float num3 = 140f;
 		if (GameCulture.FromCultureName(GameCulture.CultureName.Russian).IsActive)
+		{
 			num3 = 180f;
-
+		}
 		DrawPanel(spriteBatch, vector3, num3);
 		string text2 = "";
 		Color color2 = Color.White;
-		switch (_data.Player.difficulty) {
-			case 0:
-				text2 = Language.GetTextValue("UI.Softcore");
-				break;
-			case 1:
-				text2 = Language.GetTextValue("UI.Mediumcore");
-				color2 = Main.mcColor;
-				break;
-			case 2:
-				text2 = Language.GetTextValue("UI.Hardcore");
-				color2 = Main.hcColor;
-				break;
-			case 3:
-				text2 = Language.GetTextValue("UI.Creative");
-				color2 = Main.creativeModeColor;
-				break;
+		switch (_data.Player.difficulty)
+		{
+		case 0:
+			text2 = Language.GetTextValue("UI.Softcore");
+			break;
+		case 1:
+			text2 = Language.GetTextValue("UI.Mediumcore");
+			color2 = Main.mcColor;
+			break;
+		case 2:
+			text2 = Language.GetTextValue("UI.Hardcore");
+			color2 = Main.hcColor;
+			break;
+		case 3:
+			text2 = Language.GetTextValue("UI.Creative");
+			color2 = Main.creativeModeColor;
+			break;
 		}
-
 		vector3 += new Vector2(num3 * 0.5f - FontAssets.MouseText.Value.MeasureString(text2).X * 0.5f, 3f);
 		Utils.DrawBorderString(spriteBatch, text2, vector3, color2);
 		vector.X += num3 + 5f;

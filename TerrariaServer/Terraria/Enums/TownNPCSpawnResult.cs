@@ -5,5 +5,7 @@ public enum TownNPCSpawnResult
 	Blocked,
 	Successful,
 	RelocatedHomeless,
-	BlockedInfiHousing
+	BlockedInfiHousing,
+	BlockedTooManyNPCs,
+	FoundHouseNoSpawn
 }

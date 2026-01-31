@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Terraria.IO;
 
@@ -33,5 +34,5 @@ public abstract class WorkshopSocialModule : ISocialModule
 
 	public abstract bool TryGetPath(string pathEnd, out string fullPathFound);
 
-	public abstract void ImportDownloadedWorldToLocalSaves(WorldFileData world, string newFileName = null, string newDisplayName = null);
+	public abstract void ImportDownloadedWorldToLocalSaves(WorldFileData world, string newDisplayName, Action onCompleted);
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
@@ -11,14 +13,23 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIText : UIElement
 {
 	private object _text = "";
+
 	private float _textScale = 1f;
+
 	private Vector2 _textSize = Vector2.Zero;
+
 	private bool _isLarge;
+
 	private Color _color = Color.White;
+
 	private Color _shadowColor = Color.Black;
+
 	private bool _isWrapped;
+
 	public bool DynamicallyScaleDownToWidth;
-	private string _visibleText;
+
+	private List<PositionedSnippet> _textLayout;
+
 	private string _lastTextReference;
 
 	public string Text => _text.ToString();
@@ -29,30 +40,39 @@ public class UIText : UIElement
 
 	public float WrappedTextBottomPadding { get; set; }
 
-	public bool IsWrapped {
-		get {
+	public bool IsWrapped
+	{
+		get
+		{
 			return _isWrapped;
 		}
-		set {
+		set
+		{
 			_isWrapped = value;
 			InternalSetText(_text, _textScale, _isLarge);
 		}
 	}
 
-	public Color TextColor {
-		get {
+	public Color TextColor
+	{
+		get
+		{
 			return _color;
 		}
-		set {
+		set
+		{
 			_color = value;
 		}
 	}
 
-	public Color ShadowColor {
-		get {
+	public Color ShadowColor
+	{
+		get
+		{
 			return _shadowColor;
 		}
-		set {
+		set
+		{
 			_shadowColor = value;
 		}
 	}
@@ -110,50 +130,67 @@ public class UIText : UIElement
 		CalculatedStyle innerDimensions = GetInnerDimensions();
 		Vector2 position = innerDimensions.Position();
 		if (_isLarge)
+		{
 			position.Y -= 10f * _textScale;
+		}
 		else
+		{
 			position.Y -= 2f * _textScale;
-
-		position.X += (innerDimensions.Width - _textSize.X) * TextOriginX;
-		position.Y += (innerDimensions.Height - _textSize.Y) * TextOriginY;
-		float num = _textScale;
-		if (DynamicallyScaleDownToWidth && _textSize.X > innerDimensions.Width)
-			num *= innerDimensions.Width / _textSize.X;
-
-		DynamicSpriteFont value = (_isLarge ? FontAssets.DeathText : FontAssets.MouseText).Value;
-		Vector2 vector = value.MeasureString(_visibleText);
-		Color baseColor = _shadowColor * ((float)(int)_color.A / 255f);
-		Vector2 origin = new Vector2(0f, 0f) * vector;
-		Vector2 baseScale = new Vector2(num);
-		TextSnippet[] snippets = ChatManager.ParseMessage(_visibleText, _color).ToArray();
-		ChatManager.ConvertNormalSnippets(snippets);
-		ChatManager.DrawColorCodedStringShadow(spriteBatch, value, snippets, position, baseColor, 0f, origin, baseScale, -1f, 1.5f);
-		ChatManager.DrawColorCodedString(spriteBatch, value, snippets, position, Color.White, 0f, origin, baseScale, out var _, -1f);
+		}
+		List<PositionedSnippet> textLayout = _textLayout;
+		Vector2 scale = new Vector2(_textScale);
+		Vector2 textSize = _textSize;
+		if (DynamicallyScaleDownToWidth && textSize.X > innerDimensions.Width)
+		{
+			float num = innerDimensions.Width / textSize.X;
+			textLayout = new List<PositionedSnippet>();
+			for (int i = 0; i < textLayout.Count; i++)
+			{
+				textLayout[i].Scale(num);
+			}
+			scale *= num;
+			textSize *= num;
+		}
+		position.X += (innerDimensions.Width - textSize.X) * TextOriginX;
+		position.Y += (innerDimensions.Height - textSize.Y) * TextOriginY;
+		Color shadowColor = _shadowColor * ((float)(int)_color.A / 255f);
+		DynamicSpriteFont font = (_isLarge ? FontAssets.DeathText.Value : FontAssets.MouseText.Value);
+		ChatManager.DrawColorCodedStringShadow(spriteBatch, font, _textLayout, position, shadowColor, 0f, Vector2.Zero, scale, 1.5f);
+		ChatManager.DrawColorCodedString(spriteBatch, font, _textLayout, position, 0f, Vector2.Zero, scale, out var _);
 	}
 
 	private void VerifyTextState()
 	{
 		if ((object)_lastTextReference != Text)
+		{
 			InternalSetText(_text, _textScale, _isLarge);
+		}
 	}
 
 	private void InternalSetText(object text, float textScale, bool large)
 	{
-		DynamicSpriteFont dynamicSpriteFont = (large ? FontAssets.DeathText.Value : FontAssets.MouseText.Value);
 		_text = text;
 		_isLarge = large;
 		_textScale = textScale;
 		_lastTextReference = _text.ToString();
+		List<TextSnippet> snippets = ChatManager.ParseMessage(_lastTextReference, _color);
+		ChatManager.ConvertNormalSnippets(snippets);
+		DynamicSpriteFont font = (large ? FontAssets.DeathText.Value : FontAssets.MouseText.Value);
+		_textLayout = ChatManager.LayoutSnippets(font, snippets, new Vector2(_textScale), IsWrapped ? GetInnerDimensions().Width : (-1f)).ToList();
+		_textSize = ChatManager.GetStringSize(_textLayout);
 		if (IsWrapped)
-			_visibleText = dynamicSpriteFont.CreateWrappedText(_lastTextReference, GetInnerDimensions().Width / _textScale);
+		{
+			_textSize.Y += WrappedTextBottomPadding * _textScale;
+		}
 		else
-			_visibleText = _lastTextReference;
-
-		Vector2 vector = dynamicSpriteFont.MeasureString(_visibleText);
-		Vector2 vector2 = (_textSize = ((!IsWrapped) ? (new Vector2(vector.X, large ? 32f : 16f) * textScale) : (new Vector2(vector.X, vector.Y + WrappedTextBottomPadding) * textScale)));
-		MinWidth.Set(vector2.X + PaddingLeft + PaddingRight, 0f);
-		MinHeight.Set(vector2.Y + PaddingTop + PaddingBottom, 0f);
+		{
+			_textSize.Y = (large ? 32f : 16f) * _textScale;
+		}
+		MinWidth.Set((IsWrapped || DynamicallyScaleDownToWidth) ? 0f : (_textSize.X + PaddingLeft + PaddingRight), 0f);
+		MinHeight.Set(_textSize.Y + PaddingTop + PaddingBottom, 0f);
 		if (this.OnInternalTextChange != null)
+		{
 			this.OnInternalTextChange();
+		}
 	}
 }

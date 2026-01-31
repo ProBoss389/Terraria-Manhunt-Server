@@ -7,5 +7,8 @@ public class UndergroundBiome : AShoppingBiome
 		base.NameKey = "NormalUnderground";
 	}
 
-	public override bool IsInBiome(Player player) => player.ShoppingZone_BelowSurface;
+	public override bool IsInBiome(Player player)
+	{
+		return player.ShoppingZone_BelowSurface;
+	}
 }

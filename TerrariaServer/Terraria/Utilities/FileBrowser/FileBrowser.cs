@@ -11,12 +11,15 @@ public class FileBrowser
 
 	public static string OpenFilePanel(string title, string extension)
 	{
-		ExtensionFilter[] extensions = (string.IsNullOrEmpty(extension) ? null : new ExtensionFilter[1] {
+		ExtensionFilter[] extensions = (string.IsNullOrEmpty(extension) ? null : new ExtensionFilter[1]
+		{
 			new ExtensionFilter("", extension)
 		});
-
 		return OpenFilePanel(title, extensions);
 	}
 
-	public static string OpenFilePanel(string title, ExtensionFilter[] extensions) => _platformWrapper.OpenFilePanel(title, extensions);
+	public static string OpenFilePanel(string title, ExtensionFilter[] extensions)
+	{
+		return _platformWrapper.OpenFilePanel(title, extensions);
+	}
 }

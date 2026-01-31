@@ -14,7 +14,10 @@ public class LeadingConditionRule : IItemDropRule
 		ChainedRules = new List<IItemDropRuleChainAttempt>();
 	}
 
-	public bool CanDrop(DropAttemptInfo info) => condition.CanDrop(info);
+	public bool CanDrop(DropAttemptInfo info)
+	{
+		return condition.CanDrop(info);
+	}
 
 	public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
 	{
@@ -24,8 +27,9 @@ public class LeadingConditionRule : IItemDropRule
 
 	public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
-		ItemDropAttemptResult result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.Success;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.Success
+		};
 	}
 }

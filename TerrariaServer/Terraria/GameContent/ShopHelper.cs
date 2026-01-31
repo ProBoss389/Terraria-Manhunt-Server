@@ -10,21 +10,34 @@ namespace Terraria.GameContent;
 public class ShopHelper
 {
 	public const float LowestPossiblePriceMultiplier = 0.75f;
+
 	public const float MaxHappinessAchievementPriceMultiplier = 0.82f;
+
 	public const float HighestPossiblePriceMultiplier = 1.5f;
+
 	private string _currentHappiness;
+
 	private float _currentPriceAdjustment;
+
 	private NPC _currentNPCBeingTalkedTo;
+
 	private Player _currentPlayerTalking;
+
 	private PersonalityDatabase _database;
-	private AShoppingBiome[] _dangerousBiomes = new AShoppingBiome[3] {
+
+	private AShoppingBiome[] _dangerousBiomes = new AShoppingBiome[3]
+	{
 		new CorruptionBiome(),
 		new CrimsonBiome(),
 		new DungeonBiome()
 	};
+
 	private const float likeValue = 0.94f;
+
 	private const float dislikeValue = 1.06f;
+
 	private const float loveValue = 0.88f;
+
 	private const float hateValue = 1.12f;
 
 	public ShopHelper()
@@ -35,10 +48,11 @@ public class ShopHelper
 
 	public ShoppingSettings GetShoppingSettings(Player player, NPC npc)
 	{
-		ShoppingSettings shoppingSettings = default(ShoppingSettings);
-		shoppingSettings.PriceAdjustment = 1.0;
-		shoppingSettings.HappinessReport = "";
-		ShoppingSettings result = shoppingSettings;
+		ShoppingSettings result = new ShoppingSettings
+		{
+			PriceAdjustment = 1f,
+			HappinessReport = ""
+		};
 		_currentNPCBeingTalkedTo = npc;
 		_currentPlayerTalking = player;
 		ProcessMood(player, npc);
@@ -51,20 +65,25 @@ public class ShopHelper
 	{
 		float num = 1f;
 		if (Main.moonPhase == 1 || Main.moonPhase == 7)
+		{
 			num = 1.1f;
-
+		}
 		if (Main.moonPhase == 2 || Main.moonPhase == 6)
+		{
 			num = 1.2f;
-
+		}
 		if (Main.moonPhase == 3 || Main.moonPhase == 5)
+		{
 			num = 1.3f;
-
+		}
 		if (Main.moonPhase == 4)
+		{
 			num = 1.4f;
-
+		}
 		if (Main.dayTime)
+		{
 			num += 0.1f;
-
+		}
 		return num;
 	}
 
@@ -81,83 +100,83 @@ public class ShopHelper
 	{
 		_currentHappiness = "";
 		_currentPriceAdjustment = 1f;
-		if (Main.remixWorld)
+		if (npc.loveStruck)
+		{
+			_currentPriceAdjustment *= 0.9f;
+		}
+		if (Main.remixWorld || npc.type == 368 || npc.type == 453 || NPCID.Sets.IsTownPet[npc.type] || IsNotReallyTownNPC(npc))
+		{
 			return;
-
-		if (npc.type == 368) {
-			_currentPriceAdjustment = 1f;
 		}
-		else if (npc.type == 453) {
-			_currentPriceAdjustment = 1f;
+		if (RuinMoodIfHomeless(npc))
+		{
+			_currentPriceAdjustment = 1000f;
 		}
-		else {
-			if (NPCID.Sets.IsTownPet[npc.type])
-				return;
-
-			if (IsNotReallyTownNPC(npc)) {
-				_currentPriceAdjustment = 1f;
-				return;
-			}
-
-			if (RuinMoodIfHomeless(npc))
-				_currentPriceAdjustment = 1000f;
-			else if (IsFarFromHome(npc))
-				_currentPriceAdjustment = 1000f;
-
-			if (IsPlayerInEvilBiomes(player))
-				_currentPriceAdjustment = 1000f;
-
-			int npcsWithinHouse;
-			int npcsWithinVillage;
-			List<NPC> nearbyResidentNPCs = GetNearbyResidentNPCs(npc, out npcsWithinHouse, out npcsWithinVillage);
-			bool flag = true;
-			float num = 1.05f;
-			if (npc.type == 663) {
-				flag = false;
-				num = 1f;
-				if (npcsWithinHouse < 2 && npcsWithinVillage < 2) {
-					AddHappinessReportText("HateLonely");
-					_currentPriceAdjustment = 1000f;
-				}
-			}
-
-			if (true && npcsWithinHouse > 3) {
-				for (int i = 3; i < npcsWithinHouse; i++) {
-					_currentPriceAdjustment *= num;
-				}
-
-				if (npcsWithinHouse > 6)
-					AddHappinessReportText("HateCrowded");
-				else
-					AddHappinessReportText("DislikeCrowded");
-			}
-
-			if (flag && npcsWithinHouse <= 2 && npcsWithinVillage < 4) {
-				AddHappinessReportText("LoveSpace");
-				_currentPriceAdjustment *= 0.95f;
-			}
-
-			bool[] array = new bool[NPCID.Count];
-			foreach (NPC item in nearbyResidentNPCs) {
-				array[item.type] = true;
-			}
-
-			HelperInfo helperInfo = default(HelperInfo);
-			helperInfo.player = player;
-			helperInfo.npc = npc;
-			helperInfo.NearbyNPCs = nearbyResidentNPCs;
-			helperInfo.nearbyNPCsByType = array;
-			HelperInfo info = helperInfo;
-			foreach (IShopPersonalityTrait shopModifier in _database.GetByNPCID(npc.type).ShopModifiers) {
-				shopModifier.ModifyShopPrice(info, this);
-			}
-
-			new AllPersonalitiesModifier().ModifyShopPrice(info, this);
-			if (_currentHappiness == "")
-				AddHappinessReportText("Content");
-
-			_currentPriceAdjustment = LimitAndRoundMultiplier(_currentPriceAdjustment);
+		else if (IsFarFromHome(npc))
+		{
+			_currentPriceAdjustment = 1000f;
 		}
+		if (IsPlayerInEvilBiomes(player))
+		{
+			_currentPriceAdjustment = 1000f;
+		}
+		int npcsWithinHouse;
+		int npcsWithinVillage;
+		List<NPC> nearbyResidentNPCs = GetNearbyResidentNPCs(npc, out npcsWithinHouse, out npcsWithinVillage);
+		bool flag = true;
+		float num = 1.05f;
+		if (npc.type == 663)
+		{
+			flag = false;
+			num = 1f;
+			if (npcsWithinHouse < 2 && npcsWithinVillage < 2)
+			{
+				AddHappinessReportText("HateLonely");
+				_currentPriceAdjustment = 1000f;
+			}
+		}
+		if (true && npcsWithinHouse > 3)
+		{
+			for (int i = 3; i < npcsWithinHouse; i++)
+			{
+				_currentPriceAdjustment *= num;
+			}
+			if (npcsWithinHouse > 6)
+			{
+				AddHappinessReportText("HateCrowded");
+			}
+			else
+			{
+				AddHappinessReportText("DislikeCrowded");
+			}
+		}
+		if (flag && npcsWithinHouse <= 2 && npcsWithinVillage < 4)
+		{
+			AddHappinessReportText("LoveSpace");
+			_currentPriceAdjustment *= 0.95f;
+		}
+		bool[] array = new bool[NPCID.Count];
+		foreach (NPC item in nearbyResidentNPCs)
+		{
+			array[item.type] = true;
+		}
+		HelperInfo info = new HelperInfo
+		{
+			player = player,
+			npc = npc,
+			NearbyNPCs = nearbyResidentNPCs,
+			nearbyNPCsByType = array
+		};
+		foreach (IShopPersonalityTrait shopModifier in _database.GetByNPCID(npc.type).ShopModifiers)
+		{
+			shopModifier.ModifyShopPrice(info, this);
+		}
+		new AllPersonalitiesModifier().ModifyShopPrice(info, this);
+		if (_currentHappiness == "")
+		{
+			AddHappinessReportText("Content");
+		}
+		_currentPriceAdjustment = LimitAndRoundMultiplier(_currentPriceAdjustment);
 	}
 
 	private float LimitAndRoundMultiplier(float priceAdjustment)
@@ -167,105 +186,109 @@ public class ShopHelper
 		return priceAdjustment;
 	}
 
-	private static string BiomeNameByKey(string biomeNameKey) => Language.GetTextValue("TownNPCMoodBiomes." + biomeNameKey);
+	private static string BiomeNameByKey(string biomeNameKey)
+	{
+		return Language.GetTextValue("TownNPCMoodBiomes." + biomeNameKey);
+	}
 
 	private void AddHappinessReportText(string textKeyInCategory, object substitutes = null)
 	{
 		string text = "TownNPCMood_" + NPCID.Search.GetName(_currentNPCBeingTalkedTo.netID);
 		if (_currentNPCBeingTalkedTo.type == 633 && _currentNPCBeingTalkedTo.altTexture == 2)
+		{
 			text += "Transformed";
-
+		}
 		string textValueWith = Language.GetTextValueWith(text + "." + textKeyInCategory, substitutes);
 		_currentHappiness = _currentHappiness + textValueWith + " ";
 	}
 
 	public void LikeBiome(string nameKey)
 	{
-		AddHappinessReportText("LikeBiome", new {
+		AddHappinessReportText("LikeBiome", new
+		{
 			BiomeName = BiomeNameByKey(nameKey)
 		});
-
 		_currentPriceAdjustment *= 0.94f;
 	}
 
 	public void LoveBiome(string nameKey)
 	{
-		AddHappinessReportText("LoveBiome", new {
+		AddHappinessReportText("LoveBiome", new
+		{
 			BiomeName = BiomeNameByKey(nameKey)
 		});
-
 		_currentPriceAdjustment *= 0.88f;
 	}
 
 	public void DislikeBiome(string nameKey)
 	{
-		AddHappinessReportText("DislikeBiome", new {
+		AddHappinessReportText("DislikeBiome", new
+		{
 			BiomeName = BiomeNameByKey(nameKey)
 		});
-
 		_currentPriceAdjustment *= 1.06f;
 	}
 
 	public void HateBiome(string nameKey)
 	{
-		AddHappinessReportText("HateBiome", new {
+		AddHappinessReportText("HateBiome", new
+		{
 			BiomeName = BiomeNameByKey(nameKey)
 		});
-
 		_currentPriceAdjustment *= 1.12f;
 	}
 
 	public void LikeNPC(int npcType)
 	{
-		AddHappinessReportText("LikeNPC", new {
+		AddHappinessReportText("LikeNPC", new
+		{
 			NPCName = NPC.GetFullnameByID(npcType)
 		});
-
 		_currentPriceAdjustment *= 0.94f;
 	}
 
 	public void LoveNPCByTypeName(int npcType)
 	{
-		AddHappinessReportText("LoveNPC_" + NPCID.Search.GetName(npcType), new {
+		AddHappinessReportText("LoveNPC_" + NPCID.Search.GetName(npcType), new
+		{
 			NPCName = NPC.GetFullnameByID(npcType)
 		});
-
 		_currentPriceAdjustment *= 0.88f;
 	}
 
 	public void LikePrincess()
 	{
-		AddHappinessReportText("LikeNPC_Princess", new {
+		AddHappinessReportText("LikeNPC_Princess", new
+		{
 			NPCName = NPC.GetFullnameByID(663)
 		});
-
 		_currentPriceAdjustment *= 0.94f;
 	}
 
 	public void LoveNPC(int npcType)
 	{
-		AddHappinessReportText("LoveNPC", new {
+		AddHappinessReportText("LoveNPC", new
+		{
 			NPCName = NPC.GetFullnameByID(npcType)
 		});
-
 		_currentPriceAdjustment *= 0.88f;
 	}
 
 	public void DislikeNPC(int npcType)
 	{
-		AddHappinessReportText("DislikeNPC", new {
+		AddHappinessReportText("DislikeNPC", new
+		{
 			NPCName = NPC.GetFullnameByID(npcType)
 		});
-
 		_currentPriceAdjustment *= 1.06f;
 	}
 
 	public void HateNPC(int npcType)
 	{
-		AddHappinessReportText("HateNPC", new {
+		AddHappinessReportText("HateNPC", new
+		{
 			NPCName = NPC.GetFullnameByID(npcType)
 		});
-
 		_currentPriceAdjustment *= 1.12f;
 	}
 
@@ -276,37 +299,44 @@ public class ShopHelper
 		npcsWithinVillage = 0;
 		Vector2 value = new Vector2(npc.homeTileX, npc.homeTileY);
 		if (npc.homeless)
+		{
 			value = new Vector2(npc.Center.X / 16f, npc.Center.Y / 16f);
-
-		for (int i = 0; i < 200; i++) {
+		}
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			if (i == npc.whoAmI)
+			{
 				continue;
-
+			}
 			NPC nPC = Main.npc[i];
-			if (nPC.active && nPC.townNPC && !IsNotReallyTownNPC(nPC) && !WorldGen.TownManager.CanNPCsLiveWithEachOther_ShopHelper(npc, nPC)) {
+			if (nPC.active && nPC.townNPC && !IsNotReallyTownNPC(nPC) && !WorldGen.TownManager.CanNPCsLiveWithEachOther_ShopHelper(npc, nPC))
+			{
 				Vector2 value2 = new Vector2(nPC.homeTileX, nPC.homeTileY);
 				if (nPC.homeless)
+				{
 					value2 = nPC.Center / 16f;
-
+				}
 				float num = Vector2.Distance(value, value2);
-				if (num < 25f) {
+				if (num < 25f)
+				{
 					list.Add(nPC);
 					npcsWithinHouse++;
 				}
-				else if (num < 120f) {
+				else if (num < 120f)
+				{
 					npcsWithinVillage++;
 				}
 			}
 		}
-
 		return list;
 	}
 
 	private bool RuinMoodIfHomeless(NPC npc)
 	{
 		if (npc.homeless)
+		{
 			AddHappinessReportText("NoHome");
-
+		}
 		return npc.homeless;
 	}
 
@@ -314,27 +344,28 @@ public class ShopHelper
 	{
 		Vector2 value = new Vector2(npc.homeTileX, npc.homeTileY);
 		Vector2 value2 = new Vector2(npc.Center.X / 16f, npc.Center.Y / 16f);
-		if (Vector2.Distance(value, value2) > 120f) {
+		if (Vector2.Distance(value, value2) > 120f)
+		{
 			AddHappinessReportText("FarFromHome");
 			return true;
 		}
-
 		return false;
 	}
 
 	private bool IsPlayerInEvilBiomes(Player player)
 	{
-		for (int i = 0; i < _dangerousBiomes.Length; i++) {
+		for (int i = 0; i < _dangerousBiomes.Length; i++)
+		{
 			AShoppingBiome aShoppingBiome = _dangerousBiomes[i];
-			if (aShoppingBiome.IsInBiome(player)) {
-				AddHappinessReportText("HateBiome", new {
+			if (aShoppingBiome.IsInBiome(player))
+			{
+				AddHappinessReportText("HateBiome", new
+				{
 					BiomeName = BiomeNameByKey(aShoppingBiome.NameKey)
 				});
-
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -342,8 +373,9 @@ public class ShopHelper
 	{
 		int type = npc.type;
 		if (type == 37 || type == 368 || type == 453)
+		{
 			return true;
-
+		}
 		return false;
 	}
 }

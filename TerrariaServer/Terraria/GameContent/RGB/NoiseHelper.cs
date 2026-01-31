@@ -7,19 +7,23 @@ namespace Terraria.GameContent.RGB;
 public static class NoiseHelper
 {
 	private const int RANDOM_SEED = 1;
+
 	private const int NOISE_2D_SIZE = 32;
+
 	private const int NOISE_2D_SIZE_MASK = 31;
+
 	private const int NOISE_SIZE_MASK = 1023;
+
 	private static readonly float[] StaticNoise = CreateStaticNoise(1024);
 
 	private static float[] CreateStaticNoise(int length)
 	{
 		UnifiedRandom r = new UnifiedRandom(1);
 		float[] array = new float[length];
-		for (int i = 0; i < array.Length; i++) {
+		for (int i = 0; i < array.Length; i++)
+		{
 			array[i] = r.NextFloat();
 		}
-
 		return array;
 	}
 
@@ -30,8 +34,15 @@ public static class NoiseHelper
 		return Math.Abs(Math.Abs(num - num2) - 0.5f) * 2f;
 	}
 
-	public static float GetStaticNoise(int index) => StaticNoise[index & 0x3FF];
-	public static float GetDynamicNoise(int x, int y, float currentTime) => GetDynamicNoiseInternal(x, y, currentTime % 1f);
+	public static float GetStaticNoise(int index)
+	{
+		return StaticNoise[index & 0x3FF];
+	}
+
+	public static float GetDynamicNoise(int x, int y, float currentTime)
+	{
+		return GetDynamicNoiseInternal(x, y, currentTime % 1f);
+	}
 
 	private static float GetDynamicNoiseInternal(int x, int y, float wrappedTime)
 	{

@@ -18,17 +18,19 @@ public class WorkshopProgressReporter : AWorkshopProgressReporter
 	{
 		float num = 0f;
 		float num2 = 0f;
-		for (int i = 0; i < _publisherInstances.Count; i++) {
-			if (_publisherInstances[i].TryGetProgress(out var progress2)) {
+		for (int i = 0; i < _publisherInstances.Count; i++)
+		{
+			if (_publisherInstances[i].TryGetProgress(out var progress2))
+			{
 				num += progress2;
 				num2 += 1f;
 			}
 		}
-
 		progress = 0f;
 		if (num2 == 0f)
+		{
 			return false;
-
+		}
 		progress = num / num2;
 		return true;
 	}

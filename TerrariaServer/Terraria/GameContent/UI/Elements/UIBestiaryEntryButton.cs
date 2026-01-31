@@ -12,8 +12,11 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIBestiaryEntryButton : UIElement
 {
 	private UIImage _bordersGlow;
+
 	private UIImage _bordersOverlay;
+
 	private UIImage _borders;
+
 	private UIBestiaryEntryIcon _icon;
 
 	public BestiaryEntry Entry { get; private set; }
@@ -24,7 +27,8 @@ public class UIBestiaryEntryButton : UIElement
 		Height.Set(72f, 0f);
 		Width.Set(72f, 0f);
 		SetPadding(0f);
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = new StyleDimension(-4f, 1f),
 			Height = new StyleDimension(-4f, 1f),
 			IgnoresMouseInteraction = true,
@@ -32,64 +36,67 @@ public class UIBestiaryEntryButton : UIElement
 			HAlign = 0.5f,
 			VAlign = 0.5f
 		};
-
 		uIElement.SetPadding(0f);
-		uIElement.Append(new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Back")) {
+		uIElement.Append(new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Back", AssetRequestMode.ImmediateLoad))
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f
 		});
-
-		if (isAPrettyPortrait) {
+		if (isAPrettyPortrait)
+		{
 			Asset<Texture2D> asset = TryGettingBackgroundImageProvider(entry);
-			if (asset != null) {
-				uIElement.Append(new UIImage(asset) {
+			if (asset != null)
+			{
+				uIElement.Append(new UIImage(asset)
+				{
 					HAlign = 0.5f,
 					VAlign = 0.5f
 				});
 			}
 		}
-
 		UIBestiaryEntryIcon uIBestiaryEntryIcon = new UIBestiaryEntryIcon(entry, isAPrettyPortrait);
 		uIElement.Append(uIBestiaryEntryIcon);
 		Append(uIElement);
 		_icon = uIBestiaryEntryIcon;
 		int? num = TryGettingDisplayIndex(entry);
-		if (num.HasValue) {
-			UIText element = new UIText(num.Value.ToString(), 0.9f) {
+		if (num.HasValue)
+		{
+			UIText element = new UIText(num.Value.ToString(), 0.9f)
+			{
 				Top = new StyleDimension(10f, 0f),
 				Left = new StyleDimension(10f, 0f),
 				IgnoresMouseInteraction = true
 			};
-
 			Append(element);
 		}
-
-		_bordersGlow = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Selection")) {
+		_bordersGlow = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Selection", AssetRequestMode.ImmediateLoad))
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f,
 			IgnoresMouseInteraction = true
 		};
-
-		_bordersOverlay = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Overlay")) {
+		_bordersOverlay = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Overlay", AssetRequestMode.ImmediateLoad))
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f,
 			IgnoresMouseInteraction = true,
 			Color = Color.White * 0.6f
 		};
-
 		Append(_bordersOverlay);
-		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Front")) {
+		UIImage uIImage = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Bestiary/Slot_Front", AssetRequestMode.ImmediateLoad))
+		{
 			VAlign = 0.5f,
 			HAlign = 0.5f,
 			IgnoresMouseInteraction = true
 		};
-
 		Append(uIImage);
 		_borders = uIImage;
 		if (isAPrettyPortrait)
+		{
 			RemoveChild(_bordersOverlay);
-
-		if (!isAPrettyPortrait) {
+		}
+		if (!isAPrettyPortrait)
+		{
 			base.OnMouseOver += MouseOver;
 			base.OnMouseOut += MouseOut;
 		}
@@ -98,24 +105,27 @@ public class UIBestiaryEntryButton : UIElement
 	private Asset<Texture2D> TryGettingBackgroundImageProvider(BestiaryEntry entry)
 	{
 		IEnumerable<IBestiaryBackgroundImagePathAndColorProvider> enumerable = from x in entry.Info
-																			   where x is IBestiaryBackgroundImagePathAndColorProvider
-																			   select x as IBestiaryBackgroundImagePathAndColorProvider;
-
+			where x is IBestiaryBackgroundImagePathAndColorProvider
+			select x as IBestiaryBackgroundImagePathAndColorProvider;
 		IEnumerable<IPreferenceProviderElement> preferences = entry.Info.OfType<IPreferenceProviderElement>();
 		IEnumerable<IBestiaryBackgroundImagePathAndColorProvider> enumerable2 = enumerable.Where((IBestiaryBackgroundImagePathAndColorProvider provider) => preferences.Any((IPreferenceProviderElement preference) => preference.Matches(provider)));
 		Asset<Texture2D> asset = null;
-		foreach (IBestiaryBackgroundImagePathAndColorProvider item in enumerable2) {
+		foreach (IBestiaryBackgroundImagePathAndColorProvider item in enumerable2)
+		{
 			asset = item.GetBackgroundImage();
 			if (asset != null)
+			{
 				return asset;
+			}
 		}
-
-		foreach (IBestiaryBackgroundImagePathAndColorProvider item2 in enumerable) {
+		foreach (IBestiaryBackgroundImagePathAndColorProvider item2 in enumerable)
+		{
 			asset = item2.GetBackgroundImage();
 			if (asset != null)
+			{
 				return asset;
+			}
 		}
-
 		return null;
 	}
 
@@ -124,15 +134,18 @@ public class UIBestiaryEntryButton : UIElement
 		int? result = null;
 		IBestiaryInfoElement bestiaryInfoElement = entry.Info.FirstOrDefault((IBestiaryInfoElement x) => x is IBestiaryEntryDisplayIndex);
 		if (bestiaryInfoElement != null)
+		{
 			result = (bestiaryInfoElement as IBestiaryEntryDisplayIndex).BestiaryDisplayIndex;
-
+		}
 		return result;
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		if (base.IsMouseHovering)
+		{
 			Main.instance.MouseText(_icon.GetHoverText(), 0, 0);
+		}
 	}
 
 	private void MouseOver(UIMouseEvent evt, UIElement listeningElement)

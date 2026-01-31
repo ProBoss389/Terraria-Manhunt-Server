@@ -5,9 +5,13 @@ namespace Terraria.GameContent.ItemDropRules;
 public class CommonDrop : IItemDropRule
 {
 	public int itemId;
+
 	public int chanceDenominator;
+
 	public int amountDroppedMinimum;
+
 	public int amountDroppedMaximum;
+
 	public int chanceNumerator;
 
 	public List<IItemDropRuleChainAttempt> ChainedRules { get; private set; }
@@ -22,21 +26,25 @@ public class CommonDrop : IItemDropRule
 		ChainedRules = new List<IItemDropRuleChainAttempt>();
 	}
 
-	public virtual bool CanDrop(DropAttemptInfo info) => true;
+	public virtual bool CanDrop(DropAttemptInfo info)
+	{
+		return true;
+	}
 
 	public virtual ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
 	{
-		ItemDropAttemptResult result;
-		if (info.player.RollLuck(chanceDenominator) < chanceNumerator) {
+		if (info.player.RollLuck(chanceDenominator) < chanceNumerator)
+		{
 			CommonCode.DropItemFromNPC(info.npc, itemId, info.rng.Next(amountDroppedMinimum, amountDroppedMaximum + 1));
-			result = default(ItemDropAttemptResult);
-			result.State = ItemDropAttemptResultState.Success;
-			return result;
+			return new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.Success
+			};
 		}
-
-		result = default(ItemDropAttemptResult);
-		result.State = ItemDropAttemptResultState.FailedRandomRoll;
-		return result;
+		return new ItemDropAttemptResult
+		{
+			State = ItemDropAttemptResultState.FailedRandomRoll
+		};
 	}
 
 	public virtual void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)

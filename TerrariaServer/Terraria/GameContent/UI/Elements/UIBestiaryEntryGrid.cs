@@ -9,8 +9,11 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIBestiaryEntryGrid : UIElement
 {
 	private List<BestiaryEntry> _workingSetEntries;
+
 	private MouseEvent _clickOnEntryEvent;
+
 	private int _atEntryIndex;
+
 	private int _lastEntry;
 
 	public event Action OnGridContentsChanged;
@@ -40,18 +43,21 @@ public class UIBestiaryEntryGrid : UIElement
 		int atEntryIndex = _atEntryIndex;
 		int num = Math.Min(_lastEntry, atEntryIndex + maxEntriesToHave);
 		List<BestiaryEntry> list = new List<BestiaryEntry>();
-		for (int i = atEntryIndex; i < num; i++) {
+		for (int i = atEntryIndex; i < num; i++)
+		{
 			list.Add(_workingSetEntries[i]);
 		}
-
 		int num2 = 0;
 		float num3 = 0.5f / (float)maxEntriesWidth;
 		float num4 = 0.5f / (float)maxEntriesHeight;
-		for (int j = 0; j < maxEntriesHeight; j++) {
-			for (int k = 0; k < maxEntriesWidth; k++) {
+		for (int j = 0; j < maxEntriesHeight; j++)
+		{
+			for (int k = 0; k < maxEntriesWidth; k++)
+			{
 				if (num2 >= list.Count)
+				{
 					break;
-
+				}
 				UIElement uIElement = new UIBestiaryEntryButton(list[num2], isAPrettyPortrait: false);
 				num2++;
 				uIElement.OnLeftClick += _clickOnEntryEvent;
@@ -90,7 +96,8 @@ public class UIBestiaryEntryGrid : UIElement
 
 	public void MakeButtonGoByOffset(UIElement element, int howManyPages)
 	{
-		element.OnLeftClick += delegate {
+		element.OnLeftClick += delegate
+		{
 			OffsetLibraryByPages(howManyPages);
 		};
 	}
@@ -112,6 +119,8 @@ public class UIBestiaryEntryGrid : UIElement
 	{
 		_atEntryIndex = Utils.Clamp(_atEntryIndex + offset, 0, Math.Max(0, _lastEntry - maxEntriesToHave));
 		if (this.OnGridContentsChanged != null)
+		{
 			this.OnGridContentsChanged();
+		}
 	}
 }

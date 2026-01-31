@@ -19,16 +19,34 @@ public static class AssetInitializer
 {
 	public static void CreateAssetServices(GameServiceContainer services)
 	{
+		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004d: Expected O, but got Unknown
+		//IL_007e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0089: Expected O, but got Unknown
+		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a2: Expected O, but got Unknown
+		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ac: Expected O, but got Unknown
 		AssetReaderCollection assetReaderCollection = new AssetReaderCollection();
 		assetReaderCollection.RegisterReader(new PngReader(services.Get<IGraphicsDeviceService>().GraphicsDevice), ".png");
 		assetReaderCollection.RegisterReader(new XnbReader(services), ".xnb");
-		AsyncAssetLoader asyncAssetLoader = new AsyncAssetLoader(assetReaderCollection, 20);
-		asyncAssetLoader.RequireTypeCreationOnTransfer(typeof(Texture2D));
-		asyncAssetLoader.RequireTypeCreationOnTransfer(typeof(DynamicSpriteFont));
-		asyncAssetLoader.RequireTypeCreationOnTransfer(typeof(SpriteFont));
-		IAssetRepository provider = new AssetRepository(new AssetLoader(assetReaderCollection), asyncAssetLoader);
+		AsyncAssetLoader val = new AsyncAssetLoader(assetReaderCollection, 20);
+		val.RequireTypeCreationOnTransfer(typeof(Texture2D));
+		val.RequireTypeCreationOnTransfer(typeof(DynamicSpriteFont));
+		val.RequireTypeCreationOnTransfer(typeof(SpriteFont));
+		IAssetRepository assetRepository = new AssetRepository((IAssetLoader)new AssetLoader(assetReaderCollection), (IAsyncAssetLoader)(object)val);
+		assetRepository.AssetValueUpdatedHandler = (AssetValueUpdated)Delegate.Combine((Delegate)(object)assetRepository.AssetValueUpdatedHandler, (Delegate)new AssetValueUpdated(TagAsset));
 		services.AddService(typeof(AssetReaderCollection), assetReaderCollection);
-		services.AddService(typeof(IAssetRepository), provider);
+		services.AddService(typeof(IAssetRepository), assetRepository);
+	}
+
+	private static void TagAsset(IAsset asset, object value)
+	{
+		if (value is GraphicsResource graphicsResource)
+		{
+			graphicsResource.Name = asset.Name;
+			graphicsResource.Tag = asset;
+		}
 	}
 
 	public static ResourcePackList CreateResourcePackList(IServiceProvider services)
@@ -50,7 +68,7 @@ public static class AssetInitializer
 		Utils.TryCreatingDirectory(resourcePackFolder);
 	}
 
-	public static void LoadSplashAssets(bool asyncLoadForSounds)
+	public static void LoadSplashAssets()
 	{
 		TextureAssets.SplashTexture16x9 = LoadAsset<Texture2D>("Images\\SplashScreens\\Splash_1", AssetRequestMode.ImmediateLoad);
 		TextureAssets.SplashTexture4x3 = LoadAsset<Texture2D>("Images\\logo_" + new UnifiedRandom().Next(1, 9), AssetRequestMode.ImmediateLoad);
@@ -63,16 +81,13 @@ public static class AssetInitializer
 		TextureAssets.LoadingSunflower = LoadAsset<Texture2D>("Images\\UI\\Sunflower_Loading", AssetRequestMode.ImmediateLoad);
 	}
 
-	public static void LoadAssetsWhileInInitialBlackScreen()
-	{
-		LoadFonts(AssetRequestMode.ImmediateLoad);
-		LoadTextures(AssetRequestMode.ImmediateLoad);
-		LoadRenderTargetAssets(AssetRequestMode.ImmediateLoad);
-		LoadSounds(AssetRequestMode.ImmediateLoad);
-	}
-
 	public static void Load(bool asyncLoad)
 	{
+		int mode = ((!asyncLoad) ? 1 : 2);
+		LoadTextures((AssetRequestMode)mode);
+		LoadRenderTargetAssets((AssetRequestMode)mode);
+		LoadSounds((AssetRequestMode)mode);
+		LoadFonts((AssetRequestMode)mode);
 	}
 
 	private static void LoadFonts(AssetRequestMode mode)
@@ -103,180 +118,197 @@ public static class AssetInitializer
 
 	private static void LoadTextures(AssetRequestMode mode)
 	{
-		for (int i = 0; i < TextureAssets.Item.Length; i++) {
+		for (int i = 0; i < TextureAssets.Item.Length; i++)
+		{
 			int num = ItemID.Sets.TextureCopyLoad[i];
 			if (num != -1)
+			{
 				TextureAssets.Item[i] = TextureAssets.Item[num];
+			}
 			else
+			{
 				TextureAssets.Item[i] = LoadAsset<Texture2D>("Images/Item_" + i, AssetRequestMode.DoNotLoad);
+			}
 		}
-
-		for (int j = 0; j < TextureAssets.Npc.Length; j++) {
+		for (int j = 0; j < TextureAssets.Npc.Length; j++)
+		{
 			TextureAssets.Npc[j] = LoadAsset<Texture2D>("Images/NPC_" + j, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int k = 0; k < TextureAssets.Projectile.Length; k++) {
+		for (int k = 0; k < TextureAssets.Projectile.Length; k++)
+		{
 			TextureAssets.Projectile[k] = LoadAsset<Texture2D>("Images/Projectile_" + k, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int l = 0; l < TextureAssets.Gore.Length; l++) {
+		for (int l = 0; l < TextureAssets.Gore.Length; l++)
+		{
 			TextureAssets.Gore[l] = LoadAsset<Texture2D>("Images/Gore_" + l, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int m = 0; m < TextureAssets.Wall.Length; m++) {
+		for (int m = 0; m < TextureAssets.Wall.Length; m++)
+		{
 			TextureAssets.Wall[m] = LoadAsset<Texture2D>("Images/Wall_" + m, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int n = 0; n < TextureAssets.Tile.Length; n++) {
+		for (int n = 0; n < TextureAssets.Tile.Length; n++)
+		{
 			TextureAssets.Tile[n] = LoadAsset<Texture2D>("Images/Tiles_" + n, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num2 = 0; num2 < TextureAssets.ItemFlame.Length; num2++) {
+		for (int num2 = 0; num2 < TextureAssets.ItemFlame.Length; num2++)
+		{
 			TextureAssets.ItemFlame[num2] = LoadAsset<Texture2D>("Images/ItemFlame_" + num2, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num3 = 0; num3 < TextureAssets.Wings.Length; num3++) {
+		for (int num3 = 0; num3 < TextureAssets.Wings.Length; num3++)
+		{
 			TextureAssets.Wings[num3] = LoadAsset<Texture2D>("Images/Wings_" + num3, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num4 = 0; num4 < TextureAssets.PlayerHair.Length; num4++) {
+		for (int num4 = 0; num4 < TextureAssets.PlayerHair.Length; num4++)
+		{
 			TextureAssets.PlayerHair[num4] = LoadAsset<Texture2D>("Images/Player_Hair_" + (num4 + 1), AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num5 = 0; num5 < TextureAssets.PlayerHairAlt.Length; num5++) {
+		for (int num5 = 0; num5 < TextureAssets.PlayerHairAlt.Length; num5++)
+		{
 			TextureAssets.PlayerHairAlt[num5] = LoadAsset<Texture2D>("Images/Player_HairAlt_" + (num5 + 1), AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num6 = 0; num6 < TextureAssets.ArmorHead.Length; num6++) {
+		for (int num6 = 0; num6 < TextureAssets.ArmorHead.Length; num6++)
+		{
 			TextureAssets.ArmorHead[num6] = LoadAsset<Texture2D>("Images/Armor_Head_" + num6, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num7 = 0; num7 < TextureAssets.FemaleBody.Length; num7++) {
+		for (int num7 = 0; num7 < TextureAssets.FemaleBody.Length; num7++)
+		{
 			TextureAssets.FemaleBody[num7] = LoadAsset<Texture2D>("Images/Female_Body_" + num7, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num8 = 0; num8 < TextureAssets.ArmorBody.Length; num8++) {
+		for (int num8 = 0; num8 < TextureAssets.ArmorBody.Length; num8++)
+		{
 			TextureAssets.ArmorBody[num8] = LoadAsset<Texture2D>("Images/Armor_Body_" + num8, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num9 = 0; num9 < TextureAssets.ArmorBodyComposite.Length; num9++) {
+		for (int num9 = 0; num9 < TextureAssets.ArmorBodyComposite.Length; num9++)
+		{
 			TextureAssets.ArmorBodyComposite[num9] = LoadAsset<Texture2D>("Images/Armor/Armor_" + num9, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num10 = 0; num10 < TextureAssets.ArmorArm.Length; num10++) {
+		for (int num10 = 0; num10 < TextureAssets.ArmorArm.Length; num10++)
+		{
 			TextureAssets.ArmorArm[num10] = LoadAsset<Texture2D>("Images/Armor_Arm_" + num10, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num11 = 0; num11 < TextureAssets.ArmorLeg.Length; num11++) {
+		for (int num11 = 0; num11 < TextureAssets.ArmorLeg.Length; num11++)
+		{
 			TextureAssets.ArmorLeg[num11] = LoadAsset<Texture2D>("Images/Armor_Legs_" + num11, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num12 = 0; num12 < TextureAssets.AccHandsOn.Length; num12++) {
+		for (int num12 = 0; num12 < TextureAssets.AccHandsOn.Length; num12++)
+		{
 			TextureAssets.AccHandsOn[num12] = LoadAsset<Texture2D>("Images/Acc_HandsOn_" + num12, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num13 = 0; num13 < TextureAssets.AccHandsOff.Length; num13++) {
+		for (int num13 = 0; num13 < TextureAssets.AccHandsOff.Length; num13++)
+		{
 			TextureAssets.AccHandsOff[num13] = LoadAsset<Texture2D>("Images/Acc_HandsOff_" + num13, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num14 = 0; num14 < TextureAssets.AccHandsOnComposite.Length; num14++) {
+		for (int num14 = 0; num14 < TextureAssets.AccHandsOnComposite.Length; num14++)
+		{
 			TextureAssets.AccHandsOnComposite[num14] = LoadAsset<Texture2D>("Images/Accessories/Acc_HandsOn_" + num14, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num15 = 0; num15 < TextureAssets.AccHandsOffComposite.Length; num15++) {
+		for (int num15 = 0; num15 < TextureAssets.AccHandsOffComposite.Length; num15++)
+		{
 			TextureAssets.AccHandsOffComposite[num15] = LoadAsset<Texture2D>("Images/Accessories/Acc_HandsOff_" + num15, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num16 = 0; num16 < TextureAssets.AccBack.Length; num16++) {
+		for (int num16 = 0; num16 < TextureAssets.AccBack.Length; num16++)
+		{
 			TextureAssets.AccBack[num16] = LoadAsset<Texture2D>("Images/Acc_Back_" + num16, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num17 = 0; num17 < TextureAssets.AccFront.Length; num17++) {
+		for (int num17 = 0; num17 < TextureAssets.AccFront.Length; num17++)
+		{
 			TextureAssets.AccFront[num17] = LoadAsset<Texture2D>("Images/Acc_Front_" + num17, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num18 = 0; num18 < TextureAssets.AccShoes.Length; num18++) {
+		for (int num18 = 0; num18 < TextureAssets.AccShoes.Length; num18++)
+		{
 			TextureAssets.AccShoes[num18] = LoadAsset<Texture2D>("Images/Acc_Shoes_" + num18, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num19 = 0; num19 < TextureAssets.AccWaist.Length; num19++) {
+		for (int num19 = 0; num19 < TextureAssets.AccWaist.Length; num19++)
+		{
 			TextureAssets.AccWaist[num19] = LoadAsset<Texture2D>("Images/Acc_Waist_" + num19, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num20 = 0; num20 < TextureAssets.AccShield.Length; num20++) {
+		for (int num20 = 0; num20 < TextureAssets.AccShield.Length; num20++)
+		{
 			TextureAssets.AccShield[num20] = LoadAsset<Texture2D>("Images/Acc_Shield_" + num20, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num21 = 0; num21 < TextureAssets.AccNeck.Length; num21++) {
+		for (int num21 = 0; num21 < TextureAssets.AccNeck.Length; num21++)
+		{
 			TextureAssets.AccNeck[num21] = LoadAsset<Texture2D>("Images/Acc_Neck_" + num21, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num22 = 0; num22 < TextureAssets.AccFace.Length; num22++) {
+		for (int num22 = 0; num22 < TextureAssets.AccFace.Length; num22++)
+		{
 			TextureAssets.AccFace[num22] = LoadAsset<Texture2D>("Images/Acc_Face_" + num22, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num23 = 0; num23 < TextureAssets.AccBalloon.Length; num23++) {
+		for (int num23 = 0; num23 < TextureAssets.AccBalloon.Length; num23++)
+		{
 			TextureAssets.AccBalloon[num23] = LoadAsset<Texture2D>("Images/Acc_Balloon_" + num23, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num24 = 0; num24 < TextureAssets.AccBeard.Length; num24++) {
+		for (int num24 = 0; num24 < TextureAssets.AccBeard.Length; num24++)
+		{
 			TextureAssets.AccBeard[num24] = LoadAsset<Texture2D>("Images/Acc_Beard_" + num24, AssetRequestMode.DoNotLoad);
 		}
-
-		for (int num25 = 0; num25 < TextureAssets.Background.Length; num25++) {
+		for (int num25 = 0; num25 < TextureAssets.Background.Length; num25++)
+		{
 			TextureAssets.Background[num25] = LoadAsset<Texture2D>("Images/Background_" + num25, AssetRequestMode.DoNotLoad);
 		}
-
 		TextureAssets.FlameRing = LoadAsset<Texture2D>("Images/FlameRing", AssetRequestMode.DoNotLoad);
 		TextureAssets.TileCrack = LoadAsset<Texture2D>("Images\\TileCracks", mode);
-		TextureAssets.ChestStack[0] = LoadAsset<Texture2D>("Images\\ChestStack_0", mode);
-		TextureAssets.ChestStack[1] = LoadAsset<Texture2D>("Images\\ChestStack_1", mode);
+		for (int num26 = 0; num26 < TextureAssets.ChestStack.Length; num26++)
+		{
+			TextureAssets.ChestStack[num26] = LoadAsset<Texture2D>("Images\\UI\\ChestStack_" + num26, mode);
+		}
+		for (int num27 = 0; num27 < TextureAssets.ChestCraft.Length; num27++)
+		{
+			TextureAssets.ChestCraft[num27] = LoadAsset<Texture2D>("Images\\UI\\ChestCraft_" + num27, mode);
+		}
 		TextureAssets.SmartDig = LoadAsset<Texture2D>("Images\\SmartDig", mode);
+		TextureAssets.SmartCursorArrow = LoadAsset<Texture2D>("Images\\UI\\SmartCursorArrow", mode);
 		TextureAssets.IceBarrier = LoadAsset<Texture2D>("Images\\IceBarrier", mode);
 		TextureAssets.Frozen = LoadAsset<Texture2D>("Images\\Frozen", mode);
-		for (int num26 = 0; num26 < TextureAssets.Pvp.Length; num26++) {
-			TextureAssets.Pvp[num26] = LoadAsset<Texture2D>("Images\\UI\\PVP_" + num26, mode);
+		for (int num28 = 0; num28 < TextureAssets.Pvp.Length; num28++)
+		{
+			TextureAssets.Pvp[num28] = LoadAsset<Texture2D>("Images\\UI\\PVP_" + num28, mode);
 		}
-
-		for (int num27 = 0; num27 < TextureAssets.EquipPage.Length; num27++) {
-			TextureAssets.EquipPage[num27] = LoadAsset<Texture2D>("Images\\UI\\DisplaySlots_" + num27, mode);
+		for (int num29 = 0; num29 < TextureAssets.EquipPage.Length; num29++)
+		{
+			TextureAssets.EquipPage[num29] = LoadAsset<Texture2D>("Images\\UI\\DisplaySlots_" + num29, mode);
 		}
-
 		TextureAssets.HouseBanner = LoadAsset<Texture2D>("Images\\UI\\House_Banner", mode);
-		for (int num28 = 0; num28 < TextureAssets.CraftToggle.Length; num28++) {
-			TextureAssets.CraftToggle[num28] = LoadAsset<Texture2D>("Images\\UI\\Craft_Toggle_" + num28, mode);
+		TextureAssets.NPCHappiness = LoadAsset<Texture2D>("Images\\UI\\NPCHappiness", mode);
+		for (int num30 = 0; num30 < TextureAssets.CraftToggle.Length; num30++)
+		{
+			TextureAssets.CraftToggle[num30] = LoadAsset<Texture2D>("Images\\UI\\Craft_Toggle_" + num30, mode);
 		}
-
-		for (int num29 = 0; num29 < TextureAssets.InventorySort.Length; num29++) {
-			TextureAssets.InventorySort[num29] = LoadAsset<Texture2D>("Images\\UI\\Sort_" + num29, mode);
+		for (int num31 = 0; num31 < TextureAssets.BannerToggle.Length; num31++)
+		{
+			TextureAssets.BannerToggle[num31] = LoadAsset<Texture2D>("Images\\UI\\Banner_Toggle_" + num31, mode);
 		}
-
-		for (int num30 = 0; num30 < TextureAssets.TextGlyph.Length; num30++) {
-			TextureAssets.TextGlyph[num30] = LoadAsset<Texture2D>("Images\\UI\\Glyphs_" + num30, mode);
+		for (int num32 = 0; num32 < TextureAssets.InventorySort.Length; num32++)
+		{
+			TextureAssets.InventorySort[num32] = LoadAsset<Texture2D>("Images\\UI\\Sort_" + num32, mode);
 		}
-
-		for (int num31 = 0; num31 < TextureAssets.HotbarRadial.Length; num31++) {
-			TextureAssets.HotbarRadial[num31] = LoadAsset<Texture2D>("Images\\UI\\HotbarRadial_" + num31, mode);
+		for (int num33 = 0; num33 < TextureAssets.TextGlyph.Length; num33++)
+		{
+			TextureAssets.TextGlyph[num33] = LoadAsset<Texture2D>("Images\\UI\\Glyphs_" + num33, mode);
 		}
-
-		for (int num32 = 0; num32 < TextureAssets.InfoIcon.Length; num32++) {
-			TextureAssets.InfoIcon[num32] = LoadAsset<Texture2D>("Images\\UI\\InfoIcon_" + num32, mode);
+		for (int num34 = 0; num34 < TextureAssets.HotbarRadial.Length; num34++)
+		{
+			TextureAssets.HotbarRadial[num34] = LoadAsset<Texture2D>("Images\\UI\\HotbarRadial_" + num34, mode);
 		}
-
-		for (int num33 = 0; num33 < TextureAssets.Reforge.Length; num33++) {
-			TextureAssets.Reforge[num33] = LoadAsset<Texture2D>("Images\\UI\\Reforge_" + num33, mode);
+		for (int num35 = 0; num35 < TextureAssets.InfoIcon.Length; num35++)
+		{
+			TextureAssets.InfoIcon[num35] = LoadAsset<Texture2D>("Images\\UI\\InfoIcon_" + num35, mode);
 		}
-
-		for (int num34 = 0; num34 < TextureAssets.Camera.Length; num34++) {
-			TextureAssets.Camera[num34] = LoadAsset<Texture2D>("Images\\UI\\Camera_" + num34, mode);
+		for (int num36 = 0; num36 < TextureAssets.Reforge.Length; num36++)
+		{
+			TextureAssets.Reforge[num36] = LoadAsset<Texture2D>("Images\\UI\\Reforge_" + num36, mode);
 		}
-
-		for (int num35 = 0; num35 < TextureAssets.WireUi.Length; num35++) {
-			TextureAssets.WireUi[num35] = LoadAsset<Texture2D>("Images\\UI\\Wires_" + num35, mode);
+		for (int num37 = 0; num37 < TextureAssets.Camera.Length; num37++)
+		{
+			TextureAssets.Camera[num37] = LoadAsset<Texture2D>("Images\\UI\\Camera_" + num37, mode);
 		}
-
+		for (int num38 = 0; num38 < TextureAssets.WireUi.Length; num38++)
+		{
+			TextureAssets.WireUi[num38] = LoadAsset<Texture2D>("Images\\UI\\Wires_" + num38, mode);
+		}
 		TextureAssets.BuilderAcc = LoadAsset<Texture2D>("Images\\UI\\BuilderIcons", mode);
 		TextureAssets.QuicksIcon = LoadAsset<Texture2D>("Images\\UI\\UI_quickicon1", mode);
+		TextureAssets.TexturePackButtons = LoadAsset<Texture2D>("Images\\UI\\TexturePackButtons", mode);
 		TextureAssets.CraftUpButton = LoadAsset<Texture2D>("Images\\RecUp", mode);
 		TextureAssets.CraftDownButton = LoadAsset<Texture2D>("Images\\RecDown", mode);
 		TextureAssets.ScrollLeftButton = LoadAsset<Texture2D>("Images\\RecLeft", mode);
@@ -298,10 +330,10 @@ public static class AssetInitializer
 		TextureAssets.FireflyJar = LoadAsset<Texture2D>("Images\\FireflyJar", mode);
 		TextureAssets.Lightningbug = LoadAsset<Texture2D>("Images\\LightningBug", mode);
 		TextureAssets.LightningbugJar = LoadAsset<Texture2D>("Images\\LightningBugJar", mode);
-		for (int num36 = 1; num36 <= 3; num36++) {
-			TextureAssets.JellyfishBowl[num36 - 1] = LoadAsset<Texture2D>("Images\\jellyfishBowl" + num36, mode);
+		for (int num39 = 1; num39 <= 3; num39++)
+		{
+			TextureAssets.JellyfishBowl[num39 - 1] = LoadAsset<Texture2D>("Images\\jellyfishBowl" + num39, mode);
 		}
-
 		TextureAssets.GlowSnail = LoadAsset<Texture2D>("Images\\GlowSnail", mode);
 		TextureAssets.IceQueen = LoadAsset<Texture2D>("Images\\IceQueen", mode);
 		TextureAssets.SantaTank = LoadAsset<Texture2D>("Images\\SantaTank", mode);
@@ -311,12 +343,11 @@ public static class AssetInitializer
 		TextureAssets.ReaperEye = LoadAsset<Texture2D>("Images\\Reaper_Eyes", mode);
 		TextureAssets.MapDeath = LoadAsset<Texture2D>("Images\\MapDeath", mode);
 		TextureAssets.DukeFishron = LoadAsset<Texture2D>("Images\\DukeFishron", mode);
-		TextureAssets.MiniMinotaur = LoadAsset<Texture2D>("Images\\MiniMinotaur", mode);
 		TextureAssets.Map = LoadAsset<Texture2D>("Images\\Map", mode);
-		for (int num37 = 0; num37 < TextureAssets.MapBGs.Length; num37++) {
-			TextureAssets.MapBGs[num37] = LoadAsset<Texture2D>("Images\\MapBG" + (num37 + 1), mode);
+		for (int num40 = 0; num40 < TextureAssets.MapBGs.Length; num40++)
+		{
+			TextureAssets.MapBGs[num40] = LoadAsset<Texture2D>("Images\\MapBG" + (num40 + 1), mode);
 		}
-
 		TextureAssets.Hue = LoadAsset<Texture2D>("Images\\Hue", mode);
 		TextureAssets.ColorSlider = LoadAsset<Texture2D>("Images\\ColorSlider", mode);
 		TextureAssets.ColorBar = LoadAsset<Texture2D>("Images\\ColorBar", mode);
@@ -324,46 +355,48 @@ public static class AssetInitializer
 		TextureAssets.ColorHighlight = LoadAsset<Texture2D>("Images\\UI\\Slider_Highlight", mode);
 		TextureAssets.LockOnCursor = LoadAsset<Texture2D>("Images\\UI\\LockOn_Cursor", mode);
 		TextureAssets.Rain = LoadAsset<Texture2D>("Images\\Rain", mode);
-		for (int num38 = 0; num38 < GlowMaskID.Count; num38++) {
-			TextureAssets.GlowMask[num38] = LoadAsset<Texture2D>("Images\\Glow_" + num38, mode);
+		for (int num41 = 0; num41 < GlowMaskID.Count; num41++)
+		{
+			TextureAssets.GlowMask[num41] = LoadAsset<Texture2D>("Images\\Glow_" + num41, mode);
 		}
-
-		for (int num39 = 0; num39 < TextureAssets.HighlightMask.Length; num39++) {
-			if (TileID.Sets.HasOutlines[num39])
-				TextureAssets.HighlightMask[num39] = LoadAsset<Texture2D>("Images\\Misc\\TileOutlines\\Tiles_" + num39, mode);
+		for (int num42 = 0; num42 < TextureAssets.HighlightMask.Length; num42++)
+		{
+			if (TileID.Sets.HasOutlines[num42])
+			{
+				TextureAssets.HighlightMask[num42] = LoadAsset<Texture2D>("Images\\Misc\\TileOutlines\\Tiles_" + num42, mode);
+			}
 		}
-
-		for (int num40 = 0; num40 < ExtrasID.Count; num40++) {
-			TextureAssets.Extra[num40] = LoadAsset<Texture2D>("Images\\Extra_" + num40, mode);
+		for (int num43 = 0; num43 < ExtrasID.Count; num43++)
+		{
+			TextureAssets.Extra[num43] = LoadAsset<Texture2D>("Images\\Extra_" + num43, mode);
 		}
-
-		for (int num41 = 0; num41 < 4; num41++) {
-			TextureAssets.Coin[num41] = LoadAsset<Texture2D>("Images\\Coin_" + num41, mode);
+		for (int num44 = 0; num44 < 4; num44++)
+		{
+			TextureAssets.Coin[num44] = LoadAsset<Texture2D>("Images\\Coin_" + num44, mode);
 		}
-
 		TextureAssets.MagicPixel = LoadAsset<Texture2D>("Images\\MagicPixel", mode);
 		TextureAssets.SettingsPanel = LoadAsset<Texture2D>("Images\\UI\\Settings_Panel", mode);
 		TextureAssets.SettingsPanel2 = LoadAsset<Texture2D>("Images\\UI\\Settings_Panel_2", mode);
-		for (int num42 = 0; num42 < TextureAssets.XmasTree.Length; num42++) {
-			TextureAssets.XmasTree[num42] = LoadAsset<Texture2D>("Images\\Xmas_" + num42, mode);
+		for (int num45 = 0; num45 < TextureAssets.XmasTree.Length; num45++)
+		{
+			TextureAssets.XmasTree[num45] = LoadAsset<Texture2D>("Images\\Xmas_" + num45, mode);
 		}
-
-		for (int num43 = 0; num43 < 6; num43++) {
-			TextureAssets.Clothes[num43] = LoadAsset<Texture2D>("Images\\Clothes_" + num43, mode);
+		for (int num46 = 0; num46 < 6; num46++)
+		{
+			TextureAssets.Clothes[num46] = LoadAsset<Texture2D>("Images\\Clothes_" + num46, mode);
 		}
-
-		for (int num44 = 0; num44 < TextureAssets.Flames.Length; num44++) {
-			TextureAssets.Flames[num44] = LoadAsset<Texture2D>("Images\\Flame_" + num44, mode);
+		for (int num47 = 0; num47 < TextureAssets.Flames.Length; num47++)
+		{
+			TextureAssets.Flames[num47] = LoadAsset<Texture2D>("Images\\Flame_" + num47, mode);
 		}
-
-		for (int num45 = 0; num45 < 8; num45++) {
-			TextureAssets.MapIcon[num45] = LoadAsset<Texture2D>("Images\\Map_" + num45, mode);
+		for (int num48 = 0; num48 < 8; num48++)
+		{
+			TextureAssets.MapIcon[num48] = LoadAsset<Texture2D>("Images\\Map_" + num48, mode);
 		}
-
-		for (int num46 = 0; num46 < TextureAssets.Underworld.Length; num46++) {
-			TextureAssets.Underworld[num46] = LoadAsset<Texture2D>("Images/Backgrounds/Underworld " + num46, AssetRequestMode.DoNotLoad);
+		for (int num49 = 0; num49 < TextureAssets.Underworld.Length; num49++)
+		{
+			TextureAssets.Underworld[num49] = LoadAsset<Texture2D>("Images/Backgrounds/Underworld " + num49, AssetRequestMode.DoNotLoad);
 		}
-
 		TextureAssets.Dest[0] = LoadAsset<Texture2D>("Images\\Dest1", mode);
 		TextureAssets.Dest[1] = LoadAsset<Texture2D>("Images\\Dest2", mode);
 		TextureAssets.Dest[2] = LoadAsset<Texture2D>("Images\\Dest3", mode);
@@ -376,29 +409,29 @@ public static class AssetInitializer
 		TextureAssets.FlyingCarpet = LoadAsset<Texture2D>("Images\\FlyingCarpet", mode);
 		TextureAssets.Hb1 = LoadAsset<Texture2D>("Images\\HealthBar1", mode);
 		TextureAssets.Hb2 = LoadAsset<Texture2D>("Images\\HealthBar2", mode);
-		for (int num47 = 0; num47 < TextureAssets.NpcHead.Length; num47++) {
-			TextureAssets.NpcHead[num47] = LoadAsset<Texture2D>("Images\\NPC_Head_" + num47, mode);
+		for (int num50 = 0; num50 < TextureAssets.NpcHead.Length; num50++)
+		{
+			TextureAssets.NpcHead[num50] = LoadAsset<Texture2D>("Images\\NPC_Head_" + num50, mode);
 		}
-
-		for (int num48 = 0; num48 < TextureAssets.NpcHeadBoss.Length; num48++) {
-			TextureAssets.NpcHeadBoss[num48] = LoadAsset<Texture2D>("Images\\NPC_Head_Boss_" + num48, mode);
+		for (int num51 = 0; num51 < TextureAssets.NpcHeadBoss.Length; num51++)
+		{
+			TextureAssets.NpcHeadBoss[num51] = LoadAsset<Texture2D>("Images\\NPC_Head_Boss_" + num51, mode);
 		}
-
-		for (int num49 = 1; num49 < TextureAssets.BackPack.Length; num49++) {
-			TextureAssets.BackPack[num49] = LoadAsset<Texture2D>("Images\\BackPack_" + num49, mode);
+		for (int num52 = 1; num52 < TextureAssets.BackPack.Length; num52++)
+		{
+			TextureAssets.BackPack[num52] = LoadAsset<Texture2D>("Images\\BackPack_" + num52, mode);
 		}
-
-		for (int num50 = 1; num50 < BuffID.Count; num50++) {
-			TextureAssets.Buff[num50] = LoadAsset<Texture2D>("Images\\Buff_" + num50, mode);
+		for (int num53 = 1; num53 < BuffID.Count; num53++)
+		{
+			TextureAssets.Buff[num53] = LoadAsset<Texture2D>("Images\\Buff_" + num53, mode);
 		}
-
 		Main.instance.LoadBackground(0);
 		Main.instance.LoadBackground(49);
 		TextureAssets.MinecartMount = LoadAsset<Texture2D>("Images\\Mount_Minecart", mode);
-		for (int num51 = 0; num51 < TextureAssets.RudolphMount.Length; num51++) {
-			TextureAssets.RudolphMount[num51] = LoadAsset<Texture2D>("Images\\Rudolph_" + num51, mode);
+		for (int num54 = 0; num54 < TextureAssets.RudolphMount.Length; num54++)
+		{
+			TextureAssets.RudolphMount[num54] = LoadAsset<Texture2D>("Images\\Rudolph_" + num54, mode);
 		}
-
 		TextureAssets.BunnyMount = LoadAsset<Texture2D>("Images\\Mount_Bunny", mode);
 		TextureAssets.PigronMount = LoadAsset<Texture2D>("Images\\Mount_Pigron", mode);
 		TextureAssets.SlimeMount = LoadAsset<Texture2D>("Images\\Mount_Slime", mode);
@@ -425,23 +458,23 @@ public static class AssetInitializer
 		TextureAssets.ScutlixMount[0] = LoadAsset<Texture2D>("Images\\Mount_Scutlix", mode);
 		TextureAssets.ScutlixMount[1] = LoadAsset<Texture2D>("Images\\Mount_ScutlixEyes", mode);
 		TextureAssets.ScutlixMount[2] = LoadAsset<Texture2D>("Images\\Mount_ScutlixEyeGlow", mode);
-		for (int num52 = 0; num52 < TextureAssets.Gem.Length; num52++) {
-			TextureAssets.Gem[num52] = LoadAsset<Texture2D>("Images\\Gem_" + num52, mode);
+		for (int num55 = 0; num55 < TextureAssets.Gem.Length; num55++)
+		{
+			TextureAssets.Gem[num55] = LoadAsset<Texture2D>("Images\\Gem_" + num55, mode);
 		}
-
-		for (int num53 = 0; num53 < CloudID.Count; num53++) {
-			TextureAssets.Cloud[num53] = LoadAsset<Texture2D>("Images\\Cloud_" + num53, mode);
+		for (int num56 = 0; num56 < CloudID.Count; num56++)
+		{
+			TextureAssets.Cloud[num56] = LoadAsset<Texture2D>("Images\\Cloud_" + num56, mode);
 		}
-
-		for (int num54 = 0; num54 < 4; num54++) {
-			TextureAssets.Star[num54] = LoadAsset<Texture2D>("Images\\Star_" + num54, mode);
+		for (int num57 = 0; num57 < 4; num57++)
+		{
+			TextureAssets.Star[num57] = LoadAsset<Texture2D>("Images\\Star_" + num57, mode);
 		}
-
-		for (int num55 = 0; num55 < 15; num55++) {
-			TextureAssets.Liquid[num55] = LoadAsset<Texture2D>("Images\\Liquid_" + num55, mode);
-			TextureAssets.LiquidSlope[num55] = LoadAsset<Texture2D>("Images\\LiquidSlope_" + num55, mode);
+		for (int num58 = 0; num58 < 15; num58++)
+		{
+			TextureAssets.Liquid[num58] = LoadAsset<Texture2D>("Images\\Liquid_" + num58, mode);
+			TextureAssets.LiquidSlope[num58] = LoadAsset<Texture2D>("Images\\LiquidSlope_" + num58, mode);
 		}
-
 		Main.instance.waterfallManager.LoadContent();
 		TextureAssets.NpcToggle[0] = LoadAsset<Texture2D>("Images\\House_1", mode);
 		TextureAssets.NpcToggle[1] = LoadAsset<Texture2D>("Images\\House_2", mode);
@@ -456,6 +489,8 @@ public static class AssetInitializer
 		TextureAssets.Logo2 = LoadAsset<Texture2D>("Images\\Logo2", mode);
 		TextureAssets.Logo3 = LoadAsset<Texture2D>("Images\\Logo3", mode);
 		TextureAssets.Logo4 = LoadAsset<Texture2D>("Images\\Logo4", mode);
+		TextureAssets.Logo5 = LoadAsset<Texture2D>("Images\\Logo5", mode);
+		TextureAssets.Logo6 = LoadAsset<Texture2D>("Images\\Logo6", mode);
 		TextureAssets.Dust = LoadAsset<Texture2D>("Images\\Dust", mode);
 		TextureAssets.Sun = LoadAsset<Texture2D>("Images\\Sun", mode);
 		TextureAssets.Sun2 = LoadAsset<Texture2D>("Images\\Sun2", mode);
@@ -466,10 +501,10 @@ public static class AssetInitializer
 		TextureAssets.Bubble = LoadAsset<Texture2D>("Images\\Bubble", mode);
 		TextureAssets.Flame = LoadAsset<Texture2D>("Images\\Flame", mode);
 		TextureAssets.Mana = LoadAsset<Texture2D>("Images\\Mana", mode);
-		for (int num56 = 0; num56 < TextureAssets.Cursors.Length; num56++) {
-			TextureAssets.Cursors[num56] = LoadAsset<Texture2D>("Images\\UI\\Cursor_" + num56, mode);
+		for (int num59 = 0; num59 < TextureAssets.Cursors.Length; num59++)
+		{
+			TextureAssets.Cursors[num59] = LoadAsset<Texture2D>("Images\\UI\\Cursor_" + num59, mode);
 		}
-
 		TextureAssets.CursorRadial = LoadAsset<Texture2D>("Images\\UI\\Radial", mode);
 		TextureAssets.Ninja = LoadAsset<Texture2D>("Images\\Ninja", mode);
 		TextureAssets.AntLion = LoadAsset<Texture2D>("Images\\AntlionBody", mode);
@@ -484,22 +519,22 @@ public static class AssetInitializer
 		TextureAssets.SmileyMoon = LoadAsset<Texture2D>("Images\\Moon_Smiley", mode);
 		TextureAssets.PumpkinMoon = LoadAsset<Texture2D>("Images\\Moon_Pumpkin", mode);
 		TextureAssets.SnowMoon = LoadAsset<Texture2D>("Images\\Moon_Snow", mode);
-		for (int num57 = 0; num57 < TextureAssets.CageTop.Length; num57++) {
-			TextureAssets.CageTop[num57] = LoadAsset<Texture2D>("Images\\CageTop_" + num57, mode);
+		for (int num60 = 0; num60 < TextureAssets.CageTop.Length; num60++)
+		{
+			TextureAssets.CageTop[num60] = LoadAsset<Texture2D>("Images\\CageTop_" + num60, mode);
 		}
-
-		for (int num58 = 0; num58 < TextureAssets.Moon.Length; num58++) {
-			TextureAssets.Moon[num58] = LoadAsset<Texture2D>("Images\\Moon_" + num58, mode);
+		for (int num61 = 0; num61 < TextureAssets.Moon.Length; num61++)
+		{
+			TextureAssets.Moon[num61] = LoadAsset<Texture2D>("Images\\Moon_" + num61, mode);
 		}
-
-		for (int num59 = 0; num59 < TextureAssets.TreeTop.Length; num59++) {
-			TextureAssets.TreeTop[num59] = LoadAsset<Texture2D>("Images\\Tree_Tops_" + num59, mode);
+		for (int num62 = 0; num62 < TextureAssets.TreeTop.Length; num62++)
+		{
+			TextureAssets.TreeTop[num62] = LoadAsset<Texture2D>("Images\\Tree_Tops_" + num62, mode);
 		}
-
-		for (int num60 = 0; num60 < TextureAssets.TreeBranch.Length; num60++) {
-			TextureAssets.TreeBranch[num60] = LoadAsset<Texture2D>("Images\\Tree_Branches_" + num60, mode);
+		for (int num63 = 0; num63 < TextureAssets.TreeBranch.Length; num63++)
+		{
+			TextureAssets.TreeBranch[num63] = LoadAsset<Texture2D>("Images\\Tree_Branches_" + num63, mode);
 		}
-
 		TextureAssets.ShroomCap = LoadAsset<Texture2D>("Images\\Shroom_Tops", mode);
 		TextureAssets.InventoryBack = LoadAsset<Texture2D>("Images\\Inventory_Back", mode);
 		TextureAssets.InventoryBack2 = LoadAsset<Texture2D>("Images\\Inventory_Back2", mode);
@@ -520,6 +555,11 @@ public static class AssetInitializer
 		TextureAssets.InventoryBack17 = LoadAsset<Texture2D>("Images\\Inventory_Back17", mode);
 		TextureAssets.InventoryBack18 = LoadAsset<Texture2D>("Images\\Inventory_Back18", mode);
 		TextureAssets.InventoryBack19 = LoadAsset<Texture2D>("Images\\Inventory_Back19", mode);
+		TextureAssets.InventoryBack20 = LoadAsset<Texture2D>("Images\\Inventory_Back20", mode);
+		TextureAssets.InventoryBack21 = LoadAsset<Texture2D>("Images\\Inventory_Back21", mode);
+		TextureAssets.InventoryBack22 = LoadAsset<Texture2D>("Images\\Inventory_Back22", mode);
+		TextureAssets.InventoryBack23 = LoadAsset<Texture2D>("Images\\Inventory_Back23", mode);
+		TextureAssets.InventoryBack24 = LoadAsset<Texture2D>("Images\\Inventory_Back24", mode);
 		TextureAssets.HairStyleBack = LoadAsset<Texture2D>("Images\\HairStyleBack", mode);
 		TextureAssets.ClothesStyleBack = LoadAsset<Texture2D>("Images\\ClothesStyleBack", mode);
 		TextureAssets.InventoryTickOff = LoadAsset<Texture2D>("Images\\Inventory_Tick_Off", mode);
@@ -541,10 +581,10 @@ public static class AssetInitializer
 		TextureAssets.SunAltar = LoadAsset<Texture2D>("Images\\SunAltar", mode);
 		TextureAssets.XmasLight = LoadAsset<Texture2D>("Images\\XmasLight", mode);
 		TextureAssets.Beetle = LoadAsset<Texture2D>("Images\\BeetleOrb", mode);
-		for (int num61 = 0; num61 < ChainID.Count; num61++) {
-			TextureAssets.Chains[num61] = LoadAsset<Texture2D>("Images\\Chains_" + num61, mode);
+		for (int num64 = 0; num64 < ChainID.Count; num64++)
+		{
+			TextureAssets.Chains[num64] = LoadAsset<Texture2D>("Images\\Chains_" + num64, mode);
 		}
-
 		TextureAssets.Chain20 = LoadAsset<Texture2D>("Images\\Chain20", mode);
 		TextureAssets.FishingLine = LoadAsset<Texture2D>("Images\\FishingLine", mode);
 		TextureAssets.Chain = LoadAsset<Texture2D>("Images\\Chain", mode);
@@ -595,14 +635,15 @@ public static class AssetInitializer
 		TextureAssets.PumpkingArm = LoadAsset<Texture2D>("Images\\PumpkingArm", mode);
 		TextureAssets.PumpkingCloak = LoadAsset<Texture2D>("Images\\PumpkingCloak", mode);
 		TextureAssets.BoneArm2 = LoadAsset<Texture2D>("Images\\Arm_Bone_2", mode);
-		for (int num62 = 1; num62 < TextureAssets.GemChain.Length; num62++) {
-			TextureAssets.GemChain[num62] = LoadAsset<Texture2D>("Images\\GemChain_" + num62, mode);
+		TextureAssets.BoneArm3 = LoadAsset<Texture2D>("Images\\Arm_Bone_3", mode);
+		for (int num65 = 1; num65 < TextureAssets.GemChain.Length; num65++)
+		{
+			TextureAssets.GemChain[num65] = LoadAsset<Texture2D>("Images\\GemChain_" + num65, mode);
 		}
-
-		for (int num63 = 1; num63 < TextureAssets.Golem.Length; num63++) {
-			TextureAssets.Golem[num63] = LoadAsset<Texture2D>("Images\\GolemLights" + num63, mode);
+		for (int num66 = 1; num66 < TextureAssets.Golem.Length; num66++)
+		{
+			TextureAssets.Golem[num66] = LoadAsset<Texture2D>("Images\\GolemLights" + num66, mode);
 		}
-
 		TextureAssets.GolfSwingBarFill = LoadAsset<Texture2D>("Images\\UI\\GolfSwingBarFill", mode);
 		TextureAssets.GolfSwingBarPanel = LoadAsset<Texture2D>("Images\\UI\\GolfSwingBarPanel", mode);
 		TextureAssets.SpawnPoint = LoadAsset<Texture2D>("Images\\UI\\SpawnPoint", mode);
@@ -611,10 +652,14 @@ public static class AssetInitializer
 		TextureAssets.GolfBallArrow = LoadAsset<Texture2D>("Images\\UI\\GolfBall_Arrow", mode);
 		TextureAssets.GolfBallArrowShadow = LoadAsset<Texture2D>("Images\\UI\\GolfBall_Arrow_Shadow", mode);
 		TextureAssets.GolfBallOutline = LoadAsset<Texture2D>("Images\\Misc\\GolfBallOutline", mode);
+		TextureAssets.NpcPortraitBackground = LoadAsset<Texture2D>("Images\\TownNPCs\\Portraits\\Portrait_Window", mode);
 		Main.ResourceSetsManager.LoadContent(mode);
 		Main.MinimapFrameManagerInstance.LoadContent(mode);
 		Main.AchievementAdvisor.LoadContent();
 	}
 
-	private static Asset<T> LoadAsset<T>(string assetName, AssetRequestMode mode) where T : class => Main.Assets.Request<T>(assetName, mode);
+	private static Asset<T> LoadAsset<T>(string assetName, AssetRequestMode mode) where T : class
+	{
+		return Main.Assets.Request<T>(assetName, mode);
+	}
 }

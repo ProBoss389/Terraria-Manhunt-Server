@@ -16,7 +16,7 @@ public class PlayerTitaniumStormBuffTextureContent : ARenderTargetContentByReque
 		_shaderData.UseImage1("Images/Extra_" + (short)156);
 	}
 
-	protected override void HandleUseReqest(GraphicsDevice device, SpriteBatch spriteBatch)
+	protected override void HandleUseRequest(GraphicsDevice device, SpriteBatch spriteBatch)
 	{
 		Main.instance.LoadProjectile(908);
 		Asset<Texture2D> asset = TextureAssets.Projectile[908];

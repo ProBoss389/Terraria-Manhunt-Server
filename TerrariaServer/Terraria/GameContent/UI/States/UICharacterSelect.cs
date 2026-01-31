@@ -17,12 +17,19 @@ namespace Terraria.GameContent.UI.States;
 public class UICharacterSelect : UIState
 {
 	private UIList _playerList;
+
 	private UITextPanel<LocalizedText> _backPanel;
+
 	private UITextPanel<LocalizedText> _newPanel;
+
 	private UIPanel _containerPanel;
+
 	private UIScrollbar _scrollbar;
+
 	private bool _isScrollbarAttached;
+
 	private List<Tuple<string, bool>> favoritesCache = new List<Tuple<string, bool>>();
+
 	private bool skipDraw;
 
 	public override void OnInitialize()
@@ -80,19 +87,21 @@ public class UICharacterSelect : UIState
 
 	public override void Recalculate()
 	{
-		if (_scrollbar != null) {
-			if (_isScrollbarAttached && !_scrollbar.CanScroll) {
+		if (_scrollbar != null)
+		{
+			if (_isScrollbarAttached && !_scrollbar.CanScroll)
+			{
 				_containerPanel.RemoveChild(_scrollbar);
 				_isScrollbarAttached = false;
 				_playerList.Width.Set(0f, 1f);
 			}
-			else if (!_isScrollbarAttached && _scrollbar.CanScroll) {
+			else if (!_isScrollbarAttached && _scrollbar.CanScroll)
+			{
 				_containerPanel.Append(_scrollbar);
 				_isScrollbarAttached = true;
 				_playerList.Width.Set(-25f, 1f);
 			}
 		}
-
 		base.Recalculate();
 	}
 
@@ -129,41 +138,36 @@ public class UICharacterSelect : UIState
 		Main.ActivePlayerFileData = new PlayerFileData();
 		UpdatePlayersList();
 		if (PlayerInput.UsingGamepadUI)
+		{
 			UILinkPointNavigator.ChangePoint(3000 + ((_playerList.Count == 0) ? 1 : 2));
+		}
 	}
 
 	private void UpdatePlayersList()
 	{
 		_playerList.Clear();
-		List<PlayerFileData> list = new List<PlayerFileData>(Main.PlayerList);
-		list.Sort(delegate (PlayerFileData x, PlayerFileData y) {
-			if (x.IsFavorite && !y.IsFavorite)
-				return -1;
-
-			if (!x.IsFavorite && y.IsFavorite)
-				return 1;
-
-			return (x.Name.CompareTo(y.Name) != 0) ? x.Name.CompareTo(y.Name) : x.GetFileName().CompareTo(y.GetFileName());
-		});
-
+		IOrderedEnumerable<PlayerFileData> orderedEnumerable = from x in Main.PlayerList
+			orderby x.IsFavorite descending, x.LastPlayed descending, x.Name, x.GetFileName()
+			select x;
 		int num = 0;
-		foreach (PlayerFileData item in list) {
+		foreach (PlayerFileData item in orderedEnumerable)
+		{
 			_playerList.Add(new UICharacterListItem(item, num++));
 		}
 	}
 
 	public override void Draw(SpriteBatch spriteBatch)
 	{
-		if (skipDraw) {
+		if (skipDraw)
+		{
 			skipDraw = false;
 			return;
 		}
-
-		if (UpdateFavoritesCache()) {
+		if (UpdateFavoritesCache())
+		{
 			skipDraw = true;
 			Main.MenuUI.Draw(spriteBatch, new GameTime());
 		}
-
 		base.Draw(spriteBatch);
 		SetupGamepadPoints(spriteBatch);
 	}
@@ -171,39 +175,44 @@ public class UICharacterSelect : UIState
 	private bool UpdateFavoritesCache()
 	{
 		List<PlayerFileData> list = new List<PlayerFileData>(Main.PlayerList);
-		list.Sort(delegate (PlayerFileData x, PlayerFileData y) {
+		list.Sort(delegate(PlayerFileData x, PlayerFileData y)
+		{
 			if (x.IsFavorite && !y.IsFavorite)
+			{
 				return -1;
-
+			}
 			if (!x.IsFavorite && y.IsFavorite)
+			{
 				return 1;
-
+			}
 			return (x.Name.CompareTo(y.Name) != 0) ? x.Name.CompareTo(y.Name) : x.GetFileName().CompareTo(y.GetFileName());
 		});
-
 		bool flag = false;
 		if (!flag && list.Count != favoritesCache.Count)
+		{
 			flag = true;
-
-		if (!flag) {
-			for (int i = 0; i < favoritesCache.Count; i++) {
-				Tuple<string, bool> tuple = favoritesCache[i];
-				if (!(list[i].Name == tuple.Item1) || list[i].IsFavorite != tuple.Item2) {
+		}
+		if (!flag)
+		{
+			for (int num = 0; num < favoritesCache.Count; num++)
+			{
+				Tuple<string, bool> tuple = favoritesCache[num];
+				if (!(list[num].Name == tuple.Item1) || list[num].IsFavorite != tuple.Item2)
+				{
 					flag = true;
 					break;
 				}
 			}
 		}
-
-		if (flag) {
+		if (flag)
+		{
 			favoritesCache.Clear();
-			foreach (PlayerFileData item in list) {
+			foreach (PlayerFileData item in list)
+			{
 				favoritesCache.Add(Tuple.Create(item.Name, item.IsFavorite));
 			}
-
 			UpdatePlayersList();
 		}
-
 		return flag;
 	}
 
@@ -226,71 +235,77 @@ public class UICharacterSelect : UIState
 		Vector2 minimum = clippingRectangle.TopLeft() * num3;
 		Vector2 maximum = clippingRectangle.BottomRight() * num3;
 		List<SnapPoint> snapPoints = GetSnapPoints();
-		for (int i = 0; i < snapPoints.Count; i++) {
-			if (!snapPoints[i].Position.Between(minimum, maximum)) {
+		for (int i = 0; i < snapPoints.Count; i++)
+		{
+			if (!snapPoints[i].Position.Between(minimum, maximum))
+			{
 				snapPoints.Remove(snapPoints[i]);
 				i--;
 			}
 		}
-
 		int num4 = 5;
 		SnapPoint[,] array = new SnapPoint[_playerList.Count, num4];
-		foreach (SnapPoint item in snapPoints.Where((SnapPoint a) => a.Name == "Play")) {
+		foreach (SnapPoint item in snapPoints.Where((SnapPoint a) => a.Name == "Play"))
+		{
 			array[item.Id, 0] = item;
 		}
-
-		foreach (SnapPoint item2 in snapPoints.Where((SnapPoint a) => a.Name == "Favorite")) {
+		foreach (SnapPoint item2 in snapPoints.Where((SnapPoint a) => a.Name == "Favorite"))
+		{
 			array[item2.Id, 1] = item2;
 		}
-
-		foreach (SnapPoint item3 in snapPoints.Where((SnapPoint a) => a.Name == "Cloud")) {
+		foreach (SnapPoint item3 in snapPoints.Where((SnapPoint a) => a.Name == "Cloud"))
+		{
 			array[item3.Id, 2] = item3;
 		}
-
-		foreach (SnapPoint item4 in snapPoints.Where((SnapPoint a) => a.Name == "Rename")) {
+		foreach (SnapPoint item4 in snapPoints.Where((SnapPoint a) => a.Name == "Rename"))
+		{
 			array[item4.Id, 3] = item4;
 		}
-
-		foreach (SnapPoint item5 in snapPoints.Where((SnapPoint a) => a.Name == "Delete")) {
+		foreach (SnapPoint item5 in snapPoints.Where((SnapPoint a) => a.Name == "Delete"))
+		{
 			array[item5.Id, 4] = item5;
 		}
-
 		num2 = num + 2;
 		int[] array2 = new int[_playerList.Count];
-		for (int j = 0; j < array2.Length; j++) {
-			array2[j] = -1;
+		for (int num5 = 0; num5 < array2.Length; num5++)
+		{
+			array2[num5] = -1;
 		}
-
-		for (int k = 0; k < num4; k++) {
-			int num5 = -1;
-			for (int l = 0; l < array.GetLength(0); l++) {
-				if (array[l, k] != null) {
+		for (int num6 = 0; num6 < num4; num6++)
+		{
+			int num7 = -1;
+			for (int num8 = 0; num8 < array.GetLength(0); num8++)
+			{
+				if (array[num8, num6] != null)
+				{
 					uILinkPoint = UILinkPointNavigator.Points[num2];
 					uILinkPoint.Unlink();
-					UILinkPointNavigator.SetPosition(num2, array[l, k].Position);
-					if (num5 != -1) {
-						uILinkPoint.Up = num5;
-						UILinkPointNavigator.Points[num5].Down = num2;
+					UILinkPointNavigator.SetPosition(num2, array[num8, num6].Position);
+					if (num7 != -1)
+					{
+						uILinkPoint.Up = num7;
+						UILinkPointNavigator.Points[num7].Down = num2;
 					}
-
-					if (array2[l] != -1) {
-						uILinkPoint.Left = array2[l];
-						UILinkPointNavigator.Points[array2[l]].Right = num2;
+					if (array2[num8] != -1)
+					{
+						uILinkPoint.Left = array2[num8];
+						UILinkPointNavigator.Points[array2[num8]].Right = num2;
 					}
-
 					uILinkPoint.Down = num;
-					if (k == 0)
+					if (num6 == 0)
+					{
 						UILinkPointNavigator.Points[num].Up = (UILinkPointNavigator.Points[num + 1].Up = num2);
-
-					num5 = num2;
-					array2[l] = num2;
+					}
+					num7 = num2;
+					array2[num8] = num2;
 					UILinkPointNavigator.Shortcuts.FANCYUI_HIGHEST_INDEX = num2;
 					num2++;
 				}
 			}
 		}
-
 		if (PlayerInput.UsingGamepadUI && _playerList.Count == 0 && UILinkPointNavigator.CurrentPoint > 3001)
+		{
 			UILinkPointNavigator.ChangePoint(3001);
+		}
 	}
 }

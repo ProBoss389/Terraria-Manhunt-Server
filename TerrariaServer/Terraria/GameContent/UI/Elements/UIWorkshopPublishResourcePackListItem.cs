@@ -13,17 +13,29 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIWorkshopPublishResourcePackListItem : UIPanel
 {
 	private ResourcePack _data;
+
 	private Asset<Texture2D> _dividerTexture;
+
 	private Asset<Texture2D> _workshopIconTexture;
+
 	private Asset<Texture2D> _iconBorderTexture;
+
 	private Asset<Texture2D> _innerPanelTexture;
+
 	private UIElement _iconArea;
+
 	private UIElement _publishButton;
+
 	private int _orderInList;
+
 	private UIState _ownerState;
+
 	private const int ICON_SIZE = 64;
+
 	private const int ICON_BORDER_PADDING = 4;
+
 	private const int HEIGHT_FLUFF = 10;
+
 	private bool _canPublish;
 
 	public UIWorkshopPublishResourcePackListItem(UIState ownerState, ResourcePack data, int orderInList, bool canBePublished)
@@ -34,15 +46,16 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 		_canPublish = canBePublished;
 		LoadTextures();
 		InitializeAppearance();
-		UIElement uIElement = new UIElement {
+		UIElement uIElement = new UIElement
+		{
 			Width = new StyleDimension(72f, 0f),
 			Height = new StyleDimension(72f, 0f),
 			Left = new StyleDimension(4f, 0f),
 			VAlign = 0.5f
 		};
-
 		uIElement.OnLeftDoubleClick += PublishButtonClick_ImportResourcePackToLocalFiles;
-		UIImage element = new UIImage(data.Icon) {
+		UIImage element = new UIImage(data.Icon)
+		{
 			Width = new StyleDimension(-6f, 1f),
 			Height = new StyleDimension(-6f, 1f),
 			HAlign = 0.5f,
@@ -51,13 +64,12 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 			AllowResizingDimensions = false,
 			IgnoresMouseInteraction = true
 		};
-
-		UIImage element2 = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders")) {
+		UIImage element2 = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders", AssetRequestMode.ImmediateLoad))
+		{
 			HAlign = 0.5f,
 			VAlign = 0.5f,
 			IgnoresMouseInteraction = true
 		};
-
 		uIElement.Append(element);
 		uIElement.Append(element2);
 		Append(uIElement);
@@ -74,9 +86,9 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 
 	private void LoadTextures()
 	{
-		_dividerTexture = Main.Assets.Request<Texture2D>("Images/UI/Divider");
-		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground");
-		_iconBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders");
+		_dividerTexture = Main.Assets.Request<Texture2D>("Images/UI/Divider", AssetRequestMode.ImmediateLoad);
+		_innerPanelTexture = Main.Assets.Request<Texture2D>("Images/UI/InnerPanelBackground", AssetRequestMode.ImmediateLoad);
+		_iconBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders", AssetRequestMode.ImmediateLoad);
 		_workshopIconTexture = TextureAssets.Extra[243];
 	}
 
@@ -92,7 +104,8 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 	{
 		BackgroundColor = new Color(73, 94, 171);
 		BorderColor = new Color(89, 116, 213);
-		if (!_canPublish) {
+		if (!_canPublish)
+		{
 			BorderColor = new Color(150, 150, 150) * 1f;
 			BackgroundColor = Color.Lerp(BackgroundColor, new Color(120, 120, 120), 0.5f) * 1f;
 		}
@@ -102,7 +115,8 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 	{
 		BackgroundColor = new Color(63, 82, 151) * 0.7f;
 		BorderColor = new Color(89, 116, 213) * 0.7f;
-		if (!_canPublish) {
+		if (!_canPublish)
+		{
 			BorderColor = new Color(127, 127, 127) * 0.7f;
 			BackgroundColor = Color.Lerp(new Color(63, 82, 151), new Color(80, 80, 80), 0.5f) * 0.7f;
 		}
@@ -111,33 +125,35 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 	private void PublishButtonClick_ImportResourcePackToLocalFiles(UIMouseEvent evt, UIElement listeningElement)
 	{
 		if (listeningElement == evt.Target && !TryMovingToRejectionMenuIfNeeded())
+		{
 			Main.MenuUI.SetState(new WorkshopPublishInfoStateForResourcePack(_ownerState, _data));
+		}
 	}
 
 	private bool TryMovingToRejectionMenuIfNeeded()
 	{
-		if (!_canPublish) {
+		if (!_canPublish)
+		{
 			SoundEngine.PlaySound(10);
-			Main.instance.RejectionMenuInfo = new RejectionMenuInfo {
+			Main.instance.RejectionMenuInfo = new RejectionMenuInfo
+			{
 				TextToShow = Language.GetTextValue("Workshop.ReportIssue_CannotPublishZips"),
 				ExitAction = RejectionMenuExitAction
 			};
-
 			Main.menuMode = 1000001;
 			return true;
 		}
-
 		return false;
 	}
 
 	private void RejectionMenuExitAction()
 	{
 		SoundEngine.PlaySound(11);
-		if (_ownerState == null) {
+		if (_ownerState == null)
+		{
 			Main.menuMode = 0;
 			return;
 		}
-
 		Main.menuMode = 888;
 		Main.MenuUI.SetState(_ownerState);
 	}
@@ -145,8 +161,9 @@ public class UIWorkshopPublishResourcePackListItem : UIPanel
 	public override int CompareTo(object obj)
 	{
 		if (obj is UIWorkshopPublishResourcePackListItem uIWorkshopPublishResourcePackListItem)
+		{
 			return _orderInList.CompareTo(uIWorkshopPublishResourcePackListItem._orderInList);
-
+		}
 		return base.CompareTo(obj);
 	}
 

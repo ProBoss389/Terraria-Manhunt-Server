@@ -11,7 +11,9 @@ namespace Terraria.GameContent;
 public struct VoidLensHelper
 {
 	private readonly Vector2 _position;
+
 	private readonly float _opacity;
+
 	private readonly int _frameNumber;
 
 	public VoidLensHelper(Projectile proj)
@@ -37,8 +39,10 @@ public struct VoidLensHelper
 
 	public void SpawnVoidLensDust()
 	{
-		if (Main.rand.Next(3) == 0) {
-			if (Main.rand.Next(2) == 0) {
+		if (Main.rand.Next(3) == 0)
+		{
+			if (Main.rand.Next(2) == 0)
+			{
 				Vector2 vector = Vector2.UnitY.RotatedByRandom(6.2831854820251465);
 				vector *= new Vector2(0.5f, 1f);
 				Dust dust = Dust.NewDustDirect(_position - vector * 30f, 0, 0, Utils.SelectRandom<int>(Main.rand, 86, 88));
@@ -52,7 +56,8 @@ public struct VoidLensHelper
 				dust.position += dust.velocity * 10f;
 				dust.velocity *= -1f;
 			}
-			else {
+			else
+			{
 				Vector2 vector2 = Vector2.UnitY.RotatedByRandom(6.2831854820251465);
 				vector2 *= new Vector2(0.5f, 1f);
 				Dust dust2 = Dust.NewDustDirect(_position - vector2 * 30f, 0, 0, Utils.SelectRandom<int>(Main.rand, 86, 88));
@@ -79,7 +84,8 @@ public struct VoidLensHelper
 		color *= _opacity;
 		DrawData drawData = new DrawData(asset.Value, _position - Main.screenPosition, rectangle, color, 0f, rectangle.Size() / 2f, 1f, SpriteEffects.None);
 		drawDataList.Add(drawData);
-		for (float num = 0f; num < 1f; num += 0.34f) {
+		for (float num = 0f; num < 1f; num += 0.34f)
+		{
 			DrawData item = drawData;
 			item.color = new Color(127, 50, 127, 0) * _opacity;
 			item.scale *= 1.1f;
@@ -88,10 +94,11 @@ public struct VoidLensHelper
 			item.position += ((Main.GlobalTimeWrappedHourly / 5f + num) * ((float)Math.PI * 2f)).ToRotationVector2() * (x * 1f + 2f);
 			drawDataList.Add(item);
 		}
-
-		if (selectionMode != 0) {
+		if (selectionMode != 0)
+		{
 			int num2 = (color.R + color.G + color.B) / 3;
-			if (num2 > 10) {
+			if (num2 > 10)
+			{
 				Color selectionGlowColor = Colors.GetSelectionGlowColor(selectionMode == 2, num2);
 				drawData = new DrawData(TextureAssets.Extra[93].Value, _position - Main.screenPosition, rectangle, selectionGlowColor, 0f, rectangle.Size() / 2f, 1f, SpriteEffects.None);
 				drawDataList.Add(drawData);

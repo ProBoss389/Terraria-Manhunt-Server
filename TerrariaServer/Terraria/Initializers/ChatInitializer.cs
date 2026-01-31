@@ -1,7 +1,5 @@
 using Terraria.Chat.Commands;
-using Terraria.GameContent.UI;
 using Terraria.GameContent.UI.Chat;
-using Terraria.Localization;
 using Terraria.UI.Chat;
 
 namespace Terraria.Initializers;
@@ -10,31 +8,14 @@ public static class ChatInitializer
 {
 	public static void Load()
 	{
-		ChatManager.Register<ColorTagHandler>(new string[2] {
-			"c",
-			"color"
-		});
-
-		ChatManager.Register<ItemTagHandler>(new string[2] {
-			"i",
-			"item"
-		});
-
-		ChatManager.Register<NameTagHandler>(new string[2] {
-			"n",
-			"name"
-		});
-
-		ChatManager.Register<AchievementTagHandler>(new string[2] {
-			"a",
-			"achievement"
-		});
-
-		ChatManager.Register<GlyphTagHandler>(new string[2] {
-			"g",
-			"glyph"
-		});
-
+		ChatManager.Register<ColorTagHandler>(new string[2] { "c", "color" });
+		ChatManager.Register<ItemTagHandler>(new string[2] { "i", "item" });
+		ChatManager.Register<NameTagHandler>(new string[2] { "n", "name" });
+		ChatManager.Register<AchievementTagHandler>(new string[2] { "a", "achievement" });
+		ChatManager.Register<GlyphTagHandler>(new string[2] { "g", "glyph" });
+		ChatManager.Register<GlyphTagHandler.GlyphXboxTagHandler>(new string[2] { "gx", "glyph" });
+		ChatManager.Register<GlyphTagHandler.GlyphPSTagHandler>(new string[2] { "gp", "glyph" });
+		ChatManager.Register<GlyphTagHandler.GlyphSwitchTagHandler>(new string[2] { "gn", "glyph" });
 		ChatManager.Commands.AddCommand<PartyChatCommand>().AddCommand<RollCommand>().AddCommand<EmoteCommand>()
 			.AddCommand<ListPlayersCommand>()
 			.AddCommand<RockPaperScissorsCommand>()
@@ -44,18 +25,8 @@ public static class ChatInitializer
 			.AddCommand<PVPDeathCommand>()
 			.AddCommand<AllDeathCommand>()
 			.AddCommand<AllPVPDeathCommand>()
+			.AddCommand<BossDamageCommand>()
 			.AddDefaultCommand<SayChatCommand>();
-
-		PrepareAliases();
-	}
-
-	public static void PrepareAliases()
-	{
-		ChatManager.Commands.ClearAliases();
-		for (int i = 0; i < EmoteID.Count; i++) {
-			string name = EmoteID.Search.GetName(i);
-			string key = "EmojiCommand." + name;
-			ChatManager.Commands.AddAlias(Language.GetText(key), NetworkText.FromFormattable("{0} {1}", Language.GetText("ChatCommand.Emoji_1"), Language.GetText("EmojiName." + name)));
-		}
+		ChatManager.Commands.PrepareAliases();
 	}
 }

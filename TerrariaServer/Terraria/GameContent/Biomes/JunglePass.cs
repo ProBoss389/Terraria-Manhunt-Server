@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using ReLogic.Utilities;
+using Terraria.ID;
 using Terraria.IO;
 using Terraria.WorldBuilding;
 
@@ -11,7 +12,7 @@ public class JunglePass : GenPass
 	private double _worldScale;
 
 	public JunglePass()
-		: base("Jungle", 10154.65234375)
+		: base(GenPassNameID.Jungle, 10154.65234375)
 	{
 	}
 
@@ -51,7 +52,10 @@ public class JunglePass : GenPass
 		x = Utils.Clamp(x, GenVars.leftBeachEnd + num / 2 + num2, GenVars.rightBeachStart - num / 2 - num2);
 		GenVars.mudWall = true;
 		WorldGen.TileRunner(x, y, num, 10000, 59, addTile: false, 0.0, -20.0, noYChange: true);
-		GenerateTunnelToSurface(x, y);
+		if (!WorldGen.SecretSeed.extraLiquid.Enabled)
+		{
+			GenerateTunnelToSurface(x, y);
+		}
 		GenVars.mudWall = false;
 		progress.Set(0.6);
 		GenerateHolesInMudWalls();
@@ -60,7 +64,8 @@ public class JunglePass : GenPass
 
 	private void PlaceGemsAt(int x, int y, ushort baseGem, int gemVariants)
 	{
-		for (int i = 0; (double)i < 6.0 * _worldScale; i++) {
+		for (int i = 0; (double)i < 6.0 * _worldScale; i++)
+		{
 			WorldGen.TileRunner(x + GenBase._random.Next(-(int)(125.0 * _worldScale), (int)(125.0 * _worldScale)), y + GenBase._random.Next(-(int)(125.0 * _worldScale), (int)(125.0 * _worldScale)), GenBase._random.Next(3, 7), GenBase._random.Next(3, 8), GenBase._random.Next(baseGem, baseGem + gemVariants));
 		}
 	}
@@ -68,11 +73,14 @@ public class JunglePass : GenPass
 	private void PlaceFirstPassMud(int x, int y, int xSpeedScale)
 	{
 		GenVars.mudWall = true;
-		WorldGen.TileRunner(x, y, GenBase._random.Next((int)(250.0 * _worldScale), (int)(500.0 * _worldScale)), GenBase._random.Next(50, 150), 59, addTile: false, GenVars.dungeonSide * xSpeedScale);
+		WorldGen.TileRunner(x, y, GenBase._random.Next((int)(250.0 * _worldScale), (int)(500.0 * _worldScale)), GenBase._random.Next(50, 150), 59, addTile: false, GenVars.CurrentDungeonGenVars.dungeonSide * xSpeedScale);
 		GenVars.mudWall = false;
 	}
 
-	private Point CreateStartPoint() => new Point(GenVars.jungleOriginX, (int)((double)Main.maxTilesY + Main.rockLayer) / 2);
+	private Point CreateStartPoint()
+	{
+		return new Point(GenVars.jungleOriginX, (int)((double)Main.maxTilesY + Main.rockLayer) / 2);
+	}
 
 	private void ApplyRandomMovement(ref int x, ref int y, int xRange, int yRange)
 	{
@@ -92,30 +100,37 @@ public class JunglePass : GenPass
 		vector2D2.Y = (double)GenBase._random.Next(10, 20) * 0.1;
 		int num2 = 0;
 		bool flag = true;
-		while (flag) {
-			if (vector2D.Y < Main.worldSurface) {
+		while (flag)
+		{
+			if (vector2D.Y < Main.worldSurface)
+			{
 				if (WorldGen.drunkWorldGen)
+				{
 					flag = false;
-
+				}
 				int value = (int)vector2D.X;
 				int value2 = (int)vector2D.Y;
 				value = Utils.Clamp(value, 10, Main.maxTilesX - 10);
 				value2 = Utils.Clamp(value2, 10, Main.maxTilesY - 10);
 				if (value2 < 5)
+				{
 					value2 = 5;
-
+				}
 				if (Main.tile[value, value2].wall == 0 && !Main.tile[value, value2].active() && Main.tile[value, value2 - 3].wall == 0 && !Main.tile[value, value2 - 3].active() && Main.tile[value, value2 - 1].wall == 0 && !Main.tile[value, value2 - 1].active() && Main.tile[value, value2 - 4].wall == 0 && !Main.tile[value, value2 - 4].active() && Main.tile[value, value2 - 2].wall == 0 && !Main.tile[value, value2 - 2].active() && Main.tile[value, value2 - 5].wall == 0 && !Main.tile[value, value2 - 5].active())
+				{
 					flag = false;
+				}
 			}
-
 			GenVars.JungleX = (int)vector2D.X;
 			num += (double)GenBase._random.Next(-20, 21) * 0.1;
 			if (num < 5.0)
+			{
 				num = 5.0;
-
+			}
 			if (num > 10.0)
+			{
 				num = 10.0;
-
+			}
 			int value3 = (int)(vector2D.X - num * 0.5);
 			int value4 = (int)(vector2D.X + num * 0.5);
 			int value5 = (int)(vector2D.Y - num * 0.5);
@@ -124,56 +139,68 @@ public class JunglePass : GenPass
 			value4 = Utils.Clamp(value4, 10, Main.maxTilesX - 10);
 			value5 = Utils.Clamp(value5, 10, Main.maxTilesY - 10);
 			value6 = Utils.Clamp(value6, 10, Main.maxTilesY - 10);
-			for (int k = num3; k < value4; k++) {
-				for (int l = value5; l < value6; l++) {
+			for (int k = num3; k < value4; k++)
+			{
+				for (int l = value5; l < value6; l++)
+				{
 					if (Math.Abs((double)k - vector2D.X) + Math.Abs((double)l - vector2D.Y) < num * 0.5 * (1.0 + (double)GenBase._random.Next(-10, 11) * 0.015))
+					{
 						WorldGen.KillTile(k, l);
+					}
 				}
 			}
-
 			num2++;
-			if (num2 > 10 && GenBase._random.Next(50) < num2) {
+			if (num2 > 10 && GenBase._random.Next(50) < num2)
+			{
 				num2 = 0;
 				int num4 = -2;
 				if (GenBase._random.Next(2) == 0)
+				{
 					num4 = 2;
-
+				}
 				WorldGen.TileRunner((int)vector2D.X, (int)vector2D.Y, GenBase._random.Next(3, 20), GenBase._random.Next(10, 100), -1, addTile: false, num4);
 			}
-
 			vector2D += vector2D2;
 			vector2D2.Y += (double)GenBase._random.Next(-10, 11) * 0.01;
 			if (vector2D2.Y > 0.0)
+			{
 				vector2D2.Y = 0.0;
-
+			}
 			if (vector2D2.Y < -2.0)
+			{
 				vector2D2.Y = -2.0;
-
+			}
 			vector2D2.X += (double)GenBase._random.Next(-10, 11) * 0.1;
 			if (vector2D.X < (double)(i - 200))
+			{
 				vector2D2.X += (double)GenBase._random.Next(5, 21) * 0.1;
-
+			}
 			if (vector2D.X > (double)(i + 200))
+			{
 				vector2D2.X -= (double)GenBase._random.Next(5, 21) * 0.1;
-
+			}
 			if (vector2D2.X > 1.5)
+			{
 				vector2D2.X = 1.5;
-
+			}
 			if (vector2D2.X < -1.5)
+			{
 				vector2D2.X = -1.5;
+			}
 		}
 	}
 
 	private void GenerateHolesInMudWalls()
 	{
-		for (int i = 0; i < Main.maxTilesX / 4; i++) {
+		for (int i = 0; i < Main.maxTilesX / 4; i++)
+		{
 			int num = GenBase._random.Next(20, Main.maxTilesX - 20);
 			int num2 = GenBase._random.Next((int)GenVars.worldSurface + 10, Main.UnderworldLayer);
-			while (Main.tile[num, num2].wall != 64 && Main.tile[num, num2].wall != 15) {
+			while (Main.tile[num, num2].wall != 64 && Main.tile[num, num2].wall != 15)
+			{
 				num = GenBase._random.Next(20, Main.maxTilesX - 20);
 				num2 = GenBase._random.Next((int)GenVars.worldSurface + 10, Main.UnderworldLayer);
 			}
-
 			WorldGen.MudWallRunner(num, num2);
 		}
 	}
@@ -183,43 +210,47 @@ public class JunglePass : GenPass
 		int num = oldX;
 		int num2 = oldY;
 		double worldScale = _worldScale;
-		for (int i = 0; (double)i <= 20.0 * worldScale; i++) {
+		for (int i = 0; (double)i <= 20.0 * worldScale; i++)
+		{
 			progress.Set((60.0 + (double)i / worldScale) * 0.01);
 			num += GenBase._random.Next((int)(-5.0 * worldScale), (int)(6.0 * worldScale));
 			num2 += GenBase._random.Next((int)(-5.0 * worldScale), (int)(6.0 * worldScale));
 			WorldGen.TileRunner(num, num2, GenBase._random.Next(40, 100), GenBase._random.Next(300, 500), 59);
 		}
-
-		for (int j = 0; (double)j <= 10.0 * worldScale; j++) {
+		for (int j = 0; (double)j <= 10.0 * worldScale; j++)
+		{
 			progress.Set((80.0 + (double)j / worldScale * 2.0) * 0.01);
 			num = oldX + GenBase._random.Next((int)(-600.0 * worldScale), (int)(600.0 * worldScale));
 			num2 = oldY + GenBase._random.Next((int)(-200.0 * worldScale), (int)(200.0 * worldScale));
-			while (num < 1 || num >= Main.maxTilesX - 1 || num2 < 1 || num2 >= Main.maxTilesY - 1 || Main.tile[num, num2].type != 59) {
+			while (num < 1 || num >= Main.maxTilesX - 1 || num2 < 1 || num2 >= Main.maxTilesY - 1 || Main.tile[num, num2].type != 59)
+			{
 				num = oldX + GenBase._random.Next((int)(-600.0 * worldScale), (int)(600.0 * worldScale));
 				num2 = oldY + GenBase._random.Next((int)(-200.0 * worldScale), (int)(200.0 * worldScale));
 			}
-
-			for (int k = 0; (double)k < 8.0 * worldScale; k++) {
+			for (int k = 0; (double)k < 8.0 * worldScale; k++)
+			{
 				num += GenBase._random.Next(-30, 31);
 				num2 += GenBase._random.Next(-30, 31);
 				int type = -1;
 				if (GenBase._random.Next(7) == 0)
+				{
 					type = -2;
-
+				}
 				WorldGen.TileRunner(num, num2, GenBase._random.Next(10, 20), GenBase._random.Next(30, 70), type);
 			}
 		}
-
-		for (int l = 0; (double)l <= 300.0 * worldScale; l++) {
+		for (int l = 0; (double)l <= 300.0 * worldScale; l++)
+		{
 			num = oldX + GenBase._random.Next((int)(-600.0 * worldScale), (int)(600.0 * worldScale));
 			num2 = oldY + GenBase._random.Next((int)(-200.0 * worldScale), (int)(200.0 * worldScale));
-			while (num < 1 || num >= Main.maxTilesX - 1 || num2 < 1 || num2 >= Main.maxTilesY - 1 || Main.tile[num, num2].type != 59) {
+			while (num < 1 || num >= Main.maxTilesX - 1 || num2 < 1 || num2 >= Main.maxTilesY - 1 || Main.tile[num, num2].type != 59)
+			{
 				num = oldX + GenBase._random.Next((int)(-600.0 * worldScale), (int)(600.0 * worldScale));
 				num2 = oldY + GenBase._random.Next((int)(-200.0 * worldScale), (int)(200.0 * worldScale));
 			}
-
 			WorldGen.TileRunner(num, num2, GenBase._random.Next(4, 10), GenBase._random.Next(5, 30), 1);
-			if (GenBase._random.Next(4) == 0) {
+			if (GenBase._random.Next(4) == 0)
+			{
 				int type2 = GenBase._random.Next(63, 69);
 				WorldGen.TileRunner(num + GenBase._random.Next(-1, 2), num2 + GenBase._random.Next(-1, 2), GenBase._random.Next(3, 7), GenBase._random.Next(4, 8), type2);
 			}

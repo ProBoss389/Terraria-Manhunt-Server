@@ -3,7 +3,9 @@ namespace Terraria.Cinematics;
 public struct FrameEventData
 {
 	private int _absoluteFrame;
+
 	private int _start;
+
 	private int _duration;
 
 	public int AbsoluteFrame => _absoluteFrame;

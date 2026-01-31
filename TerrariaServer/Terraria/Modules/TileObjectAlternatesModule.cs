@@ -9,18 +9,19 @@ public class TileObjectAlternatesModule
 
 	public TileObjectAlternatesModule(TileObjectAlternatesModule copyFrom = null)
 	{
-		if (copyFrom == null) {
+		if (copyFrom == null)
+		{
 			data = null;
 			return;
 		}
-
-		if (copyFrom.data == null) {
+		if (copyFrom.data == null)
+		{
 			data = null;
 			return;
 		}
-
 		data = new List<TileObjectData>(copyFrom.data.Count);
-		for (int i = 0; i < copyFrom.data.Count; i++) {
+		for (int i = 0; i < copyFrom.data.Count; i++)
+		{
 			data.Add(new TileObjectData(copyFrom.data[i]));
 		}
 	}

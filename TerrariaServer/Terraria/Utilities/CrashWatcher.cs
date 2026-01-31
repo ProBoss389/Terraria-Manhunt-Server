@@ -22,39 +22,50 @@ public static class CrashWatcher
 	public static void Inititialize()
 	{
 		Console.WriteLine("Error Logging Enabled.");
-		AppDomain.CurrentDomain.FirstChanceException += delegate (object sender, FirstChanceExceptionEventArgs exceptionArgs) {
-			if (LogAllExceptions && 0 == 0) {
-				string text2 = PrintException(exceptionArgs.Exception);
-				Console.Write(string.Concat("================\r\n" + $"{DateTime.Now}: First-Chance Exception\r\nThread: {Thread.CurrentThread.ManagedThreadId} [{Thread.CurrentThread.Name}]\r\nCulture: {Thread.CurrentThread.CurrentCulture.Name}\r\nException: {text2}\r\n", "================\r\n\r\n"));
+		AppDomain.CurrentDomain.FirstChanceException += delegate(object sender, FirstChanceExceptionEventArgs exceptionArgs)
+		{
+			if (!Main.IsFullScreenThatWouldBeStuckOnCrashMessage() && LogAllExceptions && 0 == 0)
+			{
+				string text = PrintException(exceptionArgs.Exception);
+				Console.Write(string.Concat("================\r\n" + $"{DateTime.Now}: First-Chance Exception\r\nThread: {Thread.CurrentThread.ManagedThreadId} [{Thread.CurrentThread.Name}]\r\nCulture: {Thread.CurrentThread.CurrentCulture.Name}\r\nException: {text}\r\n", "================\r\n\r\n"));
 			}
 		};
-
-		AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs exceptionArgs) {
-			string text = PrintException((Exception)exceptionArgs.ExceptionObject);
-			Console.Write(string.Concat("================\r\n" + $"{DateTime.Now}: Unhandled Exception\r\nThread: {Thread.CurrentThread.ManagedThreadId} [{Thread.CurrentThread.Name}]\r\nCulture: {Thread.CurrentThread.CurrentCulture.Name}\r\nException: {text}\r\n", "================\r\n"));
-			if (DumpOnCrash)
-				CrashDump.WriteException(CrashDumpOptions, DumpPath);
+		AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs exceptionArgs)
+		{
+			if (!Main.IsFullScreenThatWouldBeStuckOnCrashMessage())
+			{
+				string text = PrintException((Exception)exceptionArgs.ExceptionObject);
+				Console.Write(string.Concat("================\r\n" + $"{DateTime.Now}: Unhandled Exception\r\nThread: {Thread.CurrentThread.ManagedThreadId} [{Thread.CurrentThread.Name}]\r\nCulture: {Thread.CurrentThread.CurrentCulture.Name}\r\nException: {text}\r\n", "================\r\n"));
+				if (DumpOnCrash)
+				{
+					CrashDump.WriteException(CrashDumpOptions, DumpPath);
+				}
+			}
 		};
 	}
 
 	private static string PrintException(Exception ex)
 	{
 		string text = ex.ToString();
-		try {
+		try
+		{
 			int num = (int)typeof(Exception).GetProperty("HResult", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetGetMethod(nonPublic: true).Invoke(ex, null);
 			if (num != 0)
+			{
 				text = text + "\nHResult: " + num;
+			}
 		}
-		catch {
+		catch
+		{
 		}
-
-		if (ex is ReflectionTypeLoadException) {
+		if (ex is ReflectionTypeLoadException)
+		{
 			Exception[] loaderExceptions = ((ReflectionTypeLoadException)ex).LoaderExceptions;
-			foreach (Exception ex2 in loaderExceptions) {
+			foreach (Exception ex2 in loaderExceptions)
+			{
 				text = text + "\n+--> " + PrintException(ex2);
 			}
 		}
-
 		return text;
 	}
 

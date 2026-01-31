@@ -6,28 +6,37 @@ namespace Terraria.Audio;
 public class MusicCueHolder
 {
 	private SoundBank _soundBank;
+
 	private string _cueName;
+
 	private Cue _loadedCue;
+
 	private float _lastSetVolume;
 
-	public bool IsPlaying {
-		get {
+	public bool IsPlaying
+	{
+		get
+		{
 			if (_loadedCue != null)
+			{
 				return _loadedCue.IsPlaying;
-
+			}
 			return false;
 		}
 	}
 
-	public bool IsOngoing {
-		get {
-			if (_loadedCue != null) {
+	public bool IsOngoing
+	{
+		get
+		{
+			if (_loadedCue != null)
+			{
 				if (!_loadedCue.IsPlaying)
+				{
 					return !_loadedCue.IsStopped;
-
+				}
 				return true;
 			}
-
 			return false;
 		}
 	}
@@ -42,30 +51,37 @@ public class MusicCueHolder
 	public void Pause()
 	{
 		if (_loadedCue == null || _loadedCue.IsPaused || !_loadedCue.IsPlaying)
+		{
 			return;
-
-		try {
+		}
+		try
+		{
 			_loadedCue.Pause();
 		}
-		catch (Exception) {
+		catch (Exception)
+		{
 		}
 	}
 
 	public void Resume()
 	{
 		if (_loadedCue == null || !_loadedCue.IsPaused)
+		{
 			return;
-
-		try {
+		}
+		try
+		{
 			_loadedCue.Resume();
 		}
-		catch (Exception) {
+		catch (Exception)
+		{
 		}
 	}
 
 	public void Stop()
 	{
-		if (_loadedCue != null) {
+		if (_loadedCue != null)
+		{
 			SetVolume(0f);
 			_loadedCue.Stop(AudioStopOptions.Immediate);
 		}
@@ -79,7 +95,8 @@ public class MusicCueHolder
 
 	private void PurgeCue()
 	{
-		if (_loadedCue != null) {
+		if (_loadedCue != null)
+		{
 			_loadedCue.Stop(AudioStopOptions.Immediate);
 			_loadedCue.Dispose();
 			_loadedCue = null;
@@ -96,10 +113,13 @@ public class MusicCueHolder
 	public void TryPlaying(float volume)
 	{
 		LoadTrack(forceReload: false);
-		if (_loadedCue.IsPrepared) {
+		if (_loadedCue.IsPrepared)
+		{
 			SetVolume(volume);
 			if (!_loadedCue.IsPlaying)
+			{
 				_loadedCue.Play();
+			}
 		}
 	}
 
@@ -107,12 +127,16 @@ public class MusicCueHolder
 	{
 		_lastSetVolume = volume;
 		if (_loadedCue != null)
+		{
 			_loadedCue.SetVariable("Volume", _lastSetVolume);
+		}
 	}
 
 	private void LoadTrack(bool forceReload)
 	{
 		if (forceReload || _loadedCue == null)
+		{
 			_loadedCue = _soundBank.GetCue(_cueName);
+		}
 	}
 }

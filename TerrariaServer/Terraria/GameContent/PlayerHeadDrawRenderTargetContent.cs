@@ -7,8 +7,11 @@ namespace Terraria.GameContent;
 public class PlayerHeadDrawRenderTargetContent : AnOutlinedDrawRenderTargetContent
 {
 	private Player _player;
+
 	private readonly List<DrawData> _drawData = new List<DrawData>();
+
 	private readonly List<int> _dust = new List<int>();
+
 	private readonly List<int> _gore = new List<int>();
 
 	public void UsePlayer(Player player)
@@ -18,7 +21,8 @@ public class PlayerHeadDrawRenderTargetContent : AnOutlinedDrawRenderTargetConte
 
 	internal override void DrawTheContent(SpriteBatch spriteBatch)
 	{
-		if (_player != null && !_player.ShouldNotDraw) {
+		if (_player != null && !_player.ShouldNotDraw)
+		{
 			_drawData.Clear();
 			_dust.Clear();
 			_gore.Clear();

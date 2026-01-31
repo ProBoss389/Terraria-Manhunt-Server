@@ -7,6 +7,7 @@ public class MessageDispatcherServer
 	private IPCServer _ipcSever = new IPCServer();
 
 	public event Action OnIPCClientAccess;
+
 	public event Action<IPCMessage> OnMessage;
 
 	public void Init(string serverName)
@@ -19,7 +20,9 @@ public class MessageDispatcherServer
 	public void OnClientAccess()
 	{
 		if (this.OnIPCClientAccess != null)
+		{
 			this.OnIPCClientAccess();
+		}
 	}
 
 	public void Start()
@@ -32,7 +35,9 @@ public class MessageDispatcherServer
 		IPCMessage iPCMessage = new IPCMessage();
 		iPCMessage.BuildFrom(data);
 		if (this.OnMessage != null)
+		{
 			this.OnMessage(iPCMessage);
+		}
 	}
 
 	public void Tick()
@@ -40,5 +45,8 @@ public class MessageDispatcherServer
 		_ipcSever.Tick();
 	}
 
-	public bool SendMessage(IPCMessage msg) => _ipcSever.Send(msg.GetBytes());
+	public bool SendMessage(IPCMessage msg)
+	{
+		return _ipcSever.Send(msg.GetBytes());
+	}
 }

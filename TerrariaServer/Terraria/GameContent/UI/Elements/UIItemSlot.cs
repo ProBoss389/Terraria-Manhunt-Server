@@ -7,7 +7,9 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIItemSlot : UIElement
 {
 	private Item[] _itemArray;
+
 	private int _itemIndex;
+
 	private int _itemSlotContext;
 
 	public UIItemSlot(Item[] itemArray, int itemIndex, int itemSlotContext)
@@ -21,14 +23,10 @@ public class UIItemSlot : UIElement
 
 	private void HandleItemSlotLogic()
 	{
-		if (base.IsMouseHovering) {
+		if (base.IsMouseHovering)
+		{
 			Main.LocalPlayer.mouseInterface = true;
-			Item inv = _itemArray[_itemIndex];
-			ItemSlot.OverrideHover(ref inv, _itemSlotContext);
-			ItemSlot.LeftClick(ref inv, _itemSlotContext);
-			ItemSlot.RightClick(ref inv, _itemSlotContext);
-			ItemSlot.MouseHover(ref inv, _itemSlotContext);
-			_itemArray[_itemIndex] = inv;
+			ItemSlot.Handle(_itemArray, _itemSlotContext, _itemIndex);
 		}
 	}
 

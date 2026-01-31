@@ -5,8 +5,11 @@ namespace Terraria.Graphics;
 public struct VertexColors
 {
 	public Color TopLeftColor;
+
 	public Color TopRightColor;
+
 	public Color BottomLeftColor;
+
 	public Color BottomRightColor;
 
 	public VertexColors(Color color)

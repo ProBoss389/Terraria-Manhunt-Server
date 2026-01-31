@@ -8,10 +8,15 @@ namespace Terraria.Social.WeGame;
 public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialModule
 {
 	private const string FILE_NAME = "/achievements-wegame.dat";
+
 	private bool _areStatsReceived;
+
 	private bool _areAchievementReceived;
+
 	private RailCallBackHelper _callbackHelper = new RailCallBackHelper();
+
 	private IRailPlayerAchievement _playerAchievement;
+
 	private IRailPlayerStats _playerStats;
 
 	public override void Initialize()
@@ -20,10 +25,12 @@ public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialM
 		_callbackHelper.RegisterCallback(RAILEventID.kRailEventAchievementPlayerAchievementReceived, RailEventCallBack);
 		IRailPlayerStats myPlayerStats = GetMyPlayerStats();
 		IRailPlayerAchievement myPlayerAchievement = GetMyPlayerAchievement();
-		if (myPlayerStats != null && myPlayerAchievement != null) {
+		if (myPlayerStats != null && myPlayerAchievement != null)
+		{
 			myPlayerStats.AsyncRequestStats("");
 			myPlayerAchievement.AsyncRequestAchievement("");
-			while (!_areStatsReceived && !_areAchievementReceived) {
+			while (!_areStatsReceived && !_areAchievementReceived)
+			{
 				CoreSocialModule.RailEventTick();
 				Thread.Sleep(10);
 			}
@@ -37,41 +44,44 @@ public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialM
 
 	private IRailPlayerStats GetMyPlayerStats()
 	{
-		if (_playerStats == null) {
+		if (_playerStats == null)
+		{
 			IRailStatisticHelper railStatisticHelper = rail_api.RailFactory().RailStatisticHelper();
-			if (railStatisticHelper != null) {
+			if (railStatisticHelper != null)
+			{
 				RailID railID = new RailID();
 				railID.id_ = 0uL;
 				_playerStats = railStatisticHelper.CreatePlayerStats(railID);
 			}
 		}
-
 		return _playerStats;
 	}
 
 	private IRailPlayerAchievement GetMyPlayerAchievement()
 	{
-		if (_playerAchievement == null) {
+		if (_playerAchievement == null)
+		{
 			IRailAchievementHelper railAchievementHelper = rail_api.RailFactory().RailAchievementHelper();
-			if (railAchievementHelper != null) {
+			if (railAchievementHelper != null)
+			{
 				RailID railID = new RailID();
 				railID.id_ = 0uL;
 				_playerAchievement = railAchievementHelper.CreatePlayerAchievement(railID);
 			}
 		}
-
 		return _playerAchievement;
 	}
 
 	public void RailEventCallBack(RAILEventID eventId, EventBase data)
 	{
-		switch (eventId) {
-			case RAILEventID.kRailEventStatsPlayerStatsReceived:
-				_areStatsReceived = true;
-				break;
-			case RAILEventID.kRailEventAchievementPlayerAchievementReceived:
-				_areAchievementReceived = true;
-				break;
+		switch (eventId)
+		{
+		case RAILEventID.kRailEventStatsPlayerStatsReceived:
+			_areStatsReceived = true;
+			break;
+		case RAILEventID.kRailEventAchievementPlayerAchievementReceived:
+			_areAchievementReceived = true;
+			break;
 		}
 	}
 
@@ -81,11 +91,13 @@ public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialM
 		RailResult railResult = RailResult.kFailure;
 		IRailPlayerAchievement myPlayerAchievement = GetMyPlayerAchievement();
 		if (myPlayerAchievement != null)
+		{
 			railResult = myPlayerAchievement.HasAchieved(name, out achieved);
-
+		}
 		if (achieved)
+		{
 			return railResult == RailResult.kSuccess;
-
+		}
 		return false;
 	}
 
@@ -99,7 +111,10 @@ public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialM
 		return array;
 	}
 
-	public override string GetSavePath() => "/achievements-wegame.dat";
+	public override string GetSavePath()
+	{
+		return "/achievements-wegame.dat";
+	}
 
 	private int GetIntStat(string name)
 	{
@@ -120,18 +135,22 @@ public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialM
 		IRailPlayerStats myPlayerStats = GetMyPlayerStats();
 		RailResult railResult = RailResult.kFailure;
 		if (myPlayerStats != null)
+		{
 			railResult = myPlayerStats.SetStatValue(name, value);
-
+		}
 		return railResult == RailResult.kSuccess;
 	}
 
 	public override void UpdateIntStat(string name, int value)
 	{
 		IRailPlayerStats myPlayerStats = GetMyPlayerStats();
-		if (myPlayerStats != null) {
+		if (myPlayerStats != null)
+		{
 			int data = 0;
 			if (myPlayerStats.GetStatValue(name, out data) == RailResult.kSuccess && data < value)
+			{
 				myPlayerStats.SetStatValue(name, value);
+			}
 		}
 	}
 
@@ -140,18 +159,22 @@ public class AchievementsSocialModule : Terraria.Social.Base.AchievementsSocialM
 		IRailPlayerStats myPlayerStats = GetMyPlayerStats();
 		RailResult railResult = RailResult.kFailure;
 		if (myPlayerStats != null)
+		{
 			railResult = myPlayerStats.SetStatValue(name, value);
-
+		}
 		return railResult == RailResult.kSuccess;
 	}
 
 	public override void UpdateFloatStat(string name, float value)
 	{
 		IRailPlayerStats myPlayerStats = GetMyPlayerStats();
-		if (myPlayerStats != null) {
+		if (myPlayerStats != null)
+		{
 			double data = 0.0;
 			if (myPlayerStats.GetStatValue(name, out data) == RailResult.kSuccess && (float)data < value)
+			{
 				myPlayerStats.SetStatValue(name, value);
+			}
 		}
 	}
 

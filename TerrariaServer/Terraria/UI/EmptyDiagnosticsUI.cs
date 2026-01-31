@@ -27,4 +27,14 @@ public class EmptyDiagnosticsUI : INetDiagnosticsUI
 	public void Draw(SpriteBatch spriteBatch)
 	{
 	}
+
+	public void RotateSendRecvCounters()
+	{
+	}
+
+	public void GetLastSentRecvBytes(out int sent, out int recv)
+	{
+		sent = 0;
+		recv = 0;
+	}
 }

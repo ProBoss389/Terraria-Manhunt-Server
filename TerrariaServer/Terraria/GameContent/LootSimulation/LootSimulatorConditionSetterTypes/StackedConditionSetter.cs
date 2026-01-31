@@ -11,17 +11,22 @@ public class StackedConditionSetter : ISimulationConditionSetter
 
 	public void Setup(SimulatorInfo info)
 	{
-		for (int i = 0; i < _setters.Length; i++) {
+		for (int i = 0; i < _setters.Length; i++)
+		{
 			_setters[i].Setup(info);
 		}
 	}
 
 	public void TearDown(SimulatorInfo info)
 	{
-		for (int i = 0; i < _setters.Length; i++) {
+		for (int i = 0; i < _setters.Length; i++)
+		{
 			_setters[i].TearDown(info);
 		}
 	}
 
-	public int GetTimesToRunMultiplier(SimulatorInfo info) => 1;
+	public int GetTimesToRunMultiplier(SimulatorInfo info)
+	{
+		return 1;
+	}
 }

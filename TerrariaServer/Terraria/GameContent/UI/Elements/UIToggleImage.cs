@@ -8,11 +8,17 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIToggleImage : UIElement
 {
 	private Asset<Texture2D> _onTexture;
+
 	private Asset<Texture2D> _offTexture;
+
 	private int _drawWidth;
+
 	private int _drawHeight;
+
 	private Point _onTextureOffset = Point.Zero;
+
 	private Point _offTextureOffset = Point.Zero;
+
 	private bool _isOn;
 
 	public bool IsOn => _isOn;
@@ -34,15 +40,16 @@ public class UIToggleImage : UIElement
 		CalculatedStyle dimensions = GetDimensions();
 		Texture2D value;
 		Point point;
-		if (_isOn) {
+		if (_isOn)
+		{
 			value = _onTexture.Value;
 			point = _onTextureOffset;
 		}
-		else {
+		else
+		{
 			value = _offTexture.Value;
 			point = _offTextureOffset;
 		}
-
 		Color color = (base.IsMouseHovering ? Color.White : Color.Silver);
 		spriteBatch.Draw(value, new Rectangle((int)dimensions.X, (int)dimensions.Y, _drawWidth, _drawHeight), new Rectangle(point.X, point.Y, _drawWidth, _drawHeight), color);
 	}

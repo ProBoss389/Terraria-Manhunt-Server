@@ -5,6 +5,7 @@ namespace Terraria.Net;
 public class TcpAddress : RemoteAddress
 {
 	public IPAddress Address;
+
 	public int Port;
 
 	public TcpAddress(IPAddress address, int port)
@@ -14,8 +15,23 @@ public class TcpAddress : RemoteAddress
 		Port = port;
 	}
 
-	public override string GetIdentifier() => Address.ToString();
-	public override bool IsLocalHost() => Address.Equals(IPAddress.Loopback);
-	public override string ToString() => new IPEndPoint(Address, Port).ToString();
-	public override string GetFriendlyName() => ToString();
+	public override string GetIdentifier()
+	{
+		return Address.ToString();
+	}
+
+	public override bool IsLocalHost()
+	{
+		return Address.Equals(IPAddress.Loopback);
+	}
+
+	public override string ToString()
+	{
+		return new IPEndPoint(Address, Port).ToString();
+	}
+
+	public override string GetFriendlyName()
+	{
+		return ToString();
+	}
 }

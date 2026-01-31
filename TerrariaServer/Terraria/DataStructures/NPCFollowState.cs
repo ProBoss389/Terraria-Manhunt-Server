@@ -6,18 +6,23 @@ namespace Terraria.DataStructures;
 public class NPCFollowState
 {
 	private NPC _npc;
+
 	private int? _playerIndexBeingFollowed;
+
 	private Vector2 _floorBreadcrumb;
 
 	public Vector2 BreadcrumbPosition => _floorBreadcrumb;
 
 	public bool IsFollowingPlayer => _playerIndexBeingFollowed.HasValue;
 
-	public Player PlayerBeingFollowed {
-		get {
+	public Player PlayerBeingFollowed
+	{
+		get
+		{
 			if (_playerIndexBeingFollowed.HasValue)
+			{
 				return Main.player[_playerIndexBeingFollowed.Value];
-
+			}
 			return null;
 		}
 	}
@@ -43,7 +48,10 @@ public class NPCFollowState
 		_floorBreadcrumb = default(Vector2);
 	}
 
-	private bool ShouldSync() => _npc.isLikeATownNPC;
+	private bool ShouldSync()
+	{
+		return _npc.isLikeATownNPC;
+	}
 
 	public void WriteTo(BinaryWriter writer)
 	{
@@ -55,7 +63,9 @@ public class NPCFollowState
 	{
 		short num = reader.ReadInt16();
 		if (Main.player.IndexInRange(num))
+		{
 			_playerIndexBeingFollowed = num;
+		}
 	}
 
 	private void MoveNPCBackHome()
@@ -69,13 +79,14 @@ public class NPCFollowState
 
 	public void Update()
 	{
-		if (IsFollowingPlayer) {
+		if (IsFollowingPlayer)
+		{
 			Player playerBeingFollowed = PlayerBeingFollowed;
-			if (!playerBeingFollowed.active || playerBeingFollowed.dead) {
+			if (!playerBeingFollowed.active || playerBeingFollowed.dead)
+			{
 				StopFollowing();
 				return;
 			}
-
 			UpdateBreadcrumbs(playerBeingFollowed);
 			Dust.QuickDust(_floorBreadcrumb, Color.Red);
 		}
@@ -85,10 +96,12 @@ public class NPCFollowState
 	{
 		Vector2? vector = null;
 		if (player.velocity.Y == 0f && player.gravDir == 1f)
+		{
 			vector = player.Bottom;
-
+		}
 		int num = 8;
-		if (vector.HasValue && Vector2.Distance(vector.Value, _floorBreadcrumb) >= (float)num) {
+		if (vector.HasValue && Vector2.Distance(vector.Value, _floorBreadcrumb) >= (float)num)
+		{
 			_floorBreadcrumb = vector.Value;
 			_npc.netUpdate = true;
 		}

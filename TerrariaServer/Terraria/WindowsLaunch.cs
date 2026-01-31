@@ -24,25 +24,26 @@ public static class WindowsLaunch
 	private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
 	{
 		bool flag = false;
-		switch (ctrlType) {
-			case CtrlTypes.CTRL_C_EVENT:
-				flag = true;
-				break;
-			case CtrlTypes.CTRL_BREAK_EVENT:
-				flag = true;
-				break;
-			case CtrlTypes.CTRL_CLOSE_EVENT:
-				flag = true;
-				break;
-			case CtrlTypes.CTRL_LOGOFF_EVENT:
-			case CtrlTypes.CTRL_SHUTDOWN_EVENT:
-				flag = true;
-				break;
+		switch (ctrlType)
+		{
+		case CtrlTypes.CTRL_C_EVENT:
+			flag = true;
+			break;
+		case CtrlTypes.CTRL_BREAK_EVENT:
+			flag = true;
+			break;
+		case CtrlTypes.CTRL_CLOSE_EVENT:
+			flag = true;
+			break;
+		case CtrlTypes.CTRL_LOGOFF_EVENT:
+		case CtrlTypes.CTRL_SHUTDOWN_EVENT:
+			flag = true;
+			break;
 		}
-
 		if (flag)
+		{
 			SocialAPI.Shutdown();
-
+		}
 		return true;
 	}
 
@@ -52,18 +53,19 @@ public static class WindowsLaunch
 	[STAThread]
 	private static void Main(string[] args)
 	{
-		AppDomain.CurrentDomain.AssemblyResolve += delegate (object sender, ResolveEventArgs sargs) {
+		AppDomain.CurrentDomain.AssemblyResolve += delegate(object sender, ResolveEventArgs sargs)
+		{
 			string resourceName = new AssemblyName(sargs.Name).Name + ".dll";
 			string text = Array.Find(typeof(Program).Assembly.GetManifestResourceNames(), (string element) => element.EndsWith(resourceName));
 			if (text == null)
-				return null;
-
+			{
+				return (Assembly)null;
+			}
 			using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(text);
 			byte[] array = new byte[stream.Length];
 			stream.Read(array, 0, array.Length);
 			return Assembly.Load(array);
 		};
-
 		_handleRoutine = ConsoleCtrlCheck;
 		SetConsoleCtrlHandler(_handleRoutine, add: true);
 		Program.LaunchGame(args);

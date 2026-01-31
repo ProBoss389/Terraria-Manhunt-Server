@@ -7,6 +7,7 @@ namespace Terraria.GameContent.Bestiary;
 public class NamePlateInfoElement : IBestiaryInfoElement, IProvideSearchFilterString
 {
 	private string _key;
+
 	private int _npcNetId;
 
 	public NamePlateInfoElement(string languageKey, int npcNetId)
@@ -17,7 +18,7 @@ public class NamePlateInfoElement : IBestiaryInfoElement, IProvideSearchFilterSt
 
 	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
 	{
-		UIElement uIElement = ((info.UnlockState != 0) ? new UIText(Language.GetText(_key)) : new UIText("???"));
+		UIElement uIElement = ((info.UnlockState != BestiaryEntryUnlockState.NotKnownAtAll_0) ? new UIText(Language.GetText(_key)) : new UIText("???"));
 		uIElement.HAlign = 0.5f;
 		uIElement.VAlign = 0.5f;
 		uIElement.Top = new StyleDimension(2f, 0f);
@@ -32,8 +33,9 @@ public class NamePlateInfoElement : IBestiaryInfoElement, IProvideSearchFilterSt
 	public string GetSearchString(ref BestiaryUICollectionInfo info)
 	{
 		if (info.UnlockState == BestiaryEntryUnlockState.NotKnownAtAll_0)
+		{
 			return null;
-
+		}
 		return Language.GetText(_key).Value;
 	}
 }

@@ -5,6 +5,7 @@ namespace Terraria.GameContent;
 public class BackgroundChangeFlashInfo
 {
 	private int[] _variations = new int[TreeTopsInfo.AreaId.Count];
+
 	private float[] _flashPower = new float[TreeTopsInfo.AreaId.Count];
 
 	public void UpdateCache()
@@ -29,21 +30,29 @@ public class BackgroundChangeFlashInfo
 		int num = _variations[areaId];
 		_variations[areaId] = newVariationValue;
 		if (num != newVariationValue)
+		{
 			ValueChanged(areaId);
+		}
 	}
 
 	private void ValueChanged(int areaId)
 	{
 		if (!Main.gameMenu)
+		{
 			_flashPower[areaId] = 1f;
+		}
 	}
 
 	public void UpdateFlashValues()
 	{
-		for (int i = 0; i < _flashPower.Length; i++) {
+		for (int i = 0; i < _flashPower.Length; i++)
+		{
 			_flashPower[i] = MathHelper.Clamp(_flashPower[i] - 0.05f, 0f, 1f);
 		}
 	}
 
-	public float GetFlashPower(int areaId) => _flashPower[areaId];
+	public float GetFlashPower(int areaId)
+	{
+		return _flashPower[areaId];
+	}
 }

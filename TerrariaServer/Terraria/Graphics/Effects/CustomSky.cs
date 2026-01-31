@@ -13,7 +13,18 @@ public abstract class CustomSky : GameEffect
 
 	public abstract void Reset();
 
-	public virtual Color OnTileColor(Color inColor) => inColor;
-	public virtual float GetCloudAlpha() => 1f;
-	public override bool IsVisible() => true;
+	public virtual Color OnTileColor(Color inColor)
+	{
+		return inColor;
+	}
+
+	public virtual float GetCloudAlpha()
+	{
+		return 1f;
+	}
+
+	public override bool IsVisible()
+	{
+		return true;
+	}
 }

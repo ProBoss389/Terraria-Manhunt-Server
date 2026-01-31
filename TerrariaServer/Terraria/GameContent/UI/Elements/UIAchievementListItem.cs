@@ -12,19 +12,33 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIAchievementListItem : UIPanel
 {
 	private Achievement _achievement;
+
 	private UIImageFramed _achievementIcon;
+
 	private UIImage _achievementIconBorders;
+
 	private const int _iconSize = 64;
+
 	private const int _iconSizeWithSpace = 66;
+
 	private const int _iconsPerRow = 8;
+
 	private int _iconIndex;
+
 	private Rectangle _iconFrame;
+
 	private Rectangle _iconFrameUnlocked;
+
 	private Rectangle _iconFrameLocked;
+
 	private Asset<Texture2D> _innerPanelTopTexture;
+
 	private Asset<Texture2D> _innerPanelBottomTexture;
+
 	private Asset<Texture2D> _categoryTexture;
+
 	private bool _locked;
+
 	private bool _large;
 
 	public UIAchievementListItem(Achievement achievement, bool largeForOtherLanguages)
@@ -46,21 +60,24 @@ public class UIAchievementListItem : UIPanel
 		_iconFrameLocked.X += 528;
 		_iconFrame = _iconFrameLocked;
 		UpdateIconFrame();
-		_achievementIcon = new UIImageFramed(Main.Assets.Request<Texture2D>("Images/UI/Achievements"), _iconFrame);
+		_achievementIcon = new UIImageFramed(Main.Assets.Request<Texture2D>("Images/UI/Achievements", AssetRequestMode.ImmediateLoad), _iconFrame);
 		_achievementIcon.Left.Set(num2, 0f);
 		_achievementIcon.Top.Set(num3, 0f);
 		Append(_achievementIcon);
-		_achievementIconBorders = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders"));
+		_achievementIconBorders = new UIImage(Main.Assets.Request<Texture2D>("Images/UI/Achievement_Borders", AssetRequestMode.ImmediateLoad));
 		_achievementIconBorders.Left.Set(-4f + num2, 0f);
 		_achievementIconBorders.Top.Set(-4f + num3, 0f);
 		Append(_achievementIconBorders);
-		_innerPanelTopTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_InnerPanelTop");
+		_innerPanelTopTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_InnerPanelTop", AssetRequestMode.ImmediateLoad);
 		if (_large)
-			_innerPanelBottomTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_InnerPanelBottom_Large");
+		{
+			_innerPanelBottomTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_InnerPanelBottom_Large", AssetRequestMode.ImmediateLoad);
+		}
 		else
-			_innerPanelBottomTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_InnerPanelBottom");
-
-		_categoryTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Categories");
+		{
+			_innerPanelBottomTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_InnerPanelBottom", AssetRequestMode.ImmediateLoad);
+		}
+		_categoryTexture = Main.Assets.Request<Texture2D>("Images/UI/Achievement_Categories", AssetRequestMode.ImmediateLoad);
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
@@ -77,70 +94,81 @@ public class UIAchievementListItem : UIPanel
 		Tuple<decimal, decimal> trackerValues = GetTrackerValues();
 		bool flag = false;
 		if ((!(trackerValues.Item1 == 0m) || !(trackerValues.Item2 == 0m)) && _locked)
+		{
 			flag = true;
-
+		}
 		float num3 = innerDimensions.Width - dimensions.Width + 1f - (float)(num * 2);
-		Vector2 baseScale = new Vector2(0.85f);
-		Vector2 baseScale2 = new Vector2(0.92f);
-		string text = FontAssets.ItemStack.Value.CreateWrappedText(_achievement.Description.Value, (num3 - 20f) * (1f / baseScale2.X), Language.ActiveCulture.CultureInfo);
-		Vector2 stringSize = ChatManager.GetStringSize(FontAssets.ItemStack.Value, text, baseScale2, num3);
+		Vector2 scale = new Vector2(0.85f);
+		Vector2 vector3 = new Vector2(0.92f);
+		string text = FontAssets.ItemStack.Value.CreateWrappedText(_achievement.Description.Value, (num3 - 20f) * (1f / vector3.X), Language.ActiveCulture.CultureInfo);
+		Vector2 stringSize = ChatManager.GetStringSize(FontAssets.ItemStack.Value, text, vector3, num3);
 		if (!_large)
-			stringSize = ChatManager.GetStringSize(FontAssets.ItemStack.Value, _achievement.Description.Value, baseScale2, num3);
-
+		{
+			stringSize = ChatManager.GetStringSize(FontAssets.ItemStack.Value, _achievement.Description.Value, vector3, num3);
+		}
 		float num4 = 38f + (float)(_large ? 20 : 0);
 		if (stringSize.Y > num4)
-			baseScale2.Y *= num4 / stringSize.Y;
-
+		{
+			vector3.Y *= num4 / stringSize.Y;
+		}
 		Color value = (_locked ? Color.Silver : Color.Gold);
 		value = Color.Lerp(value, Color.White, base.IsMouseHovering ? 0.5f : 0f);
 		Color value2 = (_locked ? Color.DarkGray : Color.Silver);
 		value2 = Color.Lerp(value2, Color.White, base.IsMouseHovering ? 1f : 0f);
 		Color color = (base.IsMouseHovering ? Color.White : Color.Gray);
-		Vector2 vector3 = vector2 - Vector2.UnitY * 2f + vector;
-		DrawPanelTop(spriteBatch, vector3, num3, color);
+		Vector2 vector4 = vector2 - Vector2.UnitY * 2f + vector;
+		DrawPanelTop(spriteBatch, vector4, num3, color);
 		AchievementCategory category = _achievement.Category;
-		vector3.Y += 2f;
-		vector3.X += 4f;
-		spriteBatch.Draw(_categoryTexture.Value, vector3, _categoryTexture.Frame(4, 2, (int)category), base.IsMouseHovering ? Color.White : Color.Silver, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0f);
-		vector3.X += 4f;
-		vector3.X += 17f;
-		ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, _achievement.FriendlyName.Value, vector3, value, 0f, Vector2.Zero, baseScale, num3);
-		vector3.X -= 17f;
+		vector4.Y += 2f;
+		vector4.X += 4f;
+		spriteBatch.Draw(_categoryTexture.Value, vector4, _categoryTexture.Frame(4, 2, (int)category), base.IsMouseHovering ? Color.White : Color.Silver, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0f);
+		vector4.X += 4f;
+		vector4.X += 17f;
+		ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, _achievement.FriendlyName.Value, vector4, value, 0f, Vector2.Zero, scale, num3);
+		vector4.X -= 17f;
 		Vector2 position = vector2 + Vector2.UnitY * 27f + vector;
 		DrawPanelBottom(spriteBatch, position, num3, color);
 		position.X += 8f;
 		position.Y += 4f;
-		ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, text, position, value2, 0f, Vector2.Zero, baseScale2);
-		if (flag) {
-			Vector2 vector4 = vector3 + Vector2.UnitX * num3 + Vector2.UnitY;
+		ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, text, position, value2, 0f, Vector2.Zero, vector3);
+		if (flag)
+		{
+			Vector2 vector5 = vector4 + Vector2.UnitX * num3 + Vector2.UnitY;
 			string text2 = (int)trackerValues.Item1 + "/" + (int)trackerValues.Item2;
-			Vector2 baseScale3 = new Vector2(0.75f);
-			Vector2 stringSize2 = ChatManager.GetStringSize(FontAssets.ItemStack.Value, text2, baseScale3);
+			Vector2 vector6 = new Vector2(0.75f);
+			Vector2 stringSize2 = ChatManager.GetStringSize(FontAssets.ItemStack.Value, text2, vector6);
 			float progress = (float)(trackerValues.Item1 / trackerValues.Item2);
 			float num5 = 80f;
 			Color color2 = new Color(100, 255, 100);
 			if (!base.IsMouseHovering)
+			{
 				color2 = Color.Lerp(color2, Color.Black, 0.25f);
-
+			}
 			Color color3 = new Color(255, 255, 255);
 			if (!base.IsMouseHovering)
+			{
 				color3 = Color.Lerp(color3, Color.Black, 0.25f);
-
-			DrawProgressBar(spriteBatch, progress, vector4 - Vector2.UnitX * num5 * 0.7f, num5, color3, color2, color2.MultiplyRGBA(new Color(new Vector4(1f, 1f, 1f, 0.5f))));
-			vector4.X -= num5 * 1.4f + stringSize2.X;
-			ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, text2, vector4, value, 0f, new Vector2(0f, 0f), baseScale3, 90f);
+			}
+			DrawProgressBar(spriteBatch, progress, vector5 - Vector2.UnitX * num5 * 0.7f, num5, color3, color2, color2.MultiplyRGBA(new Color(new Vector4(1f, 1f, 1f, 0.5f))));
+			vector5.X -= num5 * 1.4f + stringSize2.X;
+			ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, text2, vector5, value, 0f, new Vector2(0f, 0f), vector6, 90f);
 		}
 	}
 
 	private void UpdateIconFrame()
 	{
 		if (!_locked)
+		{
 			_iconFrame = _iconFrameUnlocked;
+		}
 		else
+		{
 			_iconFrame = _iconFrameLocked;
-
+		}
 		if (_achievementIcon != null)
+		{
 			_achievementIcon.SetFrame(_iconFrame);
+		}
 	}
 
 	private void DrawPanelTop(SpriteBatch spriteBatch, Vector2 position, float width, Color color)
@@ -171,38 +199,45 @@ public class UIAchievementListItem : UIPanel
 		BorderColor = new Color(13, 20, 44) * 0.8f;
 	}
 
-	public Achievement GetAchievement() => _achievement;
+	public Achievement GetAchievement()
+	{
+		return _achievement;
+	}
 
 	private Tuple<decimal, decimal> GetTrackerValues()
 	{
 		if (!_achievement.HasTracker)
+		{
 			return Tuple.Create(0m, 0m);
-
+		}
 		IAchievementTracker tracker = _achievement.GetTracker();
-		if (tracker.GetTrackerType() == TrackerType.Int) {
+		if (tracker.GetTrackerType() == TrackerType.Int)
+		{
 			AchievementTracker<int> achievementTracker = (AchievementTracker<int>)tracker;
 			return Tuple.Create((decimal)achievementTracker.Value, (decimal)achievementTracker.MaxValue);
 		}
-
-		if (tracker.GetTrackerType() == TrackerType.Float) {
+		if (tracker.GetTrackerType() == TrackerType.Float)
+		{
 			AchievementTracker<float> achievementTracker2 = (AchievementTracker<float>)tracker;
 			return Tuple.Create((decimal)achievementTracker2.Value, (decimal)achievementTracker2.MaxValue);
 		}
-
 		return Tuple.Create(0m, 0m);
 	}
 
 	private void DrawProgressBar(SpriteBatch spriteBatch, float progress, Vector2 spot, float Width = 169f, Color BackColor = default(Color), Color FillingColor = default(Color), Color BlipColor = default(Color))
 	{
 		if (BlipColor == Color.Transparent)
+		{
 			BlipColor = new Color(255, 165, 0, 127);
-
+		}
 		if (FillingColor == Color.Transparent)
+		{
 			FillingColor = new Color(255, 241, 51);
-
+		}
 		if (BackColor == Color.Transparent)
+		{
 			FillingColor = new Color(255, 255, 255);
-
+		}
 		Texture2D value = TextureAssets.ColorBar.Value;
 		_ = TextureAssets.ColorBlip.Value;
 		Texture2D value2 = TextureAssets.MagicPixel.Value;
@@ -218,22 +253,26 @@ public class UIAchievementListItem : UIPanel
 		position.X -= 1f;
 		spriteBatch.Draw(value2, position, new Rectangle(0, 0, 1, 1), FillingColor, 0f, new Vector2(1f, 0.5f), new Vector2(num2 * num, num3), SpriteEffects.None, 0f);
 		if (progress != 0f)
+		{
 			spriteBatch.Draw(value2, position, new Rectangle(0, 0, 1, 1), BlipColor, 0f, new Vector2(1f, 0.5f), new Vector2(2f, num3), SpriteEffects.None, 0f);
-
+		}
 		spriteBatch.Draw(value2, position, new Rectangle(0, 0, 1, 1), Color.Black, 0f, new Vector2(0f, 0.5f), new Vector2(num2 * (1f - num), num3), SpriteEffects.None, 0f);
 	}
 
 	public override int CompareTo(object obj)
 	{
 		if (!(obj is UIAchievementListItem uIAchievementListItem))
+		{
 			return 0;
-
+		}
 		if (_achievement.IsCompleted && !uIAchievementListItem._achievement.IsCompleted)
+		{
 			return -1;
-
+		}
 		if (!_achievement.IsCompleted && uIAchievementListItem._achievement.IsCompleted)
+		{
 			return 1;
-
+		}
 		return _achievement.Id.CompareTo(uIAchievementListItem._achievement.Id);
 	}
 }

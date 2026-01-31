@@ -8,31 +8,40 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIPanel : UIElement
 {
 	private int _cornerSize = 12;
+
 	private int _barSize = 4;
+
 	private Asset<Texture2D> _borderTexture;
+
 	private Asset<Texture2D> _backgroundTexture;
+
 	public Color BorderColor = Color.Black;
+
 	public Color BackgroundColor = new Color(63, 82, 151) * 0.7f;
 
 	public UIPanel()
 	{
 		if (_borderTexture == null)
-			_borderTexture = Main.Assets.Request<Texture2D>("Images/UI/PanelBorder");
-
+		{
+			_borderTexture = Main.Assets.Request<Texture2D>("Images/UI/PanelBorder", AssetRequestMode.ImmediateLoad);
+		}
 		if (_backgroundTexture == null)
-			_backgroundTexture = Main.Assets.Request<Texture2D>("Images/UI/PanelBackground");
-
+		{
+			_backgroundTexture = Main.Assets.Request<Texture2D>("Images/UI/PanelBackground", AssetRequestMode.ImmediateLoad);
+		}
 		SetPadding(_cornerSize);
 	}
 
 	public UIPanel(Asset<Texture2D> customBackground, Asset<Texture2D> customborder, int customCornerSize = 12, int customBarSize = 4)
 	{
 		if (_borderTexture == null)
+		{
 			_borderTexture = customborder;
-
+		}
 		if (_backgroundTexture == null)
+		{
 			_backgroundTexture = customBackground;
-
+		}
 		_cornerSize = customCornerSize;
 		_barSize = customBarSize;
 		SetPadding(_cornerSize);
@@ -59,9 +68,12 @@ public class UIPanel : UIElement
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
 		if (_backgroundTexture != null)
+		{
 			DrawPanel(spriteBatch, _backgroundTexture.Value, BackgroundColor);
-
+		}
 		if (_borderTexture != null)
+		{
 			DrawPanel(spriteBatch, _borderTexture.Value, BorderColor);
+		}
 	}
 }

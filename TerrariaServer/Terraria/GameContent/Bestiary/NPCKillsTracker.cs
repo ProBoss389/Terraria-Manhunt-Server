@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Terraria.GameContent.Achievements;
 using Terraria.GameContent.NetModules;
 using Terraria.ID;
 using Terraria.Net;
@@ -9,7 +10,9 @@ namespace Terraria.GameContent.Bestiary;
 public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 {
 	private object _entryCreationLock = new object();
+
 	public const int POSITIVE_KILL_COUNT_CAP = 999999999;
+
 	private Dictionary<string, int> _killCountsByNpcId;
 
 	public NPCKillsTracker()
@@ -22,12 +25,11 @@ public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 		string bestiaryCreditId = npc.GetBestiaryCreditId();
 		_killCountsByNpcId.TryGetValue(bestiaryCreditId, out var value);
 		value++;
-		lock (_entryCreationLock) {
-			_killCountsByNpcId[bestiaryCreditId] = Utils.Clamp(value, 0, 999999999);
-		}
-
+		SetKillCountDirectly(bestiaryCreditId, value);
 		if (Main.netMode == 2)
+		{
 			NetManager.Instance.Broadcast(NetBestiaryModule.SerializeKillCount(npc.netID, value));
+		}
 	}
 
 	public int GetKillCount(NPC npc)
@@ -38,8 +40,14 @@ public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 
 	public void SetKillCountDirectly(string persistentId, int killCount)
 	{
-		lock (_entryCreationLock) {
+		lock (_entryCreationLock)
+		{
+			bool num = _killCountsByNpcId.ContainsKey(persistentId);
 			_killCountsByNpcId[persistentId] = Utils.Clamp(killCount, 0, 999999999);
+			if (!num)
+			{
+				AchievementsHelper.TryGrantingBestiary100PercentAchievement();
+			}
 		}
 	}
 
@@ -51,9 +59,11 @@ public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 
 	public void Save(BinaryWriter writer)
 	{
-		lock (_killCountsByNpcId) {
+		lock (_killCountsByNpcId)
+		{
 			writer.Write(_killCountsByNpcId.Count);
-			foreach (KeyValuePair<string, int> item in _killCountsByNpcId) {
+			foreach (KeyValuePair<string, int> item in _killCountsByNpcId)
+			{
 				writer.Write(item.Key);
 				writer.Write(item.Value);
 			}
@@ -63,7 +73,8 @@ public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 	public void Load(BinaryReader reader, int gameVersionSaveWasMadeOn)
 	{
 		int num = reader.ReadInt32();
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++)
+		{
 			string key = reader.ReadString();
 			int value = reader.ReadInt32();
 			_killCountsByNpcId[key] = value;
@@ -73,7 +84,8 @@ public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 	public void ValidateWorld(BinaryReader reader, int gameVersionSaveWasMadeOn)
 	{
 		int num = reader.ReadInt32();
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++)
+		{
 			reader.ReadString();
 			reader.ReadInt32();
 		}
@@ -86,9 +98,12 @@ public class NPCKillsTracker : IPersistentPerWorldContent, IOnPlayerJoining
 
 	public void OnPlayerJoining(int playerIndex)
 	{
-		foreach (KeyValuePair<string, int> item in _killCountsByNpcId) {
+		foreach (KeyValuePair<string, int> item in _killCountsByNpcId)
+		{
 			if (ContentSamples.NpcNetIdsByPersistentIds.TryGetValue(item.Key, out var value))
+			{
 				NetManager.Instance.SendToClient(NetBestiaryModule.SerializeKillCount(value, item.Value), playerIndex);
+			}
 		}
 	}
 }

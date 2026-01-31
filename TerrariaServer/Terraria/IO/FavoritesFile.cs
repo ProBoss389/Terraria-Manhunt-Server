@@ -10,8 +10,11 @@ namespace Terraria.IO;
 public class FavoritesFile
 {
 	public readonly string Path;
+
 	public readonly bool IsCloudSave;
+
 	private Dictionary<string, Dictionary<string, bool>> _data = new Dictionary<string, Dictionary<string, bool>>();
+
 	private UTF8Encoding _ourEncoder = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true, throwOnInvalidBytes: true);
 
 	public FavoritesFile(string path, bool isCloud)
@@ -23,15 +26,17 @@ public class FavoritesFile
 	public void SaveFavorite(FileData fileData)
 	{
 		if (!_data.ContainsKey(fileData.Type))
+		{
 			_data.Add(fileData.Type, new Dictionary<string, bool>());
-
+		}
 		_data[fileData.Type][fileData.GetFileName()] = fileData.IsFavorite;
 		Save();
 	}
 
 	public void ClearEntry(FileData fileData)
 	{
-		if (_data.ContainsKey(fileData.Type)) {
+		if (_data.ContainsKey(fileData.Type))
+		{
 			_data[fileData.Type].Remove(fileData.GetFileName());
 			Save();
 		}
@@ -40,23 +45,27 @@ public class FavoritesFile
 	public bool IsFavorite(FileData fileData)
 	{
 		if (!_data.ContainsKey(fileData.Type))
+		{
 			return false;
-
+		}
 		string fileName = fileData.GetFileName();
 		if (_data[fileData.Type].TryGetValue(fileName, out var value))
+		{
 			return value;
-
+		}
 		return false;
 	}
 
 	public void Save()
 	{
-		try {
+		try
+		{
 			string s = JsonConvert.SerializeObject(_data, Formatting.Indented);
 			byte[] bytes = _ourEncoder.GetBytes(s);
 			FileUtilities.WriteAllBytes(Path, bytes, IsCloudSave);
 		}
-		catch (Exception exception) {
+		catch (Exception exception)
+		{
 			FancyErrorPrinter.ShowFileSavingFailError(exception, Path);
 			throw;
 		}
@@ -64,26 +73,31 @@ public class FavoritesFile
 
 	public void Load()
 	{
-		if (!FileUtilities.Exists(Path, IsCloudSave)) {
+		if (!FileUtilities.Exists(Path, IsCloudSave))
+		{
 			_data.Clear();
 			return;
 		}
-
-		try {
+		try
+		{
 			byte[] bytes = FileUtilities.ReadAllBytes(Path, IsCloudSave);
-			string @string;
-			try {
-				@string = _ourEncoder.GetString(bytes);
+			string value;
+			try
+			{
+				value = _ourEncoder.GetString(bytes);
 			}
-			catch {
-				@string = Encoding.ASCII.GetString(bytes);
+			catch
+			{
+				value = Encoding.ASCII.GetString(bytes);
 			}
-
-			_data = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, bool>>>(@string);
+			_data = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, bool>>>(value);
 			if (_data == null)
+			{
 				_data = new Dictionary<string, Dictionary<string, bool>>();
+			}
 		}
-		catch (Exception) {
+		catch (Exception)
+		{
 			Console.WriteLine("Unable to load favorites.json file ({0} : {1})", Path, IsCloudSave ? "Cloud Save" : "Local Save");
 		}
 	}

@@ -8,16 +8,27 @@ namespace Terraria.Graphics.Renderers;
 public class PrettySparkleParticle : ABasicParticle
 {
 	public float FadeInNormalizedTime = 0.05f;
+
 	public float FadeOutNormalizedTime = 0.9f;
+
 	public float TimeToLive = 60f;
+
 	public Color ColorTint;
+
 	public float Opacity;
+
 	public float AdditiveAmount = 1f;
+
 	public float FadeInEnd = 20f;
+
 	public float FadeOutStart = 30f;
+
 	public float FadeOutEnd = 45f;
+
 	public bool DrawHorizontalAxis = true;
+
 	public bool DrawVerticalAxis = true;
+
 	private float _timeSinceSpawn;
 
 	public override void FetchFromPool()
@@ -42,7 +53,9 @@ public class PrettySparkleParticle : ABasicParticle
 		_timeSinceSpawn += 1f;
 		Opacity = Utils.GetLerpValue(0f, FadeInNormalizedTime, _timeSinceSpawn / TimeToLive, clamped: true) * Utils.GetLerpValue(1f, FadeOutNormalizedTime, _timeSinceSpawn / TimeToLive, clamped: true);
 		if (_timeSinceSpawn >= TimeToLive)
+		{
 			base.ShouldBeRemovedFromRenderer = true;
+		}
 	}
 
 	public override void Draw(ref ParticleRendererSettings settings, SpriteBatch spritebatch)
@@ -63,15 +76,20 @@ public class PrettySparkleParticle : ABasicParticle
 		Vector2 position = settings.AnchorPosition + LocalPosition;
 		SpriteEffects effects = SpriteEffects.None;
 		if (DrawHorizontalAxis)
+		{
 			spritebatch.Draw(value, position, null, color2, (float)Math.PI / 2f + Rotation, origin, vector, effects, 0f);
-
+		}
 		if (DrawVerticalAxis)
+		{
 			spritebatch.Draw(value, position, null, color2, 0f + Rotation, origin, vector2, effects, 0f);
-
+		}
 		if (DrawHorizontalAxis)
+		{
 			spritebatch.Draw(value, position, null, color3, (float)Math.PI / 2f + Rotation, origin, vector * 0.6f, effects, 0f);
-
+		}
 		if (DrawVerticalAxis)
+		{
 			spritebatch.Draw(value, position, null, color3, 0f + Rotation, origin, vector2 * 0.6f, effects, 0f);
+		}
 	}
 }

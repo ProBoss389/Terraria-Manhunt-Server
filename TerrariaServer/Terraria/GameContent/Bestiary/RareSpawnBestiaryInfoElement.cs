@@ -12,13 +12,17 @@ public class RareSpawnBestiaryInfoElement : IBestiaryInfoElement, IProvideSearch
 		RarityLevel = rarityLevel;
 	}
 
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
 
 	public string GetSearchString(ref BestiaryUICollectionInfo info)
 	{
 		if (info.UnlockState == BestiaryEntryUnlockState.NotKnownAtAll_0)
+		{
 			return null;
-
+		}
 		return Language.GetText("BestiaryInfo.IsRare").Value;
 	}
 }

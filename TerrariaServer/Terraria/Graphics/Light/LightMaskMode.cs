@@ -5,5 +5,6 @@ public enum LightMaskMode : byte
 	None,
 	Solid,
 	Water,
-	Honey
+	Honey,
+	CrackedBricks
 }

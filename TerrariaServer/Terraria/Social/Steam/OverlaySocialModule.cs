@@ -6,6 +6,7 @@ namespace Terraria.Social.Steam;
 public class OverlaySocialModule : Terraria.Social.Base.OverlaySocialModule
 {
 	private Callback<GamepadTextInputDismissed_t> _gamepadTextInputDismissed;
+
 	private bool _gamepadTextInputActive;
 
 	public override void Initialize()
@@ -17,17 +18,22 @@ public class OverlaySocialModule : Terraria.Social.Base.OverlaySocialModule
 	{
 	}
 
-	public override bool IsGamepadTextInputActive() => _gamepadTextInputActive;
+	public override bool IsGamepadTextInputActive()
+	{
+		return _gamepadTextInputActive;
+	}
 
 	public override bool ShowGamepadTextInput(string description, uint maxLength, bool multiLine = false, string existingText = "", bool password = false)
 	{
 		if (_gamepadTextInputActive)
+		{
 			return false;
-
+		}
 		bool num = SteamUtils.ShowGamepadTextInput(password ? EGamepadTextInputMode.k_EGamepadTextInputModePassword : EGamepadTextInputMode.k_EGamepadTextInputModeNormal, multiLine ? EGamepadTextInputLineMode.k_EGamepadTextInputLineModeMultipleLines : EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, description, maxLength, existingText);
 		if (num)
+		{
 			_gamepadTextInputActive = true;
-
+		}
 		return num;
 	}
 

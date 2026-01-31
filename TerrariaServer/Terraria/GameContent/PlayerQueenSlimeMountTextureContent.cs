@@ -8,7 +8,7 @@ namespace Terraria.GameContent;
 
 public class PlayerQueenSlimeMountTextureContent : ARenderTargetContentByRequest
 {
-	protected override void HandleUseReqest(GraphicsDevice device, SpriteBatch spriteBatch)
+	protected override void HandleUseRequest(GraphicsDevice device, SpriteBatch spriteBatch)
 	{
 		Asset<Texture2D> asset = TextureAssets.Extra[204];
 		PrepareARenderTarget_AndListenToEvents(ref _target, device, asset.Width(), asset.Height(), RenderTargetUsage.PreserveContents);

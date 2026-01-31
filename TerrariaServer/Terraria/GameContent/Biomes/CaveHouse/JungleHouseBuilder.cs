@@ -21,6 +21,7 @@ public class JungleHouseBuilder : HouseBuilder
 		base.BookcaseStyle = 12;
 		base.ChairStyle = 3;
 		base.ChestStyle = 8;
+		PotentiallyConvertToSeedHouse();
 	}
 
 	protected override void AgeRoom(Rectangle room)

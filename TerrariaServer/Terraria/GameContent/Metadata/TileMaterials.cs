@@ -9,6 +9,7 @@ namespace Terraria.GameContent.Metadata;
 public static class TileMaterials
 {
 	private static Dictionary<string, TileMaterial> _materialsByName;
+
 	private static readonly TileMaterial[] MaterialsByTileId;
 
 	static TileMaterials()
@@ -16,11 +17,12 @@ public static class TileMaterials
 		MaterialsByTileId = new TileMaterial[TileID.Count];
 		_materialsByName = DeserializeEmbeddedResource<Dictionary<string, TileMaterial>>("Terraria.GameContent.Metadata.MaterialData.Materials.json");
 		TileMaterial tileMaterial = _materialsByName["Default"];
-		for (int i = 0; i < MaterialsByTileId.Length; i++) {
+		for (int i = 0; i < MaterialsByTileId.Length; i++)
+		{
 			MaterialsByTileId[i] = tileMaterial;
 		}
-
-		foreach (KeyValuePair<string, string> item in DeserializeEmbeddedResource<Dictionary<string, string>>("Terraria.GameContent.Metadata.MaterialData.Tiles.json")) {
+		foreach (KeyValuePair<string, string> item in DeserializeEmbeddedResource<Dictionary<string, string>>("Terraria.GameContent.Metadata.MaterialData.Tiles.json"))
+		{
 			string key = item.Key;
 			string value = item.Value;
 			SetForTileId((ushort)TileID.Search.GetId(key), _materialsByName[value]);
@@ -39,5 +41,8 @@ public static class TileMaterials
 		MaterialsByTileId[tileId] = material;
 	}
 
-	public static TileMaterial GetByTileId(ushort tileId) => MaterialsByTileId[tileId];
+	public static TileMaterial GetByTileId(ushort tileId)
+	{
+		return MaterialsByTileId[tileId];
+	}
 }

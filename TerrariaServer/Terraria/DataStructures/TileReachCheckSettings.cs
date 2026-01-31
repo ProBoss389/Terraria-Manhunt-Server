@@ -1,57 +1,85 @@
+using Microsoft.Xna.Framework;
+
 namespace Terraria.DataStructures;
 
 public struct TileReachCheckSettings
 {
 	public int TileRangeMultiplier;
+
 	public int? TileReachLimit;
+
 	public int? OverrideXReach;
+
 	public int? OverrideYReach;
 
-	public static TileReachCheckSettings Simple {
-		get {
-			TileReachCheckSettings result = default(TileReachCheckSettings);
-			result.TileRangeMultiplier = 1;
-			result.TileReachLimit = 20;
-			return result;
-		}
-	}
+	public static readonly TileReachCheckSettings Simple = new TileReachCheckSettings
+	{
+		TileRangeMultiplier = 1,
+		TileReachLimit = 20
+	};
 
-	public static TileReachCheckSettings Pylons {
-		get {
-			TileReachCheckSettings result = default(TileReachCheckSettings);
-			result.OverrideXReach = 60;
-			result.OverrideYReach = 60;
-			return result;
-		}
-	}
+	public static readonly TileReachCheckSettings Pylons = new TileReachCheckSettings
+	{
+		OverrideXReach = 60,
+		OverrideYReach = 60
+	};
 
-	public static TileReachCheckSettings QuickStackToNearbyChests {
-		get {
-			TileReachCheckSettings result = default(TileReachCheckSettings);
-			result.OverrideXReach = 39;
-			result.OverrideYReach = 39;
-			return result;
-		}
-	}
-
-	public void GetRanges(Player player, out int x, out int y)
+	public void GetRanges(out int x, out int y)
 	{
 		x = Player.tileRangeX * TileRangeMultiplier;
 		y = Player.tileRangeY * TileRangeMultiplier;
-		int? tileReachLimit = TileReachLimit;
-		if (tileReachLimit.HasValue) {
-			int value = tileReachLimit.Value;
-			if (x > value)
-				x = value;
-
-			if (y > value)
-				y = value;
+		if (TileReachLimit.HasValue)
+		{
+			if (x > TileReachLimit.Value)
+			{
+				x = TileReachLimit.Value;
+			}
+			if (y > TileReachLimit.Value)
+			{
+				y = TileReachLimit.Value;
+			}
 		}
-
 		if (OverrideXReach.HasValue)
+		{
 			x = OverrideXReach.Value;
-
+		}
 		if (OverrideYReach.HasValue)
+		{
 			y = OverrideYReach.Value;
+		}
+	}
+
+	public void GetTileRegion(Player player, out int LX, out int LY, out int HX, out int HY, int TB = 0)
+	{
+		GetRanges(out var x, out var y);
+		x += TB;
+		y += TB;
+		LX = (int)(player.position.X / 16f) - x + 1;
+		HX = (int)((player.position.X + (float)player.width) / 16f) + x - 1;
+		LY = (int)(player.position.Y / 16f) - y + 1;
+		HY = (int)((player.position.Y + (float)player.height) / 16f) + y - 2;
+	}
+
+	public Rectangle GetTileRegion(Player player, int TB = 0)
+	{
+		GetTileRegion(player, out var LX, out var LY, out var HX, out var HY, TB);
+		return new Rectangle(LX, LY, HX - LX, HY - LY);
+	}
+
+	public void GetWorldRegion(Player player, out int LX, out int LY, out int HX, out int HY, int TB = 0)
+	{
+		GetTileRegion(player, out LX, out LY, out HX, out HY, TB);
+		LX *= 16;
+		LY *= 16;
+		HX *= 16;
+		HY *= 16;
+		HX += 15;
+		HY += 15;
+	}
+
+	public Rectangle GetWorldRegion(Player player, int TB = 0)
+	{
+		GetWorldRegion(player, out var LX, out var LY, out var HX, out var HY, TB);
+		return new Rectangle(LX, LY, HX - LX, HY - LY);
 	}
 }

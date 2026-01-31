@@ -5,16 +5,23 @@ namespace Terraria.GameContent;
 public class HairstyleUnlocksHelper
 {
 	public List<int> AvailableHairstyles = new List<int>();
+
 	private bool _defeatedMartians;
+
 	private bool _defeatedMoonlord;
+
 	private bool _defeatedPlantera;
+
 	private bool _isAtStylist;
+
 	private bool _isAtCharacterCreation;
 
 	public void UpdateUnlocks()
 	{
 		if (ListWarrantsRemake())
+		{
 			RebuildList();
+		}
 	}
 
 	private bool ListWarrantsRemake()
@@ -26,8 +33,9 @@ public class HairstyleUnlocksHelper
 		bool gameMenu = Main.gameMenu;
 		bool result = false;
 		if (_defeatedMartians != flag || _defeatedMoonlord != flag2 || _defeatedPlantera != flag3 || _isAtStylist != flag4 || _isAtCharacterCreation != gameMenu)
+		{
 			result = true;
-
+		}
 		_defeatedMartians = flag;
 		_defeatedMoonlord = flag2;
 		_defeatedPlantera = flag3;
@@ -40,11 +48,12 @@ public class HairstyleUnlocksHelper
 	{
 		List<int> availableHairstyles = AvailableHairstyles;
 		availableHairstyles.Clear();
-		if (_isAtCharacterCreation || _isAtStylist) {
-			for (int i = 0; i < 51; i++) {
+		if (_isAtCharacterCreation || _isAtStylist)
+		{
+			for (int i = 0; i < 51; i++)
+			{
 				availableHairstyles.Add(i);
 			}
-
 			availableHairstyles.Add(136);
 			availableHairstyles.Add(137);
 			availableHairstyles.Add(138);
@@ -64,43 +73,41 @@ public class HairstyleUnlocksHelper
 			availableHairstyles.Add(157);
 			availableHairstyles.Add(158);
 			availableHairstyles.Add(161);
+			for (int j = 51; j < 123; j++)
+			{
+				availableHairstyles.Add(j);
+			}
+			availableHairstyles.Add(134);
+			availableHairstyles.Add(135);
+			availableHairstyles.Add(146);
+			availableHairstyles.Add(152);
+			availableHairstyles.Add(153);
+			availableHairstyles.Add(156);
+			availableHairstyles.Add(159);
+			availableHairstyles.Add(165);
+			availableHairstyles.Add(160);
+			for (int k = 167; k < 228; k++)
+			{
+				availableHairstyles.Add(k);
+			}
 		}
-
-		for (int j = 51; j < 123; j++) {
-			availableHairstyles.Add(j);
+		if (_isAtStylist)
+		{
+			if (_defeatedPlantera)
+			{
+				availableHairstyles.Add(162);
+				availableHairstyles.Add(164);
+				availableHairstyles.Add(163);
+				availableHairstyles.Add(145);
+			}
+			if (_defeatedMartians)
+			{
+				availableHairstyles.AddRange(new int[10] { 132, 131, 130, 129, 128, 127, 126, 125, 124, 123 });
+			}
+			if (_defeatedMartians && _defeatedMoonlord)
+			{
+				availableHairstyles.Add(133);
+			}
 		}
-
-		availableHairstyles.Add(134);
-		availableHairstyles.Add(135);
-		availableHairstyles.Add(146);
-		availableHairstyles.Add(152);
-		availableHairstyles.Add(153);
-		availableHairstyles.Add(156);
-		availableHairstyles.Add(159);
-		availableHairstyles.Add(160);
-		if (_defeatedPlantera) {
-			availableHairstyles.Add(162);
-			availableHairstyles.Add(164);
-			availableHairstyles.Add(163);
-			availableHairstyles.Add(145);
-		}
-
-		if (_defeatedMartians) {
-			availableHairstyles.AddRange(new int[10] {
-				132,
-				131,
-				130,
-				129,
-				128,
-				127,
-				126,
-				125,
-				124,
-				123
-			});
-		}
-
-		if (_defeatedMartians && _defeatedMoonlord)
-			availableHairstyles.Add(133);
 	}
 }

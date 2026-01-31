@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.GameContent.Tile_Entities;
@@ -11,1210 +12,1613 @@ namespace Terraria.ObjectData;
 public class TileObjectData
 {
 	private TileObjectData _parent;
+
 	private bool _linkedAlternates;
+
 	private bool _usesCustomCanPlace;
+
 	private TileObjectAlternatesModule _alternates;
+
 	private AnchorDataModule _anchor;
+
 	private AnchorTypesModule _anchorTiles;
+
 	private LiquidDeathModule _liquidDeath;
+
 	private LiquidPlacementModule _liquidPlacement;
+
 	private TilePlacementHooksModule _placementHooks;
+
 	private TileObjectSubTilesModule _subTiles;
+
 	private TileObjectDrawModule _tileObjectDraw;
+
 	private TileObjectStyleModule _tileObjectStyle;
+
 	private TileObjectBaseModule _tileObjectBase;
+
 	private TileObjectCoordinatesModule _tileObjectCoords;
+
 	private bool _hasOwnAlternates;
+
 	private bool _hasOwnAnchor;
+
 	private bool _hasOwnAnchorTiles;
+
 	private bool _hasOwnLiquidDeath;
+
 	private bool _hasOwnLiquidPlacement;
+
 	private bool _hasOwnPlacementHooks;
+
 	private bool _hasOwnSubTiles;
+
 	private bool _hasOwnTileObjectBase;
+
 	private bool _hasOwnTileObjectDraw;
+
 	private bool _hasOwnTileObjectStyle;
+
 	private bool _hasOwnTileObjectCoords;
+
 	private static List<TileObjectData> _data;
+
 	private static TileObjectData _baseObject;
+
 	private static bool readOnlyData;
+
 	private static TileObjectData newTile;
+
 	private static TileObjectData newSubTile;
+
 	private static TileObjectData newAlternate;
+
 	private static TileObjectData StyleSwitch;
+
 	private static TileObjectData StyleTorch;
+
 	private static TileObjectData Style4x2;
+
 	private static TileObjectData Style2x2;
+
 	private static TileObjectData Style1x2;
+
 	private static TileObjectData Style1x1;
+
 	private static TileObjectData StyleAlch;
+
 	private static TileObjectData StyleDye;
+
 	private static TileObjectData Style2x1;
+
 	private static TileObjectData Style6x3;
+
 	private static TileObjectData StyleSmallCage;
+
 	private static TileObjectData StyleOnTable1x1;
+
 	private static TileObjectData Style1x2Top;
+
 	private static TileObjectData Style1xX;
+
 	private static TileObjectData Style2xX;
+
 	private static TileObjectData Style3x2;
+
 	private static TileObjectData Style3x3;
+
 	private static TileObjectData Style3x4;
+
+	private static TileObjectData Style4x4;
+
 	private static TileObjectData Style5x4;
+
 	private static TileObjectData Style3x3Wall;
 
-	private bool LinkedAlternates {
-		get {
+	private bool LinkedAlternates
+	{
+		get
+		{
 			return _linkedAlternates;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (value && !_hasOwnAlternates) {
+			if (value && !_hasOwnAlternates)
+			{
 				_hasOwnAlternates = true;
 				_alternates = new TileObjectAlternatesModule(_alternates);
 			}
-
 			_linkedAlternates = value;
 		}
 	}
 
-	public bool UsesCustomCanPlace {
-		get {
+	public bool UsesCustomCanPlace
+	{
+		get
+		{
 			return _usesCustomCanPlace;
 		}
-		set {
+		set
+		{
 			WriteCheck();
 			_usesCustomCanPlace = value;
 		}
 	}
 
-	private List<TileObjectData> Alternates {
-		get {
+	private List<TileObjectData> Alternates
+	{
+		get
+		{
 			if (_alternates == null)
+			{
 				return _baseObject.Alternates;
-
+			}
 			return _alternates.data;
 		}
-		set {
-			if (!_hasOwnAlternates) {
+		set
+		{
+			if (!_hasOwnAlternates)
+			{
 				_hasOwnAlternates = true;
 				_alternates = new TileObjectAlternatesModule(_alternates);
 			}
-
 			_alternates.data = value;
 		}
 	}
 
-	public AnchorData AnchorTop {
-		get {
+	public AnchorData AnchorTop
+	{
+		get
+		{
 			if (_anchor == null)
+			{
 				return _baseObject.AnchorTop;
-
+			}
 			return _anchor.top;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchor) {
+			if (!_hasOwnAnchor)
+			{
 				if (_anchor.top == value)
+				{
 					return;
-
+				}
 				_hasOwnAnchor = true;
 				_anchor = new AnchorDataModule(_anchor);
 			}
-
 			_anchor.top = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].AnchorTop = value;
 				}
 			}
 		}
 	}
 
-	public AnchorData AnchorBottom {
-		get {
+	public AnchorData AnchorBottom
+	{
+		get
+		{
 			if (_anchor == null)
+			{
 				return _baseObject.AnchorBottom;
-
+			}
 			return _anchor.bottom;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchor) {
+			if (!_hasOwnAnchor)
+			{
 				if (_anchor.bottom == value)
+				{
 					return;
-
+				}
 				_hasOwnAnchor = true;
 				_anchor = new AnchorDataModule(_anchor);
 			}
-
 			_anchor.bottom = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].AnchorBottom = value;
 				}
 			}
 		}
 	}
 
-	public AnchorData AnchorLeft {
-		get {
+	public AnchorData AnchorLeft
+	{
+		get
+		{
 			if (_anchor == null)
+			{
 				return _baseObject.AnchorLeft;
-
+			}
 			return _anchor.left;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchor) {
+			if (!_hasOwnAnchor)
+			{
 				if (_anchor.left == value)
+				{
 					return;
-
+				}
 				_hasOwnAnchor = true;
 				_anchor = new AnchorDataModule(_anchor);
 			}
-
 			_anchor.left = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].AnchorLeft = value;
 				}
 			}
 		}
 	}
 
-	public AnchorData AnchorRight {
-		get {
+	public AnchorData AnchorRight
+	{
+		get
+		{
 			if (_anchor == null)
+			{
 				return _baseObject.AnchorRight;
-
+			}
 			return _anchor.right;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchor) {
+			if (!_hasOwnAnchor)
+			{
 				if (_anchor.right == value)
+				{
 					return;
-
+				}
 				_hasOwnAnchor = true;
 				_anchor = new AnchorDataModule(_anchor);
 			}
-
 			_anchor.right = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].AnchorRight = value;
 				}
 			}
 		}
 	}
 
-	public bool AnchorWall {
-		get {
+	public bool AnchorWall
+	{
+		get
+		{
 			if (_anchor == null)
+			{
 				return _baseObject.AnchorWall;
-
+			}
 			return _anchor.wall;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchor) {
+			if (!_hasOwnAnchor)
+			{
 				if (_anchor.wall == value)
+				{
 					return;
-
+				}
 				_hasOwnAnchor = true;
 				_anchor = new AnchorDataModule(_anchor);
 			}
-
 			_anchor.wall = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].AnchorWall = value;
 				}
 			}
 		}
 	}
 
-	public int[] AnchorValidTiles {
-		get {
+	public int[] AnchorValidTiles
+	{
+		get
+		{
 			if (_anchorTiles == null)
+			{
 				return _baseObject.AnchorValidTiles;
-
+			}
 			return _anchorTiles.tileValid;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchorTiles) {
+			if (!_hasOwnAnchorTiles)
+			{
 				if (value.deepCompare(_anchorTiles.tileValid))
+				{
 					return;
-
+				}
 				_hasOwnAnchorTiles = true;
 				_anchorTiles = new AnchorTypesModule(_anchorTiles);
 			}
-
 			_anchorTiles.tileValid = value;
 			if (!_linkedAlternates)
+			{
 				return;
-
-			for (int i = 0; i < _alternates.data.Count; i++) {
+			}
+			for (int i = 0; i < _alternates.data.Count; i++)
+			{
 				int[] anchorValidTiles = value;
 				if (value != null)
+				{
 					anchorValidTiles = (int[])value.Clone();
-
+				}
 				_alternates.data[i].AnchorValidTiles = anchorValidTiles;
 			}
 		}
 	}
 
-	public int[] AnchorInvalidTiles {
-		get {
+	public int[] AnchorInvalidTiles
+	{
+		get
+		{
 			if (_anchorTiles == null)
+			{
 				return _baseObject.AnchorInvalidTiles;
-
+			}
 			return _anchorTiles.tileInvalid;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchorTiles) {
+			if (!_hasOwnAnchorTiles)
+			{
 				if (value.deepCompare(_anchorTiles.tileInvalid))
+				{
 					return;
-
+				}
 				_hasOwnAnchorTiles = true;
 				_anchorTiles = new AnchorTypesModule(_anchorTiles);
 			}
-
 			_anchorTiles.tileInvalid = value;
 			if (!_linkedAlternates)
+			{
 				return;
-
-			for (int i = 0; i < _alternates.data.Count; i++) {
+			}
+			for (int i = 0; i < _alternates.data.Count; i++)
+			{
 				int[] anchorInvalidTiles = value;
 				if (value != null)
+				{
 					anchorInvalidTiles = (int[])value.Clone();
-
+				}
 				_alternates.data[i].AnchorInvalidTiles = anchorInvalidTiles;
 			}
 		}
 	}
 
-	public int[] AnchorAlternateTiles {
-		get {
+	public int[] AnchorAlternateTiles
+	{
+		get
+		{
 			if (_anchorTiles == null)
+			{
 				return _baseObject.AnchorAlternateTiles;
-
+			}
 			return _anchorTiles.tileAlternates;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchorTiles) {
+			if (!_hasOwnAnchorTiles)
+			{
 				if (value.deepCompare(_anchorTiles.tileInvalid))
+				{
 					return;
-
+				}
 				_hasOwnAnchorTiles = true;
 				_anchorTiles = new AnchorTypesModule(_anchorTiles);
 			}
-
 			_anchorTiles.tileAlternates = value;
 			if (!_linkedAlternates)
+			{
 				return;
-
-			for (int i = 0; i < _alternates.data.Count; i++) {
+			}
+			for (int i = 0; i < _alternates.data.Count; i++)
+			{
 				int[] anchorAlternateTiles = value;
 				if (value != null)
+				{
 					anchorAlternateTiles = (int[])value.Clone();
-
+				}
 				_alternates.data[i].AnchorAlternateTiles = anchorAlternateTiles;
 			}
 		}
 	}
 
-	public int[] AnchorValidWalls {
-		get {
+	public int[] AnchorValidWalls
+	{
+		get
+		{
 			if (_anchorTiles == null)
+			{
 				return _baseObject.AnchorValidWalls;
-
+			}
 			return _anchorTiles.wallValid;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnAnchorTiles) {
+			if (!_hasOwnAnchorTiles)
+			{
 				_hasOwnAnchorTiles = true;
 				_anchorTiles = new AnchorTypesModule(_anchorTiles);
 			}
-
 			_anchorTiles.wallValid = value;
 			if (!_linkedAlternates)
+			{
 				return;
-
-			for (int i = 0; i < _alternates.data.Count; i++) {
+			}
+			for (int i = 0; i < _alternates.data.Count; i++)
+			{
 				int[] anchorValidWalls = value;
 				if (value != null)
+				{
 					anchorValidWalls = (int[])value.Clone();
-
+				}
 				_alternates.data[i].AnchorValidWalls = anchorValidWalls;
 			}
 		}
 	}
 
-	public bool WaterDeath {
-		get {
+	public bool WaterDeath
+	{
+		get
+		{
 			if (_liquidDeath == null)
+			{
 				return _baseObject.WaterDeath;
-
+			}
 			return _liquidDeath.water;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnLiquidDeath) {
+			if (!_hasOwnLiquidDeath)
+			{
 				if (_liquidDeath.water == value)
+				{
 					return;
-
+				}
 				_hasOwnLiquidDeath = true;
 				_liquidDeath = new LiquidDeathModule(_liquidDeath);
 			}
-
 			_liquidDeath.water = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].WaterDeath = value;
 				}
 			}
 		}
 	}
 
-	public bool LavaDeath {
-		get {
+	public bool LavaDeath
+	{
+		get
+		{
 			if (_liquidDeath == null)
+			{
 				return _baseObject.LavaDeath;
-
+			}
 			return _liquidDeath.lava;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnLiquidDeath) {
+			if (!_hasOwnLiquidDeath)
+			{
 				if (_liquidDeath.lava == value)
+				{
 					return;
-
+				}
 				_hasOwnLiquidDeath = true;
 				_liquidDeath = new LiquidDeathModule(_liquidDeath);
 			}
-
 			_liquidDeath.lava = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].LavaDeath = value;
 				}
 			}
 		}
 	}
 
-	public LiquidPlacement WaterPlacement {
-		get {
+	public LiquidPlacement WaterPlacement
+	{
+		get
+		{
 			if (_liquidPlacement == null)
+			{
 				return _baseObject.WaterPlacement;
-
+			}
 			return _liquidPlacement.water;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnLiquidPlacement) {
+			if (!_hasOwnLiquidPlacement)
+			{
 				if (_liquidPlacement.water == value)
+				{
 					return;
-
+				}
 				_hasOwnLiquidPlacement = true;
 				_liquidPlacement = new LiquidPlacementModule(_liquidPlacement);
 			}
-
 			_liquidPlacement.water = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].WaterPlacement = value;
 				}
 			}
 		}
 	}
 
-	public LiquidPlacement LavaPlacement {
-		get {
+	public LiquidPlacement LavaPlacement
+	{
+		get
+		{
 			if (_liquidPlacement == null)
+			{
 				return _baseObject.LavaPlacement;
-
+			}
 			return _liquidPlacement.lava;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnLiquidPlacement) {
+			if (!_hasOwnLiquidPlacement)
+			{
 				if (_liquidPlacement.lava == value)
+				{
 					return;
-
+				}
 				_hasOwnLiquidPlacement = true;
 				_liquidPlacement = new LiquidPlacementModule(_liquidPlacement);
 			}
-
 			_liquidPlacement.lava = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].LavaPlacement = value;
 				}
 			}
 		}
 	}
 
-	public PlacementHook HookCheckIfCanPlace {
-		get {
+	public PlacementHook HookCheckIfCanPlace
+	{
+		get
+		{
 			if (_placementHooks == null)
+			{
 				return _baseObject.HookCheckIfCanPlace;
-
+			}
 			return _placementHooks.check;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnPlacementHooks) {
+			if (!_hasOwnPlacementHooks)
+			{
 				_hasOwnPlacementHooks = true;
 				_placementHooks = new TilePlacementHooksModule(_placementHooks);
 			}
-
 			_placementHooks.check = value;
 		}
 	}
 
-	public PlacementHook HookPostPlaceEveryone {
-		get {
+	public PlacementHook HookPostPlaceEveryone
+	{
+		get
+		{
 			if (_placementHooks == null)
+			{
 				return _baseObject.HookPostPlaceEveryone;
-
+			}
 			return _placementHooks.postPlaceEveryone;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnPlacementHooks) {
+			if (!_hasOwnPlacementHooks)
+			{
 				_hasOwnPlacementHooks = true;
 				_placementHooks = new TilePlacementHooksModule(_placementHooks);
 			}
-
 			_placementHooks.postPlaceEveryone = value;
 		}
 	}
 
-	public PlacementHook HookPostPlaceMyPlayer {
-		get {
+	public PlacementHook HookPostPlaceMyPlayer
+	{
+		get
+		{
 			if (_placementHooks == null)
+			{
 				return _baseObject.HookPostPlaceMyPlayer;
-
+			}
 			return _placementHooks.postPlaceMyPlayer;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnPlacementHooks) {
+			if (!_hasOwnPlacementHooks)
+			{
 				_hasOwnPlacementHooks = true;
 				_placementHooks = new TilePlacementHooksModule(_placementHooks);
 			}
-
 			_placementHooks.postPlaceMyPlayer = value;
 		}
 	}
 
-	public PlacementHook HookPlaceOverride {
-		get {
+	public PlacementHook HookPlaceOverride
+	{
+		get
+		{
 			if (_placementHooks == null)
+			{
 				return _baseObject.HookPlaceOverride;
-
+			}
 			return _placementHooks.placeOverride;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnPlacementHooks) {
+			if (!_hasOwnPlacementHooks)
+			{
 				_hasOwnPlacementHooks = true;
 				_placementHooks = new TilePlacementHooksModule(_placementHooks);
 			}
-
 			_placementHooks.placeOverride = value;
 		}
 	}
 
-	private List<TileObjectData> SubTiles {
-		get {
+	private List<TileObjectData> SubTiles
+	{
+		get
+		{
 			if (_subTiles == null)
+			{
 				return _baseObject.SubTiles;
-
+			}
 			return _subTiles.data;
 		}
-		set {
-			if (!_hasOwnSubTiles) {
+		set
+		{
+			if (!_hasOwnSubTiles)
+			{
 				_hasOwnSubTiles = true;
 				_subTiles = new TileObjectSubTilesModule();
 			}
-
 			if (value == null)
+			{
 				_subTiles.data = null;
+			}
 			else
+			{
 				_subTiles.data = value;
+			}
 		}
 	}
 
-	public int DrawYOffset {
-		get {
+	public int DrawYOffset
+	{
+		get
+		{
 			if (_tileObjectDraw == null)
+			{
 				return DrawYOffset;
-
+			}
 			return _tileObjectDraw.yOffset;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectDraw) {
+			if (!_hasOwnTileObjectDraw)
+			{
 				if (_tileObjectDraw.yOffset == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectDraw = true;
 				_tileObjectDraw = new TileObjectDrawModule(_tileObjectDraw);
 			}
-
 			_tileObjectDraw.yOffset = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].DrawYOffset = value;
 				}
 			}
 		}
 	}
 
-	public int DrawXOffset {
-		get {
+	public int DrawXOffset
+	{
+		get
+		{
 			if (_tileObjectDraw == null)
+			{
 				return DrawXOffset;
-
+			}
 			return _tileObjectDraw.xOffset;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectDraw) {
+			if (!_hasOwnTileObjectDraw)
+			{
 				if (_tileObjectDraw.xOffset == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectDraw = true;
 				_tileObjectDraw = new TileObjectDrawModule(_tileObjectDraw);
 			}
-
 			_tileObjectDraw.xOffset = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].DrawXOffset = value;
 				}
 			}
 		}
 	}
 
-	public bool DrawFlipHorizontal {
-		get {
+	public bool DrawFlipHorizontal
+	{
+		get
+		{
 			if (_tileObjectDraw == null)
+			{
 				return DrawFlipHorizontal;
-
+			}
 			return _tileObjectDraw.flipHorizontal;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectDraw) {
+			if (!_hasOwnTileObjectDraw)
+			{
 				if (_tileObjectDraw.flipHorizontal == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectDraw = true;
 				_tileObjectDraw = new TileObjectDrawModule(_tileObjectDraw);
 			}
-
 			_tileObjectDraw.flipHorizontal = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].DrawFlipHorizontal = value;
 				}
 			}
 		}
 	}
 
-	public bool DrawFlipVertical {
-		get {
+	public bool DrawFlipVertical
+	{
+		get
+		{
 			if (_tileObjectDraw == null)
+			{
 				return DrawFlipVertical;
-
+			}
 			return _tileObjectDraw.flipVertical;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectDraw) {
+			if (!_hasOwnTileObjectDraw)
+			{
 				if (_tileObjectDraw.flipVertical == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectDraw = true;
 				_tileObjectDraw = new TileObjectDrawModule(_tileObjectDraw);
 			}
-
 			_tileObjectDraw.flipVertical = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].DrawFlipVertical = value;
 				}
 			}
 		}
 	}
 
-	public int DrawStepDown {
-		get {
+	public int DrawStepDown
+	{
+		get
+		{
 			if (_tileObjectDraw == null)
+			{
 				return DrawStepDown;
-
+			}
 			return _tileObjectDraw.stepDown;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectDraw) {
+			if (!_hasOwnTileObjectDraw)
+			{
 				if (_tileObjectDraw.stepDown == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectDraw = true;
 				_tileObjectDraw = new TileObjectDrawModule(_tileObjectDraw);
 			}
-
 			_tileObjectDraw.stepDown = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].DrawStepDown = value;
 				}
 			}
 		}
 	}
 
-	public bool StyleHorizontal {
-		get {
+	public bool StyleHorizontal
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return StyleHorizontal;
-
+			}
 			return _tileObjectStyle.horizontal;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.horizontal == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.horizontal = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].StyleHorizontal = value;
 				}
 			}
 		}
 	}
 
-	public int Style {
-		get {
+	public int Style
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return _baseObject.Style;
-
+			}
 			return _tileObjectStyle.style;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.style == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.style = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].Style = value;
 				}
 			}
 		}
 	}
 
-	public int StyleWrapLimit {
-		get {
+	public int StyleWrapLimit
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return _baseObject.StyleWrapLimit;
-
+			}
 			return _tileObjectStyle.styleWrapLimit;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.styleWrapLimit == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.styleWrapLimit = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].StyleWrapLimit = value;
 				}
 			}
 		}
 	}
 
-	public int? StyleWrapLimitVisualOverride {
-		get {
+	public int? StyleWrapLimitVisualOverride
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return _baseObject.StyleWrapLimitVisualOverride;
-
+			}
 			return _tileObjectStyle.styleWrapLimitVisualOverride;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.styleWrapLimitVisualOverride == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.styleWrapLimitVisualOverride = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].StyleWrapLimitVisualOverride = value;
 				}
 			}
 		}
 	}
 
-	public int? styleLineSkipVisualOverride {
-		get {
+	public int? styleLineSkipVisualOverride
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return _baseObject.styleLineSkipVisualOverride;
-
+			}
 			return _tileObjectStyle.styleLineSkipVisualoverride;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.styleLineSkipVisualoverride == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.styleLineSkipVisualoverride = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].styleLineSkipVisualOverride = value;
 				}
 			}
 		}
 	}
 
-	public int StyleLineSkip {
-		get {
+	public int StyleLineSkip
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return _baseObject.StyleLineSkip;
-
+			}
 			return _tileObjectStyle.styleLineSkip;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.styleLineSkip == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.styleLineSkip = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].StyleLineSkip = value;
 				}
 			}
 		}
 	}
 
-	public int StyleMultiplier {
-		get {
+	public int StyleMultiplier
+	{
+		get
+		{
 			if (_tileObjectStyle == null)
+			{
 				return _baseObject.StyleMultiplier;
-
+			}
 			return _tileObjectStyle.styleMultiplier;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectStyle) {
+			if (!_hasOwnTileObjectStyle)
+			{
 				if (_tileObjectStyle.styleMultiplier == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectStyle = true;
 				_tileObjectStyle = new TileObjectStyleModule(_tileObjectStyle);
 			}
-
 			_tileObjectStyle.styleMultiplier = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].StyleMultiplier = value;
 				}
 			}
 		}
 	}
 
-	public int Width {
-		get {
+	public int Width
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.Width;
-
+			}
 			return _tileObjectBase.width;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.width == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
-				if (!_hasOwnTileObjectCoords) {
+				if (!_hasOwnTileObjectCoords)
+				{
 					_hasOwnTileObjectCoords = true;
 					_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords);
 					_tileObjectCoords.calculated = false;
 				}
 			}
-
 			_tileObjectBase.width = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].Width = value;
 				}
 			}
 		}
 	}
 
-	public int Height {
-		get {
+	public int Height
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.Height;
-
+			}
 			return _tileObjectBase.height;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.height == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
-				if (!_hasOwnTileObjectCoords) {
+				if (!_hasOwnTileObjectCoords)
+				{
 					_hasOwnTileObjectCoords = true;
 					_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords);
 					_tileObjectCoords.calculated = false;
 				}
 			}
-
 			_tileObjectBase.height = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].Height = value;
 				}
 			}
 		}
 	}
 
-	public Point16 Origin {
-		get {
+	public Point16 Origin
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.Origin;
-
+			}
 			return _tileObjectBase.origin;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.origin == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
 			}
-
 			_tileObjectBase.origin = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].Origin = value;
 				}
 			}
 		}
 	}
 
-	public TileObjectDirection Direction {
-		get {
+	public TileObjectDirection Direction
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.Direction;
-
+			}
 			return _tileObjectBase.direction;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.direction == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
 			}
-
 			_tileObjectBase.direction = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].Direction = value;
 				}
 			}
 		}
 	}
 
-	public int RandomStyleRange {
-		get {
+	public int RandomStyleRange
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.RandomStyleRange;
-
+			}
 			return _tileObjectBase.randomRange;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.randomRange == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
 			}
-
 			_tileObjectBase.randomRange = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].RandomStyleRange = value;
 				}
 			}
 		}
 	}
 
-	public int[] SpecificRandomStyles {
-		get {
+	public int[] SpecificRandomStyles
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.SpecificRandomStyles;
-
+			}
 			return _tileObjectBase.specificRandomStyles;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.specificRandomStyles == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
 			}
-
 			_tileObjectBase.specificRandomStyles = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].SpecificRandomStyles = value;
 				}
 			}
 		}
 	}
 
-	public bool FlattenAnchors {
-		get {
+	public bool FlattenAnchors
+	{
+		get
+		{
 			if (_tileObjectBase == null)
+			{
 				return _baseObject.FlattenAnchors;
-
+			}
 			return _tileObjectBase.flattenAnchors;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectBase) {
+			if (!_hasOwnTileObjectBase)
+			{
 				if (_tileObjectBase.flattenAnchors == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectBase = true;
 				_tileObjectBase = new TileObjectBaseModule(_tileObjectBase);
 			}
-
 			_tileObjectBase.flattenAnchors = value;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].FlattenAnchors = value;
 				}
 			}
 		}
 	}
 
-	public int[] CoordinateHeights {
-		get {
+	public int[] CoordinateHeights
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
+			{
 				return _baseObject.CoordinateHeights;
-
+			}
 			return _tileObjectCoords.heights;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectCoords) {
+			if (!_hasOwnTileObjectCoords)
+			{
 				if (value.deepCompare(_tileObjectCoords.heights))
+				{
 					return;
-
+				}
 				_hasOwnTileObjectCoords = true;
-				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords, value);
+				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords, value, _tileObjectCoords.drawFrameOffsets);
 			}
-			else {
+			else
+			{
 				_tileObjectCoords.heights = value;
 			}
-
 			_tileObjectCoords.calculated = false;
 			if (!_linkedAlternates)
+			{
 				return;
-
-			for (int i = 0; i < _alternates.data.Count; i++) {
+			}
+			for (int i = 0; i < _alternates.data.Count; i++)
+			{
 				int[] coordinateHeights = value;
 				if (value != null)
+				{
 					coordinateHeights = (int[])value.Clone();
-
+				}
 				_alternates.data[i].CoordinateHeights = coordinateHeights;
 			}
 		}
 	}
 
-	public int CoordinateWidth {
-		get {
+	public Rectangle[,] DrawFrameOffsets
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
-				return _baseObject.CoordinateWidth;
+			{
+				return _baseObject.DrawFrameOffsets;
+			}
+			return _tileObjectCoords.drawFrameOffsets;
+		}
+		set
+		{
+			WriteCheck();
+			if (!_hasOwnTileObjectCoords)
+			{
+				if (value.deepCompare(_tileObjectCoords.drawFrameOffsets))
+				{
+					return;
+				}
+				_hasOwnTileObjectCoords = true;
+				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords, _tileObjectCoords.heights, value);
+			}
+			else
+			{
+				_tileObjectCoords.drawFrameOffsets = value;
+			}
+			_tileObjectCoords.calculated = false;
+			if (!_linkedAlternates)
+			{
+				return;
+			}
+			for (int i = 0; i < _alternates.data.Count; i++)
+			{
+				Rectangle[,] drawFrameOffsets = value;
+				if (value != null)
+				{
+					drawFrameOffsets = (Rectangle[,])value.Clone();
+				}
+				_alternates.data[i].DrawFrameOffsets = drawFrameOffsets;
+			}
+		}
+	}
 
+	public int CoordinateWidth
+	{
+		get
+		{
+			if (_tileObjectCoords == null)
+			{
+				return _baseObject.CoordinateWidth;
+			}
 			return _tileObjectCoords.width;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectCoords) {
+			if (!_hasOwnTileObjectCoords)
+			{
 				if (_tileObjectCoords.width == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectCoords = true;
 				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords);
 			}
-
 			_tileObjectCoords.width = value;
 			_tileObjectCoords.calculated = false;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].CoordinateWidth = value;
 				}
 			}
 		}
 	}
 
-	public int CoordinatePadding {
-		get {
+	public int CoordinatePadding
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
+			{
 				return _baseObject.CoordinatePadding;
-
+			}
 			return _tileObjectCoords.padding;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectCoords) {
+			if (!_hasOwnTileObjectCoords)
+			{
 				if (_tileObjectCoords.padding == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectCoords = true;
 				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords);
 			}
-
 			_tileObjectCoords.padding = value;
 			_tileObjectCoords.calculated = false;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].CoordinatePadding = value;
 				}
 			}
 		}
 	}
 
-	public Point16 CoordinatePaddingFix {
-		get {
+	public Point16 CoordinatePaddingFix
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
+			{
 				return _baseObject.CoordinatePaddingFix;
-
+			}
 			return _tileObjectCoords.paddingFix;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectCoords) {
+			if (!_hasOwnTileObjectCoords)
+			{
 				if (_tileObjectCoords.paddingFix == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectCoords = true;
 				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords);
 			}
-
 			_tileObjectCoords.paddingFix = value;
 			_tileObjectCoords.calculated = false;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].CoordinatePaddingFix = value;
 				}
 			}
 		}
 	}
 
-	public int CoordinateFullWidth {
-		get {
+	public int CoordinateFullWidth
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
+			{
 				return _baseObject.CoordinateFullWidth;
-
+			}
 			if (!_tileObjectCoords.calculated)
+			{
 				Calculate();
-
+			}
 			return _tileObjectCoords.styleWidth;
 		}
 	}
 
-	public int CoordinateFullHeight {
-		get {
+	public int CoordinateFullHeight
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
+			{
 				return _baseObject.CoordinateFullHeight;
-
+			}
 			if (!_tileObjectCoords.calculated)
+			{
 				Calculate();
-
+			}
 			return _tileObjectCoords.styleHeight;
 		}
 	}
 
-	public int DrawStyleOffset {
-		get {
+	public int DrawStyleOffset
+	{
+		get
+		{
 			if (_tileObjectCoords == null)
+			{
 				return _baseObject.DrawStyleOffset;
-
+			}
 			return _tileObjectCoords.drawStyleOffset;
 		}
-		set {
+		set
+		{
 			WriteCheck();
-			if (!_hasOwnTileObjectCoords) {
+			if (!_hasOwnTileObjectCoords)
+			{
 				if (_tileObjectCoords.drawStyleOffset == value)
+				{
 					return;
-
+				}
 				_hasOwnTileObjectCoords = true;
 				_tileObjectCoords = new TileObjectCoordinatesModule(_tileObjectCoords);
 			}
-
 			_tileObjectCoords.drawStyleOffset = value;
 			_tileObjectCoords.calculated = false;
-			if (_linkedAlternates) {
-				for (int i = 0; i < _alternates.data.Count; i++) {
+			if (_linkedAlternates)
+			{
+				for (int i = 0; i < _alternates.data.Count; i++)
+				{
 					_alternates.data[i].DrawStyleOffset = value;
 				}
 			}
@@ -1227,7 +1631,8 @@ public class TileObjectData
 	{
 		_parent = null;
 		_linkedAlternates = false;
-		if (copyFrom == null) {
+		if (copyFrom == null)
+		{
 			_usesCustomCanPlace = false;
 			_alternates = null;
 			_anchor = null;
@@ -1240,14 +1645,16 @@ public class TileObjectData
 			_tileObjectStyle = null;
 			_tileObjectCoords = null;
 		}
-		else {
+		else
+		{
 			CopyFrom(copyFrom);
 		}
 	}
 
 	public void CopyFrom(TileObjectData copy)
 	{
-		if (copy != null) {
+		if (copy != null)
+		{
 			_usesCustomCanPlace = copy._usesCustomCanPlace;
 			_alternates = copy._alternates;
 			_anchor = copy._anchor;
@@ -1269,7 +1676,8 @@ public class TileObjectData
 
 	public void FullCopyFrom(TileObjectData copy)
 	{
-		if (copy != null) {
+		if (copy != null)
+		{
 			_usesCustomCanPlace = copy._usesCustomCanPlace;
 			_alternates = copy._alternates;
 			_anchor = copy._anchor;
@@ -1329,10 +1737,7 @@ public class TileObjectData
 		FlattenAnchors = false;
 		_tileObjectCoords = new TileObjectCoordinatesModule();
 		_hasOwnTileObjectCoords = true;
-		CoordinateHeights = new int[1] {
-			16
-		};
-
+		CoordinateHeights = new int[1] { 16 };
 		CoordinateWidth = 0;
 		CoordinatePadding = 0;
 		CoordinatePaddingFix = Point16.Zero;
@@ -1353,31 +1758,38 @@ public class TileObjectData
 	private void Calculate()
 	{
 		if (_tileObjectCoords.calculated)
+		{
 			return;
-
+		}
 		_tileObjectCoords.calculated = true;
 		_tileObjectCoords.styleWidth = (_tileObjectCoords.width + _tileObjectCoords.padding) * Width + _tileObjectCoords.paddingFix.X;
 		int num = 0;
 		_tileObjectCoords.styleHeight = 0;
-		for (int i = 0; i < _tileObjectCoords.heights.Length; i++) {
+		for (int i = 0; i < _tileObjectCoords.heights.Length; i++)
+		{
 			num += _tileObjectCoords.heights[i] + _tileObjectCoords.padding;
 		}
-
 		num += _tileObjectCoords.paddingFix.Y;
 		_tileObjectCoords.styleHeight = num;
-		if (_hasOwnLiquidDeath) {
+		if (_hasOwnLiquidDeath)
+		{
 			if (_liquidDeath.lava)
+			{
 				LavaPlacement = LiquidPlacement.NotAllowed;
-
+			}
 			if (_liquidDeath.water)
+			{
 				WaterPlacement = LiquidPlacement.NotAllowed;
+			}
 		}
 	}
 
 	private void WriteCheck()
 	{
 		if (readOnlyData)
+		{
 			throw new FieldAccessException("Tile data is locked and only accessible during startup.");
+		}
 	}
 
 	private void LockWrites()
@@ -1388,41 +1800,57 @@ public class TileObjectData
 	public bool LiquidPlace(Tile checkTile)
 	{
 		if (checkTile == null)
+		{
 			return false;
-
-		if (checkTile.liquid > 0) {
-			switch (checkTile.liquidType()) {
-				case 1:
-					if (LavaPlacement == LiquidPlacement.NotAllowed)
-						return false;
-					if (LavaPlacement == LiquidPlacement.OnlyInFullLiquid && checkTile.liquid != byte.MaxValue)
-						return false;
-					break;
-				case 0:
-				case 2:
-				case 3:
-					if (WaterPlacement == LiquidPlacement.NotAllowed)
-						return false;
-					if (WaterPlacement == LiquidPlacement.OnlyInFullLiquid && checkTile.liquid != byte.MaxValue)
-						return false;
-					break;
+		}
+		if (checkTile.liquid > 0)
+		{
+			switch (checkTile.liquidType())
+			{
+			case 1:
+				if (LavaPlacement == LiquidPlacement.NotAllowed)
+				{
+					return false;
+				}
+				if (LavaPlacement == LiquidPlacement.OnlyInFullLiquid && checkTile.liquid != byte.MaxValue)
+				{
+					return false;
+				}
+				break;
+			case 0:
+			case 2:
+			case 3:
+				if (WaterPlacement == LiquidPlacement.NotAllowed)
+				{
+					return false;
+				}
+				if (WaterPlacement == LiquidPlacement.OnlyInFullLiquid && checkTile.liquid != byte.MaxValue)
+				{
+					return false;
+				}
+				break;
 			}
 		}
-		else {
-			switch (checkTile.liquidType()) {
-				case 1:
-					if (LavaPlacement == LiquidPlacement.OnlyInFullLiquid || LavaPlacement == LiquidPlacement.OnlyInLiquid)
-						return false;
-					break;
-				case 0:
-				case 2:
-				case 3:
-					if (WaterPlacement == LiquidPlacement.OnlyInFullLiquid || WaterPlacement == LiquidPlacement.OnlyInLiquid)
-						return false;
-					break;
+		else
+		{
+			switch (checkTile.liquidType())
+			{
+			case 1:
+				if (LavaPlacement == LiquidPlacement.OnlyInFullLiquid || LavaPlacement == LiquidPlacement.OnlyInLiquid)
+				{
+					return false;
+				}
+				break;
+			case 0:
+			case 2:
+			case 3:
+				if (WaterPlacement == LiquidPlacement.OnlyInFullLiquid || WaterPlacement == LiquidPlacement.OnlyInLiquid)
+				{
+					return false;
+				}
+				break;
 			}
 		}
-
 		return true;
 	}
 
@@ -1430,65 +1858,79 @@ public class TileObjectData
 	{
 		int[] array;
 		int[] array2;
-		if (_anchorTiles == null) {
+		if (_anchorTiles == null)
+		{
 			array = null;
 			array2 = null;
 		}
-		else {
+		else
+		{
 			array = _anchorTiles.tileValid;
 			array2 = _anchorTiles.tileInvalid;
 		}
-
-		if (array2 != null) {
-			for (int i = 0; i < array2.Length; i++) {
+		if (array2 != null)
+		{
+			for (int i = 0; i < array2.Length; i++)
+			{
 				if (type == array2[i])
+				{
 					return false;
+				}
 			}
 		}
-
 		if (array == null)
+		{
 			return true;
-
-		for (int j = 0; j < array.Length; j++) {
-			if (type == array[j])
-				return true;
 		}
-
+		for (int j = 0; j < array.Length; j++)
+		{
+			if (type == array[j])
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 
 	public bool isValidWallAnchor(int type)
 	{
 		int[] array = ((_anchorTiles != null) ? _anchorTiles.wallValid : null);
-		if (array == null) {
+		if (array == null)
+		{
 			if (type == 0)
+			{
 				return false;
-
+			}
 			return true;
 		}
-
-		for (int i = 0; i < array.Length; i++) {
+		for (int i = 0; i < array.Length; i++)
+		{
 			if (type == array[i])
+			{
 				return true;
+			}
 		}
-
 		return false;
 	}
 
 	public bool isValidAlternateAnchor(int type)
 	{
 		if (_anchorTiles == null)
+		{
 			return false;
-
+		}
 		int[] tileAlternates = _anchorTiles.tileAlternates;
 		if (tileAlternates == null)
+		{
 			return false;
-
-		for (int i = 0; i < tileAlternates.Length; i++) {
-			if (type == tileAlternates[i])
-				return true;
 		}
-
+		for (int i = 0; i < tileAlternates.Length; i++)
+		{
+			if (type == tileAlternates[i])
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -1497,8 +1939,9 @@ public class TileObjectData
 		int num = style * StyleMultiplier;
 		num += Style;
 		if (random >= 0)
+		{
 			num += random;
-
+		}
 		return num;
 	}
 
@@ -1520,26 +1963,57 @@ public class TileObjectData
 	private static void addSubTile(params int[] styles)
 	{
 		newSubTile.Calculate();
-		foreach (int num in styles) {
+		foreach (int num in styles)
+		{
 			List<TileObjectData> list;
-			if (!newTile._hasOwnSubTiles) {
+			if (!newTile._hasOwnSubTiles)
+			{
 				list = new List<TileObjectData>(num + 1);
 				newTile.SubTiles = list;
 			}
-			else {
+			else
+			{
 				list = newTile.SubTiles;
 			}
-
-			if (list.Count <= num) {
-				for (int j = list.Count; j <= num; j++) {
+			if (list.Count <= num)
+			{
+				for (int j = list.Count; j <= num; j++)
+				{
 					list.Add(null);
 				}
 			}
-
 			newSubTile._parent = newTile;
 			list[num] = newSubTile;
 		}
+		newSubTile = new TileObjectData(_baseObject);
+	}
 
+	private static void addSubTileRange(int startStyle, int styleCount)
+	{
+		newSubTile.Calculate();
+		for (int i = 0; i < styleCount; i++)
+		{
+			int num = startStyle + i;
+			List<TileObjectData> list;
+			if (!newTile._hasOwnSubTiles)
+			{
+				list = new List<TileObjectData>(num + 1);
+				newTile.SubTiles = list;
+			}
+			else
+			{
+				list = newTile.SubTiles;
+			}
+			if (list.Count <= num)
+			{
+				for (int j = list.Count; j <= num; j++)
+				{
+					list.Add(null);
+				}
+			}
+			newSubTile._parent = newTile;
+			list[num] = newSubTile;
+		}
 		newSubTile = new TileObjectData(_baseObject);
 	}
 
@@ -1547,20 +2021,22 @@ public class TileObjectData
 	{
 		newSubTile.Calculate();
 		List<TileObjectData> list;
-		if (!newTile._hasOwnSubTiles) {
+		if (!newTile._hasOwnSubTiles)
+		{
 			list = new List<TileObjectData>(style + 1);
 			newTile.SubTiles = list;
 		}
-		else {
+		else
+		{
 			list = newTile.SubTiles;
 		}
-
-		if (list.Count <= style) {
-			for (int i = list.Count; i <= style; i++) {
+		if (list.Count <= style)
+		{
+			for (int i = list.Count; i <= style; i++)
+			{
 				list.Add(null);
 			}
 		}
-
 		newSubTile._parent = newTile;
 		list[style] = newSubTile;
 		newSubTile = new TileObjectData(_baseObject);
@@ -1570,8 +2046,9 @@ public class TileObjectData
 	{
 		newAlternate.Calculate();
 		if (!newTile._hasOwnAlternates)
+		{
 			newTile.Alternates = new List<TileObjectData>();
-
+		}
 		newAlternate.Style = baseStyle;
 		newAlternate._parent = newTile;
 		newTile.Alternates.Add(newAlternate);
@@ -1580,20 +2057,22 @@ public class TileObjectData
 
 	public static void Initialize()
 	{
+		int[] anchorInvalidTiles = new int[11]
+		{
+			127, 138, 664, 665, 484, 711, 712, 713, 714, 715,
+			716
+		};
 		_baseObject = new TileObjectData();
 		_baseObject.SetupBaseObject();
 		_data = new List<TileObjectData>(TileID.Count);
-		for (int i = 0; i < TileID.Count; i++) {
+		for (int i = 0; i < TileID.Count; i++)
+		{
 			_data.Add(null);
 		}
-
 		newTile = new TileObjectData(_baseObject);
 		newSubTile = new TileObjectData(_baseObject);
 		newAlternate = new TileObjectData(_baseObject);
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -1604,13 +2083,9 @@ public class TileObjectData
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
-		addSubTile(13, 47);
-		addSubTile(43);
+		addSubTile(13, 43, 47);
 		addTile(19);
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -1619,11 +2094,9 @@ public class TileObjectData
 		newTile.UsesCustomCanPlace = false;
 		newTile.LavaDeath = true;
 		addTile(427);
-		for (int j = 435; j <= 439; j++) {
-			newTile.CoordinateHeights = new int[1] {
-				16
-			};
-
+		for (int j = 435; j <= 439; j++)
+		{
+			newTile.CoordinateHeights = new int[1] { 16 };
 			newTile.CoordinateWidth = 16;
 			newTile.CoordinatePadding = 2;
 			newTile.StyleHorizontal = true;
@@ -1633,26 +2106,16 @@ public class TileObjectData
 			newTile.LavaDeath = true;
 			addTile(j);
 		}
-
 		newTile.Width = 4;
 		newTile.Height = 8;
 		newTile.Origin = new Point16(1, 7);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
 		newTile.HookPlaceOverride = new PlacementHook(WorldGen.PlaceXmasTree_Direct, -1, 0, processedCoordinates: true);
-		newTile.CoordinateHeights = new int[8] {
-			16,
-			16,
-			16,
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[8] { 16, 16, 16, 16, 16, 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 0;
+		newTile.DrawYOffset = 2;
 		addTile(171);
 		newTile.Width = 1;
 		newTile.Height = 1;
@@ -1662,10 +2125,7 @@ public class TileObjectData
 		newTile.UsesCustomCanPlace = true;
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
 		newTile.LavaDeath = true;
-		newTile.CoordinateHeights = new int[1] {
-			38
-		};
-
+		newTile.CoordinateHeights = new int[1] { 38 };
 		newTile.CoordinateWidth = 32;
 		newTile.CoordinatePadding = 2;
 		newTile.DrawYOffset = -20;
@@ -1683,10 +2143,7 @@ public class TileObjectData
 		newSubTile.WaterPlacement = LiquidPlacement.OnlyInFullLiquid;
 		addSubTile(5);
 		newSubTile.CopyFrom(StyleDye);
-		newSubTile.AnchorValidTiles = new int[1] {
-			80
-		};
-
+		newSubTile.AnchorValidTiles = new int[1] { 80 };
 		newSubTile.AnchorLeft = new AnchorData(AnchorType.EmptyTile, 1, 1);
 		newSubTile.AnchorRight = new AnchorData(AnchorType.EmptyTile, 1, 1);
 		addSubTile(6);
@@ -1698,10 +2155,7 @@ public class TileObjectData
 		addSubTile(7);
 		addTile(227);
 		newTile.CopyFrom(StyleDye);
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.CoordinateWidth = 20;
 		newTile.CoordinatePadding = 2;
 		newTile.DrawYOffset = -2;
@@ -1721,12 +2175,7 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
 		newTile.LavaDeath = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = false;
@@ -1751,12 +2200,7 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, 1, 0);
 		newTile.UsesCustomCanPlace = true;
 		newTile.LavaDeath = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = false;
@@ -1801,35 +2245,28 @@ public class TileObjectData
 		newTile.UsesCustomCanPlace = true;
 		newTile.LavaDeath = true;
 		newTile.DrawYOffset = -2;
-		newTile.CoordinateHeights = new int[5] {
-			18,
-			16,
-			16,
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[5] { 18, 16, 16, 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.Direction = TileObjectDirection.PlaceLeft;
 		newTile.StyleMultiplier = 2;
 		newTile.StyleWrapLimit = 2;
-		for (int k = 1; k < 5; k++) {
+		for (int k = 1; k < 5; k++)
+		{
 			newAlternate.CopyFrom(newTile);
 			newAlternate.Origin = new Point16(0, k);
 			addAlternate(0);
 		}
-
 		newAlternate.CopyFrom(newTile);
 		newAlternate.Direction = TileObjectDirection.PlaceRight;
 		addAlternate(1);
-		for (int l = 1; l < 5; l++) {
+		for (int l = 1; l < 5; l++)
+		{
 			newAlternate.CopyFrom(newTile);
 			newAlternate.Origin = new Point16(0, l);
 			newAlternate.Direction = TileObjectDirection.PlaceRight;
 			addAlternate(1);
 		}
-
 		addTile(388);
 		newTile.FullCopyFrom(388);
 		addTile(389);
@@ -1839,10 +2276,7 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.Table, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
 		newTile.LavaDeath = true;
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		addBaseTile(out StyleOnTable1x1);
@@ -1851,10 +2285,7 @@ public class TileObjectData
 		newTile.StyleHorizontal = true;
 		addTile(13);
 		newTile.CopyFrom(StyleOnTable1x1);
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawYOffset = -4;
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
@@ -1866,17 +2297,11 @@ public class TileObjectData
 		addSubTile(39);
 		addTile(33);
 		newTile.CopyFrom(StyleOnTable1x1);
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawYOffset = -4;
 		addTile(49);
 		newTile.CopyFrom(StyleOnTable1x1);
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table, newTile.Width, 0);
 		newTile.DrawYOffset = 2;
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(TEFoodPlatter.Hook_AfterPlacement, -1, 0, processedCoordinates: true);
@@ -1887,23 +2312,19 @@ public class TileObjectData
 		addAlternate(1);
 		addTile(520);
 		newTile.CopyFrom(StyleOnTable1x1);
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawYOffset = -4;
 		addTile(372);
 		newTile.CopyFrom(StyleOnTable1x1);
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawYOffset = -4;
 		addTile(646);
 		newTile.CopyFrom(StyleOnTable1x1);
 		newTile.StyleHorizontal = true;
-		newTile.RandomStyleRange = 5;
 		addTile(50);
+		newTile.CopyFrom(StyleOnTable1x1);
+		newTile.StyleHorizontal = true;
+		addTile(707);
 		newTile.CopyFrom(StyleOnTable1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table, newTile.Width, 0);
 		newTile.DrawYOffset = 2;
@@ -1914,10 +2335,7 @@ public class TileObjectData
 		newTile.LavaDeath = false;
 		addTile(78);
 		newTile.CopyFrom(StyleOnTable1x1);
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawYOffset = -4;
 		addTile(174);
 		newTile.Width = 1;
@@ -1926,12 +2344,7 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
 		newTile.LavaDeath = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		addBaseTile(out Style1xX);
@@ -1954,15 +2367,7 @@ public class TileObjectData
 		newTile.CopyFrom(Style1xX);
 		newTile.Height = 6;
 		newTile.Origin = new Point16(0, 5);
-		newTile.CoordinateHeights = new int[6] {
-			16,
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[6] { 16, 16, 16, 16, 16, 16 };
 		addTile(92);
 		newTile.CopyFrom(Style1xX);
 		newTile.LavaPlacement = LiquidPlacement.NotAllowed;
@@ -1977,11 +2382,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 0);
 		newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.PlanterBox, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
@@ -2016,6 +2417,33 @@ public class TileObjectData
 		addTile(660);
 		newTile.CopyFrom(Style1x2Top);
 		newTile.DrawYOffset = -2;
+		newTile.StyleHorizontal = true;
+		newTile.DrawXOffset = 10;
+		newTile.DrawFrameOffsets = new Rectangle[1, 2] { 
+		{
+			new Rectangle(0, 0, 20, 0),
+			new Rectangle(0, -2, 20, 28)
+		} };
+		newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.AlternateTile | AnchorType.PlanterBox, newTile.Width, 0);
+		newTile.AnchorAlternateTiles = new int[8] { 213, 366, 365, 353, 214, 449, 450, 451 };
+		newTile.HookPostPlaceMyPlayer = new PlacementHook(TEDeadCellsDisplayJar.Hook_AfterPlacement, -1, 0, processedCoordinates: true);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.DrawFrameOffsets = new Rectangle[1, 2] { 
+		{
+			new Rectangle(20, 0, 20, 0),
+			new Rectangle(20, -2, 20, 28)
+		} };
+		addSubTile(1);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.DrawFrameOffsets = new Rectangle[1, 2] { 
+		{
+			new Rectangle(40, 0, 20, 0),
+			new Rectangle(40, -2, 20, 28)
+		} };
+		addSubTile(2);
+		addTile(698);
+		newTile.CopyFrom(Style1x2Top);
+		newTile.DrawYOffset = -2;
 		newTile.StyleWrapLimit = 6;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorTop = new AnchorData(AnchorType.Platform, newTile.Width, 0);
@@ -2024,6 +2452,8 @@ public class TileObjectData
 		addTile(572);
 		newTile.CopyFrom(Style1x2Top);
 		newTile.DrawYOffset = -2;
+		newTile.StyleWrapLimitVisualOverride = 56;
+		newTile.styleLineSkipVisualOverride = 2;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorTop = new AnchorData(AnchorType.Platform, newTile.Width, 0);
 		newAlternate.DrawYOffset = -10;
@@ -2039,12 +2469,7 @@ public class TileObjectData
 		addTile(42);
 		newTile.CopyFrom(Style1x2Top);
 		newTile.Height = 3;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.StyleHorizontal = true;
 		newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.SolidBottom | AnchorType.PlanterBox, newTile.Width, 0);
 		newTile.StyleWrapLimit = 111;
@@ -2059,11 +2484,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -2074,11 +2495,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.Direction = TileObjectDirection.PlaceLeft;
@@ -2096,19 +2513,77 @@ public class TileObjectData
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
 		addSubTile(25, 42);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.LinkedAlternates = true;
+		newSubTile.Alternates = new List<TileObjectData>();
+		newSubTile.DrawStyleOffset = -112;
+		newSubTile.DrawFrameOffsets = new Rectangle[4, 2]
+		{
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			},
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			},
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			},
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			}
+		};
+		newAlternate.CopyFrom(newSubTile);
+		newAlternate.Direction = TileObjectDirection.PlaceRight;
+		newAlternate.Calculate();
+		newAlternate.Style = 1;
+		newAlternate._parent = newSubTile;
+		newSubTile.Alternates.Add(newAlternate);
+		newAlternate = new TileObjectData(_baseObject);
+		addSubTile(56, 57, 58, 59, 60, 61, 62, 63, 64);
 		addTile(90);
 		newTile.CopyFrom(Style4x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.CoordinatePaddingFix = new Point16(0, -2);
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LinkedAlternates = true;
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
 		addSubTile(8, 42);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.LinkedAlternates = true;
+		newSubTile.Alternates = new List<TileObjectData>();
+		newSubTile.DrawStyleOffset = -112;
+		newSubTile.DrawFrameOffsets = new Rectangle[4, 2]
+		{
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			},
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			},
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			},
+			{
+				new Rectangle(144, 0, 0, 0),
+				new Rectangle(144, 0, 0, 0)
+			}
+		};
+		newAlternate.CopyFrom(newSubTile);
+		newAlternate.Direction = TileObjectDirection.PlaceRight;
+		newAlternate.Calculate();
+		newAlternate.Style = 1;
+		newAlternate._parent = newSubTile;
+		newSubTile.Alternates.Add(newAlternate);
+		newAlternate = new TileObjectData(_baseObject);
+		addSubTile(56, 57, 58, 59, 60, 61, 62, 63, 64);
 		addTile(79);
 		newTile.Width = 4;
 		newTile.Height = 3;
@@ -2116,12 +2591,7 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, 2, 1);
 		newTile.UsesCustomCanPlace = true;
 		newTile.LavaDeath = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.StyleHorizontal = true;
 		newTile.CoordinatePadding = 2;
@@ -2131,15 +2601,11 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
-		newTile.DrawYOffset = 0;
+		newTile.DrawYOffset = 2;
 		addBaseTile(out StyleSmallCage);
 		newTile.CopyFrom(StyleSmallCage);
 		addTile(285);
@@ -2174,15 +2640,10 @@ public class TileObjectData
 		newTile.Origin = new Point16(3, 2);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.DrawYOffset = 0;
+		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = true;
 		addBaseTile(out Style6x3);
 		newTile.CopyFrom(Style6x3);
@@ -2213,6 +2674,8 @@ public class TileObjectData
 		addTile(644);
 		newTile.CopyFrom(Style6x3);
 		addTile(645);
+		newTile.CopyFrom(Style6x3);
+		addTile(710);
 		newTile.CopyFrom(Style6x3);
 		addTile(296);
 		newTile.CopyFrom(Style6x3);
@@ -2264,13 +2727,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(2, 3);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[4] {
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[4] { 16, 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.DrawYOffset = 2;
@@ -2285,10 +2742,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 0);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -2304,20 +2758,15 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.Table, newTile.Width, 0);
 		addTile(462);
 		newTile.CopyFrom(Style2x1);
-		newTile.CoordinateHeights = new int[1] {
-			18
-		};
-
+		newTile.StyleWrapLimitVisualOverride = 56;
+		newTile.CoordinateHeights = new int[1] { 18 };
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
 		addSubTile(14, 43);
 		addTile(18);
 		newTile.CopyFrom(Style2x1);
-		newTile.CoordinateHeights = new int[1] {
-			18
-		};
-
+		newTile.CoordinateHeights = new int[1] { 18 };
 		addTile(16);
 		newTile.CopyFrom(Style2x1);
 		newTile.DrawYOffset = 2;
@@ -2355,12 +2804,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 2);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -2368,106 +2812,92 @@ public class TileObjectData
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 5;
 		newTile.Origin = new Point16(1, 4);
-		newTile.CoordinateHeights = new int[5] {
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[5] { 16, 16, 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = true;
 		addTile(547);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 5;
 		newTile.Origin = new Point16(1, 4);
-		newTile.CoordinateHeights = new int[5] {
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[5] { 16, 16, 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = true;
 		addTile(623);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 4;
 		newTile.Origin = new Point16(1, 3);
-		newTile.CoordinateHeights = new int[4] {
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[4] { 16, 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		addTile(207);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 18 };
 		addTile(410);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		addTile(480);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		addTile(509);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		addTile(657);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		addTile(658);
 		newTile.CopyFrom(Style2xX);
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
+		newTile.DrawYOffset = 2;
+		newTile.UsesCustomCanPlace = true;
+		newTile.Direction = TileObjectDirection.PlaceLeft;
+		newTile.StyleMultiplier = 2;
+		newAlternate.CopyFrom(newTile);
+		newAlternate.Direction = TileObjectDirection.PlaceRight;
+		addAlternate(1);
+		addTile(720);
+		newTile.CopyFrom(Style2xX);
+		newTile.Height = 3;
+		newTile.Origin = new Point16(1, 2);
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
+		newTile.DrawYOffset = 2;
+		newTile.UsesCustomCanPlace = true;
+		newTile.Direction = TileObjectDirection.PlaceLeft;
+		newTile.StyleMultiplier = 2;
+		newAlternate.CopyFrom(newTile);
+		newAlternate.Direction = TileObjectDirection.PlaceRight;
+		addAlternate(1);
+		addTile(721);
+		newTile.CopyFrom(Style2xX);
+		newTile.Height = 3;
+		newTile.Origin = new Point16(1, 2);
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
+		newTile.DrawYOffset = 2;
+		newTile.UsesCustomCanPlace = true;
+		newTile.Direction = TileObjectDirection.PlaceRight;
+		newTile.StyleMultiplier = 2;
+		newAlternate.CopyFrom(newTile);
+		newAlternate.Direction = TileObjectDirection.PlaceLeft;
+		addAlternate(1);
+		addTile(725);
+		newTile.CopyFrom(Style2xX);
+		newTile.Height = 3;
+		newTile.Origin = new Point16(1, 2);
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		addTile(489);
 		newTile.CopyFrom(Style2xX);
 		newTile.DrawYOffset = 2;
@@ -2491,7 +2921,7 @@ public class TileObjectData
 		newTile.LavaDeath = true;
 		newTile.DrawYOffset = -2;
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorTop = new AnchorData(AnchorType.PlatformNonHammered, newTile.Width, 0);
+		newAlternate.AnchorTop = new AnchorData(AnchorType.PlatformNonHammered | AnchorType.AllFlatHeight, newTile.Width, 0);
 		newAlternate.DrawYOffset = -10;
 		addAlternate(0);
 		addTile(465);
@@ -2526,10 +2956,9 @@ public class TileObjectData
 		addTile(105);
 		newTile.CopyFrom(Style2xX);
 		newTile.Origin = new Point16(0, 2);
-		newTile.RandomStyleRange = 2;
 		newTile.Direction = TileObjectDirection.PlaceLeft;
 		newTile.StyleWrapLimit = 2;
-		newTile.StyleMultiplier = 2;
+		newTile.StyleHorizontal = true;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.Direction = TileObjectDirection.PlaceRight;
 		addAlternate(2);
@@ -2537,15 +2966,9 @@ public class TileObjectData
 		newTile.CopyFrom(Style2xX);
 		newTile.DrawYOffset = 2;
 		newTile.Height = 5;
+		newTile.StyleWrapLimitVisualOverride = 56;
 		newTile.Origin = new Point16(0, 4);
-		newTile.CoordinateHeights = new int[5] {
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[5] { 16, 16, 16, 16, 16 };
 		newTile.LavaDeath = true;
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
@@ -2584,14 +3007,7 @@ public class TileObjectData
 		newTile.Direction = TileObjectDirection.PlaceLeft;
 		newTile.DrawStyleOffset = 4;
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(TEDisplayDoll.Hook_AfterPlacement, -1, 0, processedCoordinates: false);
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.Direction = TileObjectDirection.PlaceRight;
 		addAlternate(1);
@@ -2604,7 +3020,7 @@ public class TileObjectData
 		newTile.LavaDeath = true;
 		newTile.DrawYOffset = -2;
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorTop = new AnchorData(AnchorType.PlatformNonHammered, newTile.Width, 0);
+		newAlternate.AnchorTop = new AnchorData(AnchorType.PlatformNonHammered | AnchorType.AllFlatHeight, newTile.Width, 0);
 		newAlternate.DrawYOffset = -10;
 		addAlternate(0);
 		addTile(591);
@@ -2616,7 +3032,7 @@ public class TileObjectData
 		newTile.LavaDeath = true;
 		newTile.DrawYOffset = -2;
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorTop = new AnchorData(AnchorType.PlatformNonHammered, newTile.Width, 0);
+		newAlternate.AnchorTop = new AnchorData(AnchorType.PlatformNonHammered | AnchorType.AllFlatHeight, newTile.Width, 0);
 		newAlternate.DrawYOffset = -10;
 		addAlternate(0);
 		addTile(592);
@@ -2625,12 +3041,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 2);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		addBaseTile(out Style3x3);
@@ -2638,15 +3049,7 @@ public class TileObjectData
 		newTile.Height = 6;
 		newTile.Origin = new Point16(1, 5);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
-		newTile.CoordinateHeights = new int[6] {
-			16,
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[6] { 16, 16, 16, 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = true;
 		newTile.StyleHorizontal = true;
@@ -2663,14 +3066,7 @@ public class TileObjectData
 		newTile.Height = 5;
 		newTile.Origin = new Point16(1, 4);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
-		newTile.CoordinateHeights = new int[5] {
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[5] { 16, 16, 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = false;
 		newTile.LavaPlacement = LiquidPlacement.Allowed;
@@ -2680,15 +3076,7 @@ public class TileObjectData
 		newTile.Height = 6;
 		newTile.Origin = new Point16(1, 5);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
-		newTile.CoordinateHeights = new int[6] {
-			16,
-			16,
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[6] { 16, 16, 16, 16, 16, 16 };
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = false;
 		newTile.LavaPlacement = LiquidPlacement.Allowed;
@@ -2725,22 +3113,14 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = true;
 		addBaseTile(out Style3x2);
 		newTile.CopyFrom(Style3x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newSubTile.CopyFrom(Style3x2);
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
@@ -2748,18 +3128,11 @@ public class TileObjectData
 		newSubTile.CopyFrom(Style3x2);
 		newSubTile.Height = 1;
 		newSubTile.Origin = new Point16(1, 0);
-		newSubTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newSubTile.CoordinateHeights = new int[1] { 16 };
 		addSubTile(25);
 		addTile(14);
 		newTile.CopyFrom(Style3x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newSubTile.CopyFrom(Style3x2);
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
@@ -2769,14 +3142,7 @@ public class TileObjectData
 		newTile.StyleWrapLimitVisualOverride = 37;
 		newTile.HookCheckIfCanPlace = new PlacementHook(Chest.FindEmptyChest, -1, 0, processedCoordinates: true);
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(Chest.AfterPlacement_Hook, -1, 0, processedCoordinates: false);
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newTile.LavaDeath = false;
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
@@ -2799,15 +3165,18 @@ public class TileObjectData
 		addTile(648);
 		newTile.CopyFrom(Style3x2);
 		newTile.DrawYOffset = 2;
+		addTile(706);
+		newTile.CopyFrom(Style3x2);
+		newTile.DrawYOffset = 2;
 		addTile(651);
 		newTile.CopyFrom(Style3x2);
 		newTile.LavaDeath = false;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		addTile(26);
+		newTile.CopyFrom(Style3x2);
+		newTile.LavaDeath = false;
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
+		addTile(695);
 		newTile.CopyFrom(Style3x2);
 		addTile(86);
 		newTile.CopyFrom(Style3x2);
@@ -2822,15 +3191,20 @@ public class TileObjectData
 		addTile(87);
 		newTile.CopyFrom(Style3x2);
 		newTile.LavaDeath = false;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		addTile(486);
 		newTile.CopyFrom(Style3x2);
 		newTile.LavaDeath = false;
 		addTile(488);
+		newTile.CopyFrom(Style3x2);
+		newTile.LavaDeath = false;
+		addTile(704);
+		newTile.CopyFrom(Style3x2);
+		newTile.DrawYOffset = 2;
+		newTile.LavaDeath = false;
+		newTile.StyleHorizontal = true;
+		newTile.StyleWrapLimit = 9;
+		addTile(705);
 		newTile.CopyFrom(Style3x2);
 		newTile.DrawYOffset = 2;
 		newTile.StyleWrapLimitVisualOverride = 37;
@@ -2841,28 +3215,16 @@ public class TileObjectData
 		addTile(89);
 		newTile.CopyFrom(Style3x2);
 		newTile.LavaDeath = false;
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		addTile(114);
 		newTile.CopyFrom(Style3x2);
 		newTile.LavaDeath = false;
 		newTile.DrawYOffset = 2;
 		newSubTile.CopyFrom(newTile);
-		newSubTile.AnchorValidTiles = new int[2] {
-			59,
-			70
-		};
-
+		newSubTile.AnchorValidTiles = new int[2] { 59, 70 };
 		addSubTile(32, 33, 34);
 		newSubTile.CopyFrom(newTile);
-		newSubTile.AnchorValidTiles = new int[7] {
-			147,
-			161,
-			163,
-			200,
-			164,
-			162,
-			224
-		};
-
+		newSubTile.AnchorValidTiles = new int[7] { 147, 161, 163, 200, 164, 162, 224 };
 		addSubTile(26, 27, 28, 29, 30, 31);
 		addTile(186);
 		newTile.CopyFrom(Style3x2);
@@ -2870,54 +3232,26 @@ public class TileObjectData
 		newTile.LavaDeath = false;
 		newTile.DrawYOffset = 2;
 		newSubTile.CopyFrom(newTile);
-		newSubTile.AnchorValidTiles = new int[3] {
-			59,
-			60,
-			226
-		};
-
+		newSubTile.AnchorValidTiles = new int[3] { 59, 60, 226 };
 		addSubTile(0, 1, 2, 3, 4, 5);
 		newSubTile.CopyFrom(newTile);
-		newSubTile.AnchorValidTiles = new int[4] {
-			57,
-			58,
-			75,
-			76
-		};
-
+		newSubTile.AnchorValidTiles = new int[4] { 57, 58, 75, 76 };
 		addSubTile(6, 7, 8);
 		newSubTile.CopyFrom(newTile);
-		newSubTile.AnchorValidTiles = new int[12] {
-			53,
-			397,
-			396,
-			112,
-			398,
-			400,
-			234,
-			399,
-			401,
-			116,
-			402,
-			403
+		newSubTile.AnchorValidTiles = new int[12]
+		{
+			53, 397, 396, 112, 398, 400, 234, 399, 401, 116,
+			402, 403
 		};
-
 		addSubTile(29, 30, 31, 32, 33, 34);
 		addTile(187);
 		newTile.CopyFrom(Style3x2);
-		newTile.AnchorValidTiles = new int[4] {
-			53,
-			112,
-			234,
-			116
-		};
-
+		newTile.AnchorValidTiles = new int[4] { 53, 112, 234, 116 };
 		newTile.WaterDeath = true;
 		newTile.LavaDeath = true;
 		newTile.DrawYOffset = 2;
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
 		newTile.LavaPlacement = LiquidPlacement.NotAllowed;
-		newTile.RandomStyleRange = 4;
 		addTile(552);
 		newTile.CopyFrom(Style3x2);
 		newTile.StyleWrapLimit = 16;
@@ -2958,26 +3292,14 @@ public class TileObjectData
 		newTile.DrawYOffset = 2;
 		addTile(218);
 		newTile.CopyFrom(Style3x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		addTile(17);
 		newTile.CopyFrom(Style3x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.LavaDeath = false;
 		addTile(77);
 		newTile.CopyFrom(Style3x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.DrawYOffset = 2;
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = false;
@@ -2989,10 +3311,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 0);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		addTile(235);
@@ -3001,13 +3320,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 3);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[4] {
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[4] { 16, 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -3031,14 +3344,7 @@ public class TileObjectData
 		newTile.DrawYOffset = 2;
 		newTile.Direction = TileObjectDirection.PlaceLeft;
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(TEHatRack.Hook_AfterPlacement, -1, 0, processedCoordinates: false);
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.Direction = TileObjectDirection.PlaceRight;
 		addAlternate(1);
@@ -3063,96 +3369,62 @@ public class TileObjectData
 		newAlternate.Direction = TileObjectDirection.PlaceRight;
 		addAlternate(1);
 		addTile(617);
+		newTile.Width = 4;
+		newTile.Height = 4;
+		newTile.Origin = new Point16(1, 3);
+		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
+		newTile.UsesCustomCanPlace = true;
+		newTile.CoordinateHeights = new int[4] { 16, 16, 16, 16 };
+		newTile.CoordinateWidth = 16;
+		newTile.CoordinatePadding = 2;
+		newTile.StyleHorizontal = true;
+		newTile.LavaDeath = true;
+		addBaseTile(out Style4x4);
+		newTile.CopyFrom(Style4x4);
+		newTile.DrawYOffset = 2;
+		addTile(699);
 		newTile.Width = 2;
 		newTile.Height = 2;
 		newTile.Origin = new Point16(0, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
 		addBaseTile(out Style2x2);
 		newTile.CopyFrom(Style2x2);
 		newTile.Origin = new Point16(0, 1);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.HookCheckIfCanPlace = new PlacementHook(Chest.FindEmptyChest, -1, 0, processedCoordinates: true);
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(Chest.AfterPlacement_Hook, -1, 0, processedCoordinates: false);
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = false;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		addTile(21);
 		newTile.CopyFrom(Style2x2);
 		newTile.Origin = new Point16(0, 1);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.HookCheckIfCanPlace = new PlacementHook(Chest.FindEmptyChest, -1, 0, processedCoordinates: true);
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(Chest.AfterPlacement_Hook, -1, 0, processedCoordinates: false);
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = false;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		addTile(467);
 		newTile.CopyFrom(Style2x2);
 		newTile.Origin = new Point16(0, 1);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = false;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		addTile(441);
 		newTile.CopyFrom(Style2x2);
 		newTile.Origin = new Point16(0, 1);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
-		newTile.AnchorInvalidTiles = new int[5] {
-			127,
-			138,
-			664,
-			665,
-			484
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = false;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
@@ -3163,13 +3435,7 @@ public class TileObjectData
 		newTile.StyleWrapLimit = 6;
 		newTile.StyleMultiplier = 6;
 		newTile.RandomStyleRange = 6;
-		newTile.AnchorValidTiles = new int[4] {
-			2,
-			477,
-			109,
-			492
-		};
-
+		newTile.AnchorValidTiles = new int[4] { 2, 477, 109, 492 };
 		addTile(254);
 		newTile.CopyFrom(Style2x2);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
@@ -3186,7 +3452,6 @@ public class TileObjectData
 		newTile.CopyFrom(Style2x2);
 		newTile.Origin = new Point16(0, 1);
 		newTile.DrawYOffset = 2;
-		newTile.RandomStyleRange = 5;
 		newTile.StyleHorizontal = true;
 		addTile(457);
 		newTile.CopyFrom(Style2x2);
@@ -3203,7 +3468,6 @@ public class TileObjectData
 		addTile(139);
 		newTile.CopyFrom(Style2x2);
 		newTile.Origin = new Point16(0, 1);
-		newTile.RandomStyleRange = 9;
 		addTile(35);
 		newTile.CopyFrom(Style2x2);
 		newTile.DrawYOffset = 2;
@@ -3212,6 +3476,7 @@ public class TileObjectData
 		int styleWrapLimit = 3;
 		newTile.CopyFrom(Style2x2);
 		newTile.DrawYOffset = 2;
+		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.StyleHorizontal = true;
 		newTile.StyleWrapLimit = styleWrapLimit;
 		addTile(653);
@@ -3237,11 +3502,8 @@ public class TileObjectData
 		newTile.WaterDeath = true;
 		addTile(98);
 		newTile.CopyFrom(Style2x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
+		newTile.StyleWrapLimitVisualOverride = 53;
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
@@ -3258,6 +3520,8 @@ public class TileObjectData
 		newTile.LavaDeath = false;
 		addTile(99);
 		newTile.CopyFrom(Style2x2);
+		newTile.StyleWrapLimitVisualOverride = 56;
+		newTile.StyleLineSkip = 2;
 		newTile.DrawYOffset = 2;
 		newSubTile.CopyFrom(newTile);
 		newSubTile.LavaDeath = false;
@@ -3285,44 +3549,43 @@ public class TileObjectData
 		newTile.CopyFrom(Style2x2);
 		addTile(287);
 		newTile.CopyFrom(Style2x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.StyleHorizontal = true;
 		addTile(376);
 		newTile.CopyFrom(Style2x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.LavaDeath = false;
 		addTile(138);
 		newTile.CopyFrom(Style2x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.LavaDeath = false;
 		addTile(664);
 		newTile.CopyFrom(Style2x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
+		newTile.LavaDeath = false;
+		newTile.DrawFrameOffsets = new Rectangle[2, 2]
+		{
+			{
+				new Rectangle(0, 0, 0, 0),
+				new Rectangle(0, 0, 2, 0)
+			},
+			{
+				new Rectangle(0, 0, 0, 2),
+				new Rectangle(0, 0, 2, 2)
+			}
 		};
-
+		addTile(711);
+		newTile.CopyFrom(Style2x2);
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
+		newTile.LavaDeath = false;
+		addTile(712);
+		newTile.CopyFrom(Style2x2);
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = true;
 		addTile(654);
 		newTile.CopyFrom(Style2x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.LavaDeath = true;
 		addTile(484);
 		newTile.CopyFrom(Style2x2);
@@ -3352,32 +3615,46 @@ public class TileObjectData
 		newTile.DrawYOffset = 2;
 		addTile(570);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(288);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(289);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(290);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(291);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(292);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(293);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(294);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(295);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(316);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(317);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(318);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(360);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(580);
 		newTile.CopyFrom(Style2x2);
+		newTile.DrawYOffset = 2;
 		addTile(620);
 		newTile.CopyFrom(Style2x2);
 		newTile.DrawYOffset = 2;
@@ -3464,11 +3741,7 @@ public class TileObjectData
 		newTile.StyleHorizontal = true;
 		newTile.LavaDeath = false;
 		newTile.DrawYOffset = 2;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorBottom = AnchorData.Empty;
 		newAlternate.AnchorWall = true;
@@ -3630,18 +3903,33 @@ public class TileObjectData
 		newTile.CopyFrom(Style2x2);
 		addTile(665);
 		newTile.CopyFrom(Style2x2);
+		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
+		addTile(713);
+		newTile.CopyFrom(Style2x2);
+		addTile(714);
+		newTile.CopyFrom(Style2x2);
+		addTile(715);
+		newTile.CopyFrom(Style2x2);
 		addTile(639);
+		newTile.CopyFrom(Style2x2);
+		newTile.StyleHorizontal = true;
+		newTile.AnchorBottom = AnchorData.Empty;
+		addTile(696);
+		newTile.CopyFrom(Style2x2);
+		newTile.StyleHorizontal = true;
+		newTile.WaterDeath = true;
+		newTile.LavaDeath = true;
+		addTile(702);
+		newTile.CopyFrom(Style2x2);
+		addTile(751);
+		newTile.CopyFrom(Style2x2);
+		addTile(752);
 		newTile.Width = 3;
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 2);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
@@ -3720,26 +4008,39 @@ public class TileObjectData
 		newTile.CopyFrom(Style3x3);
 		newTile.DrawYOffset = 2;
 		addTile(499);
+		newTile.CopyFrom(Style3x3);
+		newTile.DrawYOffset = 2;
+		newTile.DrawFrameOffsets = new Rectangle[3, 3]
+		{
+			{
+				new Rectangle(54, 0, 0, 0),
+				new Rectangle(54, 0, 0, 0),
+				new Rectangle(54, 0, 0, 0)
+			},
+			{
+				new Rectangle(54, 0, 0, 0),
+				new Rectangle(54, 0, 0, 0),
+				new Rectangle(54, 0, 0, 0)
+			},
+			{
+				new Rectangle(54, 0, 0, 0),
+				new Rectangle(54, 0, 0, 0),
+				new Rectangle(54, 0, 0, 0)
+			}
+		};
+		addTile(733);
 		newTile.Width = 1;
 		newTile.Height = 2;
 		newTile.Origin = new Point16(0, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
 		addBaseTile(out Style1x2);
 		newTile.CopyFrom(Style1x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.Direction = TileObjectDirection.PlaceLeft;
 		newTile.StyleWrapLimit = 2;
 		newTile.StyleMultiplier = 2;
@@ -3753,13 +4054,26 @@ public class TileObjectData
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
 		addSubTile(16, 47);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.LinkedAlternates = true;
+		newSubTile.Alternates = new List<TileObjectData>();
+		newSubTile.DrawStyleOffset = -102;
+		newSubTile.DrawFrameOffsets = new Rectangle[1, 2] { 
+		{
+			new Rectangle(36, 0, 0, 0),
+			new Rectangle(36, 0, 0, 0)
+		} };
+		newAlternate.CopyFrom(newSubTile);
+		newAlternate.Direction = TileObjectDirection.PlaceRight;
+		newAlternate.Calculate();
+		newAlternate.Style = 1;
+		newAlternate._parent = newSubTile;
+		newSubTile.Alternates.Add(newAlternate);
+		newAlternate = new TileObjectData(_baseObject);
+		addSubTile(51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67);
 		addTile(15);
 		newTile.CopyFrom(Style1x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.Direction = TileObjectDirection.PlaceLeft;
 		newTile.StyleWrapLimit = 2;
 		newTile.StyleMultiplier = 2;
@@ -3773,13 +4087,26 @@ public class TileObjectData
 		newSubTile.LavaDeath = false;
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
 		addSubTile(14, 42);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.LinkedAlternates = true;
+		newSubTile.Alternates = new List<TileObjectData>();
+		newSubTile.DrawStyleOffset = -102;
+		newSubTile.DrawFrameOffsets = new Rectangle[1, 2] { 
+		{
+			new Rectangle(36, 0, 0, 0),
+			new Rectangle(36, 0, 0, 0)
+		} };
+		newAlternate.CopyFrom(newSubTile);
+		newAlternate.Direction = TileObjectDirection.PlaceRight;
+		newAlternate.Calculate();
+		newAlternate.Style = 1;
+		newAlternate._parent = newSubTile;
+		newSubTile.Alternates.Add(newAlternate);
+		newAlternate = new TileObjectData(_baseObject);
+		addSubTile(51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64);
 		addTile(497);
 		newTile.CopyFrom(Style1x2);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			20
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 20 };
 		addTile(216);
 		newTile.CopyFrom(Style1x2);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
@@ -3792,78 +4119,107 @@ public class TileObjectData
 		newTile.DrawStyleOffset = 13 * newTile.StyleWrapLimit;
 		addTile(493);
 		newTile.CopyFrom(Style1x2);
-		newTile.RandomStyleRange = 5;
-		newTile.CoordinateHeights = new int[2] {
-			18,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 18, 18 };
 		newTile.CoordinateWidth = 26;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
 		newTile.DrawFlipHorizontal = true;
 		addTile(567);
+		int num = 39;
+		newTile.CopyFrom(Style1x2);
+		newTile.StyleHorizontal = true;
+		newTile.AnchorBottom = AnchorData.Empty;
+		newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.AlternateTile | AnchorType.SolidBottom, newTile.Width, 0);
+		newTile.StyleWrapLimit = num;
+		newTile.Origin = new Point16(0, 0);
+		newSubTile.CopyFrom(newTile);
+		newSubTile.Origin = new Point16(0, 1);
+		newSubTile.AnchorTop = AnchorData.Empty;
+		newSubTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
+		addSubTileRange(num, num);
+		addTile(694);
 		newTile.Width = 1;
 		newTile.Height = 1;
 		newTile.Origin = new Point16(0, 0);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
+		newTile.AnchorInvalidTiles = anchorInvalidTiles;
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
 		addBaseTile(out Style1x1);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newTile.AnchorInvalidTiles = null;
 		newTile.LavaDeath = false;
 		addTile(420);
 		newTile.CopyFrom(Style1x1);
 		addTile(624);
 		newTile.CopyFrom(Style1x1);
+		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide, newTile.Width, 0);
+		newTile.UsesCustomCanPlace = true;
+		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
+		newTile.LavaDeath = true;
+		newTile.CoordinateHeights = new int[1] { 16 };
+		newTile.CoordinateWidth = 20;
+		newTile.DrawXOffset = 0;
+		newTile.DrawYOffset = 2;
+		newTile.DrawFlipHorizontal = true;
+		addTile(700);
+		newTile.CopyFrom(Style1x1);
 		addTile(656);
 		newTile.CopyFrom(Style1x1);
+		newTile.UsesCustomCanPlace = true;
+		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
+		newTile.LavaDeath = true;
+		newTile.CoordinateHeights = new int[1] { 34 };
+		newTile.CoordinateWidth = 24;
+		newTile.DrawXOffset = 0;
+		newTile.DrawYOffset = -16;
+		newTile.DrawFlipHorizontal = true;
+		addTile(701);
+		newTile.CopyFrom(Style1x1);
+		newTile.StyleHorizontal = true;
+		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
+		newTile.WaterDeath = true;
+		newTile.LavaDeath = true;
+		newTile.DrawFlipHorizontal = true;
+		addTile(703);
+		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table, newTile.Width, 0);
-		newTile.CoordinateHeights = new int[1] {
-			18
-		};
-
+		newTile.CoordinateHeights = new int[1] { 18 };
 		newTile.CoordinateWidth = 20;
 		newTile.LavaDeath = false;
 		addTile(476);
 		newTile.CopyFrom(Style1x1);
 		newTile.LavaDeath = false;
 		newTile.AnchorBottom = new AnchorData(AnchorType.AlternateTile, newTile.Width, 0);
-		newTile.AnchorAlternateTiles = new int[2] {
-			420,
-			419
-		};
-
+		newTile.AnchorAlternateTiles = new int[2] { 420, 419 };
 		newTile.StyleHorizontal = true;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.Origin = new Point16(0, 1);
-		newAlternate.AnchorAlternateTiles = new int[1] {
-			419
-		};
-
+		newAlternate.AnchorAlternateTiles = new int[1] { 419 };
 		addTile(419);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newTile.AnchorInvalidTiles = null;
 		newTile.LavaDeath = false;
 		newTile.HookPostPlaceMyPlayer = new PlacementHook(TELogicSensor.Hook_AfterPlacement, -1, 0, processedCoordinates: true);
 		addTile(423);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newTile.AnchorInvalidTiles = null;
 		newTile.LavaDeath = false;
 		addTile(424);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newTile.AnchorInvalidTiles = null;
 		newTile.LavaDeath = false;
 		addTile(445);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newTile.AnchorInvalidTiles = null;
 		newTile.LavaDeath = false;
 		addTile(429);
 		newTile.CopyFrom(Style1x1);
@@ -3871,29 +4227,19 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
 		newTile.DrawFlipHorizontal = true;
-		newTile.CoordinateHeights = new int[1] {
-			26
-		};
-
+		newTile.CoordinateHeights = new int[1] { 26 };
 		newTile.CoordinateWidth = 24;
 		newTile.DrawYOffset = -8;
-		newTile.RandomStyleRange = 6;
 		newTile.StyleHorizontal = true;
 		addTile(81);
 		newTile.CopyFrom(Style1x1);
-		newTile.CoordinateHeights = new int[1] {
-			18
-		};
-
+		newTile.CoordinateHeights = new int[1] { 18 };
 		newTile.CoordinatePadding = 0;
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = false;
 		addTile(135);
 		newTile.CopyFrom(Style1x1);
-		newTile.CoordinateHeights = new int[1] {
-			18
-		};
-
+		newTile.CoordinateHeights = new int[1] { 18 };
 		newTile.CoordinatePadding = 0;
 		newTile.DrawYOffset = 2;
 		newTile.LavaDeath = false;
@@ -3904,6 +4250,8 @@ public class TileObjectData
 		addTile(141);
 		newTile.CopyFrom(Style1x1);
 		newTile.StyleHorizontal = true;
+		newTile.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newTile.AnchorInvalidTiles = null;
 		newTile.LavaDeath = false;
 		addTile(144);
 		newTile.CopyFrom(Style1x1);
@@ -3917,46 +4265,40 @@ public class TileObjectData
 		newTile.DrawYOffset = 2;
 		newTile.StyleHorizontal = true;
 		addTile(650);
+		int num2 = 39;
 		newTile.CopyFrom(Style1x1);
 		newTile.StyleHorizontal = true;
-		newTile.RandomStyleRange = 7;
+		newTile.AnchorBottom = AnchorData.Empty;
+		newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.AlternateTile | AnchorType.SolidBottom, newTile.Width, 0);
+		newTile.StyleWrapLimit = num2;
+		newSubTile.CopyFrom(newTile);
+		newSubTile.AnchorTop = AnchorData.Empty;
+		newSubTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, newTile.Width, 0);
+		addSubTileRange(num2, num2);
+		addTile(693);
+		newTile.CopyFrom(Style1x1);
+		newTile.DrawYOffset = 2;
+		newTile.StyleHorizontal = true;
 		addTile(36);
 		newTile.CopyFrom(Style1x1);
 		newTile.UsesCustomCanPlace = true;
 		newTile.DrawFlipHorizontal = true;
-		newTile.RandomStyleRange = 3;
-		newTile.StyleMultiplier = 3;
 		newTile.StyleWrapLimit = 3;
 		newTile.StyleHorizontal = true;
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.CoordinateWidth = 20;
 		newTile.DrawYOffset = -2;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
 		addTile(324);
 		newTile.CopyFrom(Style1x1);
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.DrawYOffset = 2;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide, newTile.Width, 0);
 		addTile(593);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide | AnchorType.AlternateTile, newTile.Width, 0);
-		newTile.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
+		newTile.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
 		newTile.StyleHorizontal = true;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorBottom = AnchorData.Empty;
@@ -3977,16 +4319,7 @@ public class TileObjectData
 		addTile(630);
 		newTile.CopyFrom(Style1x1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide | AnchorType.AlternateTile, newTile.Width, 0);
-		newTile.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
+		newTile.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
 		newTile.StyleHorizontal = true;
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorBottom = AnchorData.Empty;
@@ -4005,14 +4338,73 @@ public class TileObjectData
 		newAlternate.AnchorWall = true;
 		addAlternate(4);
 		addTile(631);
+		newTile.CopyFrom(Style1x1);
+		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide | AnchorType.AlternateTile, newTile.Width, 0);
+		newTile.AnchorInvalidTiles = null;
+		newTile.LavaDeath = false;
+		newTile.StyleHorizontal = true;
+		newTile.HookPostPlaceMyPlayer = new PlacementHook(TEKiteAnchor.Hook_AfterPlacement, -1, 0, processedCoordinates: true);
+		newTile.DrawYOffset = 2;
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = AnchorData.Empty;
+		newAlternate.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.AlternateTile | AnchorType.SolidBottom, newTile.Width, 0);
+		newAlternate.DrawYOffset = -2;
+		addAlternate(1);
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = AnchorData.Empty;
+		newAlternate.AnchorLeft = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
+		newAlternate.DrawYOffset = 0;
+		newAlternate.DrawXOffset = 2;
+		addAlternate(2);
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = AnchorData.Empty;
+		newAlternate.AnchorRight = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
+		newAlternate.DrawYOffset = 0;
+		newAlternate.DrawXOffset = -2;
+		addAlternate(3);
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newAlternate.AnchorWall = true;
+		newAlternate.DrawYOffset = 0;
+		addAlternate(4);
+		addTile(723);
+		newTile.CopyFrom(Style1x1);
+		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide | AnchorType.AlternateTile, newTile.Width, 0);
+		newTile.AnchorInvalidTiles = null;
+		newTile.LavaDeath = false;
+		newTile.StyleHorizontal = true;
+		newTile.StyleMultiplier = 5;
+		newTile.StyleWrapLimit = 5;
+		newTile.HookPostPlaceMyPlayer = new PlacementHook(TECritterAnchor.Hook_AfterPlacement, -1, 0, processedCoordinates: true);
+		newTile.DrawYOffset = 2;
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = AnchorData.Empty;
+		newAlternate.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.AlternateTile | AnchorType.SolidBottom, newTile.Width, 0);
+		newAlternate.DrawYOffset = -2;
+		addAlternate(1);
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = AnchorData.Empty;
+		newAlternate.AnchorLeft = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
+		newAlternate.DrawYOffset = 0;
+		newAlternate.DrawXOffset = 2;
+		addAlternate(2);
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = AnchorData.Empty;
+		newAlternate.AnchorRight = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
+		newAlternate.DrawYOffset = 0;
+		newAlternate.DrawXOffset = -2;
+		addAlternate(3);
+		newAlternate.CopyFrom(newTile);
+		newAlternate.AnchorBottom = new AnchorData(AnchorType.None, 0, 0);
+		newAlternate.AnchorWall = true;
+		newAlternate.DrawYOffset = 0;
+		addAlternate(4);
+		addTile(724);
 		newTile.Width = 1;
 		newTile.Height = 1;
 		newTile.Origin = new Point16(0, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[1] {
-			16
-		};
-
+		newTile.CoordinateHeights = new int[1] { 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.StyleHorizontal = true;
@@ -4022,31 +4414,13 @@ public class TileObjectData
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide, newTile.Width, 0);
 		newAlternate.CopyFrom(StyleSwitch);
 		newAlternate.AnchorLeft = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
-		newAlternate.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
-		newAlternate.DrawXOffset = -2;
+		newAlternate.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
+		newAlternate.DrawXOffset = 2;
 		addAlternate(1);
 		newAlternate.CopyFrom(StyleSwitch);
 		newAlternate.AnchorRight = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
-		newAlternate.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
-		newAlternate.DrawXOffset = 2;
+		newAlternate.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
+		newAlternate.DrawXOffset = -2;
 		addAlternate(2);
 		newAlternate.CopyFrom(StyleSwitch);
 		newAlternate.AnchorWall = true;
@@ -4057,11 +4431,7 @@ public class TileObjectData
 		newTile.Height = 1;
 		newTile.Origin = new Point16(0, 0);
 		newTile.FlattenAnchors = true;
-		newTile.UsesCustomCanPlace = false;
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawStepDown = 2;
 		newTile.CoordinateWidth = 20;
 		newTile.CoordinatePadding = 2;
@@ -4072,34 +4442,17 @@ public class TileObjectData
 		newTile.LavaPlacement = LiquidPlacement.NotAllowed;
 		newTile.WaterDeath = true;
 		newTile.LavaDeath = true;
+		newTile.UsesCustomCanPlace = true;
 		addBaseTile(out StyleTorch);
 		newTile.CopyFrom(StyleTorch);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide, newTile.Width, 0);
 		newAlternate.CopyFrom(StyleTorch);
 		newAlternate.AnchorLeft = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
-		newAlternate.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
+		newAlternate.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
 		addAlternate(1);
 		newAlternate.CopyFrom(StyleTorch);
 		newAlternate.AnchorRight = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile, newTile.Height, 0);
-		newAlternate.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
+		newAlternate.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
 		addAlternate(2);
 		newAlternate.CopyFrom(StyleTorch);
 		newAlternate.AnchorWall = true;
@@ -4131,10 +4484,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 0);
 		newTile.FlattenAnchors = true;
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.DrawStepDown = 2;
 		newTile.CoordinateWidth = 20;
 		newTile.CoordinatePadding = 2;
@@ -4151,31 +4501,13 @@ public class TileObjectData
 		addAlternate(1);
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorLeft = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile | AnchorType.EmptyTile | AnchorType.SolidBottom, newTile.Height, 0);
-		newAlternate.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
+		newAlternate.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
 		newAlternate.DrawXOffset = -2;
 		newAlternate.DrawYOffset = -2;
 		addAlternate(2);
 		newAlternate.CopyFrom(newTile);
 		newAlternate.AnchorRight = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.Table | AnchorType.SolidSide | AnchorType.Tree | AnchorType.AlternateTile | AnchorType.EmptyTile | AnchorType.SolidBottom, newTile.Height, 0);
-		newAlternate.AnchorAlternateTiles = new int[7] {
-			124,
-			561,
-			574,
-			575,
-			576,
-			577,
-			578
-		};
-
+		newAlternate.AnchorAlternateTiles = new int[7] { 124, 561, 574, 575, 576, 577, 578 };
 		newAlternate.DrawXOffset = 2;
 		newAlternate.DrawYOffset = -2;
 		addAlternate(3);
@@ -4185,103 +4517,46 @@ public class TileObjectData
 		newTile.Height = 1;
 		newTile.Origin = Point16.Zero;
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[1] {
-			20
-		};
-
+		newTile.CoordinateHeights = new int[1] { 20 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.DrawYOffset = -1;
+		newTile.DrawYOffset = -2;
 		newTile.StyleHorizontal = true;
+		newTile.DrawFlipHorizontal = true;
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.AlternateTile, newTile.Width, 0);
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
 		newTile.LavaDeath = true;
 		newTile.LavaPlacement = LiquidPlacement.NotAllowed;
 		addBaseTile(out StyleAlch);
 		newTile.CopyFrom(StyleAlch);
-		newTile.AnchorValidTiles = new int[4] {
-			2,
-			477,
-			109,
-			492
-		};
-
-		newTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newTile.AnchorValidTiles = new int[4] { 2, 477, 109, 492 };
+		newTile.AnchorAlternateTiles = new int[1] { 78 };
 		newSubTile.CopyFrom(StyleAlch);
-		newSubTile.AnchorValidTiles = new int[1] {
-			60
-		};
-
-		newSubTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newSubTile.AnchorValidTiles = new int[1] { 60 };
+		newSubTile.AnchorAlternateTiles = new int[1] { 78 };
 		addSubTile(1);
 		newSubTile.CopyFrom(StyleAlch);
-		newSubTile.AnchorValidTiles = new int[2] {
-			0,
-			59
-		};
-
-		newSubTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newSubTile.AnchorValidTiles = new int[2] { 0, 59 };
+		newSubTile.AnchorAlternateTiles = new int[1] { 78 };
 		addSubTile(2);
 		newSubTile.CopyFrom(StyleAlch);
-		newSubTile.AnchorValidTiles = new int[4] {
-			199,
-			203,
-			25,
-			23
-		};
-
-		newSubTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newSubTile.AnchorValidTiles = new int[4] { 199, 203, 25, 23 };
+		newSubTile.AnchorAlternateTiles = new int[1] { 78 };
 		addSubTile(3);
 		newSubTile.CopyFrom(StyleAlch);
-		newSubTile.AnchorValidTiles = new int[2] {
-			53,
-			116
-		};
-
-		newSubTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newSubTile.AnchorValidTiles = new int[2] { 53, 116 };
+		newSubTile.AnchorAlternateTiles = new int[1] { 78 };
 		newSubTile.WaterPlacement = LiquidPlacement.Allowed;
 		addSubTile(4);
 		newSubTile.CopyFrom(StyleAlch);
-		newSubTile.AnchorValidTiles = new int[2] {
-			57,
-			633
-		};
-
-		newSubTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newSubTile.AnchorValidTiles = new int[2] { 57, 633 };
+		newSubTile.AnchorAlternateTiles = new int[1] { 78 };
 		newSubTile.LavaPlacement = LiquidPlacement.Allowed;
 		newSubTile.LavaDeath = false;
 		addSubTile(5);
 		newSubTile.CopyFrom(StyleAlch);
-		newSubTile.AnchorValidTiles = new int[5] {
-			147,
-			161,
-			163,
-			164,
-			200
-		};
-
-		newSubTile.AnchorAlternateTiles = new int[1] {
-			78
-		};
-
+		newSubTile.AnchorValidTiles = new int[5] { 147, 161, 163, 164, 200 };
+		newSubTile.AnchorAlternateTiles = new int[1] { 78 };
 		newSubTile.WaterPlacement = LiquidPlacement.Allowed;
 		addSubTile(6);
 		addTile(82);
@@ -4294,12 +4569,7 @@ public class TileObjectData
 		newTile.Origin = new Point16(1, 1);
 		newTile.AnchorWall = true;
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[3] {
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
 		newTile.LavaDeath = true;
@@ -4342,29 +4612,18 @@ public class TileObjectData
 		newTile.Width = 3;
 		newTile.Height = 2;
 		newTile.Origin = new Point16(1, 0);
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 16 };
 		addTile(246);
 		newTile.CopyFrom(Style3x3Wall);
 		newTile.Width = 4;
 		newTile.Height = 3;
 		newTile.Origin = new Point16(1, 1);
-		newTile.RandomStyleRange = 9;
 		addTile(241);
 		newTile.CopyFrom(Style3x3Wall);
 		newTile.Width = 6;
 		newTile.Height = 4;
 		newTile.Origin = new Point16(2, 2);
-		newTile.CoordinateHeights = new int[4] {
-			16,
-			16,
-			16,
-			16
-		};
-
+		newTile.CoordinateHeights = new int[4] { 16, 16, 16, 16 };
 		newTile.StyleWrapLimit = 27;
 		addTile(242);
 		newTile.Width = 2;
@@ -4372,24 +4631,10 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 3);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[4] {
-			16,
-			16,
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[4] { 16, 16, 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.AnchorValidTiles = new int[6] {
-			2,
-			477,
-			109,
-			60,
-			492,
-			633
-		};
-
+		newTile.AnchorValidTiles = new int[6] { 2, 477, 109, 60, 492, 633 };
 		newTile.StyleHorizontal = true;
 		newTile.RandomStyleRange = 3;
 		newTile.LavaDeath = true;
@@ -4400,85 +4645,44 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.AnchorValidTiles = new int[2] {
-			2,
-			477
-		};
-
+		newTile.AnchorValidTiles = new int[2] { 2, 477 };
 		newTile.StyleHorizontal = true;
 		newTile.DrawFlipHorizontal = true;
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
 		newTile.LavaDeath = true;
 		newTile.RandomStyleRange = 3;
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			147
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 147 };
 		addAlternate(3);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			60
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 60 };
 		addAlternate(6);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[2] {
-			23,
-			661
-		};
-
+		newAlternate.AnchorValidTiles = new int[2] { 23, 661 };
 		addAlternate(9);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[2] {
-			199,
-			662
-		};
-
+		newAlternate.AnchorValidTiles = new int[2] { 199, 662 };
 		addAlternate(12);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[2] {
-			109,
-			492
-		};
-
+		newAlternate.AnchorValidTiles = new int[2] { 109, 492 };
 		addAlternate(15);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			53
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 53 };
 		addAlternate(18);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			116
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 116 };
 		addAlternate(21);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			234
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 234 };
 		addAlternate(24);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			112
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 112 };
 		addAlternate(27);
 		newAlternate.CopyFrom(newTile);
-		newAlternate.AnchorValidTiles = new int[1] {
-			633
-		};
-
+		newAlternate.AnchorValidTiles = new int[1] { 633 };
 		addAlternate(30);
 		addTile(20);
 		newTile.Width = 1;
@@ -4486,31 +4690,14 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.AnchorValidTiles = new int[15] {
-			1,
-			25,
-			117,
-			203,
-			182,
-			180,
-			179,
-			381,
-			183,
-			181,
-			534,
-			536,
-			539,
-			625,
-			627
+		newTile.AnchorValidTiles = new int[15]
+		{
+			1, 25, 117, 203, 182, 180, 179, 381, 183, 181,
+			534, 536, 539, 625, 627
 		};
-
 		newTile.StyleHorizontal = true;
 		newTile.DrawFlipHorizontal = true;
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
@@ -4524,23 +4711,10 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.AnchorValidTiles = new int[7] {
-			2,
-			477,
-			492,
-			60,
-			109,
-			199,
-			23
-		};
-
+		newTile.AnchorValidTiles = new int[7] { 2, 477, 492, 60, 109, 199, 23 };
 		newTile.StyleHorizontal = true;
 		newTile.DrawFlipHorizontal = true;
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
@@ -4554,23 +4728,10 @@ public class TileObjectData
 		newTile.Origin = new Point16(0, 1);
 		newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile, newTile.Width, 0);
 		newTile.UsesCustomCanPlace = true;
-		newTile.CoordinateHeights = new int[2] {
-			16,
-			18
-		};
-
+		newTile.CoordinateHeights = new int[2] { 16, 18 };
 		newTile.CoordinateWidth = 16;
 		newTile.CoordinatePadding = 2;
-		newTile.AnchorValidTiles = new int[7] {
-			2,
-			477,
-			492,
-			60,
-			109,
-			199,
-			23
-		};
-
+		newTile.AnchorValidTiles = new int[7] { 2, 477, 492, 60, 109, 199, 23 };
 		newTile.StyleHorizontal = true;
 		newTile.DrawFlipHorizontal = true;
 		newTile.WaterPlacement = LiquidPlacement.NotAllowed;
@@ -4585,147 +4746,222 @@ public class TileObjectData
 	public static bool CustomPlace(int type, int style)
 	{
 		if (type < 0 || type >= _data.Count || style < 0)
+		{
 			return false;
-
+		}
 		TileObjectData tileObjectData = _data[type];
 		if (tileObjectData == null)
+		{
 			return false;
-
+		}
 		List<TileObjectData> subTiles = tileObjectData.SubTiles;
-		if (subTiles != null && style < subTiles.Count) {
+		if (subTiles != null && style < subTiles.Count)
+		{
 			TileObjectData tileObjectData2 = subTiles[style];
 			if (tileObjectData2 != null)
+			{
 				return tileObjectData2._usesCustomCanPlace;
+			}
 		}
-
 		return tileObjectData._usesCustomCanPlace;
 	}
 
-	public static bool CheckLiquidPlacement(int type, int style, Tile checkTile) => GetTileData(type, style)?.LiquidPlace(checkTile) ?? LiquidPlace(type, checkTile);
+	public static bool CheckLiquidPlacement(int type, int style, Tile checkTile)
+	{
+		return GetTileData(type, style)?.LiquidPlace(checkTile) ?? LiquidPlace(type, checkTile);
+	}
 
 	public static bool LiquidPlace(int type, Tile checkTile)
 	{
 		if (checkTile == null)
+		{
 			return false;
-
-		if (checkTile.liquid > 0) {
-			switch (checkTile.liquidType()) {
-				case 1:
-					if (Main.tileLavaDeath[type])
-						return false;
-					break;
-				case 0:
-				case 2:
-				case 3:
-					if (Main.tileWaterDeath[type])
-						return false;
-					break;
+		}
+		if (checkTile.liquid > 0)
+		{
+			switch (checkTile.liquidType())
+			{
+			case 1:
+				if (Main.tileLavaDeath[type])
+				{
+					return false;
+				}
+				break;
+			case 0:
+			case 2:
+			case 3:
+				if (Main.tileWaterDeath[type])
+				{
+					return false;
+				}
+				break;
 			}
 		}
-
 		return true;
 	}
 
-	public static bool CheckWaterDeath(int type, int style) => GetTileData(type, style)?.WaterDeath ?? Main.tileWaterDeath[type];
+	public static bool CheckWaterDeath(int type, int style)
+	{
+		return GetTileData(type, style)?.WaterDeath ?? Main.tileWaterDeath[type];
+	}
 
 	public static bool CheckWaterDeath(Tile checkTile)
 	{
 		if (!checkTile.active())
+		{
 			return false;
-
+		}
 		return GetTileData(checkTile)?.WaterDeath ?? Main.tileWaterDeath[checkTile.type];
 	}
 
-	public static bool CheckLavaDeath(int type, int style) => GetTileData(type, style)?.LavaDeath ?? Main.tileLavaDeath[type];
+	public static bool CheckLavaDeath(int type, int style)
+	{
+		return GetTileData(type, style)?.LavaDeath ?? Main.tileLavaDeath[type];
+	}
 
 	public static bool CheckLavaDeath(Tile checkTile)
 	{
 		if (!checkTile.active())
+		{
 			return false;
-
+		}
 		return GetTileData(checkTile)?.LavaDeath ?? Main.tileLavaDeath[checkTile.type];
 	}
 
-	public static int PlatformFrameWidth() => _data[19].CoordinateFullWidth;
+	public static int PlatformFrameWidth()
+	{
+		return _data[19].CoordinateFullWidth;
+	}
 
 	public static TileObjectData GetTileData(int type, int style, int alternate = 0)
 	{
 		if (type < 0 || type >= _data.Count)
+		{
 			throw new ArgumentOutOfRangeException("Function called with a bad type argument");
-
+		}
 		if (style < 0)
+		{
 			throw new ArgumentOutOfRangeException("Function called with a bad style argument");
-
+		}
 		TileObjectData tileObjectData = _data[type];
 		if (tileObjectData == null)
+		{
 			return null;
-
+		}
 		List<TileObjectData> subTiles = tileObjectData.SubTiles;
-		if (subTiles != null && style < subTiles.Count) {
+		if (subTiles != null && style < subTiles.Count)
+		{
 			TileObjectData tileObjectData2 = subTiles[style];
 			if (tileObjectData2 != null)
+			{
 				tileObjectData = tileObjectData2;
+			}
 		}
-
 		alternate--;
 		List<TileObjectData> alternates = tileObjectData.Alternates;
-		if (alternates != null && alternate >= 0 && alternate < alternates.Count) {
+		if (alternates != null && alternate >= 0 && alternate < alternates.Count)
+		{
 			TileObjectData tileObjectData3 = alternates[alternate];
 			if (tileObjectData3 != null)
+			{
 				tileObjectData = tileObjectData3;
+			}
 		}
-
 		return tileObjectData;
+	}
+
+	public static bool TryGetTileBounds(int x, int y, out Rectangle bounds)
+	{
+		bounds = new Rectangle(x, y, 1, 1);
+		Tile tile = Main.tile[x, y];
+		TileObjectData tileData = GetTileData(tile);
+		if (tileData == null)
+		{
+			return false;
+		}
+		int num = tile.frameX / tileData.CoordinateFullWidth;
+		int num2 = tile.frameY / tileData.CoordinateFullHeight;
+		int num3 = tile.frameX - num * tileData.CoordinateFullWidth;
+		int num4 = tile.frameY - num2 * tileData.CoordinateFullHeight;
+		int coordinateWidth = tileData.CoordinateWidth;
+		while (num3 >= coordinateWidth)
+		{
+			num3 -= coordinateWidth;
+			bounds.X--;
+		}
+		int[] coordinateHeights = tileData.CoordinateHeights;
+		for (int i = 0; i < coordinateHeights.Length; i++)
+		{
+			if (num4 >= coordinateHeights[i])
+			{
+				num4 -= coordinateHeights[i];
+				bounds.Y--;
+			}
+		}
+		bounds.Width = tileData.Width;
+		bounds.Height = tileData.Height;
+		return true;
 	}
 
 	public static TileObjectData GetTileData(Tile getTile)
 	{
 		if (getTile == null || !getTile.active())
+		{
 			return null;
-
+		}
 		int type = getTile.type;
 		if (type < 0 || type >= _data.Count)
+		{
 			throw new ArgumentOutOfRangeException("Function called with a bad tile type");
-
+		}
 		TileObjectData tileObjectData = _data[type];
 		if (tileObjectData == null)
+		{
 			return null;
-
+		}
 		int num = getTile.frameX / tileObjectData.CoordinateFullWidth;
 		int num2 = getTile.frameY / tileObjectData.CoordinateFullHeight;
 		int num3 = tileObjectData.StyleWrapLimit;
 		if (num3 == 0)
+		{
 			num3 = 1;
-
+		}
 		int num4 = ((!tileObjectData.StyleHorizontal) ? (num * num3 + num2) : (num2 * num3 + num));
 		int num5 = num4 / tileObjectData.StyleMultiplier;
 		int num6 = num4 % tileObjectData.StyleMultiplier;
 		int styleLineSkip = tileObjectData.StyleLineSkip;
-		if (styleLineSkip > 1) {
-			if (tileObjectData.StyleHorizontal) {
+		if (styleLineSkip > 1)
+		{
+			if (tileObjectData.StyleHorizontal)
+			{
 				num5 = num2 / styleLineSkip * num3 + num;
 				num6 = num2 % styleLineSkip;
 			}
-			else {
+			else
+			{
 				num5 = num / styleLineSkip * num3 + num2;
 				num6 = num % styleLineSkip;
 			}
 		}
-
-		if (tileObjectData.SubTiles != null && num5 >= 0 && num5 < tileObjectData.SubTiles.Count) {
+		if (tileObjectData.SubTiles != null && num5 >= 0 && num5 < tileObjectData.SubTiles.Count)
+		{
 			TileObjectData tileObjectData2 = tileObjectData.SubTiles[num5];
 			if (tileObjectData2 != null)
+			{
 				tileObjectData = tileObjectData2;
-		}
-
-		if (tileObjectData._alternates != null) {
-			for (int i = 0; i < tileObjectData.Alternates.Count; i++) {
-				TileObjectData tileObjectData3 = tileObjectData.Alternates[i];
-				if (tileObjectData3 != null && num6 >= tileObjectData3.Style && num6 <= tileObjectData3.Style + tileObjectData3.RandomStyleRange)
-					return tileObjectData3;
 			}
 		}
-
+		if (tileObjectData._alternates != null)
+		{
+			for (int i = 0; i < tileObjectData.Alternates.Count; i++)
+			{
+				TileObjectData tileObjectData3 = tileObjectData.Alternates[i];
+				if (tileObjectData3 != null && num6 >= tileObjectData3.Style && num6 <= tileObjectData3.Style + tileObjectData3.RandomStyleRange)
+				{
+					return tileObjectData3;
+				}
+			}
+		}
 		return tileObjectData;
 	}
 
@@ -4739,14 +4975,15 @@ public class TileObjectData
 	{
 		TileObjectData tileData = GetTileData(type, style, data.alternate);
 		if (tileData == null || tileData._placementHooks == null || tileData._placementHooks.postPlaceMyPlayer.hook == null)
+		{
 			return false;
-
+		}
 		PlacementHook postPlaceMyPlayer = tileData._placementHooks.postPlaceMyPlayer;
-		if (postPlaceMyPlayer.processedCoordinates) {
+		if (postPlaceMyPlayer.processedCoordinates)
+		{
 			tileX -= tileData.Origin.X;
 			tileY -= tileData.Origin.Y;
 		}
-
 		return postPlaceMyPlayer.hook(tileX, tileY, type, style, dir, data.alternate) == postPlaceMyPlayer.badReturn;
 	}
 
@@ -4754,6 +4991,8 @@ public class TileObjectData
 	{
 		TileObjectData tileData = GetTileData(type, style);
 		if (tileData != null)
+		{
 			baseCoords = new Point16(baseCoords.X - tileData.Origin.X, baseCoords.Y - tileData.Origin.Y);
+		}
 	}
 }

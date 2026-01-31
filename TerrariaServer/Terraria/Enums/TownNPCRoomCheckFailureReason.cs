@@ -7,5 +7,6 @@ public enum TownNPCRoomCheckFailureReason
 	RoomIsTooBig,
 	RoomIsTooSmall,
 	HoleInWallIsTooBig,
-	RoomCheckStartedInASolidTile
+	RoomCheckStartedInASolidTile,
+	TooManyUnsafeWalls
 }

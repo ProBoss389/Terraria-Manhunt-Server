@@ -6,10 +6,12 @@ namespace Terraria.GameContent.Drawing;
 public struct ParticleOrchestraSettings
 {
 	public Vector2 PositionInWorld;
+
 	public Vector2 MovementVector;
+
 	public int UniqueInfoPiece;
+
 	public byte IndexOfPlayerWhoInvokedThis;
-	public const int SerializationSize = 21;
 
 	public void Serialize(BinaryWriter writer)
 	{

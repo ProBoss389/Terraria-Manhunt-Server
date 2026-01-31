@@ -15,11 +15,13 @@ public static class Searches
 
 		public override Point Find(Point origin)
 		{
-			for (int i = 0; i < _maxDistance; i++) {
+			for (int i = 0; i < _maxDistance; i++)
+			{
 				if (Check(origin.X - i, origin.Y))
+				{
 					return new Point(origin.X - i, origin.Y);
+				}
 			}
-
 			return GenSearch.NOT_FOUND;
 		}
 	}
@@ -35,11 +37,13 @@ public static class Searches
 
 		public override Point Find(Point origin)
 		{
-			for (int i = 0; i < _maxDistance; i++) {
+			for (int i = 0; i < _maxDistance; i++)
+			{
 				if (Check(origin.X + i, origin.Y))
+				{
 					return new Point(origin.X + i, origin.Y);
+				}
 			}
-
 			return GenSearch.NOT_FOUND;
 		}
 	}
@@ -55,11 +59,13 @@ public static class Searches
 
 		public override Point Find(Point origin)
 		{
-			for (int i = 0; i < _maxDistance && origin.Y + i < Main.maxTilesY; i++) {
+			for (int i = 0; i < _maxDistance && origin.Y + i < Main.maxTilesY; i++)
+			{
 				if (Check(origin.X, origin.Y + i))
+				{
 					return new Point(origin.X, origin.Y + i);
+				}
 			}
-
 			return GenSearch.NOT_FOUND;
 		}
 	}
@@ -75,11 +81,13 @@ public static class Searches
 
 		public override Point Find(Point origin)
 		{
-			for (int i = 0; i < _maxDistance; i++) {
+			for (int i = 0; i < _maxDistance; i++)
+			{
 				if (Check(origin.X, origin.Y - i))
+				{
 					return new Point(origin.X, origin.Y - i);
+				}
 			}
-
 			return GenSearch.NOT_FOUND;
 		}
 	}
@@ -87,6 +95,7 @@ public static class Searches
 	public class Rectangle : GenSearch
 	{
 		private int _width;
+
 		private int _height;
 
 		public Rectangle(int width, int height)
@@ -97,16 +106,22 @@ public static class Searches
 
 		public override Point Find(Point origin)
 		{
-			for (int i = 0; i < _width; i++) {
-				for (int j = 0; j < _height; j++) {
+			for (int i = 0; i < _width; i++)
+			{
+				for (int j = 0; j < _height; j++)
+				{
 					if (Check(origin.X + i, origin.Y + j))
+					{
 						return new Point(origin.X + i, origin.Y + j);
+					}
 				}
 			}
-
 			return GenSearch.NOT_FOUND;
 		}
 	}
 
-	public static GenSearch Chain(GenSearch search, params GenCondition[] conditions) => search.Conditions(conditions);
+	public static GenSearch Chain(GenSearch search, params GenCondition[] conditions)
+	{
+		return search.Conditions(conditions);
+	}
 }

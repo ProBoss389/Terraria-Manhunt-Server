@@ -5,7 +5,9 @@ namespace Terraria.GameContent.Bestiary;
 public class BestiaryUnlocksTracker : IPersistentPerWorldContent, IOnPlayerJoining
 {
 	public NPCKillsTracker Kills = new NPCKillsTracker();
+
 	public NPCWasNearPlayerTracker Sights = new NPCWasNearPlayerTracker();
+
 	public NPCWasChatWithTracker Chats = new NPCWasChatWithTracker();
 
 	public void Save(BinaryWriter writer)

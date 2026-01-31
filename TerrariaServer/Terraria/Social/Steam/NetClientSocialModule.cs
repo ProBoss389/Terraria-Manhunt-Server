@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Steamworks;
-using Terraria.IO;
 using Terraria.Localization;
 using Terraria.Net;
 using Terraria.Net.Sockets;
@@ -11,11 +10,17 @@ namespace Terraria.Social.Steam;
 public class NetClientSocialModule : NetSocialModule
 {
 	private Callback<GameLobbyJoinRequested_t> _gameLobbyJoinRequested;
+
 	private Callback<P2PSessionRequest_t> _p2pSessionRequest;
+
 	private Callback<P2PSessionConnectFail_t> _p2pSessionConnectfail;
+
 	private HAuthTicket _authTicket = HAuthTicket.Invalid;
+
 	private byte[] _authData = new byte[1021];
+
 	private uint _authDataLength;
+
 	private bool _hasLocalHost;
 
 	public NetClientSocialModule()
@@ -35,19 +40,20 @@ public class NetClientSocialModule : NetSocialModule
 	private void CheckParameters()
 	{
 		if (Program.LaunchParameters.ContainsKey("+connect_lobby") && ulong.TryParse(Program.LaunchParameters["+connect_lobby"], out var result))
+		{
 			ConnectToLobby(result);
+		}
 	}
 
 	public void ConnectToLobby(ulong lobbyId)
 	{
 		CSteamID lobbySteamId = new CSteamID(lobbyId);
-		if (lobbySteamId.IsValid()) {
-			Main.OpenPlayerSelect(delegate (PlayerFileData playerData) {
-				Main.ServerSideCharacter = false;
-				playerData.SetAsActive();
+		if (lobbySteamId.IsValid())
+		{
+			Main.OpenPlayerSelectFromNet(delegate
+			{
 				Main.menuMode = 882;
 				Main.statusText = Language.GetTextValue("Social.Joining");
-				WeGameHelper.WriteDebugString(" CheckParameters， lobby.join");
 				_lobby.Join(lobbySteamId, OnLobbyEntered);
 			});
 		}
@@ -56,29 +62,42 @@ public class NetClientSocialModule : NetSocialModule
 	public override void LaunchLocalServer(Process process, ServerMode mode)
 	{
 		WeGameHelper.WriteDebugString("LaunchLocalServer");
-		if (_lobby.State != 0)
+		if (_lobby.State != LobbyState.Inactive)
+		{
 			_lobby.Leave();
-
+		}
 		ProcessStartInfo startInfo = process.StartInfo;
 		startInfo.Arguments = startInfo.Arguments + " -steam -localsteamid " + SteamUser.GetSteamID().m_SteamID;
-		if (mode.HasFlag(ServerMode.Lobby)) {
+		if ((mode & ServerMode.Lobby) != ServerMode.None)
+		{
 			_hasLocalHost = true;
-			if (mode.HasFlag(ServerMode.FriendsCanJoin))
+			if ((mode & ServerMode.FriendsCanJoin) != ServerMode.None)
+			{
 				process.StartInfo.Arguments += " -lobby friends";
+			}
 			else
+			{
 				process.StartInfo.Arguments += " -lobby private";
-
-			if (mode.HasFlag(ServerMode.FriendsOfFriends))
+			}
+			if ((mode & ServerMode.FriendsOfFriends) != ServerMode.None)
+			{
 				process.StartInfo.Arguments += " -friendsoffriends";
+			}
 		}
-
 		SteamFriends.SetRichPresence("status", Language.GetTextValue("Social.StatusInGame"));
 		Netplay.OnDisconnect += OnDisconnect;
 		process.Start();
 	}
 
-	public override ulong GetLobbyId() => 0uL;
-	public override bool StartListening(SocketConnectionAccepted callback) => false;
+	public override ulong GetLobbyId()
+	{
+		return 0uL;
+	}
+
+	public override bool StartListening(SocketConnectionAccepted callback)
+	{
+		return false;
+	}
 
 	public override void StopListening()
 	{
@@ -94,8 +113,9 @@ public class NetClientSocialModule : NetSocialModule
 	public override bool CanInvite()
 	{
 		if (_hasLocalHost || _lobby.State == LobbyState.Active || Main.LobbyId != 0L)
+		{
 			return Main.netMode != 0;
-
+		}
 		return false;
 	}
 
@@ -106,7 +126,8 @@ public class NetClientSocialModule : NetSocialModule
 
 	private void Close(CSteamID user)
 	{
-		if (_connectionStateMap.ContainsKey(user)) {
+		if (_connectionStateMap.ContainsKey(user))
+		{
 			SteamNetworking.CloseP2PSessionWithUser(user);
 			ClearAuthTicket();
 			_connectionStateMap[user] = ConnectionState.Inactive;
@@ -122,25 +143,25 @@ public class NetClientSocialModule : NetSocialModule
 
 	public override void CancelJoin()
 	{
-		if (_lobby.State != 0)
+		if (_lobby.State != LobbyState.Inactive)
+		{
 			_lobby.Leave();
+		}
 	}
 
 	private void OnLobbyJoinRequest(GameLobbyJoinRequested_t result)
 	{
 		WeGameHelper.WriteDebugString(" OnLobbyJoinRequest");
-		if (_lobby.State != 0)
+		if (_lobby.State != LobbyState.Inactive)
+		{
 			_lobby.Leave();
-
+		}
 		string friendName = SteamFriends.GetFriendPersonaName(result.m_steamIDFriend);
-		Main.QueueMainThreadAction(delegate {
-			Main.OpenPlayerSelect(delegate (PlayerFileData playerData) {
-				Main.ServerSideCharacter = false;
-				playerData.SetAsActive();
-				Main.menuMode = 882;
-				Main.statusText = Language.GetTextValue("Social.JoiningFriend", friendName);
-				_lobby.Join(result.m_steamIDLobby, OnLobbyEntered);
-			});
+		Main.OpenPlayerSelectFromNet(delegate
+		{
+			Main.menuMode = 882;
+			Main.statusText = Language.GetTextValue("Social.JoiningFriend", friendName);
+			_lobby.Join(result.m_steamIDLobby, OnLobbyEntered);
 		});
 	}
 
@@ -151,31 +172,33 @@ public class NetClientSocialModule : NetSocialModule
 		SendAuthTicket(_lobby.Owner);
 		int num = 0;
 		P2PSessionState_t pConnectionState;
-		while (SteamNetworking.GetP2PSessionState(_lobby.Owner, out pConnectionState) && pConnectionState.m_bConnectionActive != 1) {
-			switch (pConnectionState.m_eP2PSessionError) {
-				case 2:
+		while (SteamNetworking.GetP2PSessionState(_lobby.Owner, out pConnectionState) && pConnectionState.m_bConnectionActive != 1)
+		{
+			switch (pConnectionState.m_eP2PSessionError)
+			{
+			case 2:
+				ClearAuthTicket();
+				return;
+			case 1:
+				ClearAuthTicket();
+				return;
+			case 3:
+				ClearAuthTicket();
+				return;
+			case 5:
+				ClearAuthTicket();
+				return;
+			case 4:
+				if (++num > 5)
+				{
 					ClearAuthTicket();
 					return;
-				case 1:
-					ClearAuthTicket();
-					return;
-				case 3:
-					ClearAuthTicket();
-					return;
-				case 5:
-					ClearAuthTicket();
-					return;
-				case 4:
-					if (++num > 5) {
-						ClearAuthTicket();
-						return;
-					}
-					SteamNetworking.CloseP2PSessionWithUser(_lobby.Owner);
-					SendAuthTicket(_lobby.Owner);
-					break;
+				}
+				SteamNetworking.CloseP2PSessionWithUser(_lobby.Owner);
+				SendAuthTicket(_lobby.Owner);
+				break;
 			}
 		}
-
 		_connectionStateMap[_lobby.Owner] = ConnectionState.Connected;
 		SteamFriends.SetPlayedWith(_lobby.Owner);
 		SteamFriends.SetRichPresence("status", Language.GetTextValue("Social.StatusInGame"));
@@ -191,30 +214,34 @@ public class NetClientSocialModule : NetSocialModule
 	{
 		WeGameHelper.WriteDebugString(" SendAuthTicket");
 		if (_authTicket == HAuthTicket.Invalid)
-			_authTicket = SteamUser.GetAuthSessionTicket(_authData, _authData.Length, out _authDataLength);
-
+		{
+			SteamNetworkingIdentity steamNetworkingIdentity = default(SteamNetworkingIdentity);
+			steamNetworkingIdentity.SetSteamID(address);
+            _authTicket = SteamUser.GetAuthSessionTicket(_authData, _authData.Length, out _authDataLength);
+        }
 		int num = (int)(_authDataLength + 3);
 		byte[] array = new byte[num];
-		array[0] = (byte)((uint)num & 0xFFu);
-		array[1] = (byte)((uint)(num >> 8) & 0xFFu);
+		array[0] = (byte)(num & 0xFF);
+		array[1] = (byte)((num >> 8) & 0xFF);
 		array[2] = 93;
-		for (int i = 0; i < _authDataLength; i++) {
+		for (int i = 0; i < _authDataLength; i++)
+		{
 			array[i + 3] = _authData[i];
 		}
-
 		SteamNetworking.SendP2PPacket(address, array, (uint)num, EP2PSend.k_EP2PSendReliable, 1);
 	}
 
 	private void ClearAuthTicket()
 	{
 		if (_authTicket != HAuthTicket.Invalid)
+		{
 			SteamUser.CancelAuthTicket(_authTicket);
-
+		}
 		_authTicket = HAuthTicket.Invalid;
-		for (int i = 0; i < _authData.Length; i++) {
+		for (int i = 0; i < _authData.Length; i++)
+		{
 			_authData[i] = 0;
 		}
-
 		_authDataLength = 0u;
 	}
 
@@ -235,7 +262,9 @@ public class NetClientSocialModule : NetSocialModule
 	{
 		WeGameHelper.WriteDebugString(" OnP2PSessionRequest");
 		CSteamID steamIDRemote = result.m_steamIDRemote;
-		if (_connectionStateMap.ContainsKey(steamIDRemote) && _connectionStateMap[steamIDRemote] != 0)
+		if (_connectionStateMap.ContainsKey(steamIDRemote) && _connectionStateMap[steamIDRemote] != ConnectionState.Inactive)
+		{
 			SteamNetworking.AcceptP2PSessionWithUser(steamIDRemote);
+		}
 	}
 }

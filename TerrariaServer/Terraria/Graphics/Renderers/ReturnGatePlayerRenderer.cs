@@ -10,11 +10,13 @@ namespace Terraria.Graphics.Renderers;
 internal class ReturnGatePlayerRenderer : IPlayerRenderer
 {
 	private List<DrawData> _voidLensData = new List<DrawData>();
+
 	private PotionOfReturnGateInteractionChecker _interactionChecker = new PotionOfReturnGateInteractionChecker();
 
 	public void DrawPlayers(Camera camera, IEnumerable<Player> players)
 	{
-		foreach (Player player in players) {
+		foreach (Player player in players)
+		{
 			DrawReturnGateInWorld(camera, player);
 		}
 	}
@@ -37,20 +39,24 @@ internal class ReturnGatePlayerRenderer : IPlayerRenderer
 	{
 		Rectangle homeHitbox = Rectangle.Empty;
 		if (!PotionOfReturnHelper.TryGetGateHitbox(player, out homeHitbox))
+		{
 			return;
-
+		}
 		int num = 0;
 		AHoverInteractionChecker.HoverStatus hoverStatus = AHoverInteractionChecker.HoverStatus.NotSelectable;
 		if (player == Main.LocalPlayer)
+		{
 			_interactionChecker.AttemptInteraction(player, homeHitbox);
-
+		}
 		if (Main.SmartInteractPotionOfReturn)
+		{
 			hoverStatus = AHoverInteractionChecker.HoverStatus.Selected;
-
+		}
 		num = (int)hoverStatus;
 		if (!player.PotionOfReturnOriginalUsePosition.HasValue)
+		{
 			return;
-
+		}
 		SpriteBatch spriteBatch = camera.SpriteBatch;
 		SamplerState sampler = camera.Sampler;
 		spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, sampler, DepthStencilState.None, camera.Rasterizer, null, camera.GameViewMatrix.TransformationMatrix);
@@ -61,18 +67,22 @@ internal class ReturnGatePlayerRenderer : IPlayerRenderer
 		Vector2 worldPosition2 = homeHitbox.Center.ToVector2();
 		PotionOfReturnGateHelper potionOfReturnGateHelper = new PotionOfReturnGateHelper(PotionOfReturnGateHelper.GateType.ExitPoint, worldPosition, opacity);
 		PotionOfReturnGateHelper potionOfReturnGateHelper2 = new PotionOfReturnGateHelper(PotionOfReturnGateHelper.GateType.EntryPoint, worldPosition2, opacity);
-		if (!Main.gamePaused) {
+		if (!Main.gamePaused)
+		{
 			potionOfReturnGateHelper.Update();
 			potionOfReturnGateHelper2.Update();
 		}
-
 		_voidLensData.Clear();
 		potionOfReturnGateHelper.DrawToDrawData(_voidLensData, 0);
 		potionOfReturnGateHelper2.DrawToDrawData(_voidLensData, num);
-		foreach (DrawData voidLensDatum in _voidLensData) {
+		foreach (DrawData voidLensDatum in _voidLensData)
+		{
 			voidLensDatum.Draw(spriteBatch);
 		}
-
 		spriteBatch.End();
+	}
+
+	public void PrepareDrawForFrame(Player drawPlayer)
+	{
 	}
 }

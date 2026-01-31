@@ -11,30 +11,39 @@ public class IPCClient : IPCBase
 
 	public event Action OnConnected;
 
-	public override event Action<byte[]> OnDataArrive {
-		add {
+	public override event Action<byte[]> OnDataArrive
+	{
+		add
+		{
 			_onDataArrive = (Action<byte[]>)Delegate.Combine(_onDataArrive, value);
 		}
-		remove {
+		remove
+		{
 			_onDataArrive = (Action<byte[]>)Delegate.Remove(_onDataArrive, value);
 		}
 	}
 
-	private NamedPipeClientStream GetPipeStream() => (NamedPipeClientStream)_pipeStream;
+	private NamedPipeClientStream GetPipeStream()
+	{
+		return (NamedPipeClientStream)_pipeStream;
+	}
 
 	private void ProcessConnectedEvent()
 	{
-		if (_connectedFlag) {
+		if (_connectedFlag)
+		{
 			if (this.OnConnected != null)
+			{
 				this.OnConnected();
-
+			}
 			_connectedFlag = false;
 		}
 	}
 
 	private void ProcessPipeBrokenEvent()
 	{
-		if (_pipeBrokenFlag) {
+		if (_pipeBrokenFlag)
+		{
 			Reset();
 			_pipeBrokenFlag = false;
 		}
@@ -54,13 +63,16 @@ public class IPCClient : IPCBase
 	public void ConnectTo(string serverName)
 	{
 		if (GetPipeStream() != null)
+		{
 			return;
-
+		}
 		_pipeStream = new NamedPipeClientStream(".", serverName, PipeDirection.InOut, PipeOptions.Asynchronous);
 		_cancelTokenSrc = new CancellationTokenSource();
-		Task.Factory.StartNew(delegate (object content) {
+		Task.Factory.StartNew(delegate(object content)
+		{
 			GetPipeStream().Connect();
-			if (!((CancellationToken)content).IsCancellationRequested) {
+			if (!((CancellationToken)content).IsCancellationRequested)
+			{
 				GetPipeStream().ReadMode = PipeTransmissionMode.Message;
 				BeginReadData();
 				_connectedFlag = true;
@@ -77,11 +89,15 @@ public class IPCClient : IPCBase
 	{
 		IPCContent obj = (IPCContent)result.AsyncState;
 		base.ReadCallback(result);
-		if (!obj.CancelToken.IsCancellationRequested) {
+		if (!obj.CancelToken.IsCancellationRequested)
+		{
 			if (GetPipeStream().IsConnected)
+			{
 				BeginReadData();
+			}
 		}
-		else {
+		else
+		{
 			WeGameHelper.WriteDebugString("ReadCallback cancel");
 		}
 	}

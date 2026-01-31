@@ -7,10 +7,15 @@ namespace Terraria.UI.Chat;
 public class ChatMessageContainer
 {
 	public string OriginalText;
+
 	private bool _prepared;
+
 	private List<TextSnippet[]> _parsedText;
+
 	private Color _color;
+
 	private int _widthLimitInPixels;
+
 	private int _timeLeft;
 
 	public int LineCount => _parsedText.Count;
@@ -24,22 +29,25 @@ public class ChatMessageContainer
 		OriginalText = text;
 		_color = color;
 		_widthLimitInPixels = widthLimitInPixels;
-		MarkToNeedRefresh();
 		_parsedText = new List<TextSnippet[]>();
 		_timeLeft = 600;
 		Refresh();
 	}
 
-	public void MarkToNeedRefresh()
+	public void OnWidthLimitChanged()
 	{
-		_prepared = false;
+		if (_widthLimitInPixels == -1)
+		{
+			_prepared = false;
+		}
 	}
 
 	public void Update()
 	{
 		if (_timeLeft > 0)
+		{
 			_timeLeft--;
-
+		}
 		Refresh();
 	}
 
@@ -49,17 +57,20 @@ public class ChatMessageContainer
 		return _parsedText[index];
 	}
 
-	public void Refresh()
+	private void Refresh()
 	{
-		if (!_prepared) {
+		if (!_prepared)
+		{
 			_prepared = true;
 			int num = _widthLimitInPixels;
 			if (num == -1)
-				num = Main.screenWidth - 320;
-
+			{
+				num = Main.ChatLineWidthLimit;
+			}
 			List<List<TextSnippet>> list = Utils.WordwrapStringSmart(OriginalText, _color, FontAssets.MouseText.Value, num, 10);
 			_parsedText.Clear();
-			for (int i = 0; i < list.Count; i++) {
+			for (int i = 0; i < list.Count; i++)
+			{
 				_parsedText.Add(list[i].ToArray());
 			}
 		}

@@ -12,8 +12,11 @@ public class PacketHistory
 	private struct PacketView
 	{
 		public static readonly PacketView Empty = new PacketView(0, 0, DateTime.Now);
+
 		public readonly int Offset;
+
 		public readonly int Length;
+
 		public readonly DateTime Time;
 
 		public PacketView(int offset, int length, DateTime time)
@@ -25,8 +28,11 @@ public class PacketHistory
 	}
 
 	private byte[] _buffer;
+
 	private PacketView[] _packets;
+
 	private int _bufferPosition;
+
 	private int _historyPosition;
 
 	public PacketHistory(int historySize = 100, int bufferSize = 65535)
@@ -37,15 +43,17 @@ public class PacketHistory
 	public void Record(byte[] buffer, int offset, int length)
 	{
 		length = Math.Max(0, length);
-		Buffer.BlockCopy(dstOffset: AppendPacket(length).Offset, src: buffer, srcOffset: offset, dst: _buffer, count: length);
+		PacketView packetView = AppendPacket(length);
+		Buffer.BlockCopy(buffer, offset, _buffer, packetView.Offset, length);
 	}
 
 	private PacketView AppendPacket(int size)
 	{
 		int num = _bufferPosition;
 		if (num + size > _buffer.Length)
+		{
 			num = 0;
-
+		}
 		PacketView packetView = new PacketView(num, size, DateTime.Now);
 		_packets[_historyPosition] = packetView;
 		_historyPosition = (_historyPosition + 1) % _packets.Length;
@@ -61,21 +69,24 @@ public class PacketHistory
 		Buffer.BlockCopy(_buffer, 0, dst, _buffer.Length - _bufferPosition, _bufferPosition);
 		StringBuilder stringBuilder = new StringBuilder();
 		int num = 1;
-		for (int i = 0; i < _packets.Length; i++) {
+		for (int i = 0; i < _packets.Length; i++)
+		{
 			PacketView packetView = _packets[(i + _historyPosition) % _packets.Length];
 			if (packetView.Offset == 0 && packetView.Length == 0)
+			{
 				continue;
-
+			}
 			stringBuilder.Append(string.Format("Packet {0} [Assumed MessageID: {4}, Size: {2}, Buffer Position: {1}, Timestamp: {3:G}]\r\n", num++, packetView.Offset, packetView.Length, packetView.Time, _buffer[packetView.Offset]));
-			for (int j = 0; j < packetView.Length; j++) {
+			for (int j = 0; j < packetView.Length; j++)
+			{
 				stringBuilder.Append(_buffer[packetView.Offset + j].ToString("X2") + " ");
 				if (j % 16 == 15 && j != _packets.Length - 1)
+				{
 					stringBuilder.Append("\r\n");
+				}
 			}
-
 			stringBuilder.Append("\r\n\r\n");
 		}
-
 		stringBuilder.Append(reason);
 		Directory.CreateDirectory(Path.Combine(Main.SavePath, "NetDump"));
 		File.WriteAllText(Path.Combine(Main.SavePath, "NetDump", CreateDumpFileName()), stringBuilder.ToString());

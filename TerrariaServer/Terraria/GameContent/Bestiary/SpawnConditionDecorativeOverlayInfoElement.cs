@@ -8,6 +8,7 @@ namespace Terraria.GameContent.Bestiary;
 public class SpawnConditionDecorativeOverlayInfoElement : IBestiaryInfoElement, IBestiaryBackgroundOverlayAndColorProvider
 {
 	private string _overlayImagePath;
+
 	private Color? _overlayColor;
 
 	public float DisplayPriority { get; set; }
@@ -21,11 +22,19 @@ public class SpawnConditionDecorativeOverlayInfoElement : IBestiaryInfoElement, 
 	public Asset<Texture2D> GetBackgroundOverlayImage()
 	{
 		if (_overlayImagePath == null)
+		{
 			return null;
-
-		return Main.Assets.Request<Texture2D>(_overlayImagePath);
+		}
+		return Main.Assets.Request<Texture2D>(_overlayImagePath, AssetRequestMode.ImmediateLoad);
 	}
 
-	public Color? GetBackgroundOverlayColor() => _overlayColor;
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
+	public Color? GetBackgroundOverlayColor()
+	{
+		return _overlayColor;
+	}
+
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
 }

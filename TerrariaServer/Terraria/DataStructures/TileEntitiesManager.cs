@@ -6,15 +6,20 @@ namespace Terraria.DataStructures;
 public class TileEntitiesManager
 {
 	private int _nextEntityID;
+
 	private Dictionary<int, TileEntity> _types = new Dictionary<int, TileEntity>();
 
-	private int AssignNewID() => _nextEntityID++;
+	private int AssignNewID()
+	{
+		return _nextEntityID++;
+	}
 
 	private bool InvalidEntityID(int id)
 	{
 		if (id >= 0)
+		{
 			return id >= _nextEntityID;
-
+		}
 		return true;
 	}
 
@@ -28,6 +33,9 @@ public class TileEntitiesManager
 		Register(new TEHatRack());
 		Register(new TEFoodPlatter());
 		Register(new TETeleportationPylon());
+		Register(new TEDeadCellsDisplayJar());
+		Register(new TEKiteAnchor());
+		Register(new TECritterAnchor());
 	}
 
 	public void Register(TileEntity entity)
@@ -40,22 +48,26 @@ public class TileEntitiesManager
 	public bool CheckValidTile(int id, int x, int y)
 	{
 		if (InvalidEntityID(id))
+		{
 			return false;
-
+		}
 		return _types[id].IsTileValidForEntity(x, y);
 	}
 
 	public void NetPlaceEntity(int id, int x, int y)
 	{
 		if (!InvalidEntityID(id) && _types[id].IsTileValidForEntity(x, y))
+		{
 			_types[id].NetPlaceEntityAttempt(x, y);
+		}
 	}
 
 	public TileEntity GenerateInstance(int id)
 	{
 		if (InvalidEntityID(id))
+		{
 			return null;
-
+		}
 		return _types[id].GenerateInstance();
 	}
 }

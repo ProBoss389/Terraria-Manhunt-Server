@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Terraria.GameContent.Achievements;
 using Terraria.GameContent.NetModules;
 using Terraria.ID;
 using Terraria.Net;
@@ -9,6 +10,7 @@ namespace Terraria.GameContent.Bestiary;
 public class NPCWasChatWithTracker : IPersistentPerWorldContent, IOnPlayerJoining
 {
 	private object _entryCreationLock = new object();
+
 	private HashSet<string> _chattedWithPlayer;
 
 	public NPCWasChatWithTracker()
@@ -20,18 +22,21 @@ public class NPCWasChatWithTracker : IPersistentPerWorldContent, IOnPlayerJoinin
 	{
 		string bestiaryCreditId = npc.GetBestiaryCreditId();
 		bool flag = !_chattedWithPlayer.Contains(bestiaryCreditId);
-		lock (_entryCreationLock) {
-			_chattedWithPlayer.Add(bestiaryCreditId);
-		}
-
+		SetWasChatWithDirectly(bestiaryCreditId);
 		if (Main.netMode == 2 && flag)
+		{
 			NetManager.Instance.Broadcast(NetBestiaryModule.SerializeChat(npc.netID));
+		}
 	}
 
 	public void SetWasChatWithDirectly(string persistentId)
 	{
-		lock (_entryCreationLock) {
-			_chattedWithPlayer.Add(persistentId);
+		lock (_entryCreationLock)
+		{
+			if (_chattedWithPlayer.Add(persistentId))
+			{
+				AchievementsHelper.TryGrantingBestiary100PercentAchievement();
+			}
 		}
 	}
 
@@ -41,13 +46,18 @@ public class NPCWasChatWithTracker : IPersistentPerWorldContent, IOnPlayerJoinin
 		return _chattedWithPlayer.Contains(bestiaryCreditId);
 	}
 
-	public bool GetWasChatWith(string persistentId) => _chattedWithPlayer.Contains(persistentId);
+	public bool GetWasChatWith(string persistentId)
+	{
+		return _chattedWithPlayer.Contains(persistentId);
+	}
 
 	public void Save(BinaryWriter writer)
 	{
-		lock (_entryCreationLock) {
+		lock (_entryCreationLock)
+		{
 			writer.Write(_chattedWithPlayer.Count);
-			foreach (string item in _chattedWithPlayer) {
+			foreach (string item in _chattedWithPlayer)
+			{
 				writer.Write(item);
 			}
 		}
@@ -56,7 +66,8 @@ public class NPCWasChatWithTracker : IPersistentPerWorldContent, IOnPlayerJoinin
 	public void Load(BinaryReader reader, int gameVersionSaveWasMadeOn)
 	{
 		int num = reader.ReadInt32();
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++)
+		{
 			string item = reader.ReadString();
 			_chattedWithPlayer.Add(item);
 		}
@@ -65,7 +76,8 @@ public class NPCWasChatWithTracker : IPersistentPerWorldContent, IOnPlayerJoinin
 	public void ValidateWorld(BinaryReader reader, int gameVersionSaveWasMadeOn)
 	{
 		int num = reader.ReadInt32();
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++)
+		{
 			reader.ReadString();
 		}
 	}
@@ -77,9 +89,12 @@ public class NPCWasChatWithTracker : IPersistentPerWorldContent, IOnPlayerJoinin
 
 	public void OnPlayerJoining(int playerIndex)
 	{
-		foreach (string item in _chattedWithPlayer) {
+		foreach (string item in _chattedWithPlayer)
+		{
 			if (ContentSamples.NpcNetIdsByPersistentIds.TryGetValue(item, out var value))
+			{
 				NetManager.Instance.SendToClient(NetBestiaryModule.SerializeChat(value), playerIndex);
+			}
 		}
 	}
 }

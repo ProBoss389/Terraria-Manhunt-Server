@@ -8,7 +8,8 @@ public class DontStarveSeed
 {
 	public static void ModifyNightColor(ref Color bgColorToSet, ref Color moonColor)
 	{
-		if (Main.GetMoonPhase() != 0) {
+		if (Main.GetMoonPhase() != MoonPhase.Full)
+		{
 			float fromValue = (float)(Main.time / 32400.0);
 			Color value = bgColorToSet;
 			Color black = Color.Black;
@@ -22,38 +23,37 @@ public class DontStarveSeed
 
 	public static void ModifyMinimumLightColorAtNight(ref byte minimalLight)
 	{
-		switch (Main.GetMoonPhase()) {
-			case MoonPhase.Empty:
-				minimalLight = 1;
-				break;
-			case MoonPhase.QuarterAtLeft:
-			case MoonPhase.QuarterAtRight:
-				minimalLight = 1;
-				break;
-			case MoonPhase.HalfAtLeft:
-			case MoonPhase.HalfAtRight:
-				minimalLight = 1;
-				break;
-			case MoonPhase.ThreeQuartersAtLeft:
-			case MoonPhase.ThreeQuartersAtRight:
-				minimalLight = 1;
-				break;
-			case MoonPhase.Full:
-				minimalLight = 45;
-				break;
+		switch (Main.GetMoonPhase())
+		{
+		case MoonPhase.Empty:
+			minimalLight = 1;
+			break;
+		case MoonPhase.QuarterAtLeft:
+		case MoonPhase.QuarterAtRight:
+			minimalLight = 1;
+			break;
+		case MoonPhase.HalfAtLeft:
+		case MoonPhase.HalfAtRight:
+			minimalLight = 1;
+			break;
+		case MoonPhase.ThreeQuartersAtLeft:
+		case MoonPhase.ThreeQuartersAtRight:
+			minimalLight = 1;
+			break;
+		case MoonPhase.Full:
+			minimalLight = 45;
+			break;
 		}
-
-		if (Main.bloodMoon) {
-			minimalLight = Utils.Max(new byte[2] {
-				minimalLight,
-				35
-			});
+		if (Main.bloodMoon)
+		{
+			minimalLight = Utils.Max(new byte[2] { minimalLight, 35 });
 		}
 	}
 
 	public static void FixBiomeDarkness(ref Color bgColor, ref int R, ref int G, ref int B)
 	{
-		if (Main.dontStarveWorld) {
+		if (Main.dontStarveWorld)
+		{
 			R = (byte)Math.Min(bgColor.R, R);
 			G = (byte)Math.Min(bgColor.G, G);
 			B = (byte)Math.Min(bgColor.B, B);

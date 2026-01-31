@@ -48,7 +48,10 @@ public class DisabledAudioSystem : IAudioSystem, IDisposable
 	{
 	}
 
-	public bool IsTrackPlaying(int trackIndex) => false;
+	public bool IsTrackPlaying(int trackIndex)
+	{
+		return false;
+	}
 
 	public void UpdateCommonTrack(bool active, int i, float totalVolume, ref float tempFade)
 	{
@@ -59,6 +62,10 @@ public class DisabledAudioSystem : IAudioSystem, IDisposable
 	}
 
 	public void UpdateAudioEngine()
+	{
+	}
+
+	public void SetPlayCallback(int trackIndex, AudioTrackPlayCallback callback)
 	{
 	}
 

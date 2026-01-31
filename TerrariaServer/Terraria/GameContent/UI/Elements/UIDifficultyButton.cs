@@ -10,12 +10,19 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIDifficultyButton : UIElement
 {
 	private readonly Player _player;
+
 	private readonly Asset<Texture2D> _BasePanelTexture;
+
 	private readonly Asset<Texture2D> _selectedBorderTexture;
+
 	private readonly Asset<Texture2D> _hoveredBorderTexture;
+
 	private readonly byte _difficulty;
+
 	private readonly Color _color;
+
 	private bool _hovered;
+
 	private bool _soundedHover;
 
 	public UIDifficultyButton(Player player, LocalizedText title, LocalizedText description, byte difficulty, Color color)
@@ -24,46 +31,52 @@ public class UIDifficultyButton : UIElement
 		_difficulty = difficulty;
 		Width = StyleDimension.FromPixels(44f);
 		Height = StyleDimension.FromPixels(110f);
-		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/PanelGrayscale");
-		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight");
-		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder");
+		_BasePanelTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/PanelGrayscale", AssetRequestMode.ImmediateLoad);
+		_selectedBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad);
+		_hoveredBorderTexture = Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelBorder", AssetRequestMode.ImmediateLoad);
 		_color = color;
-		UIText element = new UIText(title, 0.9f) {
+		UIText element = new UIText(title, 0.9f)
+		{
 			HAlign = 0.5f,
 			VAlign = 0f,
 			Width = StyleDimension.FromPixelsAndPercent(-10f, 1f),
 			Top = StyleDimension.FromPixels(5f)
 		};
-
 		Append(element);
 	}
 
 	protected override void DrawSelf(SpriteBatch spriteBatch)
 	{
-		if (_hovered) {
+		if (_hovered)
+		{
 			if (!_soundedHover)
+			{
 				SoundEngine.PlaySound(12);
-
+			}
 			_soundedHover = true;
 		}
-		else {
+		else
+		{
 			_soundedHover = false;
 		}
-
 		CalculatedStyle dimensions = GetDimensions();
 		int num = 7;
 		if (dimensions.Height < 30f)
+		{
 			num = 5;
-
+		}
 		int num2 = 10;
 		int num3 = 10;
 		bool num4 = _difficulty == _player.difficulty;
 		Utils.DrawSplicedPanel(spriteBatch, _BasePanelTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, num2, num2, num3, num3, Color.Lerp(Color.Black, _color, 0.8f) * 0.5f);
 		if (num4)
+		{
 			Utils.DrawSplicedPanel(spriteBatch, _BasePanelTexture.Value, (int)dimensions.X + num, (int)dimensions.Y + num - 2, (int)dimensions.Width - num * 2, (int)dimensions.Height - num * 2, num2, num2, num3, num3, Color.Lerp(_color, Color.White, 0.7f) * 0.5f);
-
+		}
 		if (_hovered)
+		{
 			Utils.DrawSplicedPanel(spriteBatch, _hoveredBorderTexture.Value, (int)dimensions.X, (int)dimensions.Y, (int)dimensions.Width, (int)dimensions.Height, num2, num2, num3, num3, Color.White);
+		}
 	}
 
 	public override void LeftMouseDown(UIMouseEvent evt)

@@ -31,14 +31,16 @@ public class PotionOfReturnSmartInteractCandidateProvider : ISmartInteractCandid
 	{
 		candidate = null;
 		if (!PotionOfReturnHelper.TryGetGateHitbox(settings.player, out var homeHitbox))
+		{
 			return false;
-
+		}
 		Vector2 vector = homeHitbox.ClosestPointInRect(settings.mousevec);
 		float distanceFromCursor = vector.Distance(settings.mousevec);
 		Point point = vector.ToTileCoordinates();
 		if (point.X < settings.LX || point.X > settings.HX || point.Y < settings.LY || point.Y > settings.HY)
+		{
 			return false;
-
+		}
 		_candidate.Reuse(distanceFromCursor);
 		candidate = _candidate;
 		return true;

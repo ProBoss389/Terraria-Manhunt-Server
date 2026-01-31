@@ -6,8 +6,11 @@ namespace Terraria.Cinematics;
 public class DSTFilm : Film
 {
 	private NPC _deerclops;
+
 	private Projectile _chester;
+
 	private Vector2 _startPoint;
+
 	private Item _oldItem;
 
 	public DSTFilm()
@@ -67,11 +70,13 @@ public class DSTFilm : Film
 	private void ClearScene()
 	{
 		if (_deerclops != null)
+		{
 			_deerclops.active = false;
-
+		}
 		if (_chester != null)
+		{
 			_chester.active = false;
-
+		}
 		Main.LocalPlayer.isControlledByFilm = false;
 	}
 
@@ -107,8 +112,9 @@ public class DSTFilm : Film
 	{
 		FindFloorAt(position, out var x, out var y);
 		if (type == 668)
+		{
 			y -= 240;
-
+		}
 		int start = 100;
 		int num = NPC.NewNPC(new EntitySource_Film(), x, y, type, start);
 		return Main.npc[num];
@@ -165,9 +171,9 @@ public class DSTFilm : Film
 		y = (int)position.Y;
 		int i = x / 16;
 		int j;
-		for (j = y / 16; !WorldGen.SolidTile(i, j); j++) {
+		for (j = y / 16; !WorldGen.SolidTile(i, j); j++)
+		{
 		}
-
 		y = j * 16;
 	}
 }

@@ -8,6 +8,7 @@ namespace Terraria.GameContent.Bestiary;
 public class BestiaryEntry
 {
 	public IEntryIcon Icon;
+
 	public IBestiaryUICollectionInfoProvider UIInfoProvider;
 
 	public List<IBestiaryInfoElement> Info { get; private set; }
@@ -20,33 +21,37 @@ public class BestiaryEntry
 	public static BestiaryEntry Enemy(int npcNetId)
 	{
 		NPC nPC = ContentSamples.NpcsByNetId[npcNetId];
-		List<IBestiaryInfoElement> list = new List<IBestiaryInfoElement> {
+		List<IBestiaryInfoElement> list = new List<IBestiaryInfoElement>
+		{
 			new NPCNetIdBestiaryInfoElement(npcNetId),
 			new NamePlateInfoElement(Lang.GetNPCName(npcNetId).Key, npcNetId),
 			new NPCPortraitInfoElement(ContentSamples.NpcBestiaryRarityStars[npcNetId]),
 			new NPCKillCounterInfoElement(npcNetId)
 		};
-
 		list.Add(new NPCStatsReportInfoElement(npcNetId));
 		if (nPC.rarity != 0)
+		{
 			list.Add(new RareSpawnBestiaryInfoElement(nPC.rarity));
-
+		}
 		IBestiaryUICollectionInfoProvider uIInfoProvider;
-		if (nPC.boss || NPCID.Sets.ShouldBeCountedAsBoss[nPC.type]) {
+		if (nPC.boss || NPCID.Sets.ShouldBeCountedAsBossForBestiary[nPC.type])
+		{
 			list.Add(new BossBestiaryInfoElement());
 			uIInfoProvider = new CommonEnemyUICollectionInfoProvider(nPC.GetBestiaryCreditId(), quickUnlock: true);
 		}
-		else {
+		else
+		{
 			uIInfoProvider = new CommonEnemyUICollectionInfoProvider(nPC.GetBestiaryCreditId(), quickUnlock: false);
 		}
-
 		string key = Lang.GetNPCName(nPC.netID).Key;
 		key = key.Replace("NPCName.", "");
 		string text = "Bestiary_FlavorText.npc_" + key;
 		if (Language.Exists(text))
+		{
 			list.Add(new FlavorTextBestiaryInfoElement(text));
-
-		return new BestiaryEntry {
+		}
+		return new BestiaryEntry
+		{
 			Icon = new UnlockableNPCEntryIcon(npcNetId),
 			Info = list,
 			UIInfoProvider = uIInfoProvider
@@ -56,20 +61,22 @@ public class BestiaryEntry
 	public static BestiaryEntry TownNPC(int npcNetId)
 	{
 		NPC nPC = ContentSamples.NpcsByNetId[npcNetId];
-		List<IBestiaryInfoElement> list = new List<IBestiaryInfoElement> {
+		List<IBestiaryInfoElement> list = new List<IBestiaryInfoElement>
+		{
 			new NPCNetIdBestiaryInfoElement(npcNetId),
 			new NamePlateInfoElement(Lang.GetNPCName(npcNetId).Key, npcNetId),
 			new NPCPortraitInfoElement(ContentSamples.NpcBestiaryRarityStars[npcNetId]),
 			new NPCKillCounterInfoElement(npcNetId)
 		};
-
 		string key = Lang.GetNPCName(nPC.netID).Key;
 		key = key.Replace("NPCName.", "");
 		string text = "Bestiary_FlavorText.npc_" + key;
 		if (Language.Exists(text))
+		{
 			list.Add(new FlavorTextBestiaryInfoElement(text));
-
-		return new BestiaryEntry {
+		}
+		return new BestiaryEntry
+		{
 			Icon = new UnlockableNPCEntryIcon(npcNetId),
 			Info = list,
 			UIInfoProvider = new TownNPCUICollectionInfoProvider(nPC.GetBestiaryCreditId())
@@ -79,20 +86,22 @@ public class BestiaryEntry
 	public static BestiaryEntry Critter(int npcNetId)
 	{
 		NPC nPC = ContentSamples.NpcsByNetId[npcNetId];
-		List<IBestiaryInfoElement> list = new List<IBestiaryInfoElement> {
+		List<IBestiaryInfoElement> list = new List<IBestiaryInfoElement>
+		{
 			new NPCNetIdBestiaryInfoElement(npcNetId),
 			new NamePlateInfoElement(Lang.GetNPCName(npcNetId).Key, npcNetId),
 			new NPCPortraitInfoElement(ContentSamples.NpcBestiaryRarityStars[npcNetId]),
 			new NPCKillCounterInfoElement(npcNetId)
 		};
-
 		string key = Lang.GetNPCName(nPC.netID).Key;
 		key = key.Replace("NPCName.", "");
 		string text = "Bestiary_FlavorText.npc_" + key;
 		if (Language.Exists(text))
+		{
 			list.Add(new FlavorTextBestiaryInfoElement(text));
-
-		return new BestiaryEntry {
+		}
+		return new BestiaryEntry
+		{
 			Icon = new UnlockableNPCEntryIcon(npcNetId),
 			Info = list,
 			UIInfoProvider = new CritterUICollectionInfoProvider(nPC.GetBestiaryCreditId())
@@ -101,7 +110,8 @@ public class BestiaryEntry
 
 	public static BestiaryEntry Biome(string nameLanguageKey, string texturePath, Func<bool> unlockCondition)
 	{
-		return new BestiaryEntry {
+		return new BestiaryEntry
+		{
 			Icon = new CustomEntryIcon(nameLanguageKey, texturePath, unlockCondition),
 			Info = new List<IBestiaryInfoElement>()
 		};

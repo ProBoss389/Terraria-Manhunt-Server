@@ -5,10 +5,15 @@ namespace Terraria.WorldBuilding;
 public class SimpleStructure : GenStructure
 {
 	private int[,] _data;
+
 	private int _width;
+
 	private int _height;
+
 	private GenAction[] _actions;
+
 	private bool _xMirror;
+
 	private bool _yMirror;
 
 	public int Width => _width;
@@ -30,13 +35,19 @@ public class SimpleStructure : GenStructure
 		_height = lines.Length;
 		_width = lines[0].Length;
 		_data = new int[_width, _height];
-		for (int i = 0; i < _height; i++) {
-			for (int j = 0; j < _width; j++) {
+		for (int i = 0; i < _height; i++)
+		{
+			for (int j = 0; j < _width; j++)
+			{
 				int num = lines[i][j];
 				if (num >= 48 && num <= 57)
+				{
 					_data[j, i] = num - 48;
+				}
 				else
+				{
 					_data[j, i] = -1;
+				}
 			}
 		}
 	}
@@ -54,20 +65,24 @@ public class SimpleStructure : GenStructure
 		return this;
 	}
 
-	public override bool Place(Point origin, StructureMap structures)
+	public override bool Place(Point origin, StructureMap structures, GenerationProgress progress)
 	{
 		if (!structures.CanPlace(new Rectangle(origin.X, origin.Y, _width, _height)))
+		{
 			return false;
-
-		for (int i = 0; i < _width; i++) {
-			for (int j = 0; j < _height; j++) {
+		}
+		for (int i = 0; i < _width; i++)
+		{
+			for (int j = 0; j < _height; j++)
+			{
 				int num = (_xMirror ? (-i) : i);
 				int num2 = (_yMirror ? (-j) : j);
 				if (_data[i, j] != -1 && !_actions[_data[i, j]].Apply(origin, num + origin.X, num2 + origin.Y))
+				{
 					return false;
+				}
 			}
 		}
-
 		structures.AddProtectedStructure(new Rectangle(origin.X, origin.Y, _width, _height));
 		return true;
 	}

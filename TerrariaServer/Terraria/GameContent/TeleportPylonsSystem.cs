@@ -13,32 +13,45 @@ namespace Terraria.GameContent;
 public class TeleportPylonsSystem : IOnPlayerJoining
 {
 	private List<TeleportPylonInfo> _pylons = new List<TeleportPylonInfo>();
+
 	private List<TeleportPylonInfo> _pylonsOld = new List<TeleportPylonInfo>();
+
 	private int _cooldownForUpdatingPylonsList;
+
 	private const int CooldownTimePerPylonsListUpdate = int.MaxValue;
+
 	private SceneMetrics _sceneMetrics = new SceneMetrics();
 
 	public List<TeleportPylonInfo> Pylons => _pylons;
 
 	public void Update()
 	{
-		if (Main.netMode != 1) {
-			if (_cooldownForUpdatingPylonsList > 0) {
+		if (Main.netMode != 1)
+		{
+			if (_cooldownForUpdatingPylonsList > 0)
+			{
 				_cooldownForUpdatingPylonsList--;
 				return;
 			}
-
 			_cooldownForUpdatingPylonsList = int.MaxValue;
 			UpdatePylonsListAndBroadcastChanges();
 		}
 	}
 
-	public bool HasPylonOfType(TeleportPylonType pylonType) => _pylons.Any((TeleportPylonInfo x) => x.TypeOfPylon == pylonType);
-	public bool HasAnyPylon() => _pylons.Count > 0;
+	public bool HasPylonOfType(TeleportPylonType pylonType)
+	{
+		return _pylons.Any((TeleportPylonInfo x) => x.TypeOfPylon == pylonType);
+	}
+
+	public bool HasAnyPylon()
+	{
+		return _pylons.Count > 0;
+	}
 
 	public void RequestImmediateUpdate()
 	{
-		if (Main.netMode != 1) {
+		if (Main.netMode != 1)
+		{
 			_cooldownForUpdatingPylonsList = int.MaxValue;
 			UpdatePylonsListAndBroadcastChanges();
 		}
@@ -48,22 +61,25 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 	{
 		Utils.Swap(ref _pylons, ref _pylonsOld);
 		_pylons.Clear();
-		foreach (TileEntity value in TileEntity.ByPosition.Values) {
-			if (value is TETeleportationPylon tETeleportationPylon && tETeleportationPylon.TryGetPylonType(out var pylonType)) {
-				TeleportPylonInfo teleportPylonInfo = default(TeleportPylonInfo);
-				teleportPylonInfo.PositionInTiles = tETeleportationPylon.Position;
-				teleportPylonInfo.TypeOfPylon = pylonType;
-				TeleportPylonInfo item = teleportPylonInfo;
+		foreach (TileEntity value in TileEntity.ByPosition.Values)
+		{
+			if (value is TETeleportationPylon tETeleportationPylon && tETeleportationPylon.TryGetPylonType(out var pylonType))
+			{
+				TeleportPylonInfo item = new TeleportPylonInfo
+				{
+					PositionInTiles = tETeleportationPylon.Position,
+					TypeOfPylon = pylonType
+				};
 				_pylons.Add(item);
 			}
 		}
-
 		IEnumerable<TeleportPylonInfo> enumerable = _pylonsOld.Except(_pylons);
-		foreach (TeleportPylonInfo item2 in _pylons.Except(_pylonsOld)) {
+		foreach (TeleportPylonInfo item2 in _pylons.Except(_pylonsOld))
+		{
 			NetManager.Instance.BroadcastOrLoopback(NetTeleportPylonModule.SerializePylonWasAddedOrRemoved(item2, NetTeleportPylonModule.SubPacketType.PylonWasAdded));
 		}
-
-		foreach (TeleportPylonInfo item3 in enumerable) {
+		foreach (TeleportPylonInfo item3 in enumerable)
+		{
 			NetManager.Instance.BroadcastOrLoopback(NetTeleportPylonModule.SerializePylonWasAddedOrRemoved(item3, NetTeleportPylonModule.SubPacketType.PylonWasRemoved));
 		}
 	}
@@ -71,7 +87,9 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 	public void AddForClient(TeleportPylonInfo info)
 	{
 		if (!_pylons.Contains(info))
+		{
 			_pylons.Add(info);
+		}
 	}
 
 	public void RemoveForClient(TeleportPylonInfo info)
@@ -84,136 +102,147 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 		Player player = Main.player[playerIndex];
 		string key = null;
 		bool flag = true;
-		if (flag) {
+		if (flag)
+		{
 			flag &= IsPlayerNearAPylon(player);
 			if (!flag)
+			{
 				key = "Net.CannotTeleportToPylonBecausePlayerIsNotNearAPylon";
+			}
 		}
-
-		if (flag) {
+		if (flag)
+		{
 			int necessaryNPCCount = HowManyNPCsDoesPylonNeed(info, player);
 			flag &= DoesPylonHaveEnoughNPCsAroundIt(info, necessaryNPCCount);
 			if (!flag)
+			{
 				key = "Net.CannotTeleportToPylonBecauseNotEnoughNPCs";
+			}
 		}
-
-		if (flag) {
-			flag &= !NPC.AnyDanger(quickBossNPCCheck: false, ignorePillarsAndMoonlordCountdown: true);
-			if (!flag)
-				key = "Net.CannotTeleportToPylonBecauseThereIsDanger";
-		}
-
-		if (flag) {
+		if (flag)
+		{
 			if (!NPC.downedPlantBoss && (double)info.PositionInTiles.Y > Main.worldSurface && Framing.GetTileSafely(info.PositionInTiles.X, info.PositionInTiles.Y).wall == 87)
+			{
 				flag = false;
-
+			}
 			if (!flag)
+			{
 				key = "Net.CannotTeleportToPylonBecauseAccessingLihzahrdTempleEarly";
+			}
 		}
-
-		if (flag) {
-			_sceneMetrics.ScanAndExportToMain(new SceneMetricsScanSettings {
-				VisualScanArea = null,
-				BiomeScanCenterPositionInWorld = info.PositionInTiles.ToWorldCoordinates(),
-				ScanOreFinderData = false
+		if (flag)
+		{
+			_sceneMetrics.Scan(new SceneMetricsScanSettings
+			{
+				BiomeScanCenterPositionInWorld = info.PositionInTiles.ToWorldCoordinates()
 			});
-
 			flag = DoesPylonAcceptTeleportation(info, player);
 			if (!flag)
+			{
 				key = "Net.CannotTeleportToPylonBecauseNotMeetingBiomeRequirements";
+			}
 		}
-
-		if (flag) {
+		if (flag)
+		{
 			bool flag2 = false;
 			int num = 0;
-			for (int i = 0; i < _pylons.Count; i++) {
+			for (int i = 0; i < _pylons.Count; i++)
+			{
 				TeleportPylonInfo info2 = _pylons[i];
-				if (!player.InInteractionRange(info2.PositionInTiles.X, info2.PositionInTiles.Y, TileReachCheckSettings.Pylons))
+				if (!player.InTileEntityInteractionRange(info2.PositionInTiles.X, info2.PositionInTiles.Y, 3, 4, TileReachCheckSettings.Pylons))
+				{
 					continue;
-
+				}
 				if (num < 1)
+				{
 					num = 1;
-
+				}
 				int necessaryNPCCount2 = HowManyNPCsDoesPylonNeed(info2, player);
-				if (DoesPylonHaveEnoughNPCsAroundIt(info2, necessaryNPCCount2)) {
+				if (DoesPylonHaveEnoughNPCsAroundIt(info2, necessaryNPCCount2))
+				{
 					if (num < 2)
+					{
 						num = 2;
-
-					_sceneMetrics.ScanAndExportToMain(new SceneMetricsScanSettings {
-						VisualScanArea = null,
-						BiomeScanCenterPositionInWorld = info2.PositionInTiles.ToWorldCoordinates(),
-						ScanOreFinderData = false
+					}
+					_sceneMetrics.Scan(new SceneMetricsScanSettings
+					{
+						BiomeScanCenterPositionInWorld = info2.PositionInTiles.ToWorldCoordinates()
 					});
-
-					if (DoesPylonAcceptTeleportation(info2, player)) {
+					if (DoesPylonAcceptTeleportation(info2, player))
+					{
 						flag2 = true;
 						break;
 					}
 				}
 			}
-
-			if (!flag2) {
+			if (!flag2)
+			{
 				flag = false;
-				switch (num) {
-					default:
-						key = "Net.CannotTeleportToPylonBecausePlayerIsNotNearAPylon";
-						break;
-					case 1:
-						key = "Net.CannotTeleportToPylonBecauseNotEnoughNPCsAtCurrentPylon";
-						break;
-					case 2:
-						key = "Net.CannotTeleportToPylonBecauseNotMeetingBiomeRequirements";
-						break;
-				}
+				key = num switch
+				{
+					1 => "Net.CannotTeleportToPylonBecauseNotEnoughNPCsAtCurrentPylon", 
+					2 => "Net.CannotTeleportToPylonBecauseNotMeetingBiomeRequirements", 
+					_ => "Net.CannotTeleportToPylonBecausePlayerIsNotNearAPylon", 
+				};
 			}
 		}
-
-		if (flag) {
+		if (flag)
+		{
 			Vector2 newPos = info.PositionInTiles.ToWorldCoordinates() - new Vector2(0f, player.HeightOffsetBoost);
 			int num2 = 9;
 			int typeOfPylon = (int)info.TypeOfPylon;
 			int number = 0;
 			player.Teleport(newPos, num2, typeOfPylon);
 			player.velocity = Vector2.Zero;
-			if (Main.netMode == 2) {
+			if (Main.netMode == 2)
+			{
 				RemoteClient.CheckSection(player.whoAmI, player.position);
 				NetMessage.SendData(65, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, num2, number, typeOfPylon);
 			}
 		}
-		else {
+		else
+		{
 			ChatHelper.SendChatMessageToClient(NetworkText.FromKey(key), new Color(255, 240, 20), playerIndex);
 		}
 	}
 
-	public static bool IsPlayerNearAPylon(Player player) => player.IsTileTypeInInteractionRange(597, TileReachCheckSettings.Pylons);
+	public static bool IsPlayerNearAPylon(Player player)
+	{
+		return player.IsTileTypeInInteractionRange(597, TileReachCheckSettings.Pylons);
+	}
 
 	private bool DoesPylonHaveEnoughNPCsAroundIt(TeleportPylonInfo info, int necessaryNPCCount)
 	{
 		if (necessaryNPCCount <= 0)
+		{
 			return true;
-
+		}
 		Point16 positionInTiles = info.PositionInTiles;
 		return DoesPositionHaveEnoughNPCs(necessaryNPCCount, positionInTiles);
 	}
 
 	public static bool DoesPositionHaveEnoughNPCs(int necessaryNPCCount, Point16 centerPoint)
 	{
-		Rectangle rectangle = new Rectangle(centerPoint.X - Main.buffScanAreaWidth / 2, centerPoint.Y - Main.buffScanAreaHeight / 2, Main.buffScanAreaWidth, Main.buffScanAreaHeight);
+		Rectangle rectangle = Utils.CenteredRectangle(centerPoint, SceneMetrics.ZoneScanSize);
 		int num = necessaryNPCCount;
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
 			NPC nPC = Main.npc[i];
 			if (!nPC.active || !nPC.isLikeATownNPC || nPC.homeless || !rectangle.Contains(nPC.homeTileX, nPC.homeTileY))
+			{
 				continue;
-
+			}
 			Vector2 value = new Vector2(nPC.homeTileX, nPC.homeTileY);
 			Vector2 value2 = new Vector2(nPC.Center.X / 16f, nPC.Center.Y / 16f);
-			if (Vector2.Distance(value, value2) < 100f) {
+			if (Vector2.Distance(value, value2) < 100f)
+			{
 				num--;
 				if (num == 0)
+				{
 					return true;
+				}
 			}
 		}
-
 		return false;
 	}
 
@@ -224,52 +253,61 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 
 	private bool DoesPylonAcceptTeleportation(TeleportPylonInfo info, Player player)
 	{
-		if (Main.netMode != 2 && Main.DroneCameraTracker != null && Main.DroneCameraTracker.IsInUse())
-			return false;
-
-		switch (info.TypeOfPylon) {
-			case TeleportPylonType.SurfacePurity: {
-				bool flag = (double)info.PositionInTiles.Y <= Main.worldSurface;
-				if (Main.remixWorld)
-					flag = (double)info.PositionInTiles.Y > Main.rockLayer && info.PositionInTiles.Y < Main.maxTilesY - 350;
-
-				bool flag2 = info.PositionInTiles.X >= Main.maxTilesX - 380 || info.PositionInTiles.X <= 380;
-				if (!flag || flag2)
-					return false;
-
-				if (_sceneMetrics.EnoughTilesForJungle || _sceneMetrics.EnoughTilesForSnow || _sceneMetrics.EnoughTilesForDesert || _sceneMetrics.EnoughTilesForGlowingMushroom || _sceneMetrics.EnoughTilesForHallow || _sceneMetrics.EnoughTilesForCrimson || _sceneMetrics.EnoughTilesForCorruption)
-					return false;
-
-				return true;
+		switch (info.TypeOfPylon)
+		{
+		case TeleportPylonType.SurfacePurity:
+		{
+			bool flag = (double)info.PositionInTiles.Y <= Main.worldSurface;
+			if (Main.remixWorld)
+			{
+				flag = (double)info.PositionInTiles.Y > Main.rockLayer && info.PositionInTiles.Y < Main.maxTilesY - 350;
 			}
-			case TeleportPylonType.Jungle:
-				return _sceneMetrics.EnoughTilesForJungle;
-			case TeleportPylonType.Snow:
-				return _sceneMetrics.EnoughTilesForSnow;
-			case TeleportPylonType.Desert:
-				return _sceneMetrics.EnoughTilesForDesert;
-			case TeleportPylonType.Beach: {
-				bool flag3 = (double)info.PositionInTiles.Y <= Main.worldSurface && (double)info.PositionInTiles.Y > Main.worldSurface * 0.3499999940395355;
-				bool flag4 = info.PositionInTiles.X >= Main.maxTilesX - 380 || info.PositionInTiles.X <= 380;
-				if (Main.remixWorld) {
-					flag3 |= (double)info.PositionInTiles.Y > Main.rockLayer && info.PositionInTiles.Y < Main.maxTilesY - 350;
-					flag4 |= (double)info.PositionInTiles.X < (double)Main.maxTilesX * 0.43 || (double)info.PositionInTiles.X > (double)Main.maxTilesX * 0.57;
-				}
-
-				return flag4 && flag3;
+			bool flag2 = info.PositionInTiles.X >= Main.maxTilesX - 380 || info.PositionInTiles.X <= 380;
+			if (!flag || flag2)
+			{
+				return false;
 			}
-			case TeleportPylonType.GlowingMushroom:
-				if (Main.remixWorld && info.PositionInTiles.Y >= Main.maxTilesY - 200)
-					return false;
-				return _sceneMetrics.EnoughTilesForGlowingMushroom;
-			case TeleportPylonType.Hallow:
-				return _sceneMetrics.EnoughTilesForHallow;
-			case TeleportPylonType.Underground:
-				return (double)info.PositionInTiles.Y >= Main.worldSurface;
-			case TeleportPylonType.Victory:
-				return true;
-			default:
-				return true;
+			if (_sceneMetrics.EnoughTilesForJungle || _sceneMetrics.EnoughTilesForSnow || _sceneMetrics.EnoughTilesForDesert || _sceneMetrics.EnoughTilesForGlowingMushroom || _sceneMetrics.EnoughTilesForHallow || _sceneMetrics.EnoughTilesForCrimson || _sceneMetrics.EnoughTilesForCorruption)
+			{
+				return false;
+			}
+			return true;
+		}
+		case TeleportPylonType.Jungle:
+			return _sceneMetrics.EnoughTilesForJungle;
+		case TeleportPylonType.Snow:
+			return _sceneMetrics.EnoughTilesForSnow;
+		case TeleportPylonType.Desert:
+			return _sceneMetrics.EnoughTilesForDesert;
+		case TeleportPylonType.Beach:
+		{
+			bool flag3 = (double)info.PositionInTiles.Y <= Main.worldSurface && (double)info.PositionInTiles.Y > Main.worldSurface * 0.3499999940395355;
+			bool flag4 = info.PositionInTiles.X >= Main.maxTilesX - 380 || info.PositionInTiles.X <= 380;
+			if (Main.remixWorld)
+			{
+				flag3 |= (double)info.PositionInTiles.Y > Main.rockLayer && info.PositionInTiles.Y < Main.maxTilesY - 350;
+				flag4 |= (double)info.PositionInTiles.X < (double)Main.maxTilesX * 0.43 || (double)info.PositionInTiles.X > (double)Main.maxTilesX * 0.57;
+			}
+			return flag4 && flag3;
+		}
+		case TeleportPylonType.GlowingMushroom:
+			if (Main.remixWorld && info.PositionInTiles.Y >= Main.maxTilesY - 200)
+			{
+				return false;
+			}
+			return _sceneMetrics.EnoughTilesForGlowingMushroom;
+		case TeleportPylonType.Hallow:
+			return _sceneMetrics.EnoughTilesForHallow;
+		case TeleportPylonType.Underground:
+			return (double)info.PositionInTiles.Y >= Main.worldSurface;
+		case TeleportPylonType.Victory:
+			return true;
+		case TeleportPylonType.Underworld:
+			return info.PositionInTiles.Y >= Main.UnderworldLayer;
+		case TeleportPylonType.Shimmer:
+			return _sceneMetrics.EnoughTilesForShimmer;
+		default:
+			return true;
 		}
 	}
 
@@ -277,8 +315,9 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 	{
 		TeleportPylonType typeOfPylon = info.TypeOfPylon;
 		if (typeOfPylon != TeleportPylonType.Victory)
+		{
 			return 2;
-
+		}
 		return 0;
 	}
 
@@ -290,7 +329,8 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 
 	public void OnPlayerJoining(int playerIndex)
 	{
-		foreach (TeleportPylonInfo pylon in _pylons) {
+		foreach (TeleportPylonInfo pylon in _pylons)
+		{
 			NetManager.Instance.SendToClient(NetTeleportPylonModule.SerializePylonWasAddedOrRemoved(pylon, NetTeleportPylonModule.SubPacketType.PylonWasAdded), playerIndex);
 		}
 	}
@@ -300,54 +340,64 @@ public class TeleportPylonsSystem : IOnPlayerJoining
 		float r = 1f;
 		float g = 1f;
 		float b = 1f;
-		switch ((byte)tileStyle) {
-			case 0:
-				r = 0.05f;
-				g = 0.8f;
-				b = 0.3f;
-				break;
-			case 1:
-				r = 0.7f;
-				g = 0.8f;
-				b = 0.05f;
-				break;
-			case 2:
-				r = 0.5f;
-				g = 0.3f;
-				b = 0.7f;
-				break;
-			case 3:
-				r = 0.4f;
-				g = 0.4f;
-				b = 0.6f;
-				break;
-			case 4:
-				r = 0.2f;
-				g = 0.2f;
-				b = 0.95f;
-				break;
-			case 5:
-				r = 0.85f;
-				g = 0.45f;
-				b = 0.1f;
-				break;
-			case 6:
-				r = 1f;
-				g = 1f;
-				b = 1.2f;
-				break;
-			case 7:
-				r = 0.4f;
-				g = 0.7f;
-				b = 1.2f;
-				break;
-			case 8:
-				r = 0.7f;
-				g = 0.7f;
-				b = 0.7f;
-				break;
+		switch ((TeleportPylonType)(byte)tileStyle)
+		{
+		case TeleportPylonType.SurfacePurity:
+			r = 0.05f;
+			g = 0.8f;
+			b = 0.3f;
+			break;
+		case TeleportPylonType.Jungle:
+			r = 0.7f;
+			g = 0.8f;
+			b = 0.05f;
+			break;
+		case TeleportPylonType.Hallow:
+			r = 0.5f;
+			g = 0.3f;
+			b = 0.7f;
+			break;
+		case TeleportPylonType.Underground:
+			r = 0.4f;
+			g = 0.4f;
+			b = 0.6f;
+			break;
+		case TeleportPylonType.Beach:
+			r = 0.2f;
+			g = 0.2f;
+			b = 0.95f;
+			break;
+		case TeleportPylonType.Desert:
+			r = 0.85f;
+			g = 0.45f;
+			b = 0.1f;
+			break;
+		case TeleportPylonType.Snow:
+			r = 1f;
+			g = 1f;
+			b = 1.2f;
+			break;
+		case TeleportPylonType.GlowingMushroom:
+			r = 0.4f;
+			g = 0.7f;
+			b = 1.2f;
+			break;
+		case TeleportPylonType.Victory:
+			r = 0.7f;
+			g = 0.7f;
+			b = 0.7f;
+			break;
+		case TeleportPylonType.Underworld:
+			r = 0.05f;
+			g = 0.8f;
+			b = 0.3f;
+			break;
+		case TeleportPylonType.Shimmer:
+			r = 0.05f;
+			g = 0.8f;
+			b = 0.3f;
+			break;
 		}
-
 		int num = Dust.NewDust(dustBox.TopLeft(), dustBox.Width, dustBox.Height, 43, 0f, 0f, 254, new Color(r, g, b, 1f), 0.5f);
 		Main.dust[num].velocity *= 0.1f;
 		Main.dust[num].velocity.Y -= 0.2f;

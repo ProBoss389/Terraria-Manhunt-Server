@@ -14,5 +14,8 @@ public class NPCNetIdBestiaryInfoElement : IBestiaryInfoElement, IBestiaryEntryD
 		NetId = npcNetId;
 	}
 
-	public UIElement ProvideUIElement(BestiaryUICollectionInfo info) => null;
+	public UIElement ProvideUIElement(BestiaryUICollectionInfo info)
+	{
+		return null;
+	}
 }

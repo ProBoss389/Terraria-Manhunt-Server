@@ -6,7 +6,9 @@ namespace Terraria.Graphics.Effects;
 public class Filter : GameEffect
 {
 	public bool Active;
+
 	private ScreenShaderData _shader;
+
 	public bool IsHidden;
 
 	public Filter(ScreenShaderData shader, EffectPriority priority = EffectPriority.VeryLow)
@@ -21,12 +23,16 @@ public class Filter : GameEffect
 		_shader.Update(gameTime);
 	}
 
-	public void Apply()
+	public void Apply(Vector2 textureSize, Vector2 sceneSize, Vector2 sceneOffset)
 	{
-		_shader.Apply();
+		_shader.UseSceneSize(sceneSize).UseSceneOffset(sceneOffset).UseImageSize0(textureSize)
+			.Apply();
 	}
 
-	public ScreenShaderData GetShader() => _shader;
+	public ScreenShaderData GetShader()
+	{
+		return _shader;
+	}
 
 	public override void Activate(Vector2 position, params object[] args)
 	{
@@ -43,18 +49,23 @@ public class Filter : GameEffect
 	public bool IsInUse()
 	{
 		if (!Active)
+		{
 			return Opacity > 0f;
-
+		}
 		return true;
 	}
 
-	public bool IsActive() => Active;
+	public bool IsActive()
+	{
+		return Active;
+	}
 
 	public override bool IsVisible()
 	{
 		if (GetShader().CombinedOpacity > 0f)
+		{
 			return !IsHidden;
-
+		}
 		return false;
 	}
 }

@@ -17,8 +17,11 @@ public struct PotionOfReturnGateHelper
 	}
 
 	private readonly Vector2 _position;
+
 	private readonly float _opacity;
+
 	private readonly int _frameNumber;
+
 	private readonly GateType _gateType;
 
 	public PotionOfReturnGateHelper(GateType gateType, Vector2 worldPosition, float opacity)
@@ -29,8 +32,9 @@ public struct PotionOfReturnGateHelper
 		_opacity = opacity;
 		int num = (int)(((float)Main.tileFrameCounter[491] + _position.X + _position.Y) % 40f) / 5;
 		if (gateType == GateType.ExitPoint)
+		{
 			num = 7 - num;
-
+		}
 		_frameNumber = num;
 	}
 
@@ -42,9 +46,12 @@ public struct PotionOfReturnGateHelper
 
 	public void SpawnReturnPortalDust()
 	{
-		if (_gateType == GateType.EntryPoint) {
-			if (Main.rand.Next(3) == 0) {
-				if (Main.rand.Next(2) == 0) {
+		if (_gateType == GateType.EntryPoint)
+		{
+			if (Main.rand.Next(3) == 0)
+			{
+				if (Main.rand.Next(2) == 0)
+				{
 					Vector2 vector = Vector2.UnitY.RotatedByRandom(6.2831854820251465);
 					vector *= new Vector2(0.5f, 1f);
 					Dust dust = Dust.NewDustDirect(_position - vector * 30f, 0, 0, Utils.SelectRandom<int>(Main.rand, 86, 88));
@@ -58,7 +65,8 @@ public struct PotionOfReturnGateHelper
 					dust.position += dust.velocity * 10f;
 					dust.velocity *= -1f;
 				}
-				else {
+				else
+				{
 					Vector2 vector2 = Vector2.UnitY.RotatedByRandom(6.2831854820251465);
 					vector2 *= new Vector2(0.5f, 1f);
 					Dust dust2 = Dust.NewDustDirect(_position - vector2 * 30f, 0, 0, 240);
@@ -74,8 +82,10 @@ public struct PotionOfReturnGateHelper
 				}
 			}
 		}
-		else if (Main.rand.Next(3) == 0) {
-			if (Main.rand.Next(2) == 0) {
+		else if (Main.rand.Next(3) == 0)
+		{
+			if (Main.rand.Next(2) == 0)
+			{
 				Vector2 vector3 = Vector2.UnitY.RotatedByRandom(6.2831854820251465);
 				vector3 *= new Vector2(0.5f, 1f);
 				Dust dust3 = Dust.NewDustDirect(_position - vector3 * 30f, 0, 0, Utils.SelectRandom<int>(Main.rand, 86, 88));
@@ -88,7 +98,8 @@ public struct PotionOfReturnGateHelper
 				dust3.customData = this;
 				dust3.position += vector3 * new Vector2(20f);
 			}
-			else {
+			else
+			{
 				Vector2 vector4 = Vector2.UnitY.RotatedByRandom(6.2831854820251465);
 				vector4 *= new Vector2(0.5f, 1f);
 				Dust dust4 = Dust.NewDustDirect(_position - vector4 * 30f, 0, 0, Utils.SelectRandom<int>(Main.rand, 86, 88));
@@ -114,7 +125,8 @@ public struct PotionOfReturnGateHelper
 		color *= _opacity;
 		DrawData drawData = new DrawData(asset.Value, _position - Main.screenPosition, rectangle, color, 0f, rectangle.Size() / 2f, 1f, SpriteEffects.None);
 		drawDataList.Add(drawData);
-		for (float num2 = 0f; num2 < 1f; num2 += 0.34f) {
+		for (float num2 = 0f; num2 < 1f; num2 += 0.34f)
+		{
 			DrawData item = drawData;
 			item.color = new Color(127, 50, 127, 0) * _opacity;
 			item.scale *= 1.1f;
@@ -123,10 +135,11 @@ public struct PotionOfReturnGateHelper
 			item.position += ((Main.GlobalTimeWrappedHourly / 5f + num2) * ((float)Math.PI * 2f)).ToRotationVector2() * (x * 1f + 2f);
 			drawDataList.Add(item);
 		}
-
-		if (selectionMode != 0) {
+		if (selectionMode != 0)
+		{
 			int num3 = (color.R + color.G + color.B) / 3;
-			if (num3 > 10) {
+			if (num3 > 10)
+			{
 				Color selectionGlowColor = Colors.GetSelectionGlowColor(selectionMode == 2, num3);
 				Texture2D value = TextureAssets.Extra[242].Value;
 				Rectangle value2 = value.Frame(1, 8, 0, _frameNumber);

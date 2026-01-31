@@ -10,14 +10,17 @@ namespace Terraria.GameContent.UI.Elements;
 public class UIKeybindingToggleListItem : UIElement
 {
 	private Color _color;
+
 	private Func<string> _TextDisplayFunction;
+
 	private Func<bool> _IsOnFunction;
+
 	private Asset<Texture2D> _toggleTexture;
 
 	public UIKeybindingToggleListItem(Func<string> getText, Func<bool> getStatus, Color color)
 	{
 		_color = color;
-		_toggleTexture = Main.Assets.Request<Texture2D>("Images/UI/Settings_Toggle");
+		_toggleTexture = Main.Assets.Request<Texture2D>("Images/UI/Settings_Toggle", AssetRequestMode.ImmediateLoad);
 		_TextDisplayFunction = ((getText != null) ? getText : ((Func<string>)(() => "???")));
 		_IsOnFunction = ((getStatus != null) ? getStatus : ((Func<bool>)(() => false)));
 	}
@@ -29,7 +32,7 @@ public class UIKeybindingToggleListItem : UIElement
 		CalculatedStyle dimensions = GetDimensions();
 		float num2 = dimensions.Width + 1f;
 		Vector2 vector = new Vector2(dimensions.X, dimensions.Y);
-		Vector2 baseScale = new Vector2(0.8f);
+		Vector2 scale = new Vector2(0.8f);
 		Color value = (false ? Color.Gold : (base.IsMouseHovering ? Color.White : Color.Silver));
 		value = Color.Lerp(value, Color.White, base.IsMouseHovering ? 0.5f : 0f);
 		Color color = (base.IsMouseHovering ? _color : _color.MultiplyRGBA(new Color(180, 180, 180)));
@@ -37,7 +40,7 @@ public class UIKeybindingToggleListItem : UIElement
 		Utils.DrawSettingsPanel(spriteBatch, position, num2, color);
 		position.X += 8f;
 		position.Y += 2f + num;
-		ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, _TextDisplayFunction(), position, value, 0f, Vector2.Zero, baseScale, num2);
+		ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, _TextDisplayFunction(), position, value, 0f, Vector2.Zero, scale, num2);
 		position.X -= 17f;
 		Rectangle value2 = new Rectangle(_IsOnFunction() ? ((_toggleTexture.Width() - 2) / 2 + 2) : 0, 0, (_toggleTexture.Width() - 2) / 2, _toggleTexture.Height());
 		Vector2 vector2 = new Vector2(value2.Width, 0f);

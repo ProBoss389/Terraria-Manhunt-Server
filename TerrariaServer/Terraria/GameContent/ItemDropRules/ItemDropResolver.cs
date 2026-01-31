@@ -14,24 +14,26 @@ public class ItemDropResolver
 	public void TryDropping(DropAttemptInfo info)
 	{
 		List<IItemDropRule> rulesForNPCID = _database.GetRulesForNPCID(info.npc.netID);
-		for (int i = 0; i < rulesForNPCID.Count; i++) {
+		for (int i = 0; i < rulesForNPCID.Count; i++)
+		{
 			ResolveRule(rulesForNPCID[i], info);
 		}
 	}
 
 	private ItemDropAttemptResult ResolveRule(IItemDropRule rule, DropAttemptInfo info)
 	{
-		if (!rule.CanDrop(info)) {
-			ItemDropAttemptResult itemDropAttemptResult = default(ItemDropAttemptResult);
-			itemDropAttemptResult.State = ItemDropAttemptResultState.DoesntFillConditions;
-			ItemDropAttemptResult itemDropAttemptResult2 = itemDropAttemptResult;
-			ResolveRuleChains(rule, info, itemDropAttemptResult2);
-			return itemDropAttemptResult2;
+		if (!rule.CanDrop(info))
+		{
+			ItemDropAttemptResult itemDropAttemptResult = new ItemDropAttemptResult
+			{
+				State = ItemDropAttemptResultState.DoesntFillConditions
+			};
+			ResolveRuleChains(rule, info, itemDropAttemptResult);
+			return itemDropAttemptResult;
 		}
-
-		ItemDropAttemptResult itemDropAttemptResult3 = ((!(rule is INestedItemDropRule nestedItemDropRule)) ? rule.TryDroppingItem(info) : nestedItemDropRule.TryDroppingItem(info, ResolveRule));
-		ResolveRuleChains(rule, info, itemDropAttemptResult3);
-		return itemDropAttemptResult3;
+		ItemDropAttemptResult itemDropAttemptResult2 = ((!(rule is INestedItemDropRule nestedItemDropRule)) ? rule.TryDroppingItem(info) : nestedItemDropRule.TryDroppingItem(info, ResolveRule));
+		ResolveRuleChains(rule, info, itemDropAttemptResult2);
+		return itemDropAttemptResult2;
 	}
 
 	private void ResolveRuleChains(IItemDropRule rule, DropAttemptInfo info, ItemDropAttemptResult parentResult)
@@ -42,12 +44,16 @@ public class ItemDropResolver
 	private void ResolveRuleChains(ref DropAttemptInfo info, ref ItemDropAttemptResult parentResult, List<IItemDropRuleChainAttempt> ruleChains)
 	{
 		if (ruleChains == null)
+		{
 			return;
-
-		for (int i = 0; i < ruleChains.Count; i++) {
+		}
+		for (int i = 0; i < ruleChains.Count; i++)
+		{
 			IItemDropRuleChainAttempt itemDropRuleChainAttempt = ruleChains[i];
 			if (itemDropRuleChainAttempt.CanChainIntoRule(parentResult))
+			{
 				ResolveRule(itemDropRuleChainAttempt.RuleToChain, info);
+			}
 		}
 	}
 }

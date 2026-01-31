@@ -6,7 +6,8 @@ namespace Terraria.GameContent.Generation;
 
 public class PassLegacy : GenPass
 {
-	private static readonly Dictionary<string, float> _weightMap_135 = new Dictionary<string, float> {
+	private static readonly Dictionary<string, float> _weightMap_135 = new Dictionary<string, float>
+	{
 		{ "Reset", 2.2056f },
 		{ "Terrain", 449.3722f },
 		{ "Tunnels", 5.379f },
@@ -103,7 +104,9 @@ public class PassLegacy : GenPass
 		{ "Micro Biomes", 24240.068f },
 		{ "Final Cleanup", 1768.4618f }
 	};
-	private static readonly Dictionary<string, float> _weightMap = new Dictionary<string, float> {
+
+	private static readonly Dictionary<string, float> _weightMap = new Dictionary<string, float>
+	{
 		{ "Reset", 0.9667f },
 		{ "Terrain", 507.352f },
 		{ "Dunes", 239.7913f },
@@ -205,6 +208,7 @@ public class PassLegacy : GenPass
 		{ "Remove Broken Traps", 1293.4247f },
 		{ "Final Cleanup", 2080.294f }
 	};
+
 	private readonly WorldGenLegacyMethod _method;
 
 	public PassLegacy(string name, WorldGenLegacyMethod method)
@@ -222,8 +226,9 @@ public class PassLegacy : GenPass
 	private static float GetWeight(string name)
 	{
 		if (!_weightMap.TryGetValue(name, out var value))
+		{
 			return 1f;
-
+		}
 		return value;
 	}
 

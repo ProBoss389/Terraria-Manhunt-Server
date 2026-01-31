@@ -20,8 +20,9 @@ public class LegacyHairShaderData : HairShaderData
 		bool lighting = true;
 		Color result = _colorProcessor(player, player.hairColor, ref lighting);
 		if (lighting)
+		{
 			return new Color(result.ToVector4() * lightColor.ToVector4());
-
+		}
 		return result;
 	}
 

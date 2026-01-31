@@ -8,20 +8,31 @@ public class TileDrawSorter
 	public struct TileTexPoint
 	{
 		public int X;
+
 		public int Y;
+
 		public int TileType;
 
-		public override string ToString() => $"X:{X}, Y:{Y}, Type:{TileType}";
+		public override string ToString()
+		{
+			return $"X:{X}, Y:{Y}, Type:{TileType}";
+		}
 	}
 
 	public class CustomComparer : Comparer<TileTexPoint>
 	{
-		public override int Compare(TileTexPoint x, TileTexPoint y) => x.TileType.CompareTo(y.TileType);
+		public override int Compare(TileTexPoint x, TileTexPoint y)
+		{
+			return x.TileType.CompareTo(y.TileType);
+		}
 	}
 
 	public TileTexPoint[] tilesToDraw;
+
 	private int _holderLength;
+
 	private int _currentCacheIndex;
+
 	private CustomComparer _tileComparer = new CustomComparer();
 
 	public TileDrawSorter()
@@ -43,7 +54,9 @@ public class TileDrawSorter
 		tilesToDraw[num].Y = y;
 		tilesToDraw[num].TileType = type;
 		if (_currentCacheIndex == _holderLength)
+		{
 			IncreaseArraySize();
+		}
 	}
 
 	private void IncreaseArraySize()
@@ -57,5 +70,8 @@ public class TileDrawSorter
 		Array.Sort(tilesToDraw, 0, _currentCacheIndex, _tileComparer);
 	}
 
-	public int GetAmountToDraw() => _currentCacheIndex;
+	public int GetAmountToDraw()
+	{
+		return _currentCacheIndex;
+	}
 }

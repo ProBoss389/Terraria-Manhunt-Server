@@ -6,6 +6,7 @@ namespace Terraria.Graphics;
 public struct FlameLashDrawer
 {
 	private static VertexStrip _vertexStrip = new VertexStrip();
+
 	private float transitToDark;
 
 	public void Draw(Projectile proj)
