@@ -18,6 +18,7 @@ using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReLogic.Content;
 using ReLogic.Content.Sources;
@@ -195,15 +196,15 @@ public class Main : Microsoft.Xna.Framework.Game
 		public bool LanternNightActive;
 	}
 
-	private const string versionStringBecauseTheyreTheSame = "v1.4.5.3";
+	private const string versionStringBecauseTheyreTheSame = "v1.4.5.4";
 
-	public const int curRelease = 316;
+	public const int curRelease = 317;
 
-	public const string assemblyVersionNumber = "1.4.5.3";
+	public const string assemblyVersionNumber = "1.4.5.4";
 
 	public const string copyrightText = "Copyright © 2026 Re-Logic";
 
-	public const ulong WorldGeneratorVersion = 1357209665537uL;
+	public const ulong WorldGeneratorVersion = 1361504632833uL;
 
 	public static int mapDelay = 2;
 
@@ -293,9 +294,9 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public static List<TitleLinkButton> TitleLinks = new List<TitleLinkButton>();
 
-	public static string versionNumber = "v1.4.5.3";
+	public static string versionNumber = "v1.4.5.4";
 
-	public static string versionNumber2 = "v1.4.5.3";
+	public static string versionNumber2 = "v1.4.5.4";
 
 	public static bool AnnouncementBoxDisabled;
 
@@ -2798,9 +2799,9 @@ public class Main : Microsoft.Xna.Framework.Game
 	{
 		get
 		{
-			if (!drunkWorld && !getGoodWorld && !tenthAnniversaryWorld && !notTheBeesWorld && !dontStarveWorld && !remixWorld && !noTrapsWorld)
+			if (!drunkWorld && !getGoodWorld && !tenthAnniversaryWorld && !notTheBeesWorld && !dontStarveWorld && !remixWorld && !noTrapsWorld && !zenithWorld)
 			{
-				return zenithWorld;
+				return skyblockWorld;
 			}
 			return true;
 		}
@@ -2810,9 +2811,9 @@ public class Main : Microsoft.Xna.Framework.Game
 	{
 		get
 		{
-			if (dontStarveWorld && !drunkWorld && !getGoodWorld && !tenthAnniversaryWorld && !notTheBeesWorld && !remixWorld && !noTrapsWorld)
+			if (dontStarveWorld && !drunkWorld && !getGoodWorld && !tenthAnniversaryWorld && !notTheBeesWorld && !remixWorld && !noTrapsWorld && !zenithWorld)
 			{
-				return !zenithWorld;
+				return !skyblockWorld;
 			}
 			return false;
 		}
@@ -4203,7 +4204,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			using FileStream output = new FileStream(SavePath + Path.DirectorySeparatorChar + "servers.dat", FileMode.Create);
 			using BinaryWriter binaryWriter = new BinaryWriter(output);
-			binaryWriter.Write(316);
+			binaryWriter.Write(317);
 			for (int i = 0; i < 10; i++)
 			{
 				binaryWriter.Write(recentWorld[i]);
@@ -4263,7 +4264,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Put("LightingMode", Lighting.Mode);
 		configuration.Put("BackgroundParallax", bgScroll);
 		configuration.Put("ShowItemText", showItemText);
-		configuration.Put("LastLaunchedVersion", 316);
+		configuration.Put("LastLaunchedVersion", 317);
 		configuration.Put("ClientUUID", clientUUID);
 		configuration.Put("UseSmartCursorForCommonBlocks", Player.SmartCursorSettings.SmartBlocksEnabled);
 		configuration.Put("UseSmartAxeAfterSmartPickaxe", Player.SmartCursorSettings.SmartAxeAfterPickaxe);
@@ -4321,7 +4322,9 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Put("WaterfallDrawLimit", instance.waterfallManager.maxWaterfallCount);
 		configuration.Put("FlashyEffectsWorld", FlashyEffectsWorld);
 		configuration.Put("FlashyEffectsInterface", FlashyEffectsInterface);
+		configuration.Put("UseScreenShake", UseScreenShake);
 		configuration.Put("PortraitPreference", DialoguePortraitPreference);
+		configuration.Put("SecretSeeds", SecretSeedsTracker.GetStringsToSave());
 		if (Configuration.Save())
 		{
 			return PlayerInput.Save();
@@ -4617,6 +4620,10 @@ public class Main : Microsoft.Xna.Framework.Game
 			_windowMover.TryMovingToScreen(screenDeviceName);
 			ThrottleWhenInactive = configuration.Get("ThrottleWhenInactive", defaultValue: true);
 			UnpinFromCore0 = configuration.Get("UnpinFromCore0", defaultValue: false);
+			if (UnpinFromCore0 && Platform.IsWindows)
+			{
+				WindowsPerformanceDiagnostics.UnpinFromCore0();
+			}
 		}
 		if (!flag)
 		{
@@ -4634,6 +4641,19 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Get("StackToChestsPreferredMode", ref Player.Settings.StackToChestsPreferredMode);
 		configuration.Get("CraftFromNearbyChests", ref Player.Settings.CraftFromNearbyChests);
 		configuration.Get("PortraitPreference", ref DialoguePortraitPreference);
+		configuration.Get("UseScreenShake", ref UseScreenShake);
+		JArray jArray = configuration.Get("SecretSeeds", new JArray());
+		try
+		{
+			if (jArray != null && jArray.Count != 0)
+			{
+				SecretSeedsTracker.SetstringsFromConfig(jArray.ToObject<List<string>>());
+			}
+		}
+		catch (JsonReaderException arg)
+		{
+			Console.WriteLine("Failed to parse configuration entry for secret seed list. {0}", arg);
+		}
 		if (currentValue <= 162)
 		{
 			bool currentValue9 = false;
@@ -4705,7 +4725,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		mouseColorSlider.SetHSL(mouseColor);
 		mouseBorderColorSlider.SetHSL(MouseBorderColor);
 		mouseBorderColorSlider.Alpha = (float)(int)MouseBorderColor.A / 255f;
-		if (currentValue != 316)
+		if (currentValue != 317)
 		{
 			SaveSettings();
 		}
@@ -5264,7 +5284,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 	}
 
-    public static int HunterDelay = 15;
+	public static int HunterDelay = 15;
     public void DedServ()
     {
         NeverSleep();
@@ -6144,11 +6164,11 @@ public class Main : Microsoft.Xna.Framework.Game
                     Console.WriteLine("delay <seconds>           \t Sets the countdown multiplier.");
                     Console.WriteLine("time <hh:mm am/pm>        \t Sets the server time.");
                     List<string> list = new List<string>
-                {
-                    "Help", "Playing", "Clear", "Exit", "ExitNoSave", "Save", "Kick", "Ban", "Password", "SetPassword",
-                    "Version", "Time", "Port", "MaxPlayers", "Say", "MOTD", "SetMOTD", "Dawn", "Noon", "Dusk",
-                    "Midnight", "Settle", "Seed"
-                };
+            {
+                "Help", "Playing", "Clear", "Exit", "ExitNoSave", "Save", "Kick", "Ban", "Password", "SetPassword",
+                "Version", "Time", "Port", "MaxPlayers", "Say", "MOTD", "SetMOTD", "Dawn", "Noon", "Dusk",
+                "Midnight", "Settle", "Seed"
+            };
                     int num = 0;
                     for (int i = 0; i < list.Count; i++)
                     {
@@ -17324,7 +17344,8 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				UpdateTimeAccumulator -= TARGET_FRAME_TIME;
 				UpdateTimeAccumulator = Utils.Clamp(UpdateTimeAccumulator, 0.0, 3.0 * TARGET_FRAME_TIME);
-				if (UpdateTimeAccumulator > TARGET_FRAME_TIME && successiveSkippedDraws++ < 2)
+				int num3 = 0;
+				if (UpdateTimeAccumulator > TARGET_FRAME_TIME && ++successiveSkippedDraws <= num3)
 				{
 					base.InactiveSleepTime = TimeSpan.Zero;
 					instance.SuppressDraw();
@@ -17335,7 +17356,7 @@ public class Main : Microsoft.Xna.Framework.Game
 				}
 			}
 			uCount++;
-			DebugLineDraw.Update();
+			DebugLineDraw.PreUpdate();
 			MouseOversClear();
 			PlayerInput.AllowExecutionOfGamepadInstructions = true;
 			TryPlayingCreditsRoll();
@@ -17430,10 +17451,10 @@ public class Main : Microsoft.Xna.Framework.Game
 			if (Platform.IsWindows)
 			{
 				Form form = Control.FromHandle(base.Window.Handle) as Form;
-				bool num3 = form.WindowState == FormWindowState.Minimized;
+				bool num4 = form.WindowState == FormWindowState.Minimized;
 				bool flag = Form.ActiveForm == form;
 				hasFocus |= flag;
-				if (num3)
+				if (num4)
 				{
 					hasFocus = false;
 				}
@@ -17539,9 +17560,9 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			Main.OnTickForInternalCodeOnly();
 		}
-		for (int num4 = DelayedProcessesInGame.Count - 1; num4 >= 0; num4--)
+		for (int num5 = DelayedProcessesInGame.Count - 1; num5 >= 0; num5--)
 		{
-			IEnumerator enumerator2 = DelayedProcessesInGame[num4];
+			IEnumerator enumerator2 = DelayedProcessesInGame[num5];
 			if (!enumerator2.MoveNext())
 			{
 				DelayedProcessesInGame.Remove(enumerator2);
@@ -17592,12 +17613,12 @@ public class Main : Microsoft.Xna.Framework.Game
 			else if (shimmerAlpha > 0f)
 			{
 				Star.UpdateStars();
-				int num5 = rand.Next(numStars);
+				int num6 = rand.Next(numStars);
 				if (rand.Next(90) == 0)
 				{
-					if (star[num5] != null && !star[num5].hidden && !star[num5].falling)
+					if (star[num6] != null && !star[num6].hidden && !star[num6].falling)
 					{
-						star[num5].Fall();
+						star[num6].Fall();
 					}
 					for (int j = 0; j < numStars; j++)
 					{
@@ -20703,7 +20724,8 @@ public class Main : Microsoft.Xna.Framework.Game
 		long num = ((hoverItem.isAShopItem || hoverItem.buyOnce) ? calcForBuying : calcForSelling);
 		if (hoverItem.shopSpecialCurrency != -1)
 		{
-			CustomCurrencyManager.GetPriceText(hoverItem.shopSpecialCurrency, lineText, ref numLines, num);
+			long price = num * ItemSlot.EstimateDisplayStack(hoverItem);
+			CustomCurrencyManager.GetPriceText(hoverItem.shopSpecialCurrency, lineText, ref numLines, price);
 			lineColors[numLines - 1] = new Microsoft.Xna.Framework.Color(255, 255, 255);
 		}
 		else if (num > 0)
@@ -20713,7 +20735,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			long num3 = 0L;
 			long num4 = 0L;
 			long num5 = 0L;
-			long num6 = num * hoverItem.stack;
+			long num6 = num * ItemSlot.EstimateDisplayStack(hoverItem);
 			if (!hoverItem.buy)
 			{
 				num6 = num / 5;
@@ -20878,7 +20900,8 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public static void MouseText_DrawItemTooltip_GetLinesInfo(Item item, ref int yoyoLogo, ref int researchLine, float oldKB, ref int numLines, string[] toolTipLine, Microsoft.Xna.Framework.Color[] lineColors)
 	{
-		toolTipLine[0] = item.HoverName;
+		int stack = ItemSlot.EstimateDisplayStack(item);
+		toolTipLine[0] = Item.GetHoverName(item, stack);
 		Microsoft.Xna.Framework.Color color = new Microsoft.Xna.Framework.Color(190, 120, 120);
 		Microsoft.Xna.Framework.Color color2 = new Microsoft.Xna.Framework.Color(120, 190, 120);
 		if (item.favorited)
@@ -41548,7 +41571,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				bannerUI.DrawBannersList(spriteBatch, num52, middleY, craftingTipColor);
 			}
-			if (!InGuideCraftMenu && (PlayerInput.UsingGamepad || PlayerInput.SteamDeckIsUsed))
+			if (!InGuideCraftMenu && LocalPlayer.chest < 0 && (PlayerInput.UsingGamepad || PlayerInput.SteamDeckIsUsed))
 			{
 				num52 -= 132;
 			}
@@ -42076,6 +42099,11 @@ public class Main : Microsoft.Xna.Framework.Game
 		_preventCraftingBecauseClickWasUsedToChangeFocusedRecipe = true;
 	}
 
+	public static bool TryingToBulkCraft()
+	{
+		return ItemSlot.ShiftInUse;
+	}
+
 	public static void HoverOverCraftingItemButton(int recipeIndex)
 	{
 		Recipe recipe = Main.recipe[availableRecipe[recipeIndex]];
@@ -42084,6 +42112,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		bool flag2 = mouseLeft || mouseRight;
 		craftingHide = true;
 		HoverItem = recipe.createItem.Clone();
+		HoverItem.tooltipSlot = 0;
 		ItemSlot.MouseHover(22);
 		if (ItemSlot.HoverOverrideClick(recipe.createItem, 22))
 		{
@@ -42095,23 +42124,28 @@ public class Main : Microsoft.Xna.Framework.Game
 			bool num = _currentRecipeBeingCrafted != -1 && _currentRecipeBeingCrafted != availableRecipe[recipeIndex];
 			bool flag4 = _currentRecipeBeingCrafted != -1 && Main.recipe[_currentRecipeBeingCrafted].createItem.maxStack == 1;
 			bool flag5 = num || flag4;
+			int num2 = superFastStack + 1;
+			if (ItemSlot.ShiftInUse)
+			{
+				num2 *= 10;
+			}
 			if (flag2 && !flag5 && flag3 && stackSplit <= 1)
 			{
 				bool usingGamepad = PlayerInput.UsingGamepad;
 				bool movedAnItemToAllowCrafting;
-				bool num2 = TryAllowingToCraftRecipe(recipe, usingGamepad, out movedAnItemToAllowCrafting);
+				bool num3 = TryAllowingToCraftRecipe(recipe, usingGamepad, out movedAnItemToAllowCrafting);
 				if (movedAnItemToAllowCrafting)
 				{
 					_preventCraftingBecauseClickWasUsedToChangeFocusedRecipe = true;
 				}
-				if (num2 && !movedAnItemToAllowCrafting)
+				if (num3 && !movedAnItemToAllowCrafting)
 				{
 					if (_currentRecipeBeingCrafted == -1)
 					{
 						_currentRecipeBeingCrafted = availableRecipe[recipeIndex];
 					}
 					ItemSlot.RefreshStackSplitCooldown();
-					CraftingRequests.CraftItem(recipe);
+					CraftingRequests.CraftItem(recipe, num2);
 				}
 			}
 		}
@@ -42129,7 +42163,13 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 	}
 
-	private static bool TryAllowingToCraftRecipe(Recipe currentRecipe, bool tryFittingItemInInventoryToAllowCrafting, out bool movedAnItemToAllowCrafting)
+	public static bool CursorHasSpaceToCraftRecipe(Recipe currentRecipe)
+	{
+		bool movedAnItemToAllowCrafting;
+		return TryAllowingToCraftRecipe(currentRecipe, tryFittingItemInInventoryToAllowCrafting: false, out movedAnItemToAllowCrafting);
+	}
+
+	public static bool TryAllowingToCraftRecipe(Recipe currentRecipe, bool tryFittingItemInInventoryToAllowCrafting, out bool movedAnItemToAllowCrafting)
 	{
 		movedAnItemToAllowCrafting = false;
 		Item item = mouseItem;
@@ -52006,6 +52046,10 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			SkyManager.Instance["Ambience"].Deactivate();
 		}
+		if (SkyManager.Instance["Aurora"].IsActive())
+		{
+			SkyManager.Instance["Aurora"].Deactivate();
+		}
 		slimeRain = false;
 		slimeRainTime = 0.0;
 		slimeWarningTime = 0;
@@ -59200,40 +59244,45 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				double num11 = 0.17;
 				float num12 = 1.1f;
-				float num13 = num3 * 1400f + 900f + scAdj + (float)pushBGTopHack;
-				SetBackgroundOffsets(18, num3, pushBGTopHack);
+				int num13 = 1400;
+				int num14 = 900;
+				if (WorldGen.hallowBG == 3)
+				{
+					num14 = 1100;
+				}
+				float num15 = num3 * (float)num13 + (float)num14 + scAdj + (float)pushBGTopHack;
 				num12 *= num4;
-				int num14 = (int)((double)(2100f * bgScale) * 1.05);
-				int num15 = (int)(0.0 - Math.IEEERemainder((double)screenPosition.X * num11, bgWidthScaled) - (double)(bgWidthScaled / 2));
-				_ = screenWidth / bgWidthScaled;
+				int num16 = (int)((double)(2100f * num12) * 1.05);
+				int num17 = (int)(0.0 - Math.IEEERemainder((double)screenPosition.X * num11, num16) - (double)(num16 / 2));
+				_ = screenWidth / num16;
 				if (gameMenu)
 				{
-					num13 = 230 + pushBGTopHack;
-					num15 -= 500;
+					num15 = 230 + pushBGTopHack;
+					num17 -= 500;
 				}
-				SkyManager.Instance.DrawToDepth(spriteBatch, 1f / (float)bgParallax);
+				SkyManager.Instance.DrawToDepth(spriteBatch, 1f / (float)num11);
 				Microsoft.Xna.Framework.Color color = colorOfSurfaceBackgroundsBase;
-				float num16 = (float)(SceneMetrics.HolyTileCount - SceneMetrics.HallowTileThreshold) / (float)(SceneMetrics.HallowTileMax - SceneMetrics.HallowTileThreshold);
-				if (num16 > 0.5f)
+				float num18 = (float)(SceneMetrics.HolyTileCount - SceneMetrics.HallowTileThreshold) / (float)(SceneMetrics.HallowTileMax - SceneMetrics.HallowTileThreshold);
+				if (num18 > 0.5f)
 				{
-					num16 = 0.5f;
+					num18 = 0.5f;
 				}
-				else if (num16 < 0f)
+				else if (num18 < 0f)
 				{
-					num16 = 0f;
+					num18 = 0f;
 				}
-				color.R = (byte)((float)(int)color.R * num16);
-				color.G = (byte)((float)(int)color.G * num16);
-				color.B = (byte)((float)(int)color.B * num16);
-				color.A = (byte)((float)(int)color.A * num16 * 0.8f);
+				color.R = (byte)((float)(int)color.R * num18);
+				color.G = (byte)((float)(int)color.G * num18);
+				color.B = (byte)((float)(int)color.B * num18);
+				color.A = (byte)((float)(int)color.A * num18 * 0.8f);
 				if ((double)screenPosition.Y < worldSurface * 16.0 + 16.0)
 				{
 					LoadBackground(18);
 					LoadBackground(19);
 					for (int k = 0; k < bgLoops; k++)
 					{
-						spriteBatch.Draw(TextureAssets.Background[18].Value, new Vector2(num15 + num14 * k, num13), new Microsoft.Xna.Framework.Rectangle(0, 0, backgroundWidth[18], backgroundHeight[18]), color, 0f, default(Vector2), num12, SpriteEffects.None, 0f);
-						spriteBatch.Draw(TextureAssets.Background[19].Value, new Vector2(num15 + num14 * k + 1900, num13 + 100f), new Microsoft.Xna.Framework.Rectangle(0, 0, backgroundWidth[19], backgroundHeight[19]), color, 0f, default(Vector2), num12 * 0.9f, SpriteEffects.None, 0f);
+						spriteBatch.Draw(TextureAssets.Background[18].Value, new Vector2(num17 + num16 * k, num15), new Microsoft.Xna.Framework.Rectangle(0, 0, backgroundWidth[18], backgroundHeight[18]), color, 0f, default(Vector2), num12, SpriteEffects.None, 0f);
+						spriteBatch.Draw(TextureAssets.Background[19].Value, new Vector2(num17 + num16 * k + 1900, num15 + 100f), new Microsoft.Xna.Framework.Rectangle(0, 0, backgroundWidth[19], backgroundHeight[19]), color, 0f, default(Vector2), num12 * 0.9f, SpriteEffects.None, 0f);
 					}
 				}
 			}
@@ -59243,12 +59292,12 @@ public class Main : Microsoft.Xna.Framework.Game
 				bgParallax = 0.2;
 				bgScale = 1.15f;
 				bgScale *= num4;
-				int num17 = backgroundWidth[treeMntBGSet1[1]];
-				if (num17 == 0)
+				int num19 = backgroundWidth[treeMntBGSet1[1]];
+				if (num19 == 0)
 				{
-					num17 = 1;
+					num19 = 1;
 				}
-				bgWidthScaled = (int)((float)num17 * bgScale);
+				bgWidthScaled = (int)((float)num19 * bgScale);
 				bgStartX = (int)(0.0 - Math.IEEERemainder((double)screenPosition.X * bgParallax, bgWidthScaled) - (double)(bgWidthScaled / 2));
 				bgLoops = screenWidth / bgWidthScaled + 2;
 				if (treeMntBGSet1[1] == 172)
@@ -59354,8 +59403,8 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			pushBGTopHack -= num7;
 		}
-		float num18 = DrawSurfaceBG_GetFogPower();
-		if (flag && num18 > 0f && !gameMenu && (double)screenPosition.Y < worldSurface * 16.0 + 16.0)
+		float num20 = DrawSurfaceBG_GetFogPower();
+		if (flag && num20 > 0f && !gameMenu && (double)screenPosition.Y < worldSurface * 16.0 + 16.0)
 		{
 			bgParallax = 0.1;
 			bgStartX = (int)(0.0 - Math.IEEERemainder((double)screenPosition.X * bgParallax, backgroundWidth[background]) - (double)(backgroundWidth[background] / 2));
@@ -59367,7 +59416,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			for (int m = 0; m < bgLoops; m++)
 			{
 				bgStartX = 0;
-				Microsoft.Xna.Framework.Color color2 = ColorOfTheSkies * num18 * atmo;
+				Microsoft.Xna.Framework.Color color2 = ColorOfTheSkies * num20 * atmo;
 				int height = Math.Max(screenHeight + 210, value.Height);
 				spriteBatch.Draw(value, new Microsoft.Xna.Framework.Rectangle(bgStartX + value.Width * m, (int)bgTopY, value.Width, height), color2);
 			}
@@ -60144,15 +60193,6 @@ public class Main : Microsoft.Xna.Framework.Game
 		int num2 = 0;
 		switch (backgroundID)
 		{
-		case 18:
-			if (WorldGen.hallowBG == 3)
-			{
-				bgParallax = 0.17;
-				bgScale = 1.1f;
-				num = 1400;
-				num2 = 1100;
-			}
-			break;
 		case 258:
 			bgScale = 1.25f;
 			bgParallax = 0.23;

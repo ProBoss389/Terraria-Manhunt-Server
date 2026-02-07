@@ -381,7 +381,7 @@ public class PlayerInput
 	{
 		get
 		{
-			if (Main.LocalPlayer.UsingOrReusingItem && !UsingGamepad)
+			if (Main.LocalPlayer.UsingOrReusingItem && !UsingGamepad && !Main.gamePaused)
 			{
 				return true;
 			}

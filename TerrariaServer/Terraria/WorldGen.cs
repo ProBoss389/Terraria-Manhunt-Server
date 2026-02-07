@@ -413,6 +413,8 @@ public class WorldGen
 
 		private string _plaintext;
 
+		public string TextThatWasUsedToUnlock;
+
 		private static int activeSecretSeedCount = 0;
 
 		private bool _enabled;
@@ -472,6 +474,7 @@ public class WorldGen
 
 		public static bool CheckInputForSecretSeed(string worldSeed, out SecretSeed secretSeed)
 		{
+			string input = worldSeed;
 			secretSeed = null;
 			if (string.IsNullOrWhiteSpace(worldSeed))
 			{
@@ -493,6 +496,8 @@ public class WorldGen
 				return false;
 			}
 			secretSeed._plaintext = worldSeed;
+			string textThatWasUsedToUnlock = Regex.Replace(input, "[^a-zA-Z0-9 ]+", "");
+			secretSeed.TextThatWasUsedToUnlock = textThatWasUsedToUnlock;
 			return true;
 		}
 
@@ -502,6 +507,7 @@ public class WorldGen
 			{
 				activeSecretSeedCount++;
 				seed._enabled = true;
+				SecretSeedsTracker.AddSeedToTrack(seed.TextThatWasUsedToUnlock);
 				if (playSound)
 				{
 					SoundEngine.PlaySound(seed._sound);
@@ -543,10 +549,6 @@ public class WorldGen
 			if (endlessChristmas.Enabled)
 			{
 				Main.forceXMasForever = true;
-			}
-			if (!skyblockWorldGen && endlessChristmas.Enabled)
-			{
-				Main.forceXMasForToday = true;
 			}
 		}
 
@@ -3179,13 +3181,11 @@ public class WorldGen
 			int num = Main.maxTilesX * Main.maxTilesY;
 			float num2 = (float)currentActiveTiles / (float)num;
 			currentActiveTiles = 0;
-			if ((double)num2 < 0.1)
+			bool flag = lowTiles;
+			lowTiles = false;
+			if (num2 < 0.1f && Main.skyblockWorld)
 			{
 				lowTiles = true;
-			}
-			else
-			{
-				lowTiles = false;
 			}
 			for (int k = 0; k < TileID.Count; k++)
 			{
@@ -3199,6 +3199,10 @@ public class WorldGen
 			{
 				Main.dungeonX = -1;
 				Main.dungeonY = -1;
+			}
+			if (lowTiles != flag)
+			{
+				NetMessage.SendData(7);
 			}
 		}
 
@@ -5577,7 +5581,8 @@ public class WorldGen
 		int result = -1;
 		for (int i = 0; i < Main.maxNPCs; i++)
 		{
-			if (Main.npc[i].active && Main.npc[i].townNPC && Main.npc[i].homeless && Main.npc[i].type != 37 && Main.npc[i].type != 453 && Main.npc[i].type != 368 && (includeGuide || Main.npc[i].type != 22))
+			NPC nPC = Main.npc[i];
+			if (nPC.active && nPC.townNPC && nPC.homeless && nPC.type != 37 && nPC.type != 453 && nPC.type != 368 && nPC.type != 160 && (includeGuide || Main.npc[i].type != 22))
 			{
 				result = i;
 				break;
@@ -47173,7 +47178,7 @@ public class WorldGen
 			{
 				num6 = 62;
 			}
-			else if (num3 < 64)
+			else if (num3 < 64 || (num3 >= 65 && num3 <= 67))
 			{
 				num6 = 169;
 			}
@@ -53673,39 +53678,32 @@ public class WorldGen
 		}
 	}
 
-	public static void CheckKiteAnchor(int x, int y)
+	public static void CheckAnchor(int x, int y)
 	{
 		Tile tileSafely = Framing.GetTileSafely(x, y);
 		int num = tileSafely.frameX / 18;
 		int style = num;
-		if (ValidateOrAttemptReorientingKiteAnchor(x, y, tileSafely.wall, ref style))
+		if (ValidateOrAttemptReorientingAnchor(x, y, tileSafely.wall, ref style, switchToWallIfInvalid: true) && style != num)
 		{
-			if (style != num)
-			{
-				tileSafely.frameX = (short)(style * 18);
-			}
-		}
-		else
-		{
-			KillTile(x, y);
+			tileSafely.frameX = (short)(style * 18);
 		}
 	}
 
-	public static bool ValidateOrAttemptReorientingKiteAnchor(int x, int y, int wall, ref int style)
+	public static bool ValidateOrAttemptReorientingAnchor(int x, int y, int wall, ref int style, bool switchToWallIfInvalid = false)
 	{
-		if (style == 0 && !SolidTileAllowBottomSlope(x, y + 1))
+		if (style == 0 && !SolidTileAllowBottomSlope(x, y + 1) && !ConsideredSolidTileForAnchor(x, y + 1))
 		{
 			style = -1;
 		}
-		if (style == 1 && !SolidTileAllowTopSlope(x, y - 1))
+		if (style == 1 && !SolidTileAllowTopSlope(x, y - 1) && !ConsideredSolidTileForAnchor(x, y - 1))
 		{
 			style = -1;
 		}
-		if (style == 2 && !SolidTileAllowLeftSlope(x - 1, y))
+		if (style == 2 && !SolidTileAllowLeftSlope(x - 1, y) && !ConsideredSolidTileForAnchor(x - 1, y))
 		{
 			style = -1;
 		}
-		if (style == 3 && !SolidTileAllowRightSlope(x + 1, y))
+		if (style == 3 && !SolidTileAllowRightSlope(x + 1, y) && !ConsideredSolidTileForAnchor(x + 1, y))
 		{
 			style = -1;
 		}
@@ -53713,19 +53711,19 @@ public class WorldGen
 		{
 			style = -1;
 		}
-		if (style == -1 && SolidTileAllowBottomSlope(x, y + 1))
+		if (style == -1 && (SolidTileAllowBottomSlope(x, y + 1) || ConsideredSolidTileForAnchor(x, y + 1)))
 		{
 			style = 0;
 		}
-		if (style == -1 && SolidTileAllowTopSlope(x, y - 1))
+		if (style == -1 && (SolidTileAllowTopSlope(x, y - 1) || ConsideredSolidTileForAnchor(x, y - 1)))
 		{
 			style = 1;
 		}
-		if (style == -1 && SolidTileAllowLeftSlope(x - 1, y))
+		if (style == -1 && (SolidTileAllowLeftSlope(x - 1, y) || ConsideredSolidTileForAnchor(x - 1, y)))
 		{
 			style = 2;
 		}
-		if (style == -1 && SolidTileAllowRightSlope(x + 1, y))
+		if (style == -1 && (SolidTileAllowRightSlope(x + 1, y) || ConsideredSolidTileForAnchor(x + 1, y)))
 		{
 			style = 3;
 		}
@@ -53733,7 +53731,34 @@ public class WorldGen
 		{
 			style = 4;
 		}
+		if (switchToWallIfInvalid && style == -1)
+		{
+			style = 4;
+		}
 		return style > -1;
+	}
+
+	private static bool ConsideredSolidTileForAnchor(int x, int y)
+	{
+		if (!InWorld(x, y))
+		{
+			return true;
+		}
+		Tile tile = Main.tile[x, y];
+		if (tile == null)
+		{
+			return true;
+		}
+		if (!tile.active())
+		{
+			return false;
+		}
+		int offsetToTrunk = 0;
+		if (tile.type >= 0 && (tile.type == 323 || (TileID.Sets.IsATreeTrunk[tile.type] && !IsTileATreeBranch(x, y, out offsetToTrunk))) && !IsTileALeafyTreeTop(tile))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public static void CheckStinkbugBlocker(int x, int y)
@@ -53741,8 +53766,17 @@ public class WorldGen
 		Tile tileSafely = Framing.GetTileSafely(x, y);
 		int num = tileSafely.frameX / 18;
 		int style = num;
-		if (ValidateOrAttemptReorientingStinkbugBlocker(x, y, tileSafely.wall, ref style))
+		if (ValidateOrAttemptReorientingAnchor(x, y, tileSafely.wall, ref style))
 		{
+			switch (num)
+			{
+			case 2:
+				num = 3;
+				break;
+			case 3:
+				num = 2;
+				break;
+			}
 			if (style != num)
 			{
 				tileSafely.frameX = (short)(style * 18);
@@ -53752,51 +53786,6 @@ public class WorldGen
 		{
 			KillTile(x, y);
 		}
-	}
-
-	public static bool ValidateOrAttemptReorientingStinkbugBlocker(int x, int y, int wall, ref int style)
-	{
-		if (style == 0 && !SolidTileAllowBottomSlope(x, y + 1))
-		{
-			style = -1;
-		}
-		if (style == 1 && !SolidTileAllowTopSlope(x, y - 1))
-		{
-			style = -1;
-		}
-		if (style == 2 && !SolidTileAllowRightSlope(x + 1, y))
-		{
-			style = -1;
-		}
-		if (style == 3 && !SolidTileAllowLeftSlope(x - 1, y))
-		{
-			style = -1;
-		}
-		if (style == 4 && wall <= 0)
-		{
-			style = -1;
-		}
-		if (style == -1 && SolidTileAllowBottomSlope(x, y + 1))
-		{
-			style = 0;
-		}
-		if (style == -1 && SolidTileAllowTopSlope(x, y - 1))
-		{
-			style = 1;
-		}
-		if (style == -1 && SolidTileAllowRightSlope(x + 1, y))
-		{
-			style = 2;
-		}
-		if (style == -1 && SolidTileAllowLeftSlope(x - 1, y))
-		{
-			style = 3;
-		}
-		if (style == -1 && wall > 0)
-		{
-			style = 4;
-		}
-		return style > -1;
 	}
 
 	public static void CheckGnome(int x, int j)
@@ -65318,13 +65307,20 @@ public class WorldGen
 			}
 			switch (num)
 			{
+			case 73:
 			case 74:
 			case 76:
+			case 78:
+			case 79:
+			case 80:
+			case 81:
 				dropItem = 169;
 				break;
-			case 75:
-			case 77:
-				dropItem = 276;
+			default:
+				if (num == 75 || num == 77)
+				{
+					dropItem = 276;
+				}
 				break;
 			}
 			break;
@@ -67947,7 +67943,7 @@ public class WorldGen
 			{
 				num = 0;
 			}
-			else if (num13 < 64)
+			else if (num13 < 64 || (num13 >= 65 && num13 <= 67))
 			{
 				num = 32;
 			}
@@ -68007,13 +68003,20 @@ public class WorldGen
 			{
 				switch (num14)
 				{
+				case 73:
 				case 74:
 				case 76:
+				case 78:
+				case 79:
+				case 80:
+				case 81:
 					num = 32;
 					break;
-				case 75:
-				case 77:
-					num = 40;
+				default:
+					if (num14 == 75 || num14 == 77)
+					{
+						num = 40;
+					}
 					break;
 				}
 			}
@@ -71383,17 +71386,7 @@ public class WorldGen
 		double num3 = 1.5E-05f * (float)worldUpdateRate;
 		double num4 = 2.5E-05f * (float)worldUpdateRate;
 		npcSpawnPeriod = 20 * worldUpdateRate;
-		if (prioritizedTownNPCType != 37)
-		{
-			for (int i = 0; i < Main.maxNPCs; i++)
-			{
-				if (Main.npc[i].active && Main.npc[i].homeless && Main.npc[i].townNPC && Main.npc[i].lookForHomeTimeout == 0 && Main.npc[i].type != 368)
-				{
-					prioritizedTownNPCType = Main.npc[i].type;
-					break;
-				}
-			}
-		}
+		UpdatePrioritizedTownNPC();
 		CheckForHousesNearAPlayer();
 		if (Main.isThereAWorldSurface)
 		{
@@ -71411,7 +71404,7 @@ public class WorldGen
 			}
 			int num6 = 151;
 			int num7 = (int)Utils.Lerp(num6, (double)num6 * 2.8, Utils.Clamp((double)Main.maxTilesX / 4200.0 - 1.0, 0.0, 1.0));
-			for (int j = 0; (double)j < num5; j++)
+			for (int i = 0; (double)i < num5; i++)
 			{
 				if (Main.rand.Next(num7 * 100) == 0)
 				{
@@ -71421,27 +71414,27 @@ public class WorldGen
 				int num9 = genRand.Next(10, maxValue);
 				if (Main.dontStarveWorld && Main.getGoodWorld && !Main.remixWorld && num8 > beachDistance && num8 < Main.maxTilesX - beachDistance && Main.tile[num8, num9].wall == 0 && Main.raining && (float)Main.rand.Next(300000) < 100f * Main.maxRaining)
 				{
-					int k;
-					for (k = genRand.Next(50, (int)Main.worldSurface - 50); !SolidTile3(num8, k) && Main.tile[num8, k].liquid == 0 && (double)k < Main.worldSurface; k++)
+					int j;
+					for (j = genRand.Next(50, (int)Main.worldSurface - 50); !SolidTile3(num8, j) && Main.tile[num8, j].liquid == 0 && (double)j < Main.worldSurface; j++)
 					{
 					}
-					if ((double)k < Main.worldSurface)
+					if ((double)j < Main.worldSurface)
 					{
-						if (SolidTile3(num8, k) || Main.tile[num8, k].liquid == byte.MaxValue)
+						if (SolidTile3(num8, j) || Main.tile[num8, j].liquid == byte.MaxValue)
 						{
-							k--;
+							j--;
 						}
-						if (!TileID.Sets.isDesertBiomeSand[Main.tile[num8, k + 1].type] && Main.tile[num8, k + 1].type != 112 && Main.tile[num8, k + 1].type != 234 && Main.tile[num8, k + 1].type != 147 && Main.tile[num8, k + 1].type != 161 && (Main.tile[num8, k + 1].liquid == 0 || Main.tile[num8, k + 1].water()) && !SolidTile3(num8, k) && Main.tile[num8, k].liquid < byte.MaxValue)
+						if (!TileID.Sets.isDesertBiomeSand[Main.tile[num8, j + 1].type] && Main.tile[num8, j + 1].type != 112 && Main.tile[num8, j + 1].type != 234 && Main.tile[num8, j + 1].type != 147 && Main.tile[num8, j + 1].type != 161 && (Main.tile[num8, j + 1].liquid == 0 || Main.tile[num8, j + 1].water()) && !SolidTile3(num8, j) && Main.tile[num8, j].liquid < byte.MaxValue)
 						{
-							int liquid = Main.tile[num8, k].liquid;
+							int liquid = Main.tile[num8, j].liquid;
 							liquid += Main.rand.Next(127, 255);
 							if (liquid > 255)
 							{
 								liquid = 255;
 							}
-							Main.tile[num8, k].liquid = (byte)liquid;
-							Main.tile[num8, k].liquidType(0);
-							TileFrame(num8, k);
+							Main.tile[num8, j].liquid = (byte)liquid;
+							Main.tile[num8, j].liquidType(0);
+							TileFrame(num8, j);
 						}
 					}
 				}
@@ -71451,7 +71444,7 @@ public class WorldGen
 		growGrassUnderground = false;
 		if (Main.remixWorld)
 		{
-			for (int l = 0; (double)l < (double)(Main.maxTilesX * Main.maxTilesY) * num4; l++)
+			for (int k = 0; (double)k < (double)(Main.maxTilesX * Main.maxTilesY) * num4; k++)
 			{
 				int i2 = genRand.Next(10, Main.maxTilesX - 10);
 				int j2 = genRand.Next((int)Main.worldSurface - 1, Main.maxTilesY - 20);
@@ -71463,7 +71456,7 @@ public class WorldGen
 		}
 		else
 		{
-			for (int m = 0; (double)m < (double)(Main.maxTilesX * Main.maxTilesY) * num3; m++)
+			for (int l = 0; (double)l < (double)(Main.maxTilesX * Main.maxTilesY) * num3; l++)
 			{
 				int i3 = genRand.Next(10, Main.maxTilesX - 10);
 				int j3 = genRand.Next((int)Main.worldSurface - 1, Main.maxTilesY - 20);
@@ -71471,6 +71464,22 @@ public class WorldGen
 			}
 		}
 		SpawnFallingObjects();
+	}
+
+	private static void UpdatePrioritizedTownNPC()
+	{
+		if (prioritizedTownNPCType == 37)
+		{
+			return;
+		}
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
+			if (Main.npc[i].active && Main.npc[i].homeless && Main.npc[i].townNPC && Main.npc[i].lookForHomeTimeout == 0 && Main.npc[i].type != 368 && Main.npc[i].type != 160)
+			{
+				prioritizedTownNPCType = Main.npc[i].type;
+				break;
+			}
+		}
 	}
 
 	private static void CheckForHousesNearAPlayer()
@@ -80601,27 +80610,34 @@ public class WorldGen
 					return false;
 				}
 			}
-			if (Main.tile[x, y - 1].active())
+			if (Main.tile[x, y - 1].active() && ForbidsSloping(x, y - 1))
 			{
-				switch (Main.tile[x, y - 1].type)
-				{
-				case 21:
-				case 26:
-				case 77:
-				case 88:
-				case 235:
-				case 237:
-				case 441:
-				case 467:
-				case 468:
-				case 470:
-				case 475:
-				case 488:
-				case 597:
-					return false;
-				}
+				return false;
 			}
 			return CanKillTile(x, y);
+		}
+	}
+
+	public static bool ForbidsSloping(int x, int y)
+	{
+		switch (Main.tile[x, y].type)
+		{
+		case 21:
+		case 26:
+		case 77:
+		case 88:
+		case 235:
+		case 237:
+		case 441:
+		case 467:
+		case 468:
+		case 470:
+		case 475:
+		case 488:
+		case 597:
+			return true;
+		default:
+			return false;
 		}
 	}
 
@@ -84968,38 +84984,38 @@ public class WorldGen
 			int newFrameDirection2 = 0;
 			if (CheckAndAdjustMultiDirectionalTile(i, j, type, out newFrameDirection2))
 			{
-				int num16 = ((!resetFrame) ? (tileCache.frameY % 54) : (genRand.Next(3) * 18));
-				int num17 = -1;
+				int num21 = ((!resetFrame) ? (tileCache.frameY % 54) : (genRand.Next(3) * 18));
+				int num22 = -1;
 				switch (newFrameDirection2)
 				{
 				case 0:
 					if (frameY2 < 0 || frameY2 > 36)
 					{
-						num17 = 0;
+						num22 = 0;
 					}
 					break;
 				case 1:
 					if (frameY2 < 54 || frameY2 > 90)
 					{
-						num17 = 54;
+						num22 = 54;
 					}
 					break;
 				case 2:
 					if (frameY2 < 108 || frameY2 > 144)
 					{
-						num17 = 108;
+						num22 = 108;
 					}
 					break;
 				case 3:
 					if (frameY2 < 162 || frameY2 > 198)
 					{
-						num17 = 162;
+						num22 = 162;
 					}
 					break;
 				}
-				if (num17 > -1)
+				if (num22 > -1)
 				{
-					tileCache.frameY = (short)(num17 + num16);
+					tileCache.frameY = (short)(num22 + num21);
 				}
 			}
 			else
@@ -85014,57 +85030,57 @@ public class WorldGen
 			Tile tile32 = Main.tile[i, j + 1];
 			Tile tile33 = Main.tile[i - 1, j];
 			Tile tile34 = Main.tile[i + 1, j];
+			int num16 = -1;
+			int num17 = -1;
 			int num18 = -1;
 			int num19 = -1;
-			int num20 = -1;
-			int num21 = -1;
 			if (tile31 != null && tile31.active() && !tile31.bottomSlope())
 			{
-				num19 = tile31.type;
+				num17 = tile31.type;
 			}
 			if (tile32 != null && tile32.active() && !tile32.halfBrick() && !tile32.topSlope())
 			{
-				num18 = tile32.type;
+				num16 = tile32.type;
 			}
 			if (tile33 != null && tile33.active())
 			{
-				num20 = tile33.type;
+				num18 = tile33.type;
 			}
 			if (tile34 != null && tile34.active())
 			{
-				num21 = tile34.type;
+				num19 = tile34.type;
 			}
-			short num22 = (short)(genRand.Next(3) * 18);
-			if (num18 >= 0 && GetTileMossColor(num18) != -1)
+			short num20 = (short)(genRand.Next(3) * 18);
+			if (num16 >= 0 && GetTileMossColor(num16) != -1)
 			{
-				tileCache.frameX = (short)(22 * GetTileMossColor(num18));
+				tileCache.frameX = (short)(22 * GetTileMossColor(num16));
 				if (tileCache.frameY < 0 || tileCache.frameY > 36)
 				{
-					tileCache.frameY = num22;
+					tileCache.frameY = num20;
+				}
+			}
+			else if (num17 >= 0 && GetTileMossColor(num17) != -1)
+			{
+				tileCache.frameX = (short)(22 * GetTileMossColor(num17));
+				if (tileCache.frameY < 54 || tileCache.frameY > 90)
+				{
+					tileCache.frameY = (short)(54 + num20);
+				}
+			}
+			else if (num18 >= 0 && GetTileMossColor(num18) != -1)
+			{
+				tileCache.frameX = (short)(22 * GetTileMossColor(num18));
+				if (tileCache.frameY < 108 || tileCache.frameY > 144)
+				{
+					tileCache.frameY = (short)(108 + num20);
 				}
 			}
 			else if (num19 >= 0 && GetTileMossColor(num19) != -1)
 			{
 				tileCache.frameX = (short)(22 * GetTileMossColor(num19));
-				if (tileCache.frameY < 54 || tileCache.frameY > 90)
-				{
-					tileCache.frameY = (short)(54 + num22);
-				}
-			}
-			else if (num20 >= 0 && GetTileMossColor(num20) != -1)
-			{
-				tileCache.frameX = (short)(22 * GetTileMossColor(num20));
-				if (tileCache.frameY < 108 || tileCache.frameY > 144)
-				{
-					tileCache.frameY = (short)(108 + num22);
-				}
-			}
-			else if (num21 >= 0 && GetTileMossColor(num21) != -1)
-			{
-				tileCache.frameX = (short)(22 * GetTileMossColor(num21));
 				if (tileCache.frameY < 162 || tileCache.frameY > 198)
 				{
-					tileCache.frameY = (short)(162 + num22);
+					tileCache.frameY = (short)(162 + num20);
 				}
 			}
 			else
@@ -85327,7 +85343,8 @@ public class WorldGen
 						{
 							num9 = -1;
 						}
-						int num10 = ((tileCache.slope() == 1) ? ((TileID.Sets.Platforms[tile21.type] && tile21.slope() == 0 && !tile21.halfBrick() && !tileMergeCulling2.CullRight) ? 468 : (((!tile23.active() || tileMergeCulling2.CullBottomRight) && (!TileID.Sets.Platforms[tile23.type] || tile23.slope() == 2 || tileMergeCulling2.CullBottomRight)) ? (((tile20.active() && !tileMergeCulling2.CullLeft) || (TileID.Sets.Platforms[tile24.type] && tile24.slope() == 1 && !tileMergeCulling2.CullTopLeft)) ? 360 : 432) : (((tile20.active() && !tileMergeCulling2.CullLeft) || (TileID.Sets.Platforms[tile24.type] && tile24.slope() == 1 && !tileMergeCulling2.CullTopLeft)) ? 180 : 396))) : ((tileCache.slope() == 2) ? ((TileID.Sets.Platforms[tile20.type] && tile20.slope() == 0 && !tile20.halfBrick() && !tileMergeCulling2.CullLeft) ? 450 : (((!tile22.active() || tileMergeCulling2.CullBottomLeft) && (!TileID.Sets.Platforms[tile22.type] || tile22.slope() == 1 || tileMergeCulling2.CullBottomLeft)) ? (((tile21.active() && !tileMergeCulling2.CullRight) || (TileID.Sets.Platforms[tile25.type] && tile25.slope() == 2 && !tileMergeCulling2.CullTopRight)) ? 342 : 414) : (((tile21.active() && !tileMergeCulling2.CullRight) || (TileID.Sets.Platforms[tile25.type] && tile25.slope() == 2 && !tileMergeCulling2.CullTopRight)) ? 144 : 378))) : ((num9 == type && num8 == type) ? ((tile20.slope() == 2 && tile21.slope() == 1) ? 252 : ((tile20.slope() == 2) ? 216 : ((tile21.slope() == 1) ? 234 : 0))) : ((num9 == type && num8 == -1) ? ((tile20.slope() != 2) ? 18 : 270) : ((num9 == -1 && num8 == type) ? ((tile21.slope() != 1) ? 36 : 288) : ((num9 != type && num8 == type) ? 54 : ((num9 == type && num8 != type) ? 72 : ((num9 != type && num9 != -1 && num8 == -1) ? 108 : ((num9 != -1 || num8 == type || num8 == -1) ? 90 : 126)))))))));
+						bool flag = ForbidsSloping(i, j - 1);
+						int num10 = ((tileCache.slope() == 1) ? ((TileID.Sets.Platforms[tile21.type] && tile21.slope() == 0 && !tile21.halfBrick() && !tileMergeCulling2.CullRight) ? 468 : (flag ? 468 : (((!tile23.active() || tileMergeCulling2.CullBottomRight) && (!TileID.Sets.Platforms[tile23.type] || tile23.slope() == 2 || tileMergeCulling2.CullBottomRight)) ? (((tile20.active() && !tileMergeCulling2.CullLeft) || (TileID.Sets.Platforms[tile24.type] && tile24.slope() == 1 && !tileMergeCulling2.CullTopLeft)) ? 360 : 432) : (((tile20.active() && !tileMergeCulling2.CullLeft) || (TileID.Sets.Platforms[tile24.type] && tile24.slope() == 1 && !tileMergeCulling2.CullTopLeft)) ? 180 : 396)))) : ((tileCache.slope() == 2) ? ((TileID.Sets.Platforms[tile20.type] && tile20.slope() == 0 && !tile20.halfBrick() && !tileMergeCulling2.CullLeft) ? 450 : (flag ? 450 : (((!tile22.active() || tileMergeCulling2.CullBottomLeft) && (!TileID.Sets.Platforms[tile22.type] || tile22.slope() == 1 || tileMergeCulling2.CullBottomLeft)) ? (((tile21.active() && !tileMergeCulling2.CullRight) || (TileID.Sets.Platforms[tile25.type] && tile25.slope() == 2 && !tileMergeCulling2.CullTopRight)) ? 342 : 414) : (((tile21.active() && !tileMergeCulling2.CullRight) || (TileID.Sets.Platforms[tile25.type] && tile25.slope() == 2 && !tileMergeCulling2.CullTopRight)) ? 144 : 378)))) : ((num9 == type && num8 == type) ? ((tile20.slope() == 2 && tile21.slope() == 1) ? 252 : ((tile20.slope() == 2) ? 216 : ((tile21.slope() == 1) ? 234 : 0))) : ((num9 == type && num8 == -1) ? ((tile20.slope() != 2) ? 18 : 270) : ((num9 == -1 && num8 == type) ? ((tile21.slope() != 1) ? 36 : 288) : ((num9 != type && num8 == type) ? 54 : ((num9 == type && num8 != type) ? 72 : ((num9 != type && num9 != -1 && num8 == -1) ? 108 : ((num9 != -1 || num8 == type || num8 == -1) ? 90 : 126)))))))));
 						tileCache.frameX = (short)num10;
 						HandleRopeEndFraming(i, j);
 					}
@@ -85780,7 +85797,8 @@ public class WorldGen
 															CheckStinkbugBlocker(i, j);
 															break;
 														case 723:
-															CheckKiteAnchor(i, j);
+														case 724:
+															CheckAnchor(i, j);
 															break;
 														}
 														return;

@@ -3120,7 +3120,7 @@ public class Chest : IFixLoadedData
 				array[num].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
 				num++;
 			}
-			num = ((!num11) ? ((!flag) ? 4 : 30) : 39);
+			num = ((!num11) ? ((!flag) ? 4 : 30) : 40);
 			break;
 		}
 		case 22:
@@ -3439,7 +3439,7 @@ public class Chest : IFixLoadedData
 			array[num++].SetDefaults(5088);
 			break;
 		}
-		bool num12 = type != 19 && type != 20;
+		bool num12 = type != 19 && type != 20 && type != 21;
 		bool flag2 = TeleportPylonsSystem.DoesPositionHaveEnoughNPCs(2, Main.LocalPlayer.Center.ToTileCoordinates16());
 		if (num12 && flag2 && !Main.player[Main.myPlayer].ZoneCorrupt && !Main.player[Main.myPlayer].ZoneCrimson)
 		{

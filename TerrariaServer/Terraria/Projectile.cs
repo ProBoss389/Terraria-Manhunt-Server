@@ -10608,7 +10608,7 @@ public class Projectile : Entity
 			if (ai[0] >= (float)(num - num2) && ai[0] <= (float)(num + num2))
 			{
 				WhipPointsForCollision.Clear();
-				FillWhipControlPoints(this, WhipPointsForCollision);
+				FillWhipControlPoints(this, WhipPointsForCollision, null, getActualCollisionPoints: true);
 				if (Utils.CenteredRectangle(WhipPointsForCollision[WhipPointsForCollision.Count - 1], new Vector2(50f, 50f)).Intersects(nPC.Hitbox))
 				{
 					nPC.AddBuff(24, 60 * Main.rand.Next(3, 6));
@@ -14131,7 +14131,7 @@ public class Projectile : Entity
 		{
 			flag = false;
 			WhipPointsForCollision.Clear();
-			FillWhipControlPoints(this, WhipPointsForCollision);
+			FillWhipControlPoints(this, WhipPointsForCollision, null, getActualCollisionPoints: true);
 			Vector2 vector = new Vector2((float)width * scale / 2f, 0f);
 			for (int i = 0; i < WhipPointsForCollision.Count; i++)
 			{
@@ -14482,7 +14482,7 @@ public class Projectile : Entity
 							if (ProjectileID.Sets.IsAWhip[type])
 							{
 								WhipPointsForCollision.Clear();
-								FillWhipControlPoints(this, WhipPointsForCollision);
+								FillWhipControlPoints(this, WhipPointsForCollision, null, getActualCollisionPoints: true);
 								for (int m = 0; m < WhipPointsForCollision.Count; m++)
 								{
 									Point point = WhipPointsForCollision[m].ToPoint();
@@ -36264,7 +36264,7 @@ public class Projectile : Entity
 			velocity.Y = 16f;
 		}
 		timeLeft = 2;
-		if (player.dead)
+		if (player.dead || player.noBuilding)
 		{
 			Kill();
 			return;
@@ -45559,7 +45559,7 @@ public class Projectile : Entity
 		return proj.ai[0] / timeToFlyOut;
 	}
 
-	public static void FillWhipControlPoints(Projectile proj, List<Vector2> controlPoints, Player owner = null)
+	public static void FillWhipControlPoints(Projectile proj, List<Vector2> controlPoints, Player owner = null, bool getActualCollisionPoints = false)
 	{
 		if (owner == null)
 		{
@@ -45594,25 +45594,30 @@ public class Projectile : Entity
 		Vector2 vector3 = vector;
 		float num12 = 0f + (float)Math.PI / 2f;
 		controlPoints.Add(playerArmPosition);
+		float num13 = proj.ai[1];
+		if (getActualCollisionPoints)
+		{
+			num13 = 1f;
+		}
 		for (int i = 0; i < segments; i++)
 		{
-			float num13 = (float)i / (float)segments;
-			float num14 = num4 * num13 * num9 * proj.ai[1];
+			float num14 = (float)i / (float)segments;
+			float num15 = num4 * num14 * num9 * num13;
 			Vector2 vector4 = vector + num10.ToRotationVector2() * num8;
 			Vector2 vector5 = vector3 + num12.ToRotationVector2() * (num8 * 2f);
 			Vector2 vector6 = vector2 + num11.ToRotationVector2() * (num8 * 2f);
-			float num15 = 1f - num5;
-			float num16 = 1f - num15 * num15;
-			Vector2 value = Vector2.Lerp(vector5, vector4, num16 * 0.9f + 0.1f);
-			Vector2 vector7 = Vector2.Lerp(vector6, value, num16 * 0.7f + 0.3f);
+			float num16 = 1f - num5;
+			float num17 = 1f - num16 * num16;
+			Vector2 value = Vector2.Lerp(vector5, vector4, num17 * 0.9f + 0.1f);
+			Vector2 vector7 = Vector2.Lerp(vector6, value, num17 * 0.7f + 0.3f);
 			Vector2 spinningpoint = playerArmPosition + (vector7 - playerArmPosition) * new Vector2(1f, num3);
-			float num17 = num6;
-			num17 *= num17;
-			Vector2 item = spinningpoint.RotatedBy(proj.rotation + 4.712389f * num17 * (float)proj.spriteDirection, playerArmPosition);
+			float num18 = num6;
+			num18 *= num18;
+			Vector2 item = spinningpoint.RotatedBy(proj.rotation + 4.712389f * num18 * (float)proj.spriteDirection, playerArmPosition);
 			controlPoints.Add(item);
-			num10 += num14;
-			num12 += num14;
-			num11 += num14;
+			num10 += num15;
+			num12 += num15;
+			num11 += num15;
 			vector = vector4;
 			vector3 = vector5;
 			vector2 = vector6;

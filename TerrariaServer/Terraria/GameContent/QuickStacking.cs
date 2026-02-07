@@ -79,6 +79,14 @@ public class QuickStacking
 		{
 			return freeSlots[freeSlotStart++];
 		}
+
+		public void SyncSlot(int slot)
+		{
+			if (_chest.chest.index >= 0)
+			{
+				NetMessage.SendData(32, -1, -1, null, _chest.chest.index, slot);
+			}
+		}
 	}
 
 	private class MatchingItemTypeDestinationList
@@ -483,7 +491,7 @@ public class QuickStacking
 					dest.transferBlocked = true;
 					continue;
 				}
-				FillStack(item2, item, num, source.position, dest.position);
+				FillStack(item2, num, dest, i, source.position);
 				if (!item2.IsAir)
 				{
 					destinationsForItemTypes.Add(item.type, dest);
@@ -507,15 +515,17 @@ public class QuickStacking
 		return dest != null;
 	}
 
-	private static void FillStack(Item item, Item slot, int numToTransfer, Vector2 srcPosition, Vector2 destPosition)
+	private static void FillStack(Item item, int numToTransfer, DestinationHelper dest, int slotIndex, Vector2 srcPosition)
 	{
-		Chest.VisualizeChestTransfer(srcPosition, destPosition, item.type, Chest.ItemTransferVisualizationSettings.PlayerToChest);
-		slot.stack += numToTransfer;
+		Item obj = dest.items[slotIndex];
+		Chest.VisualizeChestTransfer(srcPosition, dest.position, item.type, Chest.ItemTransferVisualizationSettings.PlayerToChest);
+		obj.stack += numToTransfer;
 		item.stack -= numToTransfer;
 		if (item.stack == 0)
 		{
 			item.TurnToAir();
 		}
+		dest.SyncSlot(slotIndex);
 	}
 
 	private static void Consolidate(SourceInventory source, int i)
@@ -540,6 +550,8 @@ public class QuickStacking
 	private static void InsertIntoFreeSlot(ref Item item, DestinationHelper dest, Vector2 srcPosition)
 	{
 		Chest.VisualizeChestTransfer(srcPosition, dest.position, item.type, Chest.ItemTransferVisualizationSettings.PlayerToChest);
-		Utils.Swap(ref item, ref dest.items[dest.ConsumeFreeSlot()]);
+		int num = dest.ConsumeFreeSlot();
+		Utils.Swap(ref item, ref dest.items[num]);
+		dest.SyncSlot(num);
 	}
 }

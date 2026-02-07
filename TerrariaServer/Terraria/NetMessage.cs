@@ -126,7 +126,7 @@ public class NetMessage
 			switch (msgType)
 			{
 			case 1:
-				writer.Write("Terraria" + 316);
+				writer.Write("Terraria" + 317);
 				break;
 			case 2:
 				text.Serialize(writer);
@@ -158,37 +158,37 @@ public class NetMessage
 				writer.WriteRGB(player5.underShirtColor);
 				writer.WriteRGB(player5.pantsColor);
 				writer.WriteRGB(player5.shoeColor);
-				BitsByte bitsByte19 = (byte)0;
+				BitsByte bitsByte20 = (byte)0;
 				if (player5.difficulty == 1)
 				{
-					bitsByte19[0] = true;
+					bitsByte20[0] = true;
 				}
 				else if (player5.difficulty == 2)
 				{
-					bitsByte19[1] = true;
+					bitsByte20[1] = true;
 				}
 				else if (player5.difficulty == 3)
 				{
-					bitsByte19[3] = true;
+					bitsByte20[3] = true;
 				}
-				bitsByte19[2] = player5.extraAccessory;
-				writer.Write(bitsByte19);
-				BitsByte bitsByte20 = (byte)0;
-				bitsByte20[0] = player5.UsingBiomeTorches;
-				bitsByte20[1] = player5.happyFunTorchTime;
-				bitsByte20[2] = player5.unlockedBiomeTorches;
-				bitsByte20[3] = player5.unlockedSuperCart;
-				bitsByte20[4] = player5.enabledSuperCart;
+				bitsByte20[2] = player5.extraAccessory;
 				writer.Write(bitsByte20);
 				BitsByte bitsByte21 = (byte)0;
-				bitsByte21[0] = player5.usedAegisCrystal;
-				bitsByte21[1] = player5.usedAegisFruit;
-				bitsByte21[2] = player5.usedArcaneCrystal;
-				bitsByte21[3] = player5.usedGalaxyPearl;
-				bitsByte21[4] = player5.usedGummyWorm;
-				bitsByte21[5] = player5.usedAmbrosia;
-				bitsByte21[6] = player5.ateArtisanBread;
+				bitsByte21[0] = player5.UsingBiomeTorches;
+				bitsByte21[1] = player5.happyFunTorchTime;
+				bitsByte21[2] = player5.unlockedBiomeTorches;
+				bitsByte21[3] = player5.unlockedSuperCart;
+				bitsByte21[4] = player5.enabledSuperCart;
 				writer.Write(bitsByte21);
+				BitsByte bitsByte22 = (byte)0;
+				bitsByte22[0] = player5.usedAegisCrystal;
+				bitsByte22[1] = player5.usedAegisFruit;
+				bitsByte22[2] = player5.usedArcaneCrystal;
+				bitsByte22[3] = player5.usedGalaxyPearl;
+				bitsByte22[4] = player5.usedGummyWorm;
+				bitsByte22[5] = player5.usedAmbrosia;
+				bitsByte22[6] = player5.ateArtisanBread;
+				writer.Write(bitsByte22);
 				break;
 			}
 			case 5:
@@ -375,6 +375,9 @@ public class NetMessage
 				bitsByte15[6] = Main.skyblockWorld;
 				bitsByte15[7] = Main.dualDungeonsSeed;
 				writer.Write(bitsByte15);
+				BitsByte bitsByte16 = (byte)0;
+				bitsByte16[0] = WorldGen.Skyblock.lowTiles;
+				writer.Write(bitsByte16);
 				writer.Write((byte)Main.sundialCooldown);
 				writer.Write((byte)Main.moondialCooldown);
 				writer.Write((short)WorldGen.SavedOreTiers.Copper);
@@ -406,8 +409,8 @@ public class NetMessage
 			{
 				writer.Write(number);
 				text.Serialize(writer);
-				BitsByte bitsByte29 = (byte)number2;
-				writer.Write(bitsByte29);
+				BitsByte bitsByte30 = (byte)number2;
+				writer.Write(bitsByte30);
 				break;
 			}
 			case 10:
@@ -436,60 +439,60 @@ public class NetMessage
 			{
 				Player player6 = Main.player[number];
 				writer.Write((byte)number);
-				BitsByte bitsByte22 = (byte)0;
-				bitsByte22[0] = player6.controlUp;
-				bitsByte22[1] = player6.controlDown;
-				bitsByte22[2] = player6.controlLeft;
-				bitsByte22[3] = player6.controlRight;
-				bitsByte22[4] = player6.controlJump;
-				bitsByte22[5] = player6.controlUseItem;
-				bitsByte22[6] = player6.direction == 1;
-				writer.Write(bitsByte22);
 				BitsByte bitsByte23 = (byte)0;
-				bitsByte23[0] = player6.pulley;
-				bitsByte23[1] = player6.pulley && player6.pulleyDir == 2;
-				bitsByte23[2] = player6.velocity != Vector2.Zero;
-				bitsByte23[3] = player6.vortexStealthActive;
-				bitsByte23[4] = player6.gravDir == 1f;
-				bitsByte23[5] = player6.shieldRaised;
-				bitsByte23[6] = player6.ghost;
-				bitsByte23[7] = player6.mount.Active;
+				bitsByte23[0] = player6.controlUp;
+				bitsByte23[1] = player6.controlDown;
+				bitsByte23[2] = player6.controlLeft;
+				bitsByte23[3] = player6.controlRight;
+				bitsByte23[4] = player6.controlJump;
+				bitsByte23[5] = player6.controlUseItem;
+				bitsByte23[6] = player6.direction == 1;
 				writer.Write(bitsByte23);
 				BitsByte bitsByte24 = (byte)0;
-				bitsByte24[0] = player6.tryKeepingHoveringUp;
-				bitsByte24[1] = player6.IsVoidVaultEnabled;
-				bitsByte24[2] = player6.sitting.isSitting;
-				bitsByte24[3] = player6.downedDD2EventAnyDifficulty;
-				bitsByte24[4] = player6.petting.isPetting;
-				bitsByte24[5] = player6.petting.isPetSmall;
-				bitsByte24[6] = player6.PotionOfReturnOriginalUsePosition.HasValue;
-				bitsByte24[7] = player6.tryKeepingHoveringDown;
+				bitsByte24[0] = player6.pulley;
+				bitsByte24[1] = player6.pulley && player6.pulleyDir == 2;
+				bitsByte24[2] = player6.velocity != Vector2.Zero;
+				bitsByte24[3] = player6.vortexStealthActive;
+				bitsByte24[4] = player6.gravDir == 1f;
+				bitsByte24[5] = player6.shieldRaised;
+				bitsByte24[6] = player6.ghost;
+				bitsByte24[7] = player6.mount.Active;
 				writer.Write(bitsByte24);
 				BitsByte bitsByte25 = (byte)0;
-				bitsByte25[0] = player6.sleeping.isSleeping;
-				bitsByte25[1] = player6.autoReuseAllWeapons;
-				bitsByte25[2] = player6.controlDownHold;
-				bitsByte25[3] = player6.isOperatingAnotherEntity;
-				bitsByte25[4] = player6.controlUseTile;
-				bitsByte25[5] = player6.netCameraTarget.HasValue;
-				bitsByte25[6] = player6.lastItemUseAttemptSuccess;
+				bitsByte25[0] = player6.tryKeepingHoveringUp;
+				bitsByte25[1] = player6.IsVoidVaultEnabled;
+				bitsByte25[2] = player6.sitting.isSitting;
+				bitsByte25[3] = player6.downedDD2EventAnyDifficulty;
+				bitsByte25[4] = player6.petting.isPetting;
+				bitsByte25[5] = player6.petting.isPetSmall;
+				bitsByte25[6] = player6.PotionOfReturnOriginalUsePosition.HasValue;
+				bitsByte25[7] = player6.tryKeepingHoveringDown;
 				writer.Write(bitsByte25);
+				BitsByte bitsByte26 = (byte)0;
+				bitsByte26[0] = player6.sleeping.isSleeping;
+				bitsByte26[1] = player6.autoReuseAllWeapons;
+				bitsByte26[2] = player6.controlDownHold;
+				bitsByte26[3] = player6.isOperatingAnotherEntity;
+				bitsByte26[4] = player6.controlUseTile;
+				bitsByte26[5] = player6.netCameraTarget.HasValue;
+				bitsByte26[6] = player6.lastItemUseAttemptSuccess;
+				writer.Write(bitsByte26);
 				writer.Write((byte)player6.selectedItem);
 				writer.WriteVector2(player6.position);
-				if (bitsByte23[2])
+				if (bitsByte24[2])
 				{
 					writer.WriteVector2(player6.velocity);
 				}
-				if (bitsByte23[7])
+				if (bitsByte24[7])
 				{
 					writer.Write((ushort)player6.mount.Type);
 				}
-				if (bitsByte24[6])
+				if (bitsByte25[6])
 				{
 					writer.WriteVector2(player6.PotionOfReturnOriginalUsePosition.Value);
 					writer.WriteVector2(player6.PotionOfReturnHomePosition.Value);
 				}
-				if (bitsByte25[5])
+				if (bitsByte26[5])
 				{
 					writer.WriteVector2(player6.netCameraTarget.Value);
 				}
@@ -566,40 +569,40 @@ public class NetMessage
 				{
 					for (int num19 = num15; num19 < num15 + num17; num19++)
 					{
-						BitsByte bitsByte16 = (byte)0;
 						BitsByte bitsByte17 = (byte)0;
 						BitsByte bitsByte18 = (byte)0;
+						BitsByte bitsByte19 = (byte)0;
 						byte b3 = 0;
 						byte b4 = 0;
 						Tile tile2 = Main.tile[num18, num19];
-						bitsByte16[0] = tile2.active();
-						bitsByte16[2] = tile2.wall > 0;
-						bitsByte16[3] = tile2.liquid > 0 && Main.netMode == 2;
-						bitsByte16[4] = tile2.wire();
-						bitsByte16[5] = tile2.halfBrick();
-						bitsByte16[6] = tile2.actuator();
-						bitsByte16[7] = tile2.inActive();
-						bitsByte17[0] = tile2.wire2();
-						bitsByte17[1] = tile2.wire3();
+						bitsByte17[0] = tile2.active();
+						bitsByte17[2] = tile2.wall > 0;
+						bitsByte17[3] = tile2.liquid > 0 && Main.netMode == 2;
+						bitsByte17[4] = tile2.wire();
+						bitsByte17[5] = tile2.halfBrick();
+						bitsByte17[6] = tile2.actuator();
+						bitsByte17[7] = tile2.inActive();
+						bitsByte18[0] = tile2.wire2();
+						bitsByte18[1] = tile2.wire3();
 						if (tile2.active() && tile2.color() > 0)
 						{
-							bitsByte17[2] = true;
+							bitsByte18[2] = true;
 							b3 = tile2.color();
 						}
 						if (tile2.wall > 0 && tile2.wallColor() > 0)
 						{
-							bitsByte17[3] = true;
+							bitsByte18[3] = true;
 							b4 = tile2.wallColor();
 						}
-						bitsByte17 = (byte)((byte)bitsByte17 + (byte)(tile2.slope() << 4));
-						bitsByte17[7] = tile2.wire4();
-						bitsByte18[0] = tile2.fullbrightBlock();
-						bitsByte18[1] = tile2.fullbrightWall();
-						bitsByte18[2] = tile2.invisibleBlock();
-						bitsByte18[3] = tile2.invisibleWall();
-						writer.Write(bitsByte16);
+						bitsByte18 = (byte)((byte)bitsByte18 + (byte)(tile2.slope() << 4));
+						bitsByte18[7] = tile2.wire4();
+						bitsByte19[0] = tile2.fullbrightBlock();
+						bitsByte19[1] = tile2.fullbrightWall();
+						bitsByte19[2] = tile2.invisibleBlock();
+						bitsByte19[3] = tile2.invisibleWall();
 						writer.Write(bitsByte17);
 						writer.Write(bitsByte18);
+						writer.Write(bitsByte19);
 						if (b3 > 0)
 						{
 							writer.Write(b3);
@@ -769,69 +772,69 @@ public class NetMessage
 				writer.WriteVector2(projectile.velocity);
 				writer.Write((byte)projectile.owner);
 				writer.Write((short)projectile.type);
-				BitsByte bitsByte26 = (byte)0;
 				BitsByte bitsByte27 = (byte)0;
-				bitsByte26[0] = projectile.ai[0] != 0f;
-				bitsByte26[1] = projectile.ai[1] != 0f;
-				bitsByte27[0] = projectile.ai[2] != 0f;
+				BitsByte bitsByte28 = (byte)0;
+				bitsByte27[0] = projectile.ai[0] != 0f;
+				bitsByte27[1] = projectile.ai[1] != 0f;
+				bitsByte28[0] = projectile.ai[2] != 0f;
 				if (projectile.bannerIdToRespondTo != 0)
 				{
-					bitsByte26[3] = true;
+					bitsByte27[3] = true;
 				}
 				if (projectile.damage != 0)
 				{
-					bitsByte26[4] = true;
+					bitsByte27[4] = true;
 				}
 				if (projectile.knockBack != 0f)
 				{
-					bitsByte26[5] = true;
+					bitsByte27[5] = true;
 				}
 				if (projectile.type > 0 && projectile.type < ProjectileID.Count && ProjectileID.Sets.NeedsUUID[projectile.type])
 				{
-					bitsByte26[7] = true;
+					bitsByte27[7] = true;
 				}
 				if (projectile.originalDamage != 0)
 				{
-					bitsByte26[6] = true;
+					bitsByte27[6] = true;
 				}
-				if ((byte)bitsByte27 != 0)
+				if ((byte)bitsByte28 != 0)
 				{
-					bitsByte26[2] = true;
+					bitsByte27[2] = true;
 				}
-				writer.Write(bitsByte26);
-				if (bitsByte26[2])
+				writer.Write(bitsByte27);
+				if (bitsByte27[2])
 				{
-					writer.Write(bitsByte27);
+					writer.Write(bitsByte28);
 				}
-				if (bitsByte26[0])
+				if (bitsByte27[0])
 				{
 					writer.Write(projectile.ai[0]);
 				}
-				if (bitsByte26[1])
+				if (bitsByte27[1])
 				{
 					writer.Write(projectile.ai[1]);
 				}
-				if (bitsByte26[3])
+				if (bitsByte27[3])
 				{
 					writer.Write((ushort)projectile.bannerIdToRespondTo);
 				}
-				if (bitsByte26[4])
+				if (bitsByte27[4])
 				{
 					writer.Write((short)projectile.damage);
 				}
-				if (bitsByte26[5])
+				if (bitsByte27[5])
 				{
 					writer.Write(projectile.knockBack);
 				}
-				if (bitsByte26[6])
+				if (bitsByte27[6])
 				{
 					writer.Write((short)projectile.originalDamage);
 				}
-				if (bitsByte26[7])
+				if (bitsByte27[7])
 				{
 					writer.Write((short)projectile.projUUID);
 				}
-				if (bitsByte27[0])
+				if (bitsByte28[0])
 				{
 					writer.Write(projectile.ai[2]);
 				}
@@ -1082,17 +1085,17 @@ public class NetMessage
 				break;
 			case 65:
 			{
-				BitsByte bitsByte28 = (byte)0;
-				bitsByte28[0] = (number & 1) == 1;
-				bitsByte28[1] = (number & 2) == 2;
-				bitsByte28[2] = number6 == 1;
-				bitsByte28[3] = number7 != 0;
-				writer.Write(bitsByte28);
+				BitsByte bitsByte29 = (byte)0;
+				bitsByte29[0] = (number & 1) == 1;
+				bitsByte29[1] = (number & 2) == 2;
+				bitsByte29[2] = number6 == 1;
+				bitsByte29[3] = number7 != 0;
+				writer.Write(bitsByte29);
 				writer.Write((short)number2);
 				writer.Write(number3);
 				writer.Write(number4);
 				writer.Write((byte)number5);
-				if (bitsByte28[3])
+				if (bitsByte29[3])
 				{
 					writer.Write(number7);
 				}
@@ -2457,7 +2460,7 @@ public class NetMessage
 		num3 = reader.ReadInt16();
 		for (int m = 0; m < num3; m++)
 		{
-			TileEntity.Add(TileEntity.Read(reader, 316));
+			TileEntity.Add(TileEntity.Read(reader, 317));
 		}
 		MapUpdateQueue.Add(new Rectangle(xStart, yStart, width, height));
 		Main.sectionManager.SetTilesLoaded(xStart, yStart, xStart + width - 1, yStart + height - 1);

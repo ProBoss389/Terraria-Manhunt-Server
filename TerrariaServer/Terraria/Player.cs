@@ -7134,7 +7134,7 @@ public class Player : Entity, IFixLoadedData
 			}
 			if (Main.rand.Next(4) == 0)
 			{
-				QuickSpawnItem(itemSource_OpenItem, 4778);
+				QuickSpawnItem(itemSource_OpenItem, 4778, 3);
 			}
 			if (Main.rand.Next(20) == 0)
 			{
@@ -18042,17 +18042,6 @@ public class Player : Entity, IFixLoadedData
 		shroomiteStealth = false;
 		statDefense = 0;
 		accWatch = 0;
-		if (accWatchTime == 0.0)
-		{
-			if (RollOnlyBadLuckExtreme(3000) == 0)
-			{
-				accWatchTime = Main.time;
-			}
-		}
-		else if (luck >= 0f || Main.rand.Next(18000) == 0)
-		{
-			accWatchTime = 0.0;
-		}
 		accCompass = 0;
 		accDepthMeter = 0;
 		accDivingHelm = false;
@@ -26346,6 +26335,10 @@ public class Player : Entity, IFixLoadedData
 					WingMovement();
 				}
 				WingFrame(flag19);
+				if (velocity.Y == 0f)
+				{
+					cartRampTime = 0;
+				}
 				if (wingsLogic > 0 && rocketBoots != 0 && velocity.Y != 0f && rocketTime != 0)
 				{
 					int num40 = 6;
@@ -27843,6 +27836,11 @@ public class Player : Entity, IFixLoadedData
 		{
 			ActiveSections.CheckSection(position);
 		}
+		if (DebugOptions.ShowSections && whoAmI == Main.myPlayer)
+		{
+			Point point = new Point(Netplay.GetSectionX((int)position.X >> 4), Netplay.GetSectionY((int)position.Y >> 4));
+			DebugLineDraw.World.AddRectangle(new Vector2(point.X * 200 * 16, point.Y * 150 * 16), new Vector2((point.X + 1) * 200 * 16, (point.Y + 1) * 150 * 16), Color.Yellow);
+		}
 	}
 
 	private void Update_AdjustTileTargetForDisplayJars(int i)
@@ -28322,7 +28320,7 @@ public class Player : Entity, IFixLoadedData
 
 	private Collision.HurtTile GetHurtTile()
 	{
-		Collision.HurtTile result = Collision.HurtTiles(position, width, (!mount.Active || !mount.AnyTrackRider) ? height : (height - 16), this);
+		Collision.HurtTile result = Collision.HurtTiles(position, width, (!mount.Active || !mount.Cart) ? height : (height - 16), this);
 		if (result.type >= 0)
 		{
 			return result;
@@ -31037,6 +31035,14 @@ public class Player : Entity, IFixLoadedData
 		if (!controlUseItem && altFunctionUse == 1)
 		{
 			altFunctionUse = 0;
+		}
+		if (TryingToUseItem() && mount.Active && Mount.DismountsOnItemUse(mount.Type) && HeldItem.mountType != mount.Type)
+		{
+			mount.TryEarlyDismount(this);
+			if (mount.Active)
+			{
+				controlUseItem = false;
+			}
 		}
 		ItemCheck_ManageRightClickFeatures_ShieldRaise(flag);
 	}
@@ -41576,6 +41582,10 @@ public class Player : Entity, IFixLoadedData
 
 	public void SporeSac(Item sourceItem)
 	{
+		if (Main.myPlayer != whoAmI)
+		{
+			return;
+		}
 		int damage = 70;
 		float knockBack = 1.5f;
 		if (Main.rand.Next(15) != 0)
@@ -42451,6 +42461,7 @@ public class Player : Entity, IFixLoadedData
 				if (item.stack <= 0 && itemAnimation == 0)
 				{
 					inventory[selectedItem] = new Item();
+					itemAnimationMax = 0;
 				}
 				if (selectedItem == 58 && itemAnimation > 0)
 				{
@@ -47871,11 +47882,11 @@ public class Player : Entity, IFixLoadedData
 		}
 		if (sItem.type == 5688 || sItem.type == 4672 || sItem.type == 5473 || sItem.type == 5474 || sItem.type == 5475 || sItem.type == 5476 || sItem.type == 5477 || sItem.type == 5478 || sItem.type == 5479 || sItem.type == 5480 || sItem.type == 5074 || sItem.type == 4911 || sItem.type == 4912 || sItem.type == 4913 || sItem.type == 4914 || sItem.type == 4678 || sItem.type == 4679 || sItem.type == 4680)
 		{
-			float num161 = 0.6f;
-			float num162 = 0.4f + num161 * Main.rand.NextFloat();
+			float num161 = 0.4f;
+			float num162 = 0.6f + num161 * Main.rand.NextFloat();
 			if (sItem.type != 4680 && Main.rand.Next(3) == 0)
 			{
-				num162 *= -1f;
+				num162 *= -2.5f;
 			}
 			float num163 = 1f;
 			Projectile.NewProjectile(projectileSource_Item_WithPotentialAmmo, pointPosition.X, pointPosition.Y, num4, num5, projToShoot, Damage, KnockBack, i, 0f, num162 * num163);
@@ -52787,7 +52798,7 @@ public class Player : Entity, IFixLoadedData
 		{
 			num = 100;
 		}
-		num = ((!Main.tileDungeon[tileTarget.type] && tileTarget.type != 58 && tileTarget.type != 25 && tileTarget.type != 117 && tileTarget.type != 203) ? ((tileTarget.type == 85) ? ((!Main.getGoodWorld) ? (num + pickPower) : (num + pickPower / 4)) : ((tileTarget.type != 48 && tileTarget.type != 232) ? ((tileTarget.type == 226) ? (num + pickPower / 4) : ((tileTarget.type != 107 && tileTarget.type != 221) ? ((tileTarget.type != 108 && tileTarget.type != 222) ? ((tileTarget.type == 111 || tileTarget.type == 223) ? (num + pickPower / 4) : ((tileTarget.type != 211) ? (num + pickPower) : (num + pickPower / 5))) : (num + pickPower / 3)) : (num + pickPower / 2))) : (num + pickPower * 2))) : (num + pickPower / 2));
+		num = ((!Main.tileDungeon[tileTarget.type] && tileTarget.type != 58 && tileTarget.type != 25 && tileTarget.type != 117 && tileTarget.type != 203) ? ((tileTarget.type == 85) ? ((!Main.getGoodWorld) ? (num + pickPower) : (num + pickPower / 4)) : ((tileTarget.type != 48 && tileTarget.type != 232 && (tileTarget.type < 0 || !TileID.Sets.Clouds[tileTarget.type])) ? ((tileTarget.type == 226) ? (num + pickPower / 4) : ((tileTarget.type != 107 && tileTarget.type != 221) ? ((tileTarget.type != 108 && tileTarget.type != 222) ? ((tileTarget.type == 111 || tileTarget.type == 223) ? (num + pickPower / 4) : ((tileTarget.type != 211) ? (num + pickPower) : (num + pickPower / 5))) : (num + pickPower / 3)) : (num + pickPower / 2))) : (num + pickPower * 2))) : (num + pickPower / 2));
 		if (tileTarget.type == 211 && pickPower < 200)
 		{
 			num = 0;
@@ -53589,7 +53600,7 @@ public class Player : Entity, IFixLoadedData
 		using Stream stream = (isCloudSave ? ((Stream)new MemoryStream(2000)) : ((Stream)new FileStream(path, FileMode.Create)));
 		using CryptoStream cryptoStream = new CryptoStream(stream, rijndaelManaged.CreateEncryptor(ENCRYPTION_KEY, ENCRYPTION_KEY), CryptoStreamMode.Write);
 		using BinaryWriter binaryWriter = new BinaryWriter(cryptoStream);
-		binaryWriter.Write(316);
+		binaryWriter.Write(317);
 		playerFile.Metadata.Write(binaryWriter);
 		Serialize(playerFile, player, binaryWriter);
 		binaryWriter.Flush();
@@ -53939,7 +53950,7 @@ public class Player : Entity, IFixLoadedData
 				{
 					playerFileData.Metadata = FileMetadata.FromCurrentSettings(FileType.Player);
 				}
-				if (num > 316)
+				if (num > 317)
 				{
 					player.loadStatus = StatusID.LaterVersion;
 					player.name = binaryReader.ReadString();
@@ -53981,7 +53992,7 @@ public class Player : Entity, IFixLoadedData
 		_visualCloneStream.Seek(0L, SeekOrigin.Begin);
 		Serialize(_visualCloneDummyData, this, _visualCloneWriter);
 		_visualCloneStream.Seek(0L, SeekOrigin.Begin);
-		Deserialize(_visualCloneDummyData, player, _visualCloneReader, 316, out var _);
+		Deserialize(_visualCloneDummyData, player, _visualCloneReader, 317, out var _);
 		return player;
 	}
 

@@ -18,7 +18,7 @@ public class ProjectileID
 
 		public static bool[] DontApplyParryDamageBuff = Factory.CreateBoolSet(false, 524, 321, 181, 566);
 
-		public static bool[] BreaksFromToyBreaker = Factory.CreateBoolSet(false, 1020, 1105, 861, 155, 50, 53, 515, 473, 1089, 870, 721, 739, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 751, 752, 844, 766, 767, 822, 824, 839, 840, 846, 843, 828, 829, 845, 827, 826, 768, 769, 838, 830, 850, 853, 852, 823, 771, 770);
+		public static bool[] BreaksFromToyBreaker = Factory.CreateBoolSet(false, 1020, 1105, 861, 155, 855, 50, 53, 515, 473, 1089, 870, 721, 739, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 751, 752, 844, 766, 767, 822, 824, 839, 840, 846, 843, 828, 829, 845, 827, 826, 768, 769, 838, 830, 850, 853, 852, 823, 771, 770);
 
 		public static bool[] IsAGravestone = Factory.CreateBoolSet(false, 202, 201, 204, 43, 203, 205, 527, 528, 529, 530, 531);
 

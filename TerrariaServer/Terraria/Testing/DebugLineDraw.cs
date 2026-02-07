@@ -78,7 +78,7 @@ public class DebugLineDraw
 		lines.Add(new LineDrawer(end, new Vector2(end.X, start.Y), colorStart, colorEnd, LifeTime, width));
 	}
 
-	public static void Update()
+	public static void PreUpdate()
 	{
 		SetPhase(UpdatePhase.Update);
 	}

@@ -6993,16 +6993,16 @@ public class TileDrawing : TileDrawingBase
 		}
 		if (TileID.Sets.SpawnsNatureFlies[typeCache] && tileCache.liquid <= 0)
 		{
-            float lerpValue = Utils.GetLerpValue(0.08f, 0.18f, Math.Abs(Main.WindForVisuals), clamped: true);
+			float lerpValue = Utils.GetLerpValue(0.08f, 0.18f, Math.Abs(Main.WindForVisuals), clamped: true);
 			lerpValue += 0.3f;
 			if (_rand.NextFloat() < lerpValue)
 			{
 				bool flag2 = _rand.Next(600) == 0;
 				if (!flag2)
 				{
-					int directionX;
-                    _windGrid.GetWindTime(i, j, 8, out var windTimeLeft, out directionX, out directionX); 
-					flag2 = windTimeLeft > 0 && _rand.Next(48) == 0;
+                    int directionX;
+                    _windGrid.GetWindTime(i, j, 8, out var windTimeLeft, out directionX, out directionX);
+                    flag2 = windTimeLeft > 0 && _rand.Next(48) == 0;
 				}
 				if (flag2)
 				{

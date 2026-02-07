@@ -33,7 +33,7 @@ public struct PlayerMovementAccsCache
 		if (!_readyToPaste)
 		{
 			_readyToPaste = true;
-			_mountPreventedFlight = true;
+			_mountPreventedFlight = !player.mount.CanUseWings;
 			_mountPreventedExtraJumps = player.mount.BlockExtraJumps;
 			rocketTime = player.rocketTime;
 			rocketDelay = player.rocketDelay;

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Terraria.ID;
 using Terraria.Utilities;
 
 namespace Terraria.GameContent.Events;
@@ -130,7 +131,7 @@ public class Sandstorm
 
 	public static bool ShowSandstormVisuals()
 	{
-		if (Happening && Main.SceneMetrics.ZoneSandstorm && (Main.bgStyle == 2 || Main.bgStyle == 5))
+		if (Happening && Main.SceneMetrics.ZoneSandstorm && SurfaceBackgroundID.Sets.IsDesertVariant[Main.bgStyle])
 		{
 			return Main.bgDelay < 50;
 		}

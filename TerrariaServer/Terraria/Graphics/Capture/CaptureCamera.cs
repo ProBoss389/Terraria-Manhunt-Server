@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.OS;
 using Terraria.Graphics.Effects;
 using Terraria.Localization;
 using Terraria.Utilities;
@@ -287,7 +286,7 @@ internal class CaptureCamera : IDisposable
 		}
 		try
 		{
-			if (!Platform.IsWindows)
+			if (Program.IsFna)
 			{
 				PlatformUtilities.SavePng(filename, width, height, data);
 			}
@@ -319,7 +318,7 @@ internal class CaptureCamera : IDisposable
 		{
 			return;
 		}
-		if (!Platform.IsWindows)
+		if (Program.IsFna)
 		{
 			int elementCount = texture.Width * texture.Height * 4;
 			texture.GetData(_outputData, 0, elementCount);

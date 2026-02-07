@@ -342,7 +342,7 @@ public class LeashedEntity
 
 	public static void AddNewEntity(LeashedEntity e, Point16 anchorPos)
 	{
-		if (Main.netMode != 1)
+		if (e != null && Main.netMode != 1)
 		{
 			int num = ByWhoAmI.IndexOf(null);
 			if (num < 0)

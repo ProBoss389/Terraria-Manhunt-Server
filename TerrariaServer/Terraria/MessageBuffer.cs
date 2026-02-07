@@ -191,7 +191,7 @@ public class MessageBuffer
 				{
 					break;
 				}
-				if (reader.ReadString() == "Terraria" + 316)
+				if (reader.ReadString() == "Terraria" + 317)
 				{
 					if (string.IsNullOrEmpty(Netplay.ServerPassword))
 					{
@@ -613,6 +613,7 @@ public class MessageBuffer
 				Main.teamBasedSpawnsSeed = bitsByte34[5];
 				Main.skyblockWorld = bitsByte34[6];
 				Main.dualDungeonsSeed = bitsByte34[7];
+				WorldGen.Skyblock.lowTiles = ((BitsByte)reader.ReadByte())[0];
 				Main.sundialCooldown = reader.ReadByte();
 				Main.moondialCooldown = reader.ReadByte();
 				WorldGen.SavedOreTiers.Copper = reader.ReadInt16();
@@ -3311,7 +3312,7 @@ public class MessageBuffer
 			}
 			else
 			{
-				TileEntity tileEntity = TileEntity.Read(reader, 316, networkSend: true);
+				TileEntity tileEntity = TileEntity.Read(reader, 317, networkSend: true);
 				tileEntity.ID = num150;
 				TileEntity.Add(tileEntity);
 			}

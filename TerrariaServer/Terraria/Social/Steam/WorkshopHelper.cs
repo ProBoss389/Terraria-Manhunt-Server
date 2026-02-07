@@ -296,8 +296,8 @@ public class WorkshopHelper
 					SteamUGC.SetItemDescription(uGCUpdateHandle_t, _entryData.Description);
 				}
 				SteamUGC.SetItemContent(uGCUpdateHandle_t, _entryData.ContentFolderPath);
-                SteamUGC.SetItemTags(uGCUpdateHandle_t, (IList<string>)_entryData.Tags);
-                if (_entryData.PreviewImagePath != null)
+				SteamUGC.SetItemTags(uGCUpdateHandle_t, (IList<string>)_entryData.Tags, false);
+				if (_entryData.PreviewImagePath != null)
 				{
 					SteamUGC.SetItemPreview(uGCUpdateHandle_t, _entryData.PreviewImagePath);
 				}

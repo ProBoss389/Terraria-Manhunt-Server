@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Microsoft.Xna.Framework;
+using ReLogic.OS;
 using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.Testing;
@@ -769,6 +770,26 @@ public static class TimeLogger
 
 	private static void DrawExtras()
 	{
+		if (Platform.IsWindows)
+		{
+			WindowsPerformanceDiagnostics.Data data = WindowsPerformanceDiagnostics.GetData();
+			int num = Main.screenWidth - 180;
+			int num2 = Main.screenHeight - 100;
+			DrawString((data.PinnedToProcessor ? _PinnedCPUFormat : _AssignedCPUFormat).Format(data.CurrentProcessor), new Vector2(num, num2 += 12), Color.White);
+			DrawString(_procThrottleFormat.Format(data.ProcessorThrottlePercent), new Vector2(num, num2 += 12), Color.White);
+			DrawString(_expectedCPUFormat.Format(data.ExpectedCPUPercent), new Vector2(num, num2 += 12), Color.White);
+			if (data.PinnedToProcessor)
+			{
+				DrawString(_terrariaCPUFormat.Format(data.MainThreadCPUPercent), new Vector2(num, num2 += 12), Color.White);
+			}
+			DrawString(_pendingCPUFormat.Format(data.ContentionQueueLength), new Vector2(num, num2 += 12), Color.White);
+			num2 += 2;
+			if (data.RecommendUnpinning)
+			{
+				DrawString("Core pinning may be", new Vector2(num, num2 += 11), Color.Orange);
+				DrawString("reducing performance", new Vector2(num, num2 += 12), Color.Orange);
+			}
+		}
 		if (!PlayerInput.UsingGamepad)
 		{
 			return;
@@ -776,8 +797,8 @@ public static class TimeLogger
 		for (int i = 0; i < 2; i++)
 		{
 			string text = "";
-			int num = Main.screenWidth - 220;
-			int num2 = Main.screenHeight - 140 + i * 12;
+			int num3 = Main.screenWidth - 220;
+			int num4 = Main.screenHeight - 140 + i * 12;
 			if (i == 0)
 			{
 				text = $"Thumbstick (L): {PlayerInput.GamepadThumbstickLeft.X,7:P2} ,{PlayerInput.GamepadThumbstickLeft.Y,7:P2}";
@@ -786,7 +807,7 @@ public static class TimeLogger
 			{
 				text = $"Thumbstick (R): {PlayerInput.GamepadThumbstickRight.X,7:P2} ,{PlayerInput.GamepadThumbstickRight.Y,7:P2}";
 			}
-			DrawString(text, new Vector2(num, num2), Color.White);
+			DrawString(text, new Vector2(num3, num4), Color.White);
 		}
 	}
 

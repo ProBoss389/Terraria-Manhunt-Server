@@ -936,7 +936,7 @@ public class ItemDropDatabase
 		RegisterToNPC(59, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.NormalvsExpert(1309, 8000, 5600));
 		RegisterToNPC(120, new LeadingConditionRule(new Conditions.TenthAnniversaryIsUp())).OnSuccess(ItemDropRule.Common(1326, 100));
 		RegisterToNPC(120, new LeadingConditionRule(new Conditions.TenthAnniversaryIsNotUp())).OnSuccess(ItemDropRule.NormalvsExpert(1326, 500, 400));
-		RegisterToNPC(49, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.Common(1325, 250));
+		RegisterToNPC(49, new LeadingConditionRule(new Conditions.NotRemixSeed())).OnSuccess(ItemDropRule.Common(1325, 250));
 		RegisterToNPC(49, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Common(1314, 250));
 		RegisterToNPC(109, new LeadingConditionRule(new Conditions.NotRemixSeedHardmode())).OnSuccess(ItemDropRule.Common(1314, 5));
 		RegisterToNPC(109, new LeadingConditionRule(new Conditions.RemixSeed())).OnSuccess(ItemDropRule.Common(1325, 5));

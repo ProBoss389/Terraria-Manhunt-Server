@@ -190,23 +190,22 @@ public class Recipe
 		}
 	}
 
-	public List<RequiredItemEntry> GetIngredientsForOneCraft(Player player)
+	public void GetIngredientsForOneCraft(Player player, List<RequiredItemEntry> ingredients)
 	{
-		List<RequiredItemEntry> list = new List<RequiredItemEntry>();
 		for (int i = 0; i < maxRequirements; i++)
 		{
 			RequiredItemEntry requiredItemEntry = requiredItemQuickLookup[i];
-			if (requiredItemEntry.itemIdOrRecipeGroup == 0)
+			if (requiredItemEntry.itemIdOrRecipeGroup != 0)
 			{
-				break;
+				requiredItemEntry.stack -= GetIngredientCraftingDiscount(player, requiredItemEntry);
+				if (requiredItemEntry.stack > 0)
+				{
+					ingredients.Add(requiredItemEntry);
+				}
+				continue;
 			}
-			requiredItemEntry.stack -= GetIngredientCraftingDiscount(player, requiredItemEntry);
-			if (requiredItemEntry.stack > 0)
-			{
-				list.Add(requiredItemEntry);
-			}
+			break;
 		}
-		return list;
 	}
 
 	private int GetIngredientCraftingDiscount(Player player, RequiredItemEntry req)
@@ -255,6 +254,14 @@ public class Recipe
 		Main.craftingUI.VisuallyRepositionRecipes(focusRecipe);
 	}
 
+	public static void SubtractOwnedItem(RequiredItemEntry req)
+	{
+		if (_ownedItems.TryGetValue(req.itemIdOrRecipeGroup, out var value))
+		{
+			_ownedItems[req.itemIdOrRecipeGroup] = Math.Max(value - req.stack, 0);
+		}
+	}
+
 	private static void AddToAvailableRecipes(int recipeIndex)
 	{
 		Main.availableRecipe[Main.numAvailableRecipes] = recipeIndex;
@@ -268,6 +275,17 @@ public class Recipe
 
 	public static bool CollectedEnoughItemsToCraft(RequiredItemEntry[] requiredItems)
 	{
+		return HowManyTimesCanRecipeBeCrafted(requiredItems) > 0;
+	}
+
+	public static int HowManyTimesCanRecipeBeCrafted(Recipe recipe)
+	{
+		return HowManyTimesCanRecipeBeCrafted(recipe.requiredItemQuickLookup);
+	}
+
+	public static int HowManyTimesCanRecipeBeCrafted(RequiredItemEntry[] requiredItems)
+	{
+		int num = int.MaxValue;
 		for (int i = 0; i < requiredItems.Length; i++)
 		{
 			RequiredItemEntry requiredItemEntry = requiredItems[i];
@@ -277,14 +295,15 @@ public class Recipe
 			}
 			if (!_ownedItems.TryGetValue(requiredItemEntry.itemIdOrRecipeGroup, out var value))
 			{
-				return false;
+				return 0;
 			}
-			if (value < requiredItemEntry.stack)
+			num = Math.Min(num, value / requiredItemEntry.stack);
+			if (num == 0)
 			{
-				return false;
+				break;
 			}
 		}
-		return true;
+		return num;
 	}
 
 	public static int GetAvailableItemCount(RequiredItemEntry item)
@@ -346,7 +365,7 @@ public class Recipe
 		CollectItems(player.inventory, 58);
 		CollectItemsFromChests(player);
 		AddFakeCountsForItemGroups();
-		CraftingRequests.SubtractPendingRequests(_ownedItems);
+		CraftingRequests.SubtractPendingRequests();
 	}
 
 	private static void CollectItemsFromChests(Player player)
@@ -407,6 +426,11 @@ public class Recipe
 				_ownedItems[item.type] = num;
 			}
 		}
+	}
+
+	public static void ConsumeOwnedItem(int type, int qty)
+	{
+		_ownedItems[type] -= qty;
 	}
 
 	private static void CollectGuideRecipes()
@@ -2568,6 +2592,10 @@ public class Recipe
 		currentRecipe.createItem.SetDefaults(5852);
 		currentRecipe.createItem.stack = 2;
 		currentRecipe.SetIngredients(1872, 1);
+		AddRecipe();
+		currentRecipe.createItem.SetDefaults(5852);
+		currentRecipe.createItem.stack = 2;
+		currentRecipe.SetIngredients(5930, 1);
 		AddRecipe();
 		currentRecipe.createItem.SetDefaults(5872);
 		currentRecipe.createItem.stack = 2;
@@ -10485,14 +10513,14 @@ public class Recipe
 		AddRecipe();
 		currentRecipe.createItem.SetDefaults(5069);
 		currentRecipe.requiredItem[0].SetDefaults(5070);
-		currentRecipe.requiredItem[0].stack = 10;
+		currentRecipe.requiredItem[0].stack = 6;
 		currentRecipe.requiredItem[1].SetDefaults(19);
 		currentRecipe.requiredItem[1].stack = 10;
 		currentRecipe.requiredTile = 18;
 		AddRecipe();
 		currentRecipe.createItem.SetDefaults(5069);
 		currentRecipe.requiredItem[0].SetDefaults(5070);
-		currentRecipe.requiredItem[0].stack = 10;
+		currentRecipe.requiredItem[0].stack = 6;
 		currentRecipe.requiredItem[1].SetDefaults(706);
 		currentRecipe.requiredItem[1].stack = 10;
 		currentRecipe.requiredTile = 18;

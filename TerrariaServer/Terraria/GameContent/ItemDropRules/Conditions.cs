@@ -1297,6 +1297,24 @@ public class Conditions
 		}
 	}
 
+	public class NotRemixSeed : IItemDropRuleCondition, IProvideItemConditionDescription
+	{
+		public bool CanDrop(DropAttemptInfo info)
+		{
+			return !Main.remixWorld;
+		}
+
+		public bool CanShowItemDropInUI()
+		{
+			return !Main.remixWorld;
+		}
+
+		public string GetConditionDescription()
+		{
+			return null;
+		}
+	}
+
 	public class RemixSeedEasymode : IItemDropRuleCondition, IProvideItemConditionDescription
 	{
 		public bool CanDrop(DropAttemptInfo info)

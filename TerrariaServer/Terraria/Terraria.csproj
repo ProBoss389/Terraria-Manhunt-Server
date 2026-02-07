@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net472</TargetFramework>
-		<Version>1.4.5.3</Version>
+		<Version>1.4.5.4</Version>
 		<Company>Re-Logic</Company>
 		<Copyright>Copyright © 2022 Re-Logic</Copyright>
 		<RootNamespace>Terraria</RootNamespace>
@@ -17,45 +17,44 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="ReLogic">
-			<HintPath>Libraries\ReLogic.dll</HintPath>
-		</Reference>
-
-		<EmbeddedResource Include="Libraries\ReLogic.dll">
-			<LogicalName>Terraria.Libraries.ReLogic.ReLogic.dll</LogicalName>
-		</EmbeddedResource>
 		<PackageReference Include="Costura.Fody" Version="6.0.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-
 		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+
 		<Compile Include="..\BCrypt\Net\BCrypt.cs" Link="Libraries\BCrypt\BCrypt.cs" />
 		<Compile Include="..\nativefiledialog.cs" Link="Libraries\NativeFileDialog\nativefiledialog.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="ReLogic">
+			<HintPath>Libraries\ReLogic\ReLogic.dll</HintPath>
+		</Reference>
+		<EmbeddedResource Include="Libraries\ReLogic\ReLogic.dll">
+			<LogicalName>Terraria.Libraries.ReLogic.ReLogic.dll</LogicalName>
+		</EmbeddedResource>
+
+		<Reference Include="Ionic.Zip.CF">
+			<HintPath>Libraries\DotNetZip\Ionic\Zip\CF.dll</HintPath>
+		</Reference>
+
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>Libraries\JSON\NET\Newtonsoft\Json.dll</HintPath>
+		</Reference>
+
+		<Reference Include="RailSDK.Net">
+			<HintPath>Libraries\RailSDK\Windows\RailSDK\Net.dll</HintPath>
+		</Reference>
+
+		<Reference Include="Steamworks.NET">
+			<HintPath>Libraries\Steamworks\NET\Windows\Steamworks\NET.dll</HintPath>
+		</Reference>
+
 		<Reference Include="CsvHelper">
 			<HintPath>Libraries\CsvHelper\CsvHelper.dll</HintPath>
 		</Reference>
-		<Reference Include="Ionic.Zip.CF">
-			<HintPath>Libraries\DotNetZip\Ionic.Zip.CF.dll</HintPath>
-		</Reference>
-		<Reference Include="Newtonsoft.Json">
-			<HintPath>Libraries\JSON.NET\Newtonsoft.Json.dll</HintPath>
-		</Reference>
-		<Reference Include="RailSDK.Net">
-			<HintPath>Libraries\RailSDK.Windows\RailSDK.Net.dll</HintPath>
-		</Reference>
-		<Reference Include="Steamworks.NET">
-			<HintPath>Libraries\Steamworks.NET.Windows\Steamworks.NET.dll</HintPath>
-		</Reference>
-		<Reference Include="SteelSeriesEngineWrapper">
-			<HintPath>Libraries\Common\SteelSeriesEngineWrapper.dll</HintPath>
-		</Reference>
-		<Reference Include="NVorbis">
-			<HintPath>Libraries\NVorbis\NVorbis.dll</HintPath>
-		</Reference>
-		<Reference Include="NVorbis.System.ValueTuple">
-			<HintPath>Libraries\NVorbis.System.ValueTuple.dll</HintPath>
-		</Reference>
+
 		<Reference Include="Microsoft.Xna.Framework">
 			<HintPath>Libraries\XNA\Microsoft.Xna.Framework.dll</HintPath>
 		</Reference>
@@ -89,16 +88,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <COMReference Include="NATUPNPLib">
-	    <WrapperTool>tlbimp</WrapperTool>
-	    <VersionMinor>0</VersionMinor>
-	    <VersionMajor>1</VersionMajor>
-	    <Guid>1c565858-f302-471e-b409-f180aa4abec6</Guid>
-	    <Lcid>0</Lcid>
-	    <Isolated>false</Isolated>
-	    <EmbedInteropTypes>true</EmbedInteropTypes>
-	  </COMReference>
+		<COMReference Include="NATUPNPLib">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>1c565858-f302-471e-b409-f180aa4abec6</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
 	</ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="copy /Y &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Users\X\Desktop\terraria-server-1449\1449\ManhuntWindows\TerrariaServer.exe&quot;" />
 	</Target>

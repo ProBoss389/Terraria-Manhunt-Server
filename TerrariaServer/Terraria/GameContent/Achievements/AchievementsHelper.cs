@@ -82,7 +82,7 @@ public class AchievementsHelper
 	{
 		if (Main.GetBestiaryProgressReport().CompletionPercent >= 1f)
 		{
-			AchievementsHelper.OnProgressionEvent(29);
+			NotifyProgressionEvent(29);
 		}
 	}
 

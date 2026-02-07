@@ -310,19 +310,27 @@ public class Dust
 		}
 	}
 
-	public static void QuickBox(Vector2 topLeft, Vector2 bottomRight, int divisions, Color color, Action<Dust> manipulator)
+	public static void QuickBox(Vector2 topLeft, Vector2 bottomRight, int divisions, Color color, float fadein = 1f, float dustScale = 1f, Action<Dust> manipulator = null)
 	{
 		float num = divisions + 2;
 		for (float num2 = 0f; num2 <= (float)(divisions + 2); num2 += 1f)
 		{
-			Dust obj = QuickDust(new Vector2(MathHelper.Lerp(topLeft.X, bottomRight.X, num2 / num), topLeft.Y), color);
-			manipulator?.Invoke(obj);
-			obj = QuickDust(new Vector2(MathHelper.Lerp(topLeft.X, bottomRight.X, num2 / num), bottomRight.Y), color);
-			manipulator?.Invoke(obj);
-			obj = QuickDust(new Vector2(topLeft.X, MathHelper.Lerp(topLeft.Y, bottomRight.Y, num2 / num)), color);
-			manipulator?.Invoke(obj);
-			obj = QuickDust(new Vector2(bottomRight.X, MathHelper.Lerp(topLeft.Y, bottomRight.Y, num2 / num)), color);
-			manipulator?.Invoke(obj);
+			Dust dust = QuickDust(new Vector2(MathHelper.Lerp(topLeft.X, bottomRight.X, num2 / num), topLeft.Y), color);
+			dust.scale = dustScale;
+			dust.fadeIn = fadein;
+			manipulator?.Invoke(dust);
+			dust = QuickDust(new Vector2(MathHelper.Lerp(topLeft.X, bottomRight.X, num2 / num), bottomRight.Y), color);
+			dust.scale = dustScale;
+			dust.fadeIn = fadein;
+			manipulator?.Invoke(dust);
+			dust = QuickDust(new Vector2(topLeft.X, MathHelper.Lerp(topLeft.Y, bottomRight.Y, num2 / num)), color);
+			dust.scale = dustScale;
+			dust.fadeIn = fadein;
+			manipulator?.Invoke(dust);
+			dust = QuickDust(new Vector2(bottomRight.X, MathHelper.Lerp(topLeft.Y, bottomRight.Y, num2 / num)), color);
+			dust.scale = dustScale;
+			dust.fadeIn = fadein;
+			manipulator?.Invoke(dust);
 		}
 	}
 

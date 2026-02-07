@@ -1123,13 +1123,15 @@ public class UILinksInitializer
 					}
 				}
 			}
+			bool flag = Main.LocalPlayer.chest < 0;
 			for (int i = 1; i < num39; i++)
 			{
 				cp11.LinkMap[1500 + i].Left = 1500 + i - 1;
 				cp11.LinkMap[1500 + i].Right = ((i == num39 - 2) ? (-4) : (1500 + i + 1));
 				if (i >= 2)
 				{
-					cp11.LinkMap[1500 + i].Up = (Main.InGuideCraftMenu ? 1500 : 11003);
+					cp11.LinkMap[1500 + i].Up = (Main.InGuideCraftMenu ? 1500 : (flag ? 11003 : (-1)));
+					cp11.LinkMap[1500 + i].Down = (flag ? (-1) : ((i >= 3 && Main.bannerUI.AnyAvailableBanners) ? 11002 : 11001));
 				}
 			}
 			cp11.LinkMap[1501].Left = -3;
@@ -1143,7 +1145,10 @@ public class UILinksInitializer
 			cp11.LinkMap[11001].Left = (Main.InPipCrafting ? 1501 : 12000);
 			cp11.LinkMap[11001].Down = ((!Main.InPipCrafting) ? (-1) : (Main.InGuideCraftMenu ? 1500 : 11003));
 			cp11.LinkMap[11001].Right = ((!Main.bannerUI.AnyAvailableBanners || Main.InGuideCraftMenu) ? (-1) : 11002);
+			cp11.LinkMap[11001].Up = (flag ? (-1) : 1502);
 			cp11.LinkMap[11002].Down = ((!Main.InPipCrafting) ? (-1) : 11003);
+			cp11.LinkMap[11002].Up = (flag ? (-1) : ((num39 >= 5) ? 1503 : 1502));
+			cp11.LinkMap[11003].Down = (flag ? 1502 : (-1));
 		};
 		cp11.LinkMap[1501].OnSpecialInteracts += () => ItemSlot.GetCraftSlotGamepadInstructions();
 		cp11.ReachEndEvent += delegate(int current, int next)
@@ -1939,7 +1944,7 @@ public class UILinksInitializer
 				ItemSlot.RefreshStackSplitCooldown();
 				if (SomeVarsForUILinkers.SequencedCraftingCurrent == recipe)
 				{
-					CraftingRequests.CraftItem(recipe, quickCraft: true);
+					CraftingRequests.CraftItem(recipe, 1, quickCraft: true);
 				}
 			}
 		}

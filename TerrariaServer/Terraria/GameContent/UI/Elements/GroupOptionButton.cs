@@ -164,6 +164,27 @@ public class GroupOptionButton<T> : UIElement, IGroupOptionButton
 		_title = uIText;
 	}
 
+	public void SetTextWithoutLocalization(string text, float textSize, Color color, float hAlign, float left)
+	{
+		if (_title != null)
+		{
+			_title.Remove();
+		}
+		UIText uIText = new UIText(text, textSize)
+		{
+			HAlign = 0.5f,
+			VAlign = 0.5f,
+			Width = StyleDimension.FromPixelsAndPercent(-10f, 1f),
+			Top = StyleDimension.FromPixels(0f),
+			IgnoresMouseInteraction = true
+		};
+		uIText.TextOriginX = hAlign;
+		uIText.Left.Pixels = left;
+		uIText.TextColor = color;
+		Append(uIText);
+		_title = uIText;
+	}
+
 	public void SetCurrentOption(T option)
 	{
 		_currentOption = option;

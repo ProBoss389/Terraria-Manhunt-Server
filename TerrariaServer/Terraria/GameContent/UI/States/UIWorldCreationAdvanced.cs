@@ -164,7 +164,8 @@ public class UIWorldCreationAdvanced : UIState, IHaveBackButtonCommand
 
 	public void RefreshSecretSeedButton()
 	{
-		if (_secretSeedButton == null && (_creationState.HasEnteredSpecialSeed || _creationState.HasDisabledSecretSeed))
+		bool flag = SecretSeedsTracker.SeedsForInterface.Count > 0 || _creationState.HasEnteredSpecialSeed || _creationState.HasDisabledSecretSeed;
+		if (_secretSeedButton == null && flag)
 		{
 			int num = _seedButtons.Length;
 			int num2 = num % 6;
@@ -192,18 +193,22 @@ public class UIWorldCreationAdvanced : UIState, IHaveBackButtonCommand
 			_secretSeedButton.OnLeftClick += SecretSeedButton_OnLeftClick;
 			_seedButtonRegion.Append(_secretSeedButton);
 		}
-		else if (_secretSeedButton != null && !_creationState.HasEnteredSpecialSeed && !_creationState.HasDisabledSecretSeed)
+		else if (_secretSeedButton != null && !flag)
 		{
 			_seedButtonRegion.RemoveChild(_secretSeedButton);
 			_secretSeedButton = null;
+		}
+		else if (_secretSeedButton != null)
+		{
+			_secretSeedButton.SetCurrentOption(_creationState.HasEnteredSpecialSeed);
 		}
 	}
 
 	private void SecretSeedButton_OnLeftClick(UIMouseEvent evt, UIElement listeningElement)
 	{
-		_creationState.EnableSecretSeedOptions(!_creationState.HasEnteredSpecialSeed);
-		_secretSeedButton.SetCurrentOption(_creationState.HasEnteredSpecialSeed);
-		RefreshSecretSeedButton();
+		UIWorldCreationAdvancedSecretSeedsList state = new UIWorldCreationAdvancedSecretSeedsList(this, _creationState);
+		Main.MenuUI.SetState(state);
+		SoundEngine.PlaySound(12);
 	}
 
 	private void AddSpecialSeedOptions(UIList listArea)

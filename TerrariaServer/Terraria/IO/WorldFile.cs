@@ -201,7 +201,7 @@ public class WorldFile
 			using Stream stream = (cloudSave ? ((Stream)new MemoryStream(SocialAPI.Cloud.Read(file))) : ((Stream)new FileStream(file, FileMode.Open)));
 			using BinaryReader binaryReader = new BinaryReader(stream);
 			int num = binaryReader.ReadInt32();
-			if (num > 316)
+			if (num > 317)
 			{
 				return WorldFileData.FromInvalidWorld(file, cloudSave, StatusID.LaterVersion, new FileFormatException("File is from a later version of Terraria. '" + file + "'"));
 			}
@@ -610,7 +610,7 @@ public class WorldFile
 		worldFileData.CreationTime = DateTime.Now;
 		worldFileData.Metadata = FileMetadata.FromCurrentSettings(FileType.World);
 		worldFileData.SetFavorite(favorite: false);
-		worldFileData.WorldGeneratorVersion = 1357209665537uL;
+		worldFileData.WorldGeneratorVersion = 1361504632833uL;
 		worldFileData.UniqueId = Guid.NewGuid();
 		if (Main.DefaultSeed == "")
 		{
@@ -719,7 +719,7 @@ public class WorldFile
 			{
 				WorldGen.loadFailed = false;
 				int num2 = (_versionNumber = binaryReader.ReadInt32());
-				int num3 = ((num2 <= 0) ? StatusID.UnknownError : ((num2 > 316) ? StatusID.LaterVersion : ((num2 > 87) ? LoadWorld_Version2(binaryReader) : LoadWorld_Version1_Old_BeforeRelease88(binaryReader))));
+				int num3 = ((num2 <= 0) ? StatusID.UnknownError : ((num2 > 317) ? StatusID.LaterVersion : ((num2 > 87) ? LoadWorld_Version2(binaryReader) : LoadWorld_Version1_Old_BeforeRelease88(binaryReader))));
 				if (num2 < 141)
 				{
 					if (!_isWorldOnCloud)
@@ -1173,7 +1173,7 @@ public class WorldFile
 	{
 		ushort count = TileID.Count;
 		short num = 11;
-		writer.Write(316);
+		writer.Write(317);
 		Main.WorldFileMetadata.IncrementAndWrite(writer);
 		writer.Write(num);
 		for (int i = 0; i < num; i++)
@@ -1210,7 +1210,7 @@ public class WorldFile
 	public static int SaveHeaderPointers(BinaryWriter writer, int[] pointers)
 	{
 		writer.BaseStream.Position = 0L;
-		writer.Write(316);
+		writer.Write(317);
 		writer.BaseStream.Position += 20L;
 		writer.Write((short)pointers.Length);
 		for (int i = 0; i < pointers.Length; i++)
@@ -3005,7 +3005,7 @@ public class WorldFile
 		{
 			Stream baseStream = fileIO.BaseStream;
 			int num = fileIO.ReadInt32();
-			if (num == 0 || num > 316)
+			if (num == 0 || num > 317)
 			{
 				return false;
 			}
@@ -3402,7 +3402,7 @@ public class WorldFile
 	{
 		Main.WorldFileMetadata = FileMetadata.FromCurrentSettings(FileType.World);
 		int versionNumber = _versionNumber;
-		if (versionNumber > 316)
+		if (versionNumber > 317)
 		{
 			return StatusID.LaterVersion;
 		}

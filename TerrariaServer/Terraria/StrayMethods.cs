@@ -127,7 +127,7 @@ public class StrayMethods
 				Collision.ExpandVertically(startFloorPosition.X, bottomY, out var topY2, out var bottomY2, 0, 6);
 				if (showDebug)
 				{
-					Dust.QuickBox(new Vector2(startFloorPosition.X * 16 + 8, topY2 * 16), new Vector2(startFloorPosition.X * 16 + 8, bottomY2 * 16), 1, Color.Blue, null);
+					Dust.QuickBox(new Vector2(startFloorPosition.X * 16 + 8, topY2 * 16), new Vector2(startFloorPosition.X * 16 + 8, bottomY2 * 16), 1, Color.Blue);
 				}
 				if (!WorldGen.SolidTile3(startFloorPosition.X, bottomY2))
 				{
@@ -141,7 +141,7 @@ public class StrayMethods
 			if (showDebug)
 			{
 				Dust.QuickDust(startFloorPosition, Color.Green).scale = 1f;
-				Dust.QuickBox(new Vector2(startFloorPosition.X * 16 + 8, topY * 16), new Vector2(startFloorPosition.X * 16 + 8, bottomY * 16 + 16), 1, Color.Red, null);
+				Dust.QuickBox(new Vector2(startFloorPosition.X * 16 + 8, topY * 16), new Vector2(startFloorPosition.X * 16 + 8, bottomY * 16 + 16), 1, Color.Red);
 			}
 			distanceCoveredInTiles += direction;
 			startFloorPosition.X += direction;

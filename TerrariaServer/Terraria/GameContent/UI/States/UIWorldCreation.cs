@@ -198,6 +198,11 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 		MakeInfoMenu(uIElement2);
 	}
 
+	private void PreparePreviouslyUnlockedSecretSeeds()
+	{
+		SecretSeedsTracker.PrepareInterface();
+	}
+
 	private void MakeInfoMenu(UIElement parentContainer)
 	{
 		UIElement uIElement = new UIElement
@@ -521,6 +526,7 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 		_disabledSecretSeedTextsEntered.Clear();
 		WorldGenerationOptions.Reset();
 		WorldGen.SecretSeed.ClearAllSeeds();
+		PreparePreviouslyUnlockedSecretSeeds();
 		UpdateInputFields();
 	}
 
@@ -783,6 +789,10 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 		float num = 0f;
 		string text = string.Empty;
 		List<string> list = (HasEnteredSpecialSeed ? _secretSeedTextsEntered : _disabledSecretSeedTextsEntered);
+		if (list.Count == 0)
+		{
+			return "-";
+		}
 		string text2 = list[0];
 		for (int i = 1; i < list.Count; i++)
 		{
@@ -1044,7 +1054,7 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 		{
 			for (int i = 0; i < 61; i++)
 			{
-				UpdateSpecialSeedRing();
+				UpdateSpecialSeedRing(element);
 			}
 		}
 		else
@@ -1052,7 +1062,7 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 			specialSeedIndex = (specialSeedIndex + 1) % 4;
 			if (specialSeedIndex % 4 == 0)
 			{
-				UpdateSpecialSeedRing();
+				UpdateSpecialSeedRing(element);
 			}
 		}
 		DrawSpecialSeedRing();
@@ -1060,13 +1070,37 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.UIScaleMatrix);
 	}
 
-	private void UpdateSpecialSeedRing()
+	public void DrawSpecialSeedRingCallbackWithoutCondition(UIElement element, SpriteBatch spriteBatch)
+	{
+		spriteBatch.End();
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.UIScaleMatrix);
+		if (oldPos[0] == Vector2.Zero)
+		{
+			for (int i = 0; i < 61; i++)
+			{
+				UpdateSpecialSeedRing(element);
+			}
+		}
+		else
+		{
+			UpdateSpecialSeedRing(element);
+		}
+		DrawSpecialSeedRing();
+		spriteBatch.End();
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.UIScaleMatrix);
+	}
+
+	private void UpdateSpecialSeedRing(UIElement element)
 	{
 		CalculatedStyle dimensions = _advancedSeedButton.GetDimensions();
 		if (_goBackTarget != this && _goBackTarget is UIWorldCreationAdvanced uIWorldCreationAdvanced)
 		{
 			uIWorldCreationAdvanced.RefreshSecretSeedButton();
 			dimensions = uIWorldCreationAdvanced.GetSecretSeedButton().GetDimensions();
+		}
+		if (element is GroupOptionButton<WorldGen.SecretSeed>)
+		{
+			dimensions = element.GetDimensions();
 		}
 		Rectangle rectangle = dimensions.ToRectangle();
 		rectangle.Inflate(-1, -1);
@@ -1330,6 +1364,16 @@ public class UIWorldCreation : UIState, IHaveBackButtonCommand
 	private int SortPoints(SnapPoint a, SnapPoint b)
 	{
 		return a.Id.CompareTo(b.Id);
+	}
+
+	public void AddSeedFromSeedmenu(string seed)
+	{
+		_secretSeedTextsEntered.Add(seed);
+	}
+
+	public void RemoveSeedFromSeedMenu(string seed)
+	{
+		_secretSeedTextsEntered.Remove(seed);
 	}
 
 	public void HandleBackButtonUsage()

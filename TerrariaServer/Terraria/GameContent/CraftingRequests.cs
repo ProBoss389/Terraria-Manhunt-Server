@@ -93,18 +93,27 @@ public static class CraftingRequests
 		_pendingCrafts.Clear();
 	}
 
-	public static void CraftItem(Recipe recipe, bool quickCraft = false)
+	public static void CraftItem(Recipe recipe, int qty = 1, bool quickCraft = false)
 	{
 		Player localPlayer = Main.LocalPlayer;
 		List<Chest> chests = Recipe._recipeChests;
-		List<Recipe.RequiredItemEntry> ingredientsForOneCraft = recipe.GetIngredientsForOneCraft(localPlayer);
-		if (Main.netMode == 0 || ingredientsForOneCraft.All((Recipe.RequiredItemEntry req) => CanCraftLocally(req, chests)))
+		List<Recipe.RequiredItemEntry> list = new List<Recipe.RequiredItemEntry>();
+		for (int i = 0; i < qty && (i <= 0 || (Recipe.CollectedEnoughItemsToCraft(recipe) && Main.CursorHasSpaceToCraftRecipe(recipe))); i++)
 		{
-			CraftLocally(recipe, quickCraft, chests, ingredientsForOneCraft);
-		}
-		else
-		{
-			CraftViaRequest(recipe, quickCraft, chests, ingredientsForOneCraft);
+			list.Clear();
+			recipe.GetIngredientsForOneCraft(localPlayer, list);
+			if (Main.netMode == 0 || list.All((Recipe.RequiredItemEntry req) => CanCraftLocally(req, chests)))
+			{
+				CraftLocally(recipe, quickCraft, chests, list);
+			}
+			else
+			{
+				CraftViaRequest(recipe, quickCraft, chests, list);
+			}
+			foreach (Recipe.RequiredItemEntry item in list)
+			{
+				Recipe.SubtractOwnedItem(item);
+			}
 		}
 		CraftingEffects.OnCraft(recipe, quickCraft);
 	}
@@ -324,16 +333,13 @@ public static class CraftingRequests
 		Main.LocalPlayer.GetOrDropItem(item, GetItemSettings.RefundConsumedItem);
 	}
 
-	public static void SubtractPendingRequests(Dictionary<int, int> itemCounts)
+	public static void SubtractPendingRequests()
 	{
 		foreach (RemoteCraftRequest pendingCraft in _pendingCrafts)
 		{
 			foreach (Recipe.RequiredItemEntry item in pendingCraft.requested)
 			{
-				if (itemCounts.TryGetValue(item.itemIdOrRecipeGroup, out var value))
-				{
-					itemCounts[item.itemIdOrRecipeGroup] = value - item.stack;
-				}
+				Recipe.SubtractOwnedItem(item);
 			}
 		}
 	}

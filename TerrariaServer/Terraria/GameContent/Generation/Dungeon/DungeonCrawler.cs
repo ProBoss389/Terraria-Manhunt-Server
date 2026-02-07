@@ -302,7 +302,7 @@ public static class DungeonCrawler
 					num2++;
 					tile = Main.tile[num, num2];
 				}
-				if (!WorldGen.AreAnyTilesInSetNearby(num, num2, TileID.Sets.Clouds, 10) && !WorldGen.AreAnyTilesInSetNearby(num, Math.Max(50, num2 - 50), TileID.Sets.Clouds, 50) && num2 - dungeonData.genVars.preGenDungeonEntranceSettings.RoughHeight > 0)
+				if (!WorldGen.AreAnyTilesInSetNearby(num, num2, TileID.Sets.Clouds, 15) && !WorldGen.AreAnyTilesInSetNearby(num, Math.Max(50, num2 - 50), TileID.Sets.Clouds, 50) && num2 - 40 - dungeonData.genVars.preGenDungeonEntranceSettings.RoughHeight > 0)
 				{
 					flag = true;
 				}

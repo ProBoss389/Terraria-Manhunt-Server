@@ -189,7 +189,7 @@ public class PlayerInputProfile
 	{
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		Dictionary<string, object> dictionary2 = new Dictionary<string, object>();
-		dictionary.Add("Last Launched Version", 316);
+		dictionary.Add("Last Launched Version", 317);
 		dictionary2.Add("Edittable", AllowEditting);
 		dictionary2.Add("Gamepad - HotbarRadialHoldTime", HotbarRadialHoldTimeRequired);
 		dictionary2.Add("Gamepad - LeftThumbstickDeadzoneX", LeftThumbstickDeadzoneX);

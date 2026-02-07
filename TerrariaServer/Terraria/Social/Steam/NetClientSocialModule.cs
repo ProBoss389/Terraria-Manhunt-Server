@@ -217,8 +217,8 @@ public class NetClientSocialModule : NetSocialModule
 		{
 			SteamNetworkingIdentity steamNetworkingIdentity = default(SteamNetworkingIdentity);
 			steamNetworkingIdentity.SetSteamID(address);
-            _authTicket = SteamUser.GetAuthSessionTicket(_authData, _authData.Length, out _authDataLength);
-        }
+			_authTicket = SteamUser.GetAuthSessionTicket(_authData, _authData.Length, out _authDataLength, ref steamNetworkingIdentity);
+		}
 		int num = (int)(_authDataLength + 3);
 		byte[] array = new byte[num];
 		array[0] = (byte)(num & 0xFF);

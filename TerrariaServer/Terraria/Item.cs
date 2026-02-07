@@ -97,6 +97,8 @@ public class Item : IEntitySourceTarget
 
 	public int tooltipContext = -1;
 
+	public int tooltipSlot = -1;
+
 	public byte dye;
 
 	public int fishingPole = 1;
@@ -413,6 +415,16 @@ public class Item : IEntitySourceTarget
 			}
 			return false;
 		}
+	}
+
+	public static string GetHoverName(Item item, int stack)
+	{
+		string text = item.AffixName();
+		if (stack > 1)
+		{
+			text = text + " (" + stack + ")";
+		}
+		return text;
 	}
 
 	public static void StartCachingType(int t)
@@ -1128,7 +1140,7 @@ public class Item : IEntitySourceTarget
 
 	public bool CanBeEquipped()
 	{
-		if (headSlot < 0 && bodySlot < 0 && legSlot < 0 && !accessory && (shoot <= 0 || !Main.projHook[shoot]) && mountType <= 0)
+		if (headSlot < 0 && bodySlot < 0 && legSlot < 0 && !accessory && (shoot <= 0 || !Main.projHook[shoot]) && mountType < 0)
 		{
 			if (buffType > 0)
 			{
@@ -35663,7 +35675,7 @@ public class Item : IEntitySourceTarget
 			break;
 		case 4062:
 			DefaultToStaff(731, 8f, 17, 6);
-			SetWeaponValues(20, 3f);
+			SetWeaponValues(24, 3f);
 			SetShopValues(ItemRarityColor.Blue1, sellPrice(0, 0, 30));
 			break;
 		case 4066:
@@ -42964,7 +42976,7 @@ public class Item : IEntitySourceTarget
 			height = 30;
 			break;
 		case 5456:
-			damage = 5;
+			damage = 8;
 			useStyle = 1;
 			shootSpeed = 10f;
 			shoot = 1022;
@@ -48526,6 +48538,7 @@ public class Item : IEntitySourceTarget
 	{
 		useSoundPitch = 0f;
 		tooltipContext = -1;
+		tooltipSlot = -1;
 		BestiaryNotes = null;
 		sentry = false;
 		hasVanityEffects = false;

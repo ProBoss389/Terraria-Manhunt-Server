@@ -4,8 +4,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Terraria", "TerrariaServer\Terraria\Terraria.csproj", "{4EFE2B31-D61A-4C07-BAD2-991D3633C237}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReLogic", "TerrariaServer\ReLogic\ReLogic.csproj", "{FD2AC3B2-3EA4-4331-ABC5-D3AA05035242}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		LinuxRelease|Auto = LinuxRelease|Auto

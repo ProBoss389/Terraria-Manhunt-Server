@@ -2639,7 +2639,7 @@ public class Mount
 	{
 		newMount.spawnDust = 15;
 		newMount.buff = buff;
-		newMount.heightBoost = 6;
+		newMount.heightBoost = 4;
 		newMount.flightTimeMax = 0;
 		newMount.fallDamage = 0.5f;
 		newMount.runSpeed = 3f;

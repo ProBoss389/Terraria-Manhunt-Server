@@ -1328,6 +1328,7 @@ public static class MapHelper
 		array4[59][0] = color;
 		array4[3][0] = new Color(61, 58, 78);
 		array4[4][0] = new Color(73, 51, 36);
+		array4[106][0] = new Color(148, 116, 74);
 		array4[6][0] = new Color(91, 30, 30);
 		color = new Color(27, 31, 42);
 		array4[7][0] = color;
@@ -1486,12 +1487,15 @@ public static class MapHelper
 		array4[146][0] = new Color(120, 59, 19);
 		array4[147][0] = new Color(59, 59, 59);
 		array4[148][0] = new Color(229, 218, 161);
-		array4[149][0] = new Color(73, 59, 50);
-		array4[151][0] = new Color(102, 75, 34);
+		Color color4 = new Color(73, 59, 50);
+		array4[149][0] = color4;
+		array4[150][0] = color4;
+		Color color5 = new Color(102, 75, 34);
+		array4[151][0] = color5;
+		array4[152][0] = color5;
 		array4[167][0] = new Color(70, 68, 51);
-		Color color4 = new Color(125, 100, 100);
-		array4[316][0] = color4;
-		array4[317][0] = color4;
+		array4[316][0] = new Color(125, 100, 100);
+		array4[317][0] = new Color(143, 117, 121);
 		array4[172][0] = new Color(163, 96, 0);
 		array4[242][0] = new Color(5, 5, 5);
 		array4[243][0] = new Color(5, 5, 5);
@@ -1553,6 +1557,8 @@ public static class MapHelper
 		array4[236][0] = new Color(127, 49, 44);
 		array4[231][0] = new Color(110, 90, 78);
 		array4[232][0] = new Color(47, 69, 75);
+		array4[145][0] = new Color(144, 144, 144);
+		array4[107][0] = new Color(60, 60, 60);
 		array4[233][0] = new Color(91, 67, 70);
 		array4[237][0] = new Color(200, 44, 18);
 		array4[238][0] = new Color(24, 93, 66);
@@ -1653,33 +1659,33 @@ public static class MapHelper
 		array4[365][0] = array[748][0] * num7;
 		array4[366][0] = array[749][0] * num7;
 		Color[] array5 = new Color[256];
-		Color color5 = new Color(50, 40, 255);
-		Color color6 = new Color(145, 185, 255);
+		Color color6 = new Color(50, 40, 255);
+		Color color7 = new Color(145, 185, 255);
 		for (int num8 = 0; num8 < array5.Length; num8++)
 		{
 			float num9 = (float)num8 / (float)array5.Length;
 			float num10 = 1f - num9;
-			array5[num8] = new Color((byte)((float)(int)color5.R * num10 + (float)(int)color6.R * num9), (byte)((float)(int)color5.G * num10 + (float)(int)color6.G * num9), (byte)((float)(int)color5.B * num10 + (float)(int)color6.B * num9));
+			array5[num8] = new Color((byte)((float)(int)color6.R * num10 + (float)(int)color7.R * num9), (byte)((float)(int)color6.G * num10 + (float)(int)color7.G * num9), (byte)((float)(int)color6.B * num10 + (float)(int)color7.B * num9));
 		}
 		Color[] array6 = new Color[256];
-		Color color7 = new Color(88, 61, 46);
-		Color color8 = new Color(37, 78, 123);
+		Color color8 = new Color(88, 61, 46);
+		Color color9 = new Color(37, 78, 123);
 		for (int num11 = 0; num11 < array6.Length; num11++)
 		{
 			float num12 = (float)num11 / 255f;
 			float num13 = 1f - num12;
-			array6[num11] = new Color((byte)((float)(int)color7.R * num13 + (float)(int)color8.R * num12), (byte)((float)(int)color7.G * num13 + (float)(int)color8.G * num12), (byte)((float)(int)color7.B * num13 + (float)(int)color8.B * num12));
+			array6[num11] = new Color((byte)((float)(int)color8.R * num13 + (float)(int)color9.R * num12), (byte)((float)(int)color8.G * num13 + (float)(int)color9.G * num12), (byte)((float)(int)color8.B * num13 + (float)(int)color9.B * num12));
 		}
 		Color[] array7 = new Color[256];
-		Color color9 = new Color(74, 67, 60);
-		color8 = new Color(53, 70, 97);
+		Color color10 = new Color(74, 67, 60);
+		color9 = new Color(53, 70, 97);
 		for (int num14 = 0; num14 < array7.Length; num14++)
 		{
 			float num15 = (float)num14 / 255f;
 			float num16 = 1f - num15;
-			array7[num14] = new Color((byte)((float)(int)color9.R * num16 + (float)(int)color8.R * num15), (byte)((float)(int)color9.G * num16 + (float)(int)color8.G * num15), (byte)((float)(int)color9.B * num16 + (float)(int)color8.B * num15));
+			array7[num14] = new Color((byte)((float)(int)color10.R * num16 + (float)(int)color9.R * num15), (byte)((float)(int)color10.G * num16 + (float)(int)color9.G * num15), (byte)((float)(int)color10.B * num16 + (float)(int)color9.B * num15));
 		}
-		Color color10 = new Color(50, 44, 38);
+		Color color11 = new Color(50, 44, 38);
 		int num17 = 0;
 		tileOptionCounts = new int[TileID.Count];
 		for (int num18 = 0; num18 < TileID.Count; num18++)
@@ -1771,7 +1777,7 @@ public static class MapHelper
 			num22++;
 		}
 		hellPosition = num22;
-		colorLookup[num22] = color10;
+		colorLookup[num22] = color11;
 		snowTypes = new ushort[6];
 		snowTypes[0] = tileLookup[147];
 		snowTypes[1] = tileLookup[161];
@@ -3042,7 +3048,7 @@ public static class MapHelper
 			using DeflateStream deflateStream = new DeflateStream(memoryStream, CompressionMode.Compress);
 			int num = 0;
 			byte[] array = new byte[16384];
-			binaryWriter.Write(316);
+			binaryWriter.Write(317);
 			Main.MapFileMetadata.IncrementAndWrite(binaryWriter);
 			binaryWriter.Write(Main.worldName);
 			binaryWriter.Write(Main.worldID);

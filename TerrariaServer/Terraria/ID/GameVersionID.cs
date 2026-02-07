@@ -22,5 +22,7 @@ public static class GameVersionID
 
 	public const int Terraria1453Release = 316;
 
-	public const int Latest = 316;
+	public const int Terraria1454Release = 317;
+
+	public const int Latest = 317;
 }

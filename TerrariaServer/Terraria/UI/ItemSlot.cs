@@ -1894,6 +1894,10 @@ public class ItemSlot
 			return;
 		}
 		int num = Main.superFastStack + 1;
+		if (CanBulkBuy(inv[slot]))
+		{
+			num *= GetBulkBuyAmount(inv[slot]);
+		}
 		Player localPlayer = Main.LocalPlayer;
 		for (int i = 0; i < num; i++)
 		{
@@ -2871,6 +2875,50 @@ public class ItemSlot
 		MouseHover(singleSlotArray, context);
 	}
 
+	public static int GetBulkBuyAmount(Item item)
+	{
+		int num = 10;
+		if (!item.buyOnce)
+		{
+			return num;
+		}
+		return Math.Min(num, item.stack);
+	}
+
+	public static bool CanBulkBuy(Item item)
+	{
+		if (item.isAShopItem || item.buyOnce)
+		{
+			return ShiftInUse;
+		}
+		return false;
+	}
+
+	public static int GetBulkCraftAmount(Item item)
+	{
+		int num = item.maxStack / item.stack;
+		if (num < 1)
+		{
+			num = 1;
+		}
+		return Math.Min(num, 10);
+	}
+
+	public static int EstimateDisplayStack(Item item)
+	{
+		int num = (item.buyOnce ? 1 : item.stack);
+		if (CanBulkBuy(item))
+		{
+			int bulkBuyAmount = GetBulkBuyAmount(item);
+			return num * bulkBuyAmount;
+		}
+		if (Main.TryingToBulkCraft() && ((item.tooltipContext == 22 && item.tooltipSlot == 0) || item.tooltipContext == 42 || item.tooltipContext == 41))
+		{
+			return GetBulkCraftAmount(item) * item.stack;
+		}
+		return num;
+	}
+
 	public static void MouseHover(Item[] inv, int context = 0, int slot = 0)
 	{
 		if (context == 6 && Main.hoverItemName == null)
@@ -2887,6 +2935,7 @@ public class ItemSlot
 			}
 			Main.HoverItem = inv[slot].Clone();
 			Main.HoverItem.tooltipContext = context;
+			Main.HoverItem.tooltipSlot = inv[slot].tooltipSlot;
 			switch (context)
 			{
 			case 8:
@@ -4216,7 +4265,7 @@ public class ItemSlot
 			Main.quickCraftStackSplit = true;
 			if (UILinksInitializer.SomeVarsForUILinkers.SequencedCraftingCurrent == Main.recipe[Main.availableRecipe[Main.focusRecipe]])
 			{
-				CraftingRequests.CraftItem(recipe, quickCraft: true);
+				CraftingRequests.CraftItem(recipe, 1, quickCraft: true);
 			}
 		}
 		return PlayerInput.BuildCommand(Lang.misc[71].Value, PlayerInput.ProfileGamepadUI.KeyStatus["Grapple"]);

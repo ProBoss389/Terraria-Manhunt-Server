@@ -241,7 +241,7 @@ public class FlexibleTileWand
 		flexibleTileWand.AddVariations(3086, tileIdToPlace, 47, 48, 49, 50, 51, 52);
 		flexibleTileWand.AddVariations(3081, tileIdToPlace, 53, 54, 55, 56, 57, 58);
 		flexibleTileWand.AddVariations(62, tileIdToPlace, 59, 60, 61);
-		flexibleTileWand.AddVariations(169, tileIdToPlace, 62, 63);
+		flexibleTileWand.AddVariations(169, tileIdToPlace, 62, 63, 65, 66, 67);
 		flexibleTileWand.AddVariations(276, tileIdToPlace, 64);
 		flexibleTileWand.AddVariations(1291, 702, 0, 1, 2);
 		return flexibleTileWand;
@@ -264,7 +264,7 @@ public class FlexibleTileWand
 		flexibleTileWand.AddVariations(3086, tileIdToPlace, 60, 61, 62, 63, 64, 65);
 		flexibleTileWand.AddVariations(3081, tileIdToPlace, 66, 67, 68, 69, 70, 71);
 		flexibleTileWand.AddVariations(62, tileIdToPlace, 72);
-		flexibleTileWand.AddVariations(169, tileIdToPlace, 73, 74, 76);
+		flexibleTileWand.AddVariations(169, tileIdToPlace, 73, 74, 76, 78, 79, 80, 81);
 		flexibleTileWand.AddVariations(276, tileIdToPlace, 75, 77);
 		flexibleTileWand.AddVariation(5114, 700, 0);
 		flexibleTileWand.AddVariation(5333, 701, 0);
