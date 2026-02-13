@@ -32,7 +32,7 @@ public class AuroraSky : CustomSky
 
 	public override void Update(GameTime gameTime)
 	{
-		if (Main.gamePaused || !Main.hasFocus)
+		if (FocusHelper.PauseSkies)
 		{
 			return;
 		}

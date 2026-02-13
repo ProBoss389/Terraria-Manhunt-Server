@@ -190,16 +190,16 @@ public class NPC : Entity
                 int cIdx = Main.player[i].FindBuffIndex(23);
                 int wIdx = Main.player[i].FindBuffIndex(149);
 
-                bool blockCursed = (cIdx != -1 && Main.player[i].buffTime[cIdx] <= 12);
+                bool blockCursed = cIdx != -1 && Main.player[i].buffTime[cIdx] <= 12;
 
                 bool blockWebbed = (wIdx != -1);
 
-                if (blockCursed || blockWebbed)
-                {
-                    continue;
-                }
-                // Regular Code
-                Player player = Main.player[i];
+                if (blockCursed && blockWebbed)
+{
+                continue;
+            }
+            // Regular Code
+            Player player = Main.player[i];
 				if (CanSpawnEnemiesNear(player))
 				{
 					if (Main.slimeRain)
@@ -2324,12 +2324,14 @@ public class NPC : Entity
 						{
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 230);
 						}
+						break;
 					}
-					else if (!Main.dayTime && Main.numClouds <= 55 && Main.cloudBGActive == 0f && Star.starfallBoost > 3f && flag10 && RollLuck(2) == 0)
+					if (!Main.dayTime && Main.numClouds <= 55 && Main.cloudBGActive == 0f && Star.starfallBoost > 3f && flag10 && RollLuck(2) == 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 484);
+						break;
 					}
-					else if (!tooWindyForButterflies && !Main.dayTime && Main.rand.Next(fireFlyFriendly) == 0 && flag10)
+					if (!tooWindyForButterflies && !Main.dayTime && Main.rand.Next(fireFlyFriendly) == 0 && flag10)
 					{
 						int type2 = 355;
 						if (spawnTileType == 109)
@@ -2353,8 +2355,9 @@ public class NPC : Entity
 						{
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16 + 16, type2);
 						}
+						break;
 					}
-					else if (!raining && !Main.dayTime && Main.rand.Next(5) == 0 && flag10)
+					if (!raining && !Main.dayTime && Main.rand.Next(5) == 0 && flag10)
 					{
 						if (RollBadLuckExtreme(100) == 0)
 						{
@@ -2364,8 +2367,9 @@ public class NPC : Entity
 						{
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 611);
 						}
+						break;
 					}
-					else if (Main.dayTime && Main.time < 18000.0 && Main.rand.Next(3) != 0 && flag10)
+					if (Main.dayTime && Main.time < 18000.0 && Main.rand.Next(3) != 0 && flag10)
 					{
 						int num39 = Main.rand.Next(4);
 						if (RollLuck(goldCritterChance) == 0)
@@ -2385,8 +2389,9 @@ public class NPC : Entity
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 74);
 							break;
 						}
+						break;
 					}
-					else if (!tooWindyForButterflies && !raining && Main.dayTime && Main.rand.Next(stinkBugChance) == 0 && flag10)
+					if (!tooWindyForButterflies && !raining && Main.dayTime && Main.rand.Next(stinkBugChance) == 0 && flag10)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 669);
 						if (Main.rand.Next(4) == 0)
@@ -2397,8 +2402,9 @@ public class NPC : Entity
 						{
 							SpawnNPC(spawnTileX * 16 + 8 + 16, spawnTileY * 16, 669);
 						}
+						break;
 					}
-					else if (!tooWindyForButterflies && !raining && Main.dayTime && Main.rand.Next(butterflyChance) == 0 && flag10)
+					if (!tooWindyForButterflies && !raining && Main.dayTime && Main.rand.Next(butterflyChance) == 0 && flag10)
 					{
 						if (RollLuck(goldCritterChance) == 0)
 						{
@@ -2416,8 +2422,9 @@ public class NPC : Entity
 						{
 							SpawnNPC(spawnTileX * 16 + 8 + 16, spawnTileY * 16, 356);
 						}
+						break;
 					}
-					else if (tooWindyForButterflies && !raining && Main.dayTime && Main.rand.Next(butterflyChance / 2) == 0 && flag10)
+					if (tooWindyForButterflies && !raining && Main.dayTime && Main.rand.Next(butterflyChance / 2) == 0 && flag10)
 					{
 						if (RollLuck(goldCritterChance) == 0)
 						{
@@ -2443,8 +2450,9 @@ public class NPC : Entity
 						{
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 604);
 						}
+						break;
 					}
-					else if (Main.rand.Next(2) == 0 && flag10)
+					if (Main.rand.Next(2) == 0 && flag10)
 					{
 						int num40 = Main.rand.Next(4);
 						if (RollLuck(goldCritterChance) == 0)
@@ -2464,8 +2472,14 @@ public class NPC : Entity
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 74);
 							break;
 						}
+						break;
 					}
-					else if (spawnTileY > Main.UnderworldLayer)
+					bool flag11 = (double)spawnTileY >= Main.rockLayer && spawnTileY <= Main.UnderworldLayer;
+					if (Main.remixWorld)
+					{
+						flag11 = (double)spawnTileY > Main.worldSurface && (double)spawnTileY < Main.rockLayer;
+					}
+					if (spawnTileY > Main.UnderworldLayer)
 					{
 						if (inRemixStartingArea && Main.rand.Next(2) == 0)
 						{
@@ -2491,35 +2505,21 @@ public class NPC : Entity
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 539);
 					}
-					else if (Main.halloween && Main.rand.Next(3) != 0)
+					else if (!flag11 && Main.halloween && Main.rand.Next(3) != 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 303);
 					}
-					else if (Main.xMas && Main.rand.Next(3) != 0)
+					else if (!flag11 && Main.xMas && Main.rand.Next(3) != 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 337);
 					}
-					else if (BirthdayParty.PartyIsUp && Main.rand.Next(3) != 0)
+					else if (!flag11 && BirthdayParty.PartyIsUp && Main.rand.Next(3) != 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 540);
 					}
 					else if (Main.rand.Next(3) == 0)
 					{
-						if (Main.remixWorld)
-						{
-							if ((double)spawnTileY < Main.rockLayer && (double)spawnTileY > Main.worldSurface)
-							{
-								if (Main.rand.Next(5) == 0)
-								{
-									SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, GetGemSquirrelToSpawn());
-								}
-							}
-							else if (flag10)
-							{
-								SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, Utils.SelectRandom(Main.rand, new short[2] { 299, 538 }));
-							}
-						}
-						else if ((double)spawnTileY >= Main.rockLayer && spawnTileY <= Main.UnderworldLayer)
+						if (flag11)
 						{
 							if (Main.rand.Next(5) == 0)
 							{
@@ -2531,25 +2531,7 @@ public class NPC : Entity
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, Utils.SelectRandom(Main.rand, new short[2] { 299, 538 }));
 						}
 					}
-					else if (Main.remixWorld)
-					{
-						if (!((double)spawnTileY < Main.rockLayer) || !((double)spawnTileY > Main.worldSurface))
-						{
-							break;
-						}
-						if ((double)spawnTileY >= Main.rockLayer && spawnTileY <= Main.UnderworldLayer)
-						{
-							if (Main.rand.Next(5) == 0)
-							{
-								SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, GetGemBunnyToSpawn());
-							}
-						}
-						else
-						{
-							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 46);
-						}
-					}
-					else if ((double)spawnTileY >= Main.rockLayer && spawnTileY <= Main.UnderworldLayer)
+					else if (flag11)
 					{
 						if (Main.rand.Next(5) == 0)
 						{
@@ -2581,16 +2563,16 @@ public class NPC : Entity
 				{
 					num41 = Main.rand.Next(3);
 				}
-				bool flag11 = !downedBoss3;
+				bool flag12 = !downedBoss3;
 				if ((Main.drunkWorld || !Main.isThereAWorldSurface) && pY < Main.dungeonY + 40)
 				{
-					flag11 = false;
+					flag12 = false;
 				}
 				if (SpecialSeedFeatures.NoDungeonGuardian)
 				{
-					flag11 = false;
+					flag12 = false;
 				}
-				if (flag11)
+				if (flag12)
 				{
 					SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 68);
 					return;
@@ -2687,14 +2669,14 @@ public class NPC : Entity
 					SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 32);
 					return;
 				}
-				bool flag12 = false;
+				bool flag13 = false;
 				if (Main.rand.Next(8) == 0)
 				{
 					Point bookPosition = Point.Zero;
 					if (AI_FindNearbyBook(new Point(spawnTileX - 16, spawnTileY - 16), 32, 32, out bookPosition, closestBook: true, checkPlayerScreenRanges: true))
 					{
 						SpawnNPC(bookPosition.X * 16 + 8, bookPosition.Y * 16, 694, 0, 0f, 0f, 0f, 3f);
-						flag12 = true;
+						flag13 = true;
 					}
 				}
 				else if (Main.rand.Next(10) == 0)
@@ -2703,11 +2685,11 @@ public class NPC : Entity
 					if (AI_FindNearbyBook(new Point(spawnTileX - 16, spawnTileY - 16), 32, 32, out bookPosition2, closestBook: true, checkPlayerScreenRanges: true))
 					{
 						SpawnNPC(bookPosition2.X * 16 + 8, bookPosition2.Y * 16, 693);
-						flag12 = true;
+						flag13 = true;
 					}
 				}
 				int num44 = Main.rand.Next(5);
-				if (flag12)
+				if (flag13)
 				{
 					return;
 				}
@@ -3493,10 +3475,10 @@ public class NPC : Entity
 				}
 				else if (((double)spawnTileY <= Main.worldSurface || (Main.remixWorld && (double)spawnTileY > Main.rockLayer)) && Main.dayTime && Main.eclipse)
 				{
-					bool flag13 = false;
+					bool flag14 = false;
 					if (downedMechBoss1 && downedMechBoss2 && downedMechBoss3)
 					{
-						flag13 = true;
+						flag14 = true;
 					}
 					if (downedPlantBoss && Main.rand.Next(80) == 0 && !AnyNPCs(477))
 					{
@@ -3522,7 +3504,7 @@ public class NPC : Entity
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 159);
 					}
-					else if (flag13 && Main.rand.Next(13) == 0)
+					else if (flag14 && Main.rand.Next(13) == 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 253);
 					}
@@ -3978,7 +3960,7 @@ public class NPC : Entity
 				{
 					SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 80);
 				}
-				else if (((Main.hardMode && underGround) || Main.remixWorld) && !waterTile && (spawnTileType == 116 || spawnTileType == 117 || spawnTileType == 109 || spawnTileType == 164))
+				else if (((Main.hardMode && underGround) || (Main.remixWorld && Main.rand.Next(2) == 0)) && !waterTile && (spawnTileType == 116 || spawnTileType == 117 || spawnTileType == 109 || spawnTileType == 164))
 				{
 					if (downedPlantBoss && (Main.remixWorld || (!Main.dayTime && Main.time < 16200.0)) && surfaceSpawn && RollLuck(10) == 0 && !AnyNPCs(661))
 					{
@@ -4007,20 +3989,20 @@ public class NPC : Entity
 				}
 				else if ((spawnTileType == 204 && ZoneCrimson) || spawnTileType == 199 || spawnTileType == 200 || spawnTileType == 203 || spawnTileType == 234 || spawnTileType == 662 || (Main.remixWorld && spawnTileType == 195))
 				{
-					bool flag14 = (double)spawnTileY >= Main.rockLayer;
+					bool flag15 = (double)spawnTileY >= Main.rockLayer;
 					if (Main.remixWorld)
 					{
-						flag14 = (double)spawnTileY <= Main.rockLayer;
+						flag15 = (double)spawnTileY <= Main.rockLayer;
 					}
-					if (Main.hardMode && flag14 && Main.rand.Next(40) == 0 && !noWorms)
+					if (Main.hardMode && flag15 && Main.rand.Next(40) == 0 && !noWorms)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 179);
 					}
-					else if (Main.hardMode && flag14 && Main.rand.Next(5) == 0 && !noWorms)
+					else if (Main.hardMode && flag15 && Main.rand.Next(5) == 0 && !noWorms)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 182);
 					}
-					else if (Main.hardMode && flag14 && Main.rand.Next(2) == 0)
+					else if (Main.hardMode && flag15 && Main.rand.Next(2) == 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 268);
 					}
@@ -4066,16 +4048,16 @@ public class NPC : Entity
 				}
 				else if ((spawnTileType == 22 && ZoneCorrupt) || spawnTileType == 23 || spawnTileType == 25 || spawnTileType == 112 || spawnTileType == 163 || spawnTileType == 661 || (Main.remixWorld && spawnTileType == 474))
 				{
-					bool flag15 = (double)spawnTileY >= Main.rockLayer;
+					bool flag16 = (double)spawnTileY >= Main.rockLayer;
 					if (Main.remixWorld)
 					{
-						flag15 = (double)spawnTileY <= Main.rockLayer;
+						flag16 = (double)spawnTileY <= Main.rockLayer;
 					}
-					if (Main.hardMode && flag15 && Main.rand.Next(40) == 0 && !noWorms)
+					if (Main.hardMode && flag16 && Main.rand.Next(40) == 0 && !noWorms)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 83);
 					}
-					else if (Main.hardMode && flag15 && Main.rand.Next(3) == 0)
+					else if (Main.hardMode && flag16 && Main.rand.Next(3) == 0)
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 101, 0, spawnTileX, spawnTileY);
 					}
@@ -4090,7 +4072,7 @@ public class NPC : Entity
 							SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 81);
 						}
 					}
-					else if (Main.hardMode && (Main.rand.Next(2) == 0 || flag15))
+					else if (Main.hardMode && (Main.rand.Next(2) == 0 || flag16))
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 94);
 					}
@@ -4109,10 +4091,10 @@ public class NPC : Entity
 				}
 				else if (surfaceSpawn)
 				{
-					bool flag16 = (float)Math.Abs(spawnTileX - Main.maxTilesX / 2) / (float)(Main.maxTilesX / 2) > 0.33f;
-					if (flag16 && AnyDanger())
+					bool flag17 = (float)Math.Abs(spawnTileX - Main.maxTilesX / 2) / (float)(Main.maxTilesX / 2) > 0.33f;
+					if (flag17 && AnyDanger())
 					{
-						flag16 = false;
+						flag17 = false;
 					}
 					if (ZoneGraveyard && !waterTile && (spawnTileType == 2 || spawnTileType == 477) && Main.rand.Next(10) == 0)
 					{
@@ -4136,7 +4118,7 @@ public class NPC : Entity
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 250);
 						return;
 					}
-					if (flag16 && Main.hardMode && downedGolemBoss && ((!downedMartians && Main.rand.Next(100) == 0) || Main.rand.Next(400) == 0) && !AnyNPCs(399))
+					if (flag17 && Main.hardMode && downedGolemBoss && ((!downedMartians && Main.rand.Next(100) == 0) || Main.rand.Next(400) == 0) && !AnyNPCs(399))
 					{
 						SpawnNPC(spawnTileX * 16 + 8, spawnTileY * 16, 399);
 						return;
@@ -6599,7 +6581,7 @@ public class NPC : Entity
 		}
 	}
 
-	public bool SupportsNPCTargets => NPCID.Sets.UsesNewTargetting[type];
+	public bool SupportsNPCTargets => NPCID.Sets.UsesNewTargeting[type];
 
 	public int TranslatedTargetIndex
 	{
@@ -55728,7 +55710,7 @@ public class NPC : Entity
 				if (flag35)
 				{
 					Tile tileSafely7 = Framing.GetTileSafely(point2.X, point2.Y);
-					if (!tileSafely7.nactive() || !TileID.Sets.InteractibleByNPCs[tileSafely7.type])
+					if (!tileSafely7.nactive() || !TileID.Sets.InteractableByNPCs[tileSafely7.type])
 					{
 						flag35 = false;
 					}
@@ -91480,7 +91462,7 @@ public class NPC : Entity
 				TryRemovingWaterPerishableEffects(isInLava: false);
 			}
 		}
-		if (Main.netMode != 1 && !noTileCollide && lifeMax > 1 && Collision.SwitchTiles(position, width, height, oldPosition, 2) && (type == 46 || type == 148 || type == 149 || type == 303 || type == 361 || type == 362 || type == 364 || type == 366 || type == 367 || (type >= 442 && type <= 448) || type == 602 || type == 608 || type == 614 || type == 687))
+		if (Main.netMode != 1 && !noTileCollide && lifeMax > 1 && Collision.SwitchTiles(this, position, width, height, oldPosition, 2) && (type == 46 || type == 148 || type == 149 || type == 303 || type == 361 || type == 362 || type == 364 || type == 366 || type == 367 || (type >= 442 && type <= 448) || type == 602 || type == 608 || type == 614 || type == 687))
 		{
 			ai[0] = 1f;
 			ai[1] = 400f;

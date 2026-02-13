@@ -34,6 +34,8 @@ public class UIWorldCreationAdvancedSecretSeedsList : UIState, IHaveBackButtonCo
 
 	private UIDust SeedDust = new UIDust();
 
+	private UIText _descriptionText;
+
 	private UIGamepadHelper _helper;
 
 	public UIWorldCreationAdvancedSecretSeedsList(UIWorldCreationAdvanced state, UIWorldCreation state2)
@@ -68,13 +70,14 @@ public class UIWorldCreationAdvancedSecretSeedsList : UIState, IHaveBackButtonCo
 		uIPanel.SetPadding(0f);
 		uIElement.Append(uIPanel);
 		MakeBackAndCreatebuttons(uIElement);
-		int num = 4;
+		int num = 56;
+		int num2 = 4;
 		UIElement uIElement2 = new UIElement
 		{
-			Top = StyleDimension.FromPixelsAndPercent(num, 0f),
+			Top = StyleDimension.FromPixelsAndPercent(num2, 0f),
 			Width = StyleDimension.FromPixelsAndPercent(-20f, 1f),
 			Left = StyleDimension.FromPixelsAndPercent(2f, 0f),
-			Height = StyleDimension.FromPixelsAndPercent(-num, 1f),
+			Height = StyleDimension.FromPixelsAndPercent(-num2 - num, 1f),
 			HAlign = 0.5f
 		};
 		uIElement2.SetPadding(0f);
@@ -94,25 +97,73 @@ public class UIWorldCreationAdvancedSecretSeedsList : UIState, IHaveBackButtonCo
 		_worldList.SetScrollbar(_scrollbar);
 		List<WorldGen.SecretSeed> seedsForInterface = SecretSeedsTracker.SeedsForInterface;
 		_worldList.ManualSortMethod = CustomSort;
-		int num2 = 0;
+		int num3 = 0;
 		foreach (WorldGen.SecretSeed item in seedsForInterface)
 		{
-			GroupOptionButton<WorldGen.SecretSeed> groupOptionButton = new GroupOptionButton<WorldGen.SecretSeed>(item, null, null, Color.White, null)
+			GroupOptionButton<WorldGen.SecretSeed> groupOptionButton = new GroupOptionButton<WorldGen.SecretSeed>(item, null, Language.GetText(item.Localization), Color.White, null)
 			{
 				Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
 				Height = new StyleDimension(40f, 0f),
 				HAlign = 0f
 			};
-			groupOptionButton.SetSnapPoint("Seed", num2++);
+			groupOptionButton.SetSnapPoint("Seed", num3++);
 			UIElement uIElement3 = new UIElement();
 			groupOptionButton.Append(uIElement3);
 			groupOptionButton.SetTextWithoutLocalization(item.TextThatWasUsedToUnlock, 1f, Color.White, 0f, 10f);
 			groupOptionButton.OnLeftMouseDown += ClickSecretSeed;
 			groupOptionButton.OnMouseOver += MouseOverSeed;
+			groupOptionButton.OnMouseOut += MouseOutSeed;
 			groupOptionButton.SetCurrentOption(item.Enabled ? item : null);
 			uIElement3.OnDraw += DrawGlowRing;
 			_worldList.Add(groupOptionButton);
 		}
+		UIElement uIElement4 = new UIElement
+		{
+			Width = StyleDimension.FromPixelsAndPercent(-20f, 1f),
+			Height = StyleDimension.FromPixelsAndPercent(num + num2, 0f),
+			HAlign = 0.5f,
+			VAlign = 1f
+		};
+		uIElement4.SetPadding(0f);
+		uIElement4.PaddingBottom = 12f;
+		uIPanel.Append(uIElement4);
+		AddDescriptionPanel(uIElement4, num, "desc");
+	}
+
+	private void AddDescriptionPanel(UIElement container, float accumulatedHeight, string tagGroup)
+	{
+		float num = 0f;
+		UISlicedImage uISlicedImage = new UISlicedImage(Main.Assets.Request<Texture2D>("Images/UI/CharCreation/CategoryPanelHighlight", AssetRequestMode.ImmediateLoad))
+		{
+			HAlign = 0.5f,
+			VAlign = 1f,
+			Width = StyleDimension.FromPixelsAndPercent((0f - num) * 2f, 1f),
+			Left = StyleDimension.FromPixels(0f - num),
+			Height = StyleDimension.FromPixelsAndPercent(accumulatedHeight, 0f),
+			Top = StyleDimension.FromPixels(2f)
+		};
+		uISlicedImage.SetSliceDepths(10);
+		uISlicedImage.Color = Color.LightGray * 0.7f;
+		container.Append(uISlicedImage);
+		UIText uIText = new UIText(Language.GetText("UI.WorldDescriptionDefault"), 0.7f)
+		{
+			HAlign = 0f,
+			VAlign = 0f,
+			Width = StyleDimension.FromPixelsAndPercent(0f, 1f),
+			Height = StyleDimension.FromPixelsAndPercent(0f, 1f),
+			Top = StyleDimension.FromPixelsAndPercent(2f, 0f)
+		};
+		uIText.IsWrapped = true;
+		uIText.PaddingLeft = 20f;
+		uIText.PaddingRight = 20f;
+		uIText.PaddingTop = 4f;
+		uISlicedImage.Append(uIText);
+		_descriptionText = uIText;
+	}
+
+	public void MouseOutSeed(UIMouseEvent evt, UIElement listeningElement)
+	{
+		ClearOptionDescription(evt, listeningElement);
 	}
 
 	public void MouseOverSeed(UIMouseEvent evt, UIElement listeningElement)
@@ -124,6 +175,7 @@ public class UIWorldCreationAdvancedSecretSeedsList : UIState, IHaveBackButtonCo
 			{
 				listeningElement.LeftMouseDown(evt);
 			}
+			ShowOptionDescription(evt, listeningElement);
 		}
 	}
 
@@ -346,17 +398,37 @@ public class UIWorldCreationAdvancedSecretSeedsList : UIState, IHaveBackButtonCo
 		SoundEngine.PlaySound(12);
 		((UIPanel)evt.Target).BackgroundColor = new Color(73, 94, 171);
 		((UIPanel)evt.Target).BorderColor = Colors.FancyUIFatButtonMouseOver;
+		ShowOptionDescription(evt, listeningElement);
 	}
 
 	private void FadedMouseOut(UIMouseEvent evt, UIElement listeningElement)
 	{
 		((UIPanel)evt.Target).BackgroundColor = new Color(63, 82, 151) * 0.8f;
 		((UIPanel)evt.Target).BorderColor = Color.Black;
+		ClearOptionDescription(evt, listeningElement);
 	}
 
 	public void HandleBackButtonUsage()
 	{
 		GoBack();
+	}
+
+	public void ClearOptionDescription(UIMouseEvent evt, UIElement listeningElement)
+	{
+		_descriptionText.SetText(Language.GetText("UI.WorldDescriptionDefault"));
+	}
+
+	public void ShowOptionDescription(UIMouseEvent evt, UIElement listeningElement)
+	{
+		LocalizedText localizedText = null;
+		if (listeningElement is GroupOptionButton<WorldGen.SecretSeed> groupOptionButton)
+		{
+			localizedText = groupOptionButton.Description;
+		}
+		if (localizedText != null)
+		{
+			_descriptionText.SetText(localizedText);
+		}
 	}
 
 	public override void Draw(SpriteBatch spriteBatch)

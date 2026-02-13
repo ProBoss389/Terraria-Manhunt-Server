@@ -15745,7 +15745,7 @@ public class Projectile : Entity
 			}
 			if (Main.netMode != 1 && (type == 99 || type == 1013 || type == 1047 || type == 655 || type == 727 || type == 1014 || type == 1021 || type == 1048 || type == 1053 || type == 1054 || type == 1055 || type == 1057))
 			{
-				Collision.SwitchTiles(position, width, height, oldPosition, 3);
+				Collision.SwitchTiles(this, position, width, height, oldPosition, 3);
 			}
 			if (ProjectileID.Sets.TrailingMode[type] == 0)
 			{
@@ -16450,7 +16450,7 @@ public class Projectile : Entity
 							flag2 = true;
 							if (owner == Main.myPlayer && vector != vector9 && !flag4)
 							{
-								Collision.SwitchTiles(vector, colWidth, colHeight, vector9, 4);
+								Collision.SwitchTiles(this, vector, colWidth, colHeight, vector9, 4);
 							}
 							vector11 = velocity;
 							zero += vector11;
@@ -18459,7 +18459,7 @@ public class Projectile : Entity
 		{
 			GetCollisionParams(out var resizeAnchor2, out var colWidth2, out var colHeight2);
 			Vector2 vector25 = base.Size / 2f - new Vector2(colWidth2, colHeight2) * resizeAnchor2;
-			Collision.SwitchTiles(position + vector25, colWidth2, colHeight2, oldPosition + vector25, 4);
+			Collision.SwitchTiles(this, position + vector25, colWidth2, colHeight2, oldPosition + vector25, 4);
 		}
 	}
 
@@ -18964,7 +18964,7 @@ public class Projectile : Entity
 			bool? flag = ProjectileID.Sets.ForcePlateDetection[135];
 			if ((!flag.HasValue || flag.Value) && localAI[1] != 0f)
 			{
-				Collision.SwitchTiles(position, width, height, oldPosition, 4);
+				Collision.SwitchTiles(this, position, width, height, oldPosition, 4);
 			}
 		}
 		if (ballStepResult.State == BallState.Moving)
@@ -31880,7 +31880,7 @@ public class Projectile : Entity
 				frameCounter = 0;
 				frame = 0;
 			}
-			Main.CurrentFrameFlags.HadAnActiveInteractibleProjectile = true;
+			Main.CurrentFrameFlags.HadAnActiveInteractableProjectile = true;
 			if (owner == Main.myPlayer)
 			{
 				for (int num842 = 0; num842 < 1000; num842++)
@@ -36435,7 +36435,7 @@ public class Projectile : Entity
 			if (soundDelay <= 0)
 			{
 				soundDelay = 10;
-				SoundEngine.PlaySound(SoundID.Item190, base.Center);
+				SoundEngine.PlaySound(SoundID.Item199, base.Center);
 			}
 			bool flag9 = false;
 			if (num3 != 0)
@@ -36723,6 +36723,11 @@ public class Projectile : Entity
 		}
 		if (ProjectileID.Sets.IsAPhaseblade[type])
 		{
+			if (Main.myPlayer == owner && ai[0] != 1f && !WorldGen.InWorld(base.Center.ToTileCoordinates(), 10))
+			{
+				ai[0] = 1f;
+				netUpdate = true;
+			}
 			if (timeLeft < 5 && Main.player[owner].active && !Main.player[owner].dead)
 			{
 				timeLeft = 5;
@@ -46245,8 +46250,12 @@ public class Projectile : Entity
 				break;
 			case 55:
 			case 56:
+				master.ApplyHeadOffsetFromMount(ref pos);
+				pos += new Vector2(0f, -4f) * master.Directions;
+				break;
 			case 61:
 				master.ApplyHeadOffsetFromMount(ref pos);
+				pos += new Vector2(2f, -4f) * master.Directions;
 				break;
 			}
 		}
@@ -49173,7 +49182,7 @@ public class Projectile : Entity
 
 	private void AI_154_VoidLens()
 	{
-		Main.CurrentFrameFlags.HadAnActiveInteractibleProjectile = true;
+		Main.CurrentFrameFlags.HadAnActiveInteractableProjectile = true;
 		if (owner == Main.myPlayer)
 		{
 			for (int i = 0; i < 1000; i++)
@@ -55169,7 +55178,7 @@ public class Projectile : Entity
 		}
 		if (type == 960)
 		{
-			Main.CurrentFrameFlags.HadAnActiveInteractibleProjectile = true;
+			Main.CurrentFrameFlags.HadAnActiveInteractableProjectile = true;
 			flag = true;
 		}
 		if (flag10)
@@ -75800,7 +75809,7 @@ public class Projectile : Entity
 		return false;
 	}
 
-	public bool IsInteractible()
+	public bool IsInteractable()
 	{
 		switch (type)
 		{

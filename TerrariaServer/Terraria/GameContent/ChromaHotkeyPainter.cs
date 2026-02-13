@@ -257,7 +257,7 @@ public class ChromaHotkeyPainter
 	public void Update()
 	{
 		_player = Main.LocalPlayer;
-		if (!Main.hasFocus)
+		if (!FocusHelper.AllowChroma)
 		{
 			Step_ClearAll();
 			return;

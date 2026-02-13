@@ -65,7 +65,7 @@ public static class TextureAssets
 
 	public static Asset<Texture2D>[] NpcHeadBoss = new Asset<Texture2D>[40];
 
-	public static Asset<Texture2D>[] CraftToggle = new Asset<Texture2D>[4];
+	public static Asset<Texture2D>[] CraftToggle = new Asset<Texture2D>[6];
 
 	public static Asset<Texture2D>[] ChestCraft = new Asset<Texture2D>[4];
 

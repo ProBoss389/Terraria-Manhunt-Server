@@ -17,7 +17,7 @@ public class CinematicManager
 			{
 				_films[0].OnBegin();
 			}
-			if (Main.hasFocus && !Main.gamePaused && !_films[0].OnUpdate(gameTime))
+			if (FocusHelper.UpdateVisualEffects && !_films[0].OnUpdate(gameTime))
 			{
 				_films[0].OnEnd();
 				_films.RemoveAt(0);

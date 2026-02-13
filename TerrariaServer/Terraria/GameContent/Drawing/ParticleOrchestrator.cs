@@ -1440,6 +1440,10 @@ public class ParticleOrchestrator
 			Vector2 arg = (positionInWorld - movementVector).SafeNormalize(Vector2.Zero) * ((float)settings.UniqueInfoPiece / 1000f);
 			float num = (positionInWorld - movementVector).Length();
 			float num2 = arg.Length();
+			if (num2 < 4f)
+			{
+				num2 = 4f;
+			}
 			for (float num3 = 0f; num3 < num; num3 += num2)
 			{
 				float amount = num3 / num;

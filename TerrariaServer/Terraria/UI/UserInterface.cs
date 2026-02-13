@@ -188,7 +188,7 @@ public class UserInterface
 		{
 			return;
 		}
-		bool flag = Main.hasFocus;
+		bool flag = FocusHelper.AllowUIInputs;
 		if (!Main.gameMenu && PlayerInput.IgnoreMouseInterface)
 		{
 			flag = false;

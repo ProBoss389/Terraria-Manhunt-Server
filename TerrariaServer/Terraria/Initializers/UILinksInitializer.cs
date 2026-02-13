@@ -1080,8 +1080,10 @@ public class UILinksInitializer
 		cp11.LinkMap.Add(11002, new UILinkPoint(11002, enabled: true, 11001, -4, -1, 11003));
 		cp11.LinkMap.Add(11003, new UILinkPoint(11003, enabled: true, 1501, -4, 11001, 1502));
 		cp11.LinkMap[1500].OnSpecialInteracts += () => ItemSlot.GetGamepadInstructions(ref Main.guideItem, 7);
+		cp11.LinkMap[11001].OnSpecialInteracts += () => PlayerInput.BuildCommand(Language.GetTextValue("UI.ToggleClassicGrid"), PlayerInput.ProfileGamepadUI.KeyStatus["MouseRight"]);
 		cp11.UpdateEvent += delegate
 		{
+			cp11.PageOnLeft = ((Player.Settings.CraftingGridControl == Player.Settings.CraftingGridMode.Classic) ? 10 : 8);
 			int num39 = UILinkPointNavigator.Shortcuts.CRAFT_CurrentIngredientsCount;
 			int num40 = num39;
 			if (MainnumAvailableRecipes > 0)
@@ -1208,14 +1210,14 @@ public class UILinksInitializer
 		UILinkPage cp12 = new UILinkPage();
 		cp12.OnSpecialInteracts += () => PlayerInput.BuildCommand(Lang.misc[56].Value, PlayerInput.ProfileGamepadUI.KeyStatus["Inventory"]) + PlayerInput.BuildCommand(Lang.misc[64].Value, PlayerInput.ProfileGamepadUI.KeyStatus["HotbarMinus"], PlayerInput.ProfileGamepadUI.KeyStatus["HotbarPlus"]);
 		cp12.OnSpecialInteractsLate += () => ItemSlot.GetGamepadInstructions(Main.InPipBanner ? 35 : 22);
-		for (int num26 = 700; num26 < 1500; num26++)
+		for (int num26 = 22000; num26 < 30000; num26++)
 		{
 			UILinkPoint uILinkPoint10 = new UILinkPoint(num26, enabled: true, num26, num26, num26, num26);
 			int IHateLambda = num26;
 			uILinkPoint10.OnSpecialInteracts += delegate
 			{
 				string text = PlayerInput.BuildCommand(Lang.misc[73].Value, PlayerInput.ProfileGamepadUI.KeyStatus["MouseLeft"]);
-				if (TryQuickCrafting(700, IHateLambda))
+				if (TryQuickCrafting(22000, IHateLambda))
 				{
 					text += PlayerInput.BuildCommand(Lang.misc[71].Value, PlayerInput.ProfileGamepadUI.KeyStatus["Grapple"]);
 				}
@@ -1232,9 +1234,9 @@ public class UILinksInitializer
 				num39 = 100;
 			}
 			int num40 = num39 * cRAFT_IconsPerColumn;
-			if (num40 > 800)
+			if (num40 > 8000)
 			{
-				num40 = 800;
+				num40 = 8000;
 			}
 			if (num40 > MainnumAvailableRecipes)
 			{
@@ -1242,10 +1244,10 @@ public class UILinksInitializer
 			}
 			for (int i = 0; i < num40; i++)
 			{
-				cp12.LinkMap[700 + i].Left = ((i % num39 == 0) ? (-3) : (700 + i - 1));
-				cp12.LinkMap[700 + i].Right = (((i + 1) % num39 == 0 || i == MainnumAvailableRecipes - 1) ? (-4) : (700 + i + 1));
-				cp12.LinkMap[700 + i].Down = ((i < num40 - num39) ? (700 + i + num39) : (-2));
-				cp12.LinkMap[700 + i].Up = ((i < num39) ? (-1) : (700 + i - num39));
+				cp12.LinkMap[22000 + i].Left = ((i % num39 == 0) ? (-3) : (22000 + i - 1));
+				cp12.LinkMap[22000 + i].Right = (((i + 1) % num39 == 0 || i == MainnumAvailableRecipes - 1) ? (-4) : (22000 + i + 1));
+				cp12.LinkMap[22000 + i].Down = ((i < num40 - num39) ? (22000 + i + num39) : (-2));
+				cp12.LinkMap[22000 + i].Up = ((i < num39) ? (-1) : (22000 + i - num39));
 			}
 			cp12.PageOnLeft = GetCornerWrapPageIdFromLeftToRight();
 		};

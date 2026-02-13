@@ -172,7 +172,7 @@ public class TileID
 
 		public static bool[] AllBlocksWithSmoothBordersToResolveHalfBlockIssue = Factory.CreateBoolSet(false, 321, 157, 208, 159, 190, 80, 251, 202, 229, 56, 38, 39, 152, 118, 151, 148, 206, 119, 175, 46, 176, 45, 140, 347, 370, 121, 122, 680, 681, 682, 685, 686, 346, 687, 688, 689, 690, 691, 692, 160, 226, 54, 156, 155, 153, 154, 150, 250, 198, 273, 274, 325, 284, 348, 385, 327, 326, 345, 328, 329, 357, 369, 268, 261, 262, 255, 267, 260, 265, 258, 266, 259, 264, 257, 263, 256, 311, 426, 430, 431, 432, 433, 434, 727, 728, 729, 730, 731, 732, 272, 145, 146, 350, 127, 472, 473, 477, 478, 479, 492, 496, 507, 508, 563, 618, 708, 722, 735, 748);
 
-		public static bool[] CanBeDugByShovel = Factory.CreateBoolSet(false, 0, 668, 59, 57, 123, 224, 147, 2, 109, 23, 661, 199, 662, 60, 70, 477, 492, 53, 116, 112, 234, 40, 495, 633);
+		public static bool[] CanBeDugByShovel = Factory.CreateBoolSet(false, 0, 668, 59, 57, 123, 224, 147, 2, 109, 23, 661, 199, 662, 60, 70, 477, 492, 53, 116, 112, 234, 40, 495, 633, 189, 196, 460, 717, 718, 719);
 
 		public static bool[] NonSolidSaveSlopes = Factory.CreateBoolSet(false, 131, 351, 336, 340, 342, 341, 343, 344);
 
@@ -199,6 +199,8 @@ public class TileID
 		public static int[] SmartCursorPickaxePriorityOverride = Factory.CreateIntSet(0, 12, 1, 665, 1, 639, 1);
 
 		public static bool[] IgnoreSmartCursorPriorityAxe = Factory.CreateBoolSet(false, 488);
+
+		public static bool[] IgnoredByNpcStepUp = Factory.CreateBoolSet(14, 469, 18, 16, 134);
 
 		public static bool[] CanBeSatOnForNPCs = Factory.CreateBoolSet(false, 15, 497);
 
@@ -364,7 +366,7 @@ public class TileID
 
 		public static bool[] AvoidedByNPCs = Factory.CreateBoolSet(21, 467, 55, 85, 395, 88, 463, 334, 29, 97, 99, 356, 663, 425, 440, 209, 441, 468, 471, 491, 510, 511, 520, 573, 698);
 
-		public static bool[] InteractibleByNPCs = Factory.CreateBoolSet(17, 77, 133, 12, 665, 639, 26, 695, 35, 36, 55, 395, 471, 698, 21, 467, 29, 97, 88, 99, 463, 491, 33, 372, 174, 49, 646, 100, 173, 78, 79, 94, 96, 101, 50, 707, 103, 282, 106, 114, 125, 171, 172, 207, 215, 220, 219, 244, 228, 237, 247, 128, 269, 354, 355, 377, 287, 378, 390, 302, 405, 406, 411, 425, 209, 441, 468, 452, 454, 455, 457, 462, 470, 475, 494, 499, 505, 511, 510, 520, 543, 565, 573, 597, 598, 617, 621, 464, 642, 699);
+		public static bool[] InteractableByNPCs = Factory.CreateBoolSet(17, 77, 133, 12, 665, 639, 26, 695, 35, 36, 55, 395, 471, 698, 21, 467, 29, 97, 88, 99, 463, 491, 33, 372, 174, 49, 646, 100, 173, 78, 79, 94, 96, 101, 50, 707, 103, 282, 106, 114, 125, 171, 172, 207, 215, 220, 219, 244, 228, 237, 247, 128, 269, 354, 355, 377, 287, 378, 390, 302, 405, 406, 411, 425, 209, 441, 468, 452, 454, 455, 457, 462, 470, 475, 494, 499, 505, 511, 510, 520, 543, 565, 573, 597, 598, 617, 621, 464, 642, 699);
 
 		public static bool[] HousingWalls = Factory.CreateBoolSet(11, 389, 386);
 

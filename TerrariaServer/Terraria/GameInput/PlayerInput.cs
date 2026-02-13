@@ -211,7 +211,7 @@ public class PlayerInput
 		"MapFull", "MapStyle", "Hotbar1", "Hotbar2", "Hotbar3", "Hotbar4", "Hotbar5", "Hotbar6", "Hotbar7", "Hotbar8",
 		"Hotbar9", "Hotbar10", "HotbarMinus", "HotbarPlus", "DpadRadial1", "DpadRadial2", "DpadRadial3", "DpadRadial4", "RadialHotbar", "RadialQuickbar",
 		"DpadSnap1", "DpadSnap2", "DpadSnap3", "DpadSnap4", "MenuUp", "MenuDown", "MenuLeft", "MenuRight", "LockOn", "ViewZoomIn",
-		"ViewZoomOut", "Loadout1", "Loadout2", "Loadout3", "ToggleCameraMode", "ToggleCreativeMenu"
+		"ViewZoomOut", "Loadout1", "Loadout2", "Loadout3", "PreviousLoadout", "NextLoadout", "ToggleCameraMode", "ToggleCreativeMenu", "ArmorSetAbility", "Dash"
 	};
 
 	private static bool _canReleaseRebindingLock = true;
@@ -476,8 +476,8 @@ public class PlayerInput
 
 	public static void ResetInputsOnActiveStateChange()
 	{
-		bool isActive = Main.instance.IsActive;
-		if (_lastActivityState != isActive)
+		bool allowInputProcessing = FocusHelper.AllowInputProcessing;
+		if (_lastActivityState != allowInputProcessing)
 		{
 			MouseInfo = default(MouseState);
 			MouseInfoOld = default(MouseState);
@@ -495,7 +495,7 @@ public class PlayerInput
 			}
 			_invalidatorCheck = text;
 		}
-		_lastActivityState = isActive;
+		_lastActivityState = allowInputProcessing;
 	}
 
 	public static List<Keys> GetPressedKeys()
@@ -869,7 +869,7 @@ public class PlayerInput
 		{
 			return false;
 		}
-		if (!Main.instance.IsActive && !Main.AllowUnfocusedInputOnGamepad)
+		if (!FocusHelper.AllowInputProcessingForGamepad)
 		{
 			return false;
 		}
@@ -1266,7 +1266,7 @@ public class PlayerInput
 			PreventFirstMousePositionGrab = false;
 		}
 		MouseKeys.Clear();
-		if (Main.instance.IsActive)
+		if (FocusHelper.AllowInputProcessing)
 		{
 			if (MouseInfo.LeftButton == ButtonState.Pressed)
 			{
@@ -1704,7 +1704,7 @@ public class PlayerInput
 				Item item = Main.player[Main.myPlayer].inventory[Main.player[Main.myPlayer].selectedItem];
 				empty = ((item.damage > 0 && item.ammo == 0) ? (empty + BuildCommand(Lang.misc[60].Value, keyConfiguration.KeyStatus["MouseLeft"])) : ((item.createTile < 0 && item.createWall <= 0) ? (empty + BuildCommand(Lang.misc[63].Value, keyConfiguration.KeyStatus["MouseLeft"])) : (empty + BuildCommand(Lang.misc[61].Value, keyConfiguration.KeyStatus["MouseLeft"]))));
 				bool flag = true;
-				bool flag2 = Main.SmartInteractProj != -1 || Main.HasInteractibleObjectThatIsNotATile;
+				bool flag2 = Main.SmartInteractProj != -1 || Main.HasInteractableObjectThatIsNotATile;
 				bool flag3 = !Main.SmartInteractShowingGenuine && Main.SmartInteractShowingFake;
 				if (Main.SmartInteractShowingGenuine || Main.SmartInteractShowingFake || flag2)
 				{

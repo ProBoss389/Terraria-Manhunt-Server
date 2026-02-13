@@ -330,8 +330,6 @@ public static class GamepadPointID
 
 	public const int NPCHousing0 = 600;
 
-	public const int CraftsBig = 700;
-
 	public const int CraftsSmall = 1500;
 
 	public const int PVP0 = 1550;
@@ -505,4 +503,8 @@ public static class GamepadPointID
 	public const int NewCraftingUIGrid0 = 20100;
 
 	public const int NewCraftingUIEnd = 21000;
+
+	public const int CraftsBig = 22000;
+
+	public const int CraftsBigCount = 8000;
 }

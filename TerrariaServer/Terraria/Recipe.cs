@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Terraria.GameContent;
+using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.Map;
+using Terraria.UI;
 
 namespace Terraria;
 
@@ -238,6 +240,7 @@ public class Recipe
 		}
 		Player localPlayer = Main.LocalPlayer;
 		CollectItemsToCraftWithFrom(localPlayer);
+		NewCraftingUI.RecipeFilter recipeFilterHack = CraftingUI.RecipeFilterHack;
 		for (int i = 0; i < maxRecipes; i++)
 		{
 			Recipe recipe = Main.recipe[i];
@@ -245,7 +248,7 @@ public class Recipe
 			{
 				break;
 			}
-			if (recipe.PlayerMeetsEnvironmentConditions(localPlayer) && CollectedEnoughItemsToCraft(recipe))
+			if ((recipeFilterHack == null || recipeFilterHack.Accepts(recipe)) && recipe.PlayerMeetsEnvironmentConditions(localPlayer) && CollectedEnoughItemsToCraft(recipe))
 			{
 				AddToAvailableRecipes(i);
 			}
@@ -12762,7 +12765,7 @@ public class Recipe
 		currentRecipe.requiredTile = 412;
 		AddRecipe();
 		currentRecipe.createItem.SetDefaults(5627);
-		currentRecipe.SetIngredients(575, 20, 5737, 1);
+		currentRecipe.SetIngredients(5737, 1, 575, 20, 1225, 12);
 		currentRecipe.SetCraftingStation(134);
 		AddRecipe();
 		currentRecipe.createItem.SetDefaults(250);

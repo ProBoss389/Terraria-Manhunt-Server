@@ -3247,7 +3247,7 @@ public class Collision
 		return false;
 	}
 
-	public static bool SwitchTiles(Vector2 Position, int Width, int Height, Vector2 oldPosition, int objType)
+	public static bool SwitchTiles(Entity entity, Vector2 Position, int Width, int Height, Vector2 oldPosition, int objType)
 	{
 		int num = (int)(Position.X / 16f) - 1;
 		int num2 = (int)((Position.X + (float)Width) / 16f) + 2;
@@ -3377,28 +3377,6 @@ public class Collision
 					}
 				}
 				return true;
-			}
-		}
-		return false;
-	}
-
-	public bool SwitchTilesNew(Vector2 Position, int Width, int Height, Vector2 oldPosition, int objType)
-	{
-		Point point = Position.ToTileCoordinates();
-		Point point2 = (Position + new Vector2(Width, Height)).ToTileCoordinates();
-		int num = Utils.Clamp(point.X, 0, Main.maxTilesX - 1);
-		int num2 = Utils.Clamp(point.Y, 0, Main.maxTilesY - 40);
-		int num3 = Utils.Clamp(point2.X, 0, Main.maxTilesX - 1);
-		int num4 = Utils.Clamp(point2.Y, 0, Main.maxTilesY - 40);
-		for (int i = num; i <= num3; i++)
-		{
-			for (int j = num2; j <= num4; j++)
-			{
-				if (Main.tile[i, j] != null)
-				{
-					_ = Main.tile[i, j].type;
-					_ = 130;
-				}
 			}
 		}
 		return false;
@@ -3740,9 +3718,9 @@ public class Collision
 			tile2 = Main.tile[num2, num3 - 1];
 			if (specialChecksMode == 1)
 			{
-				flag5 = tile.type != 16 && tile.type != 18 && tile.type != 14 && tile.type != 469 && tile.type != 134;
+				flag5 = !TileID.Sets.IgnoredByNpcStepUp[tile.type];
 			}
-			flag4 = flag4 && ((tile.nactive() && (!tile.topSlope() || (tile.slope() == 1 && position.X + (float)(width / 2) < (float)(num2 * 16)) || (tile.slope() == 2 && position.X + (float)(width / 2) > (float)(num2 * 16 + 16))) && (!tile.topSlope() || position.Y + (float)height > (float)(num3 * 16)) && ((Main.tileSolid[tile.type] && !Main.tileSolidTop[tile.type]) || (holdsMatching && ((Main.tileSolidTop[tile.type] && tile.frameY == 0) || TileID.Sets.Platforms[tile.type]) && (!Main.tileSolid[tile2.type] || !tile2.nactive()) && flag5))) || (tile2.halfBrick() && tile2.nactive()));
+			flag4 = flag4 && ((tile.nactive() && (!tile.topSlope() || (tile.slope() == 1 && position.X + (float)(width / 2) < (float)(num2 * 16)) || (tile.slope() == 2 && position.X + (float)(width / 2) > (float)(num2 * 16 + 16))) && (!tile.topSlope() || position.Y + (float)height > (float)(num3 * 16)) && ((Main.tileSolid[tile.type] && !Main.tileSolidTop[tile.type]) || (holdsMatching && ((Main.tileSolidTop[tile.type] && tile.frameY == 0) || TileID.Sets.Platforms[tile.type] || tile.type == 380) && (!Main.tileSolid[tile2.type] || !tile2.nactive()) && flag5))) || (tile2.halfBrick() && tile2.nactive()));
 			flag4 &= !Main.tileSolidTop[tile.type] || !Main.tileSolidTop[tile2.type];
 		}
 		else

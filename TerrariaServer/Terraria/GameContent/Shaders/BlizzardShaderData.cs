@@ -29,7 +29,7 @@ public class BlizzardShaderData : ScreenShaderData
 		Vector2 vector = new Vector2(0f - windSpeed, -1f) * new Vector2(10f, 2f);
 		vector.Normalize();
 		vector *= new Vector2(0.8f, 0.6f);
-		if (!Main.gamePaused && Main.hasFocus)
+		if (FocusHelper.UpdateVisualEffects)
 		{
 			_texturePosition += vector * (float)gameTime.ElapsedGameTime.TotalSeconds;
 		}

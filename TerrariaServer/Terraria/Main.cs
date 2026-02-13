@@ -96,7 +96,7 @@ public class Main : Microsoft.Xna.Framework.Game
 
 		public static bool AnyActiveBossNPC;
 
-		public static bool HadAnActiveInteractibleProjectile;
+		public static bool HadAnActiveInteractableProjectile;
 	}
 
 	public enum PipPage
@@ -196,15 +196,15 @@ public class Main : Microsoft.Xna.Framework.Game
 		public bool LanternNightActive;
 	}
 
-	private const string versionStringBecauseTheyreTheSame = "v1.4.5.4";
+	private const string versionStringBecauseTheyreTheSame = "v1.4.5.5";
 
-	public const int curRelease = 317;
+	public const int curRelease = 318;
 
-	public const string assemblyVersionNumber = "1.4.5.4";
+	public const string assemblyVersionNumber = "1.4.5.5";
 
 	public const string copyrightText = "Copyright © 2026 Re-Logic";
 
-	public const ulong WorldGeneratorVersion = 1361504632833uL;
+	public const ulong WorldGeneratorVersion = 1365799600129uL;
 
 	public static int mapDelay = 2;
 
@@ -243,6 +243,8 @@ public class Main : Microsoft.Xna.Framework.Game
 	public static bool SettingBlockGamepadsEntirely;
 
 	public static bool SettingDontScaleMainMenuUp;
+
+	public static bool SettingPlayWhenUnfocused = false;
 
 	public static bool SettingsEnabled_OpaqueBoxBehindTooltips = true;
 
@@ -294,9 +296,9 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public static List<TitleLinkButton> TitleLinks = new List<TitleLinkButton>();
 
-	public static string versionNumber = "v1.4.5.4";
+	public static string versionNumber = "v1.4.5.5";
 
-	public static string versionNumber2 = "v1.4.5.4";
+	public static string versionNumber2 = "v1.4.5.5";
 
 	public static bool AnnouncementBoxDisabled;
 
@@ -1024,8 +1026,6 @@ public class Main : Microsoft.Xna.Framework.Game
 	public static int teamCooldownLen = 300;
 
 	public static bool gamePaused;
-
-	public static bool gameInactive;
 
 	public bool ReHideCursor;
 
@@ -1768,8 +1768,6 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public static float inventoryScale = 0.75f;
 
-	public static bool hasFocus;
-
 	public static Microsoft.Xna.Framework.Point rulerLineDisplayValues = default(Microsoft.Xna.Framework.Point);
 
 	public static bool PipsFastScroll;
@@ -1997,7 +1995,7 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public static float invasionProgressAlpha;
 
-	public static bool HasInteractibleObjectThatIsNotATile = false;
+	public static bool HasInteractableObjectThatIsNotATile = false;
 
 	public int currentNPCShowingChatBubble = -1;
 
@@ -3023,7 +3021,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			if (!HoveringOverAnNPC && !SmartInteractShowingGenuine)
 			{
-				return HasInteractibleObjectThatIsNotATile;
+				return HasInteractableObjectThatIsNotATile;
 			}
 			return true;
 		}
@@ -4204,7 +4202,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			using FileStream output = new FileStream(SavePath + Path.DirectorySeparatorChar + "servers.dat", FileMode.Create);
 			using BinaryWriter binaryWriter = new BinaryWriter(output);
-			binaryWriter.Write(317);
+			binaryWriter.Write(318);
 			for (int i = 0; i < 10; i++)
 			{
 				binaryWriter.Write(recentWorld[i]);
@@ -4264,7 +4262,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Put("LightingMode", Lighting.Mode);
 		configuration.Put("BackgroundParallax", bgScroll);
 		configuration.Put("ShowItemText", showItemText);
-		configuration.Put("LastLaunchedVersion", 317);
+		configuration.Put("LastLaunchedVersion", 318);
 		configuration.Put("ClientUUID", clientUUID);
 		configuration.Put("UseSmartCursorForCommonBlocks", Player.SmartCursorSettings.SmartBlocksEnabled);
 		configuration.Put("UseSmartAxeAfterSmartPickaxe", Player.SmartCursorSettings.SmartAxeAfterPickaxe);
@@ -4317,11 +4315,14 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Put("UnpinFromCore0", UnpinFromCore0);
 		configuration.Put("DoorAutoOpeningMode", DoorOpeningHelper.PreferenceSettings);
 		configuration.Put("HoverControlMode", Player.Settings.HoverControl);
+		configuration.Put("DashControlMode", Player.Settings.DashControl);
+		configuration.Put("CraftingControlMode", Player.Settings.CraftingGridControl);
 		configuration.Put("StackToChestsPreferredMode", Player.Settings.StackToChestsPreferredMode);
 		configuration.Put("CraftFromNearbyChests", Player.Settings.CraftFromNearbyChests);
 		configuration.Put("WaterfallDrawLimit", instance.waterfallManager.maxWaterfallCount);
 		configuration.Put("FlashyEffectsWorld", FlashyEffectsWorld);
 		configuration.Put("FlashyEffectsInterface", FlashyEffectsInterface);
+		configuration.Put("PlayWhenUnfocused", SettingPlayWhenUnfocused);
 		configuration.Put("UseScreenShake", UseScreenShake);
 		configuration.Put("PortraitPreference", DialoguePortraitPreference);
 		configuration.Put("SecretSeeds", SecretSeedsTracker.GetStringsToSave());
@@ -4444,6 +4445,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Get("GoreVisualsAllowed", ref ChildSafety.Disabled);
 		configuration.Get("FlashyEffectsWorld", ref FlashyEffectsWorld);
 		configuration.Get("FlashyEffectsInterface", ref FlashyEffectsInterface);
+		configuration.Get("PlayWhenUnfocused", ref SettingPlayWhenUnfocused);
 		if (!flag)
 		{
 			configuration.Get("VolumeSound", ref soundVolume);
@@ -4638,6 +4640,8 @@ public class Main : Microsoft.Xna.Framework.Game
 		configuration.Get("SettingsEnabled_AutoReuseAllItems", ref SettingsEnabled_AutoReuseAllItems);
 		configuration.Get("DoorAutoOpeningMode", ref DoorOpeningHelper.PreferenceSettings);
 		configuration.Get("HoverControlMode", ref Player.Settings.HoverControl);
+		configuration.Get("DashControlMode", ref Player.Settings.DashControl);
+		configuration.Get("CraftingControlMode", ref Player.Settings.CraftingGridControl);
 		configuration.Get("StackToChestsPreferredMode", ref Player.Settings.StackToChestsPreferredMode);
 		configuration.Get("CraftFromNearbyChests", ref Player.Settings.CraftFromNearbyChests);
 		configuration.Get("PortraitPreference", ref DialoguePortraitPreference);
@@ -4725,7 +4729,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		mouseColorSlider.SetHSL(mouseColor);
 		mouseBorderColorSlider.SetHSL(MouseBorderColor);
 		mouseBorderColorSlider.Alpha = (float)(int)MouseBorderColor.A / 255f;
-		if (currentValue != 317)
+		if (currentValue != 318)
 		{
 			SaveSettings();
 		}
@@ -6164,11 +6168,11 @@ public class Main : Microsoft.Xna.Framework.Game
                     Console.WriteLine("delay <seconds>           \t Sets the countdown multiplier.");
                     Console.WriteLine("time <hh:mm am/pm>        \t Sets the server time.");
                     List<string> list = new List<string>
-            {
-                "Help", "Playing", "Clear", "Exit", "ExitNoSave", "Save", "Kick", "Ban", "Password", "SetPassword",
-                "Version", "Time", "Port", "MaxPlayers", "Say", "MOTD", "SetMOTD", "Dawn", "Noon", "Dusk",
-                "Midnight", "Settle", "Seed"
-            };
+        {
+            "Help", "Playing", "Clear", "Exit", "ExitNoSave", "Save", "Kick", "Ban", "Password", "SetPassword",
+            "Version", "Time", "Port", "MaxPlayers", "Say", "MOTD", "SetMOTD", "Dawn", "Noon", "Dusk",
+            "Midnight", "Settle", "Seed"
+        };
                     int num = 0;
                     for (int i = 0; i < list.Count; i++)
                     {
@@ -11372,8 +11376,8 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				return;
 			}
-			bool flag = base.IsActive || DebugOptions.noPause;
-			if (!flag)
+			bool allowMusic = FocusHelper.AllowMusic;
+			if (!allowMusic)
 			{
 				audioSystem.PauseAll();
 				SoundEngine.StopAmbientSounds();
@@ -11390,10 +11394,10 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				swapMusic = false;
 			}
-			bool flag2 = drunkWorld && !remixWorld && !getGoodWorld;
+			bool flag = drunkWorld && !remixWorld && !getGoodWorld;
 			if (swapMusic)
 			{
-				if (flag2)
+				if (flag)
 				{
 					UpdateAudio_DecideOnNewMusic();
 				}
@@ -11402,7 +11406,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					UpdateAudio_DecideOnTOWMusic();
 				}
 			}
-			else if (!gameMenu && flag2)
+			else if (!gameMenu && flag)
 			{
 				UpdateAudio_DecideOnTOWMusic();
 			}
@@ -11871,7 +11875,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					float trackVolume2 = musicFade[i];
 					if (num10)
 					{
-						audioSystem.UpdateAmbientCueState(i, flag, ref trackVolume2, ambientVolume * num9);
+						audioSystem.UpdateAmbientCueState(i, allowMusic, ref trackVolume2, ambientVolume * num9);
 					}
 					else
 					{
@@ -11899,7 +11903,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					float trackVolume = musicFade[i];
 					if (num7)
 					{
-						audioSystem.UpdateAmbientCueState(i, flag, ref trackVolume, ambientVolume * num5);
+						audioSystem.UpdateAmbientCueState(i, allowMusic, ref trackVolume, ambientVolume * num5);
 					}
 					else
 					{
@@ -11911,7 +11915,7 @@ public class Main : Microsoft.Xna.Framework.Game
 				default:
 					if (i == curMusic)
 					{
-						audioSystem.UpdateCommonTrack(flag, i, num2, ref musicFade[i]);
+						audioSystem.UpdateCommonTrack(allowMusic, i, num2, ref musicFade[i]);
 					}
 					else
 					{
@@ -17139,7 +17143,7 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public static void NotifyOfEvent(GameNotificationType type)
 	{
-		if (!dedServ && !instance.IsActive && (_flashNotificationType & type) != GameNotificationType.None)
+		if (!dedServ && FocusHelper.AllowTaskbarFlash && (_flashNotificationType & type) != GameNotificationType.None)
 		{
 			QueueMainThreadAction(delegate
 			{
@@ -17153,6 +17157,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		gameTimeCache = gameTime;
 		if (showSplash)
 		{
+			FocusHelper.UpdateFocus(out var _);
 			UpdateAudio();
 			GlobalTimeWrappedHourly = (float)(gameTime.TotalGameTime.TotalSeconds % 3600.0);
 			ChromaInitializer.UpdateEvents();
@@ -17206,6 +17211,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 		if (CaptureManager.Instance.IsCapturing)
 		{
+			FocusHelper.UpdateFocus(out var _);
 			return;
 		}
 		if (ActivePlayerFileData != null)
@@ -17213,7 +17219,6 @@ public class Main : Microsoft.Xna.Framework.Game
 			ActivePlayerFileData.UpdatePlayTimer();
 		}
 		Netplay.UpdateInMainThread();
-		gameInactive = !base.IsActive;
 		if (changeTheTitle)
 		{
 			changeTheTitle = false;
@@ -17447,53 +17452,22 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				reforgeCooldown--;
 			}
-			hasFocus = base.IsActive || DebugOptions.noPause;
-			if (Platform.IsWindows)
+			bool wantsToPause3 = false;
+			FocusHelper.UpdateFocus(out wantsToPause3);
+			if (wantsToPause3)
 			{
-				Form form = Control.FromHandle(base.Window.Handle) as Form;
-				bool num4 = form.WindowState == FormWindowState.Minimized;
-				bool flag = Form.ActiveForm == form;
-				hasFocus |= flag;
-				if (num4)
+				if (netMode != 2 && myPlayer >= 0)
 				{
-					hasFocus = false;
+					player[myPlayer].delayUseItem = true;
 				}
-			}
-			if (!DebugOptions.noPause)
-			{
-				if (!hasFocus && netMode == 0)
+				mouseLeftRelease = false;
+				mouseRightRelease = false;
+				if (gameMenu)
 				{
-					if (!Platform.IsOSX)
-					{
-						base.IsMouseVisible = true;
-					}
-					if (netMode != 2 && myPlayer >= 0)
-					{
-						player[myPlayer].delayUseItem = true;
-					}
-					mouseLeftRelease = false;
-					mouseRightRelease = false;
-					if (gameMenu)
-					{
-						UpdateMenu();
-					}
-					gamePaused = true;
-					return;
+					UpdateMenu();
 				}
-				if (!Platform.IsOSX)
-				{
-					base.IsMouseVisible = false;
-				}
-				if (Platform.IsWindows && ReHideCursor)
-				{
-					base.IsMouseVisible = false;
-					ReHideCursor = false;
-					IMouseNotifier val = Platform.Get<IMouseNotifier>();
-					if (val != null)
-					{
-						val.ForceCursorHidden();
-					}
-				}
+				gamePaused = true;
+				return;
 			}
 			SkyManager.Instance.Update(gameTime);
 			if (!gamePaused)
@@ -17544,7 +17518,6 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			cloudAlpha = maxRaining;
 		}
-		bool flag2 = base.IsActive || DebugOptions.noPause;
 		if (netMode == 1)
 		{
 			TrySyncingMyPlayer();
@@ -17560,9 +17533,9 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			Main.OnTickForInternalCodeOnly();
 		}
-		for (int num5 = DelayedProcessesInGame.Count - 1; num5 >= 0; num5--)
+		for (int num4 = DelayedProcessesInGame.Count - 1; num4 >= 0; num4--)
 		{
-			IEnumerator enumerator2 = DelayedProcessesInGame[num5];
+			IEnumerator enumerator2 = DelayedProcessesInGame[num4];
 			if (!enumerator2.MoveNext())
 			{
 				DelayedProcessesInGame.Remove(enumerator2);
@@ -17574,7 +17547,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 		WorldGen.BackgroundsCache.UpdateFlashValues();
 		LocalGolfState.Update();
-		if ((flag2 || netMode == 1) && cloudAlpha > 0f)
+		if (FocusHelper.AllowRain && cloudAlpha > 0f)
 		{
 			Rain.MakeRain();
 		}
@@ -17613,12 +17586,12 @@ public class Main : Microsoft.Xna.Framework.Game
 			else if (shimmerAlpha > 0f)
 			{
 				Star.UpdateStars();
-				int num6 = rand.Next(numStars);
+				int num5 = rand.Next(numStars);
 				if (rand.Next(90) == 0)
 				{
-					if (star[num6] != null && !star[num6].hidden && !star[num6].falling)
+					if (star[num5] != null && !star[num5].hidden && !star[num5].falling)
 					{
-						star[num6].Fall();
+						star[num5].Fall();
 					}
 					for (int j = 0; j < numStars; j++)
 					{
@@ -18239,7 +18212,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			}
 		}
 		LockOnHelper.SetUP();
-		CurrentFrameFlags.HadAnActiveInteractibleProjectile = false;
+		CurrentFrameFlags.HadAnActiveInteractableProjectile = false;
 		PreUpdateAllProjectiles();
 		for (int n = 0; n < 1000; n++)
 		{
@@ -18525,7 +18498,7 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	private static void DoUpdate_Enter_ToggleChat()
 	{
-		if (keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Enter) && !keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftAlt) && !keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightAlt) && hasFocus)
+		if (keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Enter) && !keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftAlt) && !keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightAlt) && FocusHelper.AllowUIInputs)
 		{
 			if (chatRelease && !drawingPlayerChat && !editSign && !editChest && (!gameMenu || menuChat) && !keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
 			{
@@ -18646,7 +18619,7 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	private static void DoUpdate_AltEnter_ToggleFullscreen()
 	{
-		if ((keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftAlt) || keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightAlt)) && keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Enter) && hasFocus)
+		if ((keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftAlt) || keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightAlt)) && keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Enter) && FocusHelper.AllowUIInputs)
 		{
 			if (toggleFullscreen)
 			{
@@ -20124,7 +20097,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		exitScale = 0.8f;
 		if (netMode == 0)
 		{
-			if (instance.IsActive && hasFocus && (!dayTime || WorldGen.remixWorldGen) && (rand.Next(12) == 0 || (WorldGen.drunkWorldGen && !remixWorld)))
+			if (FocusHelper.LetStarsFallInMenu && (!dayTime || WorldGen.remixWorldGen) && (rand.Next(12) == 0 || (WorldGen.drunkWorldGen && !remixWorld)))
 			{
 				int num = rand.Next(numStars);
 				if (star[num] != null && !star[num].hidden && !star[num].falling)
@@ -20275,7 +20248,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		{
 			return "";
 		}
-		if (!hasFocus)
+		if (!FocusHelper.AllowUIInputs)
 		{
 			return oldString;
 		}
@@ -22993,7 +22966,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					vector5.X += num14 * num16 / 2f;
 					vector5.Y += num15 * num16 / 2f;
 				}
-				else if (base.IsActive)
+				else if (FocusHelper.AllowMiscDustEffects)
 				{
 					vector5.X += num14 * num16 - 16f;
 					vector5.Y += num15 * num16 - 6f;
@@ -23076,7 +23049,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					vector7.X += num21 * num23 / 2f;
 					vector7.Y += num22 * num23 / 2f;
 				}
-				else if (base.IsActive)
+				else if (FocusHelper.AllowMiscDustEffects)
 				{
 					vector7.X += num21 * num23 - 16f;
 					vector7.Y += num22 * num23 - 6f;
@@ -37623,7 +37596,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		Player localPlayer = LocalPlayer;
 		Microsoft.Xna.Framework.Point point = proj.Center.ToTileCoordinates();
 		Vector2 compareSpot = localPlayer.Center;
-		if (!localPlayer.IsProjectileInteractibleAndInInteractionRange(proj, ref compareSpot))
+		if (!localPlayer.IsProjectileInteractableAndInInteractionRange(proj, ref compareSpot))
 		{
 			return 0;
 		}
@@ -37637,7 +37610,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			}
 			return 0;
 		}
-		HasInteractibleObjectThatIsNotATile = true;
+		HasInteractableObjectThatIsNotATile = true;
 		if (flag2)
 		{
 			localPlayer.noThrow = 2;
@@ -37698,7 +37671,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		Player localPlayer = LocalPlayer;
 		Microsoft.Xna.Framework.Point point = proj.Center.ToTileCoordinates();
 		Vector2 compareSpot = localPlayer.Center;
-		if (!localPlayer.IsProjectileInteractibleAndInInteractionRange(proj, ref compareSpot))
+		if (!localPlayer.IsProjectileInteractableAndInInteractionRange(proj, ref compareSpot))
 		{
 			return 0;
 		}
@@ -37712,7 +37685,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			}
 			return 0;
 		}
-		HasInteractibleObjectThatIsNotATile = true;
+		HasInteractableObjectThatIsNotATile = true;
 		if (flag2)
 		{
 			localPlayer.noThrow = 4;
@@ -37775,7 +37748,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 		Player localPlayer = LocalPlayer;
 		Vector2 compareSpot = localPlayer.Center;
-		if (!localPlayer.IsProjectileInteractibleAndInInteractionRange(proj, ref compareSpot))
+		if (!localPlayer.IsProjectileInteractableAndInInteractionRange(proj, ref compareSpot))
 		{
 			return 0;
 		}
@@ -37796,7 +37769,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			}
 			return 0;
 		}
-		HasInteractibleObjectThatIsNotATile = true;
+		HasInteractableObjectThatIsNotATile = true;
 		if (flag)
 		{
 			localPlayer.noThrow = 4;
@@ -38482,7 +38455,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 		ItemSlot.GetItemLight(ref currentColor, ref scale, item.inner);
 		int num2 = item.glowMask;
-		if (!gamePaused && base.IsActive && (item.IsACoin || item.type == 58 || item.type == 109) && color.R > 60 && (float)rand.Next(500) - (Math.Abs(item.velocity.X) + Math.Abs(item.velocity.Y)) * 10f < (float)(color.R / 50))
+		if (FocusHelper.AllowWorldItemsToEmitEffects && (item.IsACoin || item.type == 58 || item.type == 109) && color.R > 60 && (float)rand.Next(500) - (Math.Abs(item.velocity.X) + Math.Abs(item.velocity.Y)) * 10f < (float)(color.R / 50))
 		{
 			int type = 43;
 			Microsoft.Xna.Framework.Color newColor = Microsoft.Xna.Framework.Color.White;
@@ -38650,7 +38623,7 @@ public class Main : Microsoft.Xna.Framework.Game
 	protected void DrawRain()
 	{
 		TimeLogger.StartTimestamp fromTimestamp = TimeLogger.Start();
-		bool flag = base.IsActive || netMode == 1 || DebugOptions.noPause;
+		bool allowRain = FocusHelper.AllowRain;
 		Microsoft.Xna.Framework.Rectangle value = new Microsoft.Xna.Framework.Rectangle(0, 0, 2, 40);
 		Texture2D value2 = TextureAssets.Rain.Value;
 		Vector2 zero = Vector2.Zero;
@@ -38666,7 +38639,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					color *= 1f - shimmerAlpha;
 				}
 				spriteBatch.Draw(value2, rain.position - screenPosition, value, color, rain.rotation, zero, rain.scale, SpriteEffects.None, 0f);
-				if (flag)
+				if (allowRain)
 				{
 					rain.Update();
 				}
@@ -39855,7 +39828,10 @@ public class Main : Microsoft.Xna.Framework.Game
 		npcChatText = "";
 		SoundEngine.PlaySound(12);
 		InGuideCraftMenu = true;
-		NewCraftingUI.Open(quiet: true);
+		if (Player.Settings.CraftingGridControl == Player.Settings.CraftingGridMode.Modern)
+		{
+			NewCraftingUI.Open(quiet: true);
+		}
 		TryChangePipsPage(PipPage.Recipes);
 		UILinkPointNavigator.GoToDefaultPage();
 	}
@@ -49613,7 +49589,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				num2 = 250;
 				num4 = 52;
-				num5 = 5;
+				num5 = 6;
 				array4[num5 - 1] = 18;
 				for (int num22 = 0; num22 < num5; num22++)
 				{
@@ -49688,6 +49664,13 @@ public class Main : Microsoft.Xna.Framework.Game
 				{
 					SoundEngine.PlaySound(12);
 					HidePassword = !HidePassword;
+				}
+				num23++;
+				array9[num23] = (SettingPlayWhenUnfocused ? Language.GetTextValue("UI.PlayWhenUnfocusedOn") : Language.GetTextValue("UI.PlayWhenUnfocusedOff"));
+				if (selectedMenu == num23)
+				{
+					SoundEngine.PlaySound(12);
+					SettingPlayWhenUnfocused = !SettingPlayWhenUnfocused;
 				}
 				num23++;
 				array9[num23] = Lang.menu[5].Value;
@@ -51603,7 +51586,7 @@ public class Main : Microsoft.Xna.Framework.Game
 				int num112 = 0;
 				menuWide[num102] = false;
 				Vector2 vector4 = FontAssets.DeathText.Value.MeasureString(array9[num102]) * array7[num102];
-				if (!((float)mouseX > (float)num3 - vector4.X * 0.5f + (float)array5[num102] - (float)num112) || !((float)mouseX < (float)num3 + vector4.X * 0.5f * array7[num102] + (float)array5[num102] + (float)num112) || mouseY <= num2 + num4 * num102 + array4[num102] || !((float)mouseY < (float)(num2 + num4 * num102 + array4[num102]) + 50f * array7[num102]) || !hasFocus)
+				if (!((float)mouseX > (float)num3 - vector4.X * 0.5f + (float)array5[num102] - (float)num112) || !((float)mouseX < (float)num3 + vector4.X * 0.5f * array7[num102] + (float)array5[num102] + (float)num112) || mouseY <= num2 + num4 * num102 + array4[num102] || !((float)mouseY < (float)(num2 + num4 * num102 + array4[num102]) + 50f * array7[num102]) || !FocusHelper.AllowUIInputs)
 				{
 					continue;
 				}
@@ -51628,7 +51611,7 @@ public class Main : Microsoft.Xna.Framework.Game
 				continue;
 			}
 			Vector2 vector5 = FontAssets.DeathText.Value.MeasureString(array9[num102]) * array7[num102];
-			if (mouseX <= num3 + array5[num102] || !((float)mouseX < (float)num3 + vector5.X + (float)array5[num102]) || mouseY <= num2 + num4 * num102 + array4[num102] || !((float)mouseY < (float)(num2 + num4 * num102 + array4[num102]) + 50f * array7[num102]) || !hasFocus)
+			if (mouseX <= num3 + array5[num102] || !((float)mouseX < (float)num3 + vector5.X + (float)array5[num102]) || mouseY <= num2 + num4 * num102 + array4[num102] || !((float)mouseY < (float)(num2 + num4 * num102 + array4[num102]) + 50f * array7[num102]) || !FocusHelper.AllowUIInputs)
 			{
 				continue;
 			}
@@ -55169,7 +55152,7 @@ public class Main : Microsoft.Xna.Framework.Game
 		}
 		if (mapFullscreen)
 		{
-			if (mouseLeft && base.IsActive && !CaptureManager.Instance.UsingMap)
+			if (mouseLeft && FocusHelper.AllowUIInputs && !CaptureManager.Instance.UsingMap)
 			{
 				if (mouseLeftRelease)
 				{
@@ -55190,7 +55173,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			}
 			if (PanTargetMapFullscreen)
 			{
-				if (base.IsActive && mouseLeft && mouseLeftRelease)
+				if (FocusHelper.AllowUIInputs && mouseLeft && mouseLeftRelease)
 				{
 					PanTargetMapFullscreen = false;
 				}
@@ -57553,7 +57536,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					{
 						num17 = 1f;
 					}
-					if (base.IsActive && !gamePaused && Dust.lavaBubbles < 200)
+					if (FocusHelper.AllowMiscDustEffects && Dust.lavaBubbles < 200)
 					{
 						if (tile[j, i].liquid > 200 && rand.Next(700) == 0)
 						{
@@ -58524,7 +58507,7 @@ public class Main : Microsoft.Xna.Framework.Game
 	{
 		if (netMode != 2 && currentDayRateIteration == 0)
 		{
-			bool flag = base.IsActive || DebugOptions.noPause;
+			bool updateBackgroundThunder = FocusHelper.UpdateBackgroundThunder;
 			if (thunderDelay > 0)
 			{
 				thunderDelay--;
@@ -58542,7 +58525,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					{
 						center.Y = num2;
 					}
-					if (flag && !thunderSkipSound)
+					if (updateBackgroundThunder && !thunderSkipSound)
 					{
 						SoundEngine.PlaySound(43, center);
 					}
@@ -58652,12 +58635,12 @@ public class Main : Microsoft.Xna.Framework.Game
 			windCounter--;
 			if (windCounter <= 0)
 			{
-				bool flag2 = false;
+				bool flag = false;
 				for (int i = 0; i < 255; i++)
 				{
 					if (player[i].active && player[i].statLifeMax >= 120)
 					{
-						flag2 = true;
+						flag = true;
 						break;
 					}
 				}
@@ -58678,7 +58661,7 @@ public class Main : Microsoft.Xna.Framework.Game
 				{
 					windSpeedTarget += (float)rand.Next(-100, 101) * 0.001f;
 				}
-				if (!flag2 && Math.Abs(windSpeedTarget) > 0.35f)
+				if (!flag && Math.Abs(windSpeedTarget) > 0.35f)
 				{
 					windSpeedTarget = 0.35f * (float)Math.Sign(windSpeedTarget);
 				}
@@ -58706,7 +58689,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					{
 						windSpeedTarget = (float)rand.Next(-850, 851) * 0.001f;
 					}
-					if (!flag2 && Math.Abs(windSpeedTarget) > 0.35f)
+					if (!flag && Math.Abs(windSpeedTarget) > 0.35f)
 					{
 						windSpeedTarget = 0.35f * (float)Math.Sign(windSpeedTarget);
 					}
@@ -59175,7 +59158,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					}
 					bgScale = 1.65f;
 					bgParallax = 0.09000000357627869;
-					if (base.IsActive && !gamePaused)
+					if (FocusHelper.AllowSkyMovement)
 					{
 						cloudBGX[0] += windSpeedCurrent * (float)bgParallax * 9f * (float)dayRate;
 					}
@@ -59210,7 +59193,7 @@ public class Main : Microsoft.Xna.Framework.Game
 					ColorOfSurfaceBackgroundsModified = colorOfSurfaceBackgroundsBase * num9;
 					bgScale = 1.85f;
 					bgParallax = 0.12;
-					if (base.IsActive && !gamePaused)
+					if (FocusHelper.AllowSkyMovement)
 					{
 						cloudBGX[1] += windSpeedCurrent * (float)bgParallax * 9f * (float)dayRate;
 					}
@@ -62055,7 +62038,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			}
 		}
 		spriteBatch.End();
-		HasInteractibleObjectThatIsNotATile = false;
+		HasInteractableObjectThatIsNotATile = false;
 		SortDrawCacheWorms();
 		DrawSuperSpecialProjectiles(DrawCacheFirstFractals);
 		DrawCachedProjs(DrawCacheProjsBehindProjectiles);
@@ -62794,7 +62777,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			{
 				player[myPlayer].mouseInterface = true;
 			}
-			if ((mouseLeft || starGame) && hasFocus)
+			if ((mouseLeft || starGame) && FocusHelper.AllowUIInputs)
 			{
 				if (rectangle.Intersects(value4) || alreadyGrabbingSunOrMoon)
 				{
@@ -63067,29 +63050,6 @@ public class Main : Microsoft.Xna.Framework.Game
 				chatDrawPosition = chatDrawPosition.Floor();
 				int hoveredSnippet = 0;
 				ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.MouseText.Value, player.chatOverhead.snippets, chatDrawPosition, player.chatOverhead.color, 0f, Vector2.Zero, Vector2.One, out hoveredSnippet);
-			}
-		}
-	}
-
-	private void DrawRainInMenu()
-	{
-		bool isActive = base.IsActive;
-		Microsoft.Xna.Framework.Rectangle[] array = new Microsoft.Xna.Framework.Rectangle[6];
-		for (int i = 0; i < array.Length; i++)
-		{
-			array[i] = new Microsoft.Xna.Framework.Rectangle(i * 4, 0, 2, 40);
-		}
-		Microsoft.Xna.Framework.Color color = ColorOfTheSkies * 0.85f;
-		for (int j = 0; j < maxRain; j++)
-		{
-			if (Main.rain[j].active)
-			{
-				Rain rain = Main.rain[j];
-				spriteBatch.Draw(TextureAssets.Rain.Value, rain.position - screenPosition, array[rain.type], color, rain.rotation, Vector2.Zero, rain.scale, SpriteEffects.None, 0f);
-				if (isActive)
-				{
-					rain.Update();
-				}
 			}
 		}
 	}
@@ -64122,6 +64082,7 @@ public class Main : Microsoft.Xna.Framework.Game
 
 	public void DrawInfernoRings()
 	{
+		bool allowPlayerToEmitEffects = FocusHelper.AllowPlayerToEmitEffects;
 		for (int i = 0; i < 255; i++)
 		{
 			if (!player[i].active || player[i].outOfRange || !player[i].inferno || player[i].dead)
@@ -64132,7 +64093,7 @@ public class Main : Microsoft.Xna.Framework.Game
 			float num = 1f;
 			float num2 = 0.1f;
 			float num3 = 0.9f;
-			if (!gamePaused && base.IsActive)
+			if (allowPlayerToEmitEffects)
 			{
 				player[i].flameRingScale += 0.004f;
 			}
@@ -64145,7 +64106,7 @@ public class Main : Microsoft.Xna.Framework.Game
 				player[i].flameRingScale = 0.8f;
 				num = player[i].flameRingScale;
 			}
-			if (!gamePaused && base.IsActive)
+			if (allowPlayerToEmitEffects)
 			{
 				player[i].flameRingRot += 0.05f;
 			}

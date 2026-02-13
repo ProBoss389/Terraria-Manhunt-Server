@@ -115,7 +115,7 @@ public class UIScrollbar : UIElement
 			Vector2 mousePosition = UserInterface.ActiveInstance.MousePosition;
 			bool isHoveringOverHandle = _isHoveringOverHandle;
 			_isHoveringOverHandle = handleRectangle.Contains(new Point((int)mousePosition.X, (int)mousePosition.Y));
-			if (!isHoveringOverHandle && _isHoveringOverHandle && Main.hasFocus)
+			if (!isHoveringOverHandle && _isHoveringOverHandle && FocusHelper.AllowUIInputs)
 			{
 				SoundEngine.PlaySound(12);
 			}

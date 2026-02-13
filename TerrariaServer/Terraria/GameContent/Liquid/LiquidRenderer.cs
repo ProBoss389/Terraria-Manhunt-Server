@@ -840,7 +840,7 @@ public class LiquidRenderer
 
 	public void Update(GameTime gameTime)
 	{
-		if (!Main.gamePaused && Main.hasFocus)
+		if (!FocusHelper.PauseLiquidRenderer)
 		{
 			float num = Main.windSpeedCurrent * 25f;
 			num = ((!(num < 0f)) ? (num + 6f) : (num - 6f));

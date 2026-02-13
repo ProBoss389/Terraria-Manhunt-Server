@@ -155,6 +155,7 @@ public class Lang
 		RegisterGlobalSubstitution("InputTrigger_SmartCursor", () => PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: true, "SmartCursor"));
 		RegisterGlobalSubstitution("InputTrigger_UseOrAttack", () => PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: true, "MouseLeft"));
 		RegisterGlobalSubstitution("InputTrigger_InteractWithTile", () => PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: true, "MouseRight"));
+		RegisterGlobalSubstitution("InputTrigger_InteractWithTileUI", () => PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "MouseRight"));
 		RegisterGlobalSubstitution("InputTrigger_ToggleOrOpen", () => (!PlayerInput.UsingGamepad) ? PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: true, "MouseRight") : PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: false, "Grapple"));
 		RegisterGlobalSubstitution("InputTrigger_SmartSelect", () => PlayerInput.GenerateInputTag_ForCurrentGamemode(tagForGameplay: true, "SmartSelect"));
 		RegisterGlobalSubstitution("ToggleArmorSetBonusKey", () => Language.GetTextValue(Main.ReversedUpDownArmorSetBonuses ? "Key.UP" : "Key.DOWN"));

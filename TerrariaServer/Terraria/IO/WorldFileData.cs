@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ReLogic.Utilities;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -206,6 +207,15 @@ public class WorldFileData : FileData
 			num += 256;
 		}
 		return num;
+	}
+
+	public List<string> GetSecretSeedCodes()
+	{
+		if (string.IsNullOrWhiteSpace(_seedText))
+		{
+			return new List<string>();
+		}
+		return _seedText.Split('|').ToList();
 	}
 
 	private static void EnableSeedOptions(int serializedSeedSum)

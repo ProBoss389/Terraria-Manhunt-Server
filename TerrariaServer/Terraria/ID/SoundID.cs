@@ -815,7 +815,9 @@ public class SoundID
 
 	public static readonly LegacySoundStyle Item198 = new LegacySoundStyle(2, 198);
 
-	public static short ItemSoundCount = 199;
+	public static readonly LegacySoundStyle Item199 = new LegacySoundStyle(2, 199);
+
+	public static short ItemSoundCount = 200;
 
 	public static readonly LegacySoundStyle DD2_GoblinBomb = new LegacySoundStyle(2, 14).WithVolume(0.5f);
 

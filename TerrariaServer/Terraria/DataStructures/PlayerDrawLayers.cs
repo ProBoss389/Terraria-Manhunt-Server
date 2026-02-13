@@ -1118,7 +1118,7 @@ public static class PlayerDrawLayers
 			drawinfo.DrawDataCache.Add(item);
 			return;
 		}
-		int num = ((Main.hasFocus && (!Main.ingameOptionsWindow || !Main.autoPause)) ? (DateTime.Now.Millisecond % 800 / 200) : 0);
+		int num = ((!FocusHelper.PausePlayerBalloonAnimations) ? (DateTime.Now.Millisecond % 800 / 200) : 0);
 		Vector2 vector = Main.OffsetsPlayerOffhand[drawinfo.drawPlayer.bodyFrame.Y / 56];
 		if (drawinfo.drawPlayer.direction != 1)
 		{
@@ -1151,7 +1151,7 @@ public static class PlayerDrawLayers
 			drawinfo.DrawDataCache.Add(item);
 			return;
 		}
-		int num = ((Main.hasFocus && (!Main.ingameOptionsWindow || !Main.autoPause)) ? (DateTime.Now.Millisecond % 800 / 200) : 0);
+		int num = ((!FocusHelper.PausePlayerBalloonAnimations) ? (DateTime.Now.Millisecond % 800 / 200) : 0);
 		Vector2 vector = Main.OffsetsPlayerOffhand[drawinfo.drawPlayer.bodyFrame.Y / 56];
 		if (drawinfo.drawPlayer.direction != 1)
 		{
@@ -2739,15 +2739,22 @@ public static class PlayerDrawLayers
 		hasRockGolemHead = drawinfo.drawPlayer.head == 241;
 		if (drawinfo.drawPlayer.mount.Active)
 		{
-			if (drawinfo.drawPlayer.mount.Type == 52)
+			switch (drawinfo.drawPlayer.mount.Type)
 			{
+			case 52:
 				pos = new Vector2(28f, -2f) * drawinfo.drawPlayer.Directions;
-			}
-			if (drawinfo.drawPlayer.mount.Type == 54)
-			{
+				break;
+			case 54:
 				drawinfo.drawPlayer.ApplyHeadOffsetFromMount(ref pos);
 				pos -= drawinfo.drawPlayer.GetHelmetOffsetAddonFromMount();
 				isVelociraptor = true;
+				break;
+			case 55:
+			case 56:
+			case 61:
+				drawinfo.drawPlayer.ApplyHeadOffsetFromMount(ref pos);
+				pos -= drawinfo.drawPlayer.GetHelmetOffsetAddonFromMount();
+				break;
 			}
 		}
 		return pos;

@@ -703,7 +703,7 @@ public class ItemSlot
 		if (Main.cursorOverride == 6)
 		{
 			Item item2 = item.DeepClone();
-			if (!TryResearchingItem(ref item2, onlySacrificeIfItWouldFinishResearch: true) && !TryResearchingItem(ref Main.LocalPlayer.trashItem))
+			if (!(TryResearchingItem(ref item2, onlySacrificeIfItWouldFinishResearch: true) | TryResearchingItem(ref Main.LocalPlayer.trashItem)))
 			{
 				SoundEngine.PlaySound(SoundID.TrashItem);
 			}
@@ -839,7 +839,7 @@ public class ItemSlot
 			if (context == 6 && Main.mouseItem.type != 0)
 			{
 				Item item = Main.mouseItem.DeepClone();
-				if (TryResearchingItem(ref item, onlySacrificeIfItWouldFinishResearch: true) || TryResearchingItem(inv, slot))
+				if (TryResearchingItem(ref item, onlySacrificeIfItWouldFinishResearch: true) | TryResearchingItem(inv, slot))
 				{
 					flag2 = true;
 				}
@@ -1222,7 +1222,7 @@ public class ItemSlot
 				result = checkItem.mountType != -1 && !MountID.Sets.Cart[checkItem.mountType];
 				break;
 			case 39:
-				result = checkItem.mountType != -1 && !MountID.Sets.Cart[checkItem.mountType];
+				result = checkItem.mountType != -1;
 				break;
 			case 19:
 				result = checkItem.buffType > 0 && Main.vanityPet[checkItem.buffType] && !Main.lightPet[checkItem.buffType];
@@ -2802,7 +2802,7 @@ public class ItemSlot
 		case 22:
 			if (UILinkPointNavigator.Shortcuts.CRAFT_CurrentRecipeBig != -1)
 			{
-				result = 700 + UILinkPointNavigator.Shortcuts.CRAFT_CurrentRecipeBig;
+				result = 22000 + UILinkPointNavigator.Shortcuts.CRAFT_CurrentRecipeBig;
 			}
 			if (UILinkPointNavigator.Shortcuts.CRAFT_CurrentRecipeSmall != -1)
 			{
@@ -4105,10 +4105,27 @@ public class ItemSlot
 			case 41:
 			case 42:
 			case 43:
-				s += PlayerInput.BuildCommand(Language.GetTextValue("GameUI.CraftingWindow"), PlayerInput.ProfileGamepadUI.KeyStatus["SmartCursor"]);
+			{
+				bool flag8 = Player.Settings.CraftingGridControl == Player.Settings.CraftingGridMode.Classic;
+				s += PlayerInput.BuildCommand(Language.GetTextValue(CraftingUI.CraftingWindowTextKey), PlayerInput.ProfileGamepadUI.KeyStatus["SmartCursor"]);
 				if (CanExecuteCommand() && PlayerInput.Triggers.JustPressed.SmartCursor)
 				{
-					NewCraftingUI.ToggleInInventory();
+					if (flag8)
+					{
+						NewCraftingUI.Close(quiet: true, returnToInventory: true);
+						if (UILinkPointNavigator.CurrentPage == 10)
+						{
+							UILinkPointNavigator.ChangePage(9);
+						}
+						else
+						{
+							UILinkPointNavigator.ChangePage(10);
+						}
+					}
+					else
+					{
+						NewCraftingUI.ToggleInInventory();
+					}
 				}
 				if (!Main.InGuideCraftMenu && Main.bannerUI.AnyAvailableBanners && context == 22)
 				{
@@ -4121,7 +4138,20 @@ public class ItemSlot
 					}
 				}
 				break;
+			}
 			case 35:
+				s += PlayerInput.BuildCommand(Language.GetTextValue("GameUI.BannersWindow"), PlayerInput.ProfileGamepadUI.KeyStatus["SmartCursor"]);
+				if (CanExecuteCommand() && PlayerInput.Triggers.JustPressed.SmartCursor)
+				{
+					if (UILinkPointNavigator.CurrentPage == 23)
+					{
+						UILinkPointNavigator.ChangePage(22);
+					}
+					else
+					{
+						UILinkPointNavigator.ChangePage(23);
+					}
+				}
 				s += PlayerInput.BuildCommand(Language.GetTextValue("UI.CyclePipsToCrafting"), PlayerInput.ProfileGamepadUI.KeyStatus["SmartSelect"]);
 				if (CanExecuteCommand() && PlayerInput.Triggers.JustPressed.SmartSelect)
 				{

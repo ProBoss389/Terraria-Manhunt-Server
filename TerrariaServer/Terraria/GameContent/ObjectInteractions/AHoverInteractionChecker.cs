@@ -38,7 +38,7 @@ public abstract class AHoverInteractionChecker
 			}
 			return HoverStatus.NotSelectable;
 		}
-		Main.HasInteractibleObjectThatIsNotATile = true;
+		Main.HasInteractableObjectThatIsNotATile = true;
 		if (flag)
 		{
 			DoHoverEffect(player, Hitbox);

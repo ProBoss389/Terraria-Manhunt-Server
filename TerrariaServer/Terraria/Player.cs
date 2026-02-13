@@ -349,11 +349,27 @@ public class Player : Entity, IFixLoadedData
 			Click
 		}
 
+		public enum CraftingGridMode
+		{
+			Modern,
+			Classic
+		}
+
+		public enum DashPreference
+		{
+			AllowDoubleTap,
+			OnlyThroughHotkeys
+		}
+
 		public static StackToNearbyChestsMode StackToChestsPreferredMode = StackToNearbyChestsMode.QuickStackToNearbyChests;
 
 		public static bool CraftFromNearbyChests = true;
 
 		public static HoverControlMode HoverControl = HoverControlMode.Hold;
+
+		public static CraftingGridMode CraftingGridControl = CraftingGridMode.Modern;
+
+		public static DashPreference DashControl = DashPreference.AllowDoubleTap;
 
 		public static void CycleQuickStackMode()
 		{
@@ -1628,7 +1644,9 @@ public class Player : Entity, IFixLoadedData
 
 	public bool controlMount;
 
-	public bool controlQuickBuff;
+	public bool controlDash;
+
+	public bool controlArmorSetAbility;
 
 	public bool releaseJump;
 
@@ -1658,7 +1676,19 @@ public class Player : Entity, IFixLoadedData
 
 	public bool releaseDown;
 
-	public bool releaseQuickBuff;
+	public bool releaseLoadout1;
+
+	public bool releaseLoadout2;
+
+	public bool releaseLoadout3;
+
+	public bool releaseNextLoadout;
+
+	public bool releasePreviousLoadout;
+
+	public bool releaseArmorSetAbility;
+
+	public bool releaseDash;
 
 	public bool controlQuickMana;
 
@@ -3820,7 +3850,7 @@ public class Player : Entity, IFixLoadedData
 	{
 		get
 		{
-			if (invis && whoAmI != Main.myPlayer && itemAnimation == 0)
+			if (invis && itemAnimation == 0)
 			{
 				if (!isDisplayDollOrInanimate)
 				{
@@ -4199,7 +4229,13 @@ public class Player : Entity, IFixLoadedData
 
 	public void ApplyItemTime(Item sItem, float multiplier)
 	{
-		SetItemTime((int)((float)sItem.useTime * multiplier));
+		int useTime = sItem.useTime;
+		int val = (int)((float)useTime * multiplier);
+		if (useTime > 0)
+		{
+			val = Math.Max(val, 1);
+		}
+		SetItemTime(val);
 	}
 
 	public void SetDummyItemTime(int frames)
@@ -4215,6 +4251,16 @@ public class Player : Entity, IFixLoadedData
 		itemAnimationMax = frames;
 	}
 
+	private void SetItemAnimation(int baseFrames, float multiplier)
+	{
+		int val = (int)((float)baseFrames * multiplier);
+		if (baseFrames > 0)
+		{
+			val = Math.Max(val, 1);
+		}
+		SetItemAnimation(val);
+	}
+
 	private void ApplyItemAnimation(Item sItem)
 	{
 		int num = 0;
@@ -4224,19 +4270,19 @@ public class Player : Entity, IFixLoadedData
 		}
 		if (sItem.melee && !ItemID.Sets.NoMeleeSpeedBonus[sItem.type])
 		{
-			SetItemAnimation((int)((float)sItem.useAnimation * meleeSpeed));
+			SetItemAnimation(sItem.useAnimation, meleeSpeed);
 		}
 		else if (sItem.summon && ItemID.Sets.SummonerWeaponThatScalesWithAttackSpeed[sItem.type])
 		{
-			SetItemAnimation((int)((float)sItem.useAnimation * summonerWeaponSpeedBonus * whipUseTimeMultiplier));
+			SetItemAnimation(sItem.useAnimation, summonerWeaponSpeedBonus * whipUseTimeMultiplier);
 		}
 		else if (sItem.createTile >= 0)
 		{
-			SetItemAnimation((int)((float)sItem.useAnimation * tileSpeed));
+			SetItemAnimation(sItem.useAnimation, tileSpeed);
 		}
 		else if (sItem.createWall >= 0)
 		{
-			SetItemAnimation((int)((float)sItem.useAnimation * wallSpeed));
+			SetItemAnimation(sItem.useAnimation, wallSpeed);
 		}
 		else
 		{
@@ -4715,6 +4761,7 @@ public class Player : Entity, IFixLoadedData
 		else
 		{
 			Main.playerInventory = false;
+			CraftingUI.ClearHacks();
 			if (channel && Main.mouseItem != null && !Main.mouseItem.IsAir)
 			{
 				channel = false;
@@ -5303,6 +5350,18 @@ public class Player : Entity, IFixLoadedData
 			}
 		}
 		return null;
+	}
+
+	public void TrySwitchingToNextLoadout()
+	{
+		int loadoutIndex = (CurrentLoadoutIndex + 1) % Loadouts.Length;
+		TrySwitchingLoadout(loadoutIndex);
+	}
+
+	public void TrySwitchingToPreviousLoadout()
+	{
+		int loadoutIndex = (CurrentLoadoutIndex - 1 + Loadouts.Length) % Loadouts.Length;
+		TrySwitchingLoadout(loadoutIndex);
 	}
 
 	public void TrySwitchingLoadout(int loadoutIndex)
@@ -6229,7 +6288,7 @@ public class Player : Entity, IFixLoadedData
 		immuneAlpha = 0;
 		ResetEffects();
 		ResetVisibleAccessories();
-		if (Main.hasFocus && whoAmI == Main.myPlayer)
+		if (FocusHelper.AllowGameplayInputs && whoAmI == Main.myPlayer)
 		{
 			controlUp = false;
 			controlLeft = false;
@@ -11944,7 +12003,6 @@ public class Player : Entity, IFixLoadedData
 				pos.X -= 14f * (float)direction;
 				break;
 			case 56:
-			case 61:
 				ApplyHeadOffsetFromMount(ref pos);
 				pos.X += 6f * Directions.X;
 				pos.Y -= 10f * Directions.Y;
@@ -11952,6 +12010,10 @@ public class Player : Entity, IFixLoadedData
 			case 55:
 				ApplyHeadOffsetFromMount(ref pos);
 				pos.Y -= 8f * Directions.Y;
+				break;
+			case 61:
+				pos.X -= 2f * Directions.X;
+				pos.Y += 8f * Directions.Y;
 				break;
 			}
 		}
@@ -13732,10 +13794,9 @@ public class Player : Entity, IFixLoadedData
 		case 5655:
 			noirShader = true;
 			break;
-		}
-		if (itemType == 5113)
-		{
-			dontStarveShader = !dontStarveShader;
+		case 5113:
+			dontStarveShader = true;
+			break;
 		}
 	}
 
@@ -16793,7 +16854,7 @@ public class Player : Entity, IFixLoadedData
 
 	private void HandleSpectatingControls()
 	{
-		if (PlayerInput.Triggers.JustReleased.Jump || controlInv || controlThrow || controlTorch || controlSmart || controlMount || controlQuickHeal || controlQuickMana || controlCreativeMenu || PlayerInput.Triggers.Current.Hotbar1 || PlayerInput.Triggers.Current.Hotbar2 || PlayerInput.Triggers.Current.Hotbar3 || PlayerInput.Triggers.Current.Hotbar4 || PlayerInput.Triggers.Current.Hotbar5 || PlayerInput.Triggers.Current.Hotbar6 || PlayerInput.Triggers.Current.Hotbar7 || PlayerInput.Triggers.Current.Hotbar8 || PlayerInput.Triggers.Current.Hotbar9 || PlayerInput.Triggers.Current.Hotbar10 || PlayerInput.Triggers.Current.HotbarPlus || PlayerInput.Triggers.Current.HotbarMinus || PlayerInput.ScrollWheelDelta != 0)
+		if (PlayerInput.Triggers.JustReleased.Jump || controlInv || controlThrow || controlTorch || controlSmart || controlMount || controlQuickHeal || controlQuickMana || controlCreativeMenu || controlDash || controlArmorSetAbility || PlayerInput.Triggers.Current.Hotbar1 || PlayerInput.Triggers.Current.Hotbar2 || PlayerInput.Triggers.Current.Hotbar3 || PlayerInput.Triggers.Current.Hotbar4 || PlayerInput.Triggers.Current.Hotbar5 || PlayerInput.Triggers.Current.Hotbar6 || PlayerInput.Triggers.Current.Hotbar7 || PlayerInput.Triggers.Current.Hotbar8 || PlayerInput.Triggers.Current.Hotbar9 || PlayerInput.Triggers.Current.Hotbar10 || PlayerInput.Triggers.Current.HotbarPlus || PlayerInput.Triggers.Current.HotbarMinus || PlayerInput.ScrollWheelDelta != 0)
 		{
 			afkCounter = Math.Min(afkCounter, AFKTimeNeededForNoWormSpawns);
 			afkCounterForKiting = Math.Min(afkCounterForKiting, AFKTimeNeededForAutoKiting);
@@ -18170,7 +18231,7 @@ public class Player : Entity, IFixLoadedData
 		volatileGelatin = false;
 		hasMagiluminescence = false;
 		shadowArmor = false;
-		dontStarveShader = Main.onlyDontStarveWorld;
+		dontStarveShader = false;
 		noirShader = false;
 		eyebrellaCloud = false;
 		stardustMonolithShader = false;
@@ -21138,9 +21199,22 @@ public class Player : Entity, IFixLoadedData
 		{
 			dashTime++;
 		}
-		if (controlRight && releaseRight)
+		int num = 0;
+		bool flag = Settings.DashControl == Settings.DashPreference.AllowDoubleTap;
+		if (controlDash && releaseDash)
 		{
-			if (dashTime > 0)
+			int num2 = direction;
+			int num3 = controlRight.ToInt() - controlLeft.ToInt();
+			int num4 = num2;
+			if (num3 == -num2)
+			{
+				num4 = num3;
+			}
+			num = num4;
+		}
+		if ((controlRight && releaseRight && flag) || num == 1)
+		{
+			if (dashTime > 0 || num == 1)
 			{
 				dir = 1;
 				dashing = true;
@@ -21153,9 +21227,9 @@ public class Player : Entity, IFixLoadedData
 				dashTime = 15;
 			}
 		}
-		else if (controlLeft && releaseLeft)
+		else if ((controlLeft && releaseLeft && flag) || num == -1)
 		{
-			if (dashTime < 0)
+			if (dashTime < 0 || num == -1)
 			{
 				dir = -1;
 				dashing = true;
@@ -21167,6 +21241,10 @@ public class Player : Entity, IFixLoadedData
 			{
 				dashTime = -15;
 			}
+		}
+		if (dashing && controlDash)
+		{
+			releaseDash = false;
 		}
 	}
 
@@ -22697,11 +22775,11 @@ public class Player : Entity, IFixLoadedData
 		}
 	}
 
-	public void UpdateNearbyInteractibleProjectilesList()
+	public void UpdateNearbyInteractableProjectilesList()
 	{
 		List<int> projectilesToInteractWith = _projectilesToInteractWith;
 		projectilesToInteractWith.Clear();
-		if (!Main.CurrentFrameFlags.HadAnActiveInteractibleProjectile)
+		if (!Main.CurrentFrameFlags.HadAnActiveInteractableProjectile)
 		{
 			return;
 		}
@@ -22709,20 +22787,20 @@ public class Player : Entity, IFixLoadedData
 		for (int i = 0; i < 1000; i++)
 		{
 			Projectile proj = Main.projectile[i];
-			if (IsProjectileInteractibleAndInInteractionRange(proj, ref compareSpot))
+			if (IsProjectileInteractableAndInInteractionRange(proj, ref compareSpot))
 			{
 				projectilesToInteractWith.Add(i);
 			}
 		}
 	}
 
-	public bool IsProjectileInteractibleAndInInteractionRange(Projectile proj, ref Vector2 compareSpot)
+	public bool IsProjectileInteractableAndInInteractionRange(Projectile proj, ref Vector2 compareSpot)
 	{
 		if (!proj.active)
 		{
 			return false;
 		}
-		if (!proj.IsInteractible())
+		if (!proj.IsInteractable())
 		{
 			return false;
 		}
@@ -24295,7 +24373,7 @@ public class Player : Entity, IFixLoadedData
 		if (i == Main.myPlayer && !isControlledByFilm)
 		{
 			ResetControls();
-			if (Main.hasFocus)
+			if (FocusHelper.AllowGameplayInputs)
 			{
 				if (!Main.drawingPlayerChat && !Main.editSign && !Main.editChest && !Main.blockInput)
 				{
@@ -24335,6 +24413,8 @@ public class Player : Entity, IFixLoadedData
 						controlTorch = false;
 						controlSmart = false;
 						controlMount = false;
+						controlDash = false;
+						controlArmorSetAbility = false;
 					}
 					if (spectating >= 0)
 					{
@@ -24544,6 +24624,10 @@ public class Player : Entity, IFixLoadedData
 					{
 						cartFlip = false;
 					}
+				}
+				if (Utils.JustBecameTrue(controlArmorSetAbility, ref releaseArmorSetAbility))
+				{
+					KeyDoubleTap(0);
 				}
 				for (int l = 0; l < doubleTapCardinalTimer.Length; l++)
 				{
@@ -24991,11 +25075,11 @@ public class Player : Entity, IFixLoadedData
 		Update_AdjustTileTargetForDisplayJars(i);
 		if (i == Main.myPlayer)
 		{
-			UpdateNearbyInteractibleProjectilesList();
+			UpdateNearbyInteractableProjectilesList();
 		}
 		try
 		{
-			if (whoAmI == Main.myPlayer && Main.instance.IsActive && !Main.IsCameraTrackingObject)
+			if (whoAmI == Main.myPlayer && FocusHelper.AllowGameplayInputs && !Main.IsCameraTrackingObject)
 			{
 				SmartCursorHelper.SmartCursorLookup(this);
 				SmartInteractLookup();
@@ -27563,7 +27647,8 @@ public class Player : Entity, IFixLoadedData
 		{
 			velocity.Y *= 2f;
 			velocity.X *= 2f;
-			velocity.X = Utils.Clamp(velocity.X, -24f, 24f);
+			velocity.X = Utils.Clamp(velocity.X, -16f, 16f);
+			velocity.Y = Utils.Clamp(velocity.Y, -16f, 16f);
 		}
 		if (Main.myPlayer == i)
 		{
@@ -27803,7 +27888,7 @@ public class Player : Entity, IFixLoadedData
 		}
 		if (whoAmI == Main.myPlayer && !shimmering)
 		{
-			Collision.SwitchTiles(position, width, height, oldPosition, 5);
+			Collision.SwitchTiles(this, position, width, height, oldPosition, 5);
 		}
 		PressurePlateHelper.UpdatePlayerPosition(this);
 		BordersMovement();
@@ -28431,7 +28516,8 @@ public class Player : Entity, IFixLoadedData
 		controlQuickHeal = false;
 		controlQuickMana = false;
 		controlCreativeMenu = false;
-		controlQuickBuff = false;
+		controlDash = false;
+		controlArmorSetAbility = false;
 		mapStyle = false;
 		mapAlphaDown = false;
 		mapAlphaUp = false;
@@ -31305,7 +31391,7 @@ public class Player : Entity, IFixLoadedData
 				tileInteractAttempted = true;
 				releaseUseTile = false;
 			}
-			if (Main.HasInteractibleObjectThatIsNotATile)
+			if (Main.HasInteractableObjectThatIsNotATile)
 			{
 				tileInteractAttempted = true;
 				releaseUseTile = false;
@@ -32653,12 +32739,24 @@ public class Player : Entity, IFixLoadedData
 			{
 				flag2 = true;
 				AdjTiles();
-				NewCraftingUI.OpenCloseFilter(craftingFilterForTile);
+				InteractWithCraftingStation(craftingFilterForTile);
 			}
 		}
 		if (flag2)
 		{
 			tileInteractionHappened = true;
+		}
+	}
+
+	private static void InteractWithCraftingStation(NewCraftingUI.RecipeFilter craftingFilter)
+	{
+		if (Settings.CraftingGridControl == Settings.CraftingGridMode.Modern)
+		{
+			NewCraftingUI.OpenCloseFilter(craftingFilter);
+		}
+		else
+		{
+			Main.craftingUI.OpenCloseFilter(craftingFilter);
 		}
 	}
 
@@ -37484,31 +37582,32 @@ public class Player : Entity, IFixLoadedData
 		}
 		if (invis)
 		{
-			int num3 = FindBuffIndex(10);
-			if (num3 != -1 && buffTime[num3] > 1)
+			for (int k = 0; k < maxBuffs; k++)
 			{
-				int num4 = 3600;
-				buffTime[num3] = Math.Max(1, Math.Min(buffTime[num3], buffTime[num3] - num4));
+				if (buffType[k] == 10)
+				{
+					DelBuff(k);
+				}
 			}
 		}
 		if (magicCuffs)
 		{
-			int num5 = num;
-			statMana += num5;
+			int num3 = num;
+			statMana += num3;
 			if (statMana > statManaMax2)
 			{
 				statMana = statManaMax2;
 			}
 			if (Main.myPlayer == whoAmI)
 			{
-				ManaEffect(num5);
+				ManaEffect(num3);
 			}
 		}
 		num2 = (int)((double)(1f - endurance) * num2);
 		if (ImmunityCooldownID.Sets.Counter[cooldownCounter] && ConsumeSolarFlare())
 		{
-			float num6 = 0.2f;
-			num2 = (int)((double)(1f - num6) * num2);
+			float num4 = 0.2f;
+			num2 = (int)((double)(1f - num4) * num2);
 			if (whoAmI == Main.myPlayer)
 			{
 				IEntitySource spawnSource = GetProjectileSource_SetBonus(1);
@@ -37517,21 +37616,21 @@ public class Player : Entity, IFixLoadedData
 				{
 					spawnSource = GetProjectileSource_OnHurt(entity, 1);
 				}
-				int num7 = Projectile.NewProjectile(spawnSource, base.Center.X, base.Center.Y, 0f, 0f, 608, (int)(150f * meleeDamage), 15f, Main.myPlayer);
-				Main.projectile[num7].netUpdate = true;
-				Main.projectile[num7].Kill();
+				int num5 = Projectile.NewProjectile(spawnSource, base.Center.X, base.Center.Y, 0f, 0f, 608, (int)(150f * meleeDamage), 15f, Main.myPlayer);
+				Main.projectile[num5].netUpdate = true;
+				Main.projectile[num5].Kill();
 			}
 		}
 		if (beetleDefense && beetleOrbs > 0)
 		{
-			float num8 = 0.15f * (float)beetleOrbs;
-			num2 = (int)((double)(1f - num8) * num2);
+			float num6 = 0.15f * (float)beetleOrbs;
+			num2 = (int)((double)(1f - num6) * num2);
 			beetleOrbs--;
-			for (int k = 0; k < maxBuffs; k++)
+			for (int l = 0; l < maxBuffs; l++)
 			{
-				if (buffType[k] >= 95 && buffType[k] <= 97)
+				if (buffType[l] >= 95 && buffType[l] <= 97)
 				{
-					DelBuff(k);
+					DelBuff(l);
 				}
 			}
 			if (beetleOrbs > 0)
@@ -37543,17 +37642,17 @@ public class Player : Entity, IFixLoadedData
 		if (defendedByPaladin && ImmunityCooldownID.Sets.TeamDamageShare[cooldownCounter] && num2 >= 4.0 && Damage < 9999)
 		{
 			Player player = null;
-			float num9 = float.MaxValue;
-			for (int l = 0; l < 255; l++)
+			float num7 = float.MaxValue;
+			for (int m = 0; m < 255; m++)
 			{
-				Player player2 = Main.player[l];
-				if (l != whoAmI && player2.CanDefendWithPaladinsShield(team))
+				Player player2 = Main.player[m];
+				if (m != whoAmI && player2.CanDefendWithPaladinsShield(team))
 				{
-					float num10 = player2.Distance(base.Center);
-					if (num10 < num9)
+					float num8 = player2.Distance(base.Center);
+					if (num8 < num7)
 					{
 						player = player2;
-						num9 = num10;
+						num7 = num8;
 					}
 				}
 			}
@@ -37562,7 +37661,7 @@ public class Player : Entity, IFixLoadedData
 			{
 				num2 = (int)(num2 * 0.75);
 			}
-			if (player == Main.LocalPlayer && num9 < PaladinsShieldRange)
+			if (player == Main.LocalPlayer && num7 < PaladinsShieldRange)
 			{
 				Main.LocalPlayer.Hurt(PlayerDeathReason.ByOther(20), damage, 0, pvp: false, quiet: false, Crit: false, ImmunityCooldownID.PaladinsShield, dodgeable: false);
 			}
@@ -37587,15 +37686,15 @@ public class Player : Entity, IFixLoadedData
 		Color color = (Crit ? CombatText.DamagedFriendlyCrit : CombatText.DamagedFriendly);
 		CombatText.NewText(new Rectangle((int)position.X, (int)position.Y, width, height), color, (int)num2, Crit);
 		statLife -= (int)num2;
-		int num11 = (pvp ? 8 : ((num2 != 1.0) ? (longInvince ? 80 : 40) : (longInvince ? 40 : 20)));
+		int num9 = (pvp ? 8 : ((num2 != 1.0) ? (longInvince ? 80 : 40) : (longInvince ? 40 : 20)));
 		if (cooldownCounter == ImmunityCooldownID.General)
 		{
 			immune = true;
-			immuneTime = num11;
+			immuneTime = num9;
 		}
 		else if (hurtCooldowns[cooldownCounter] == 0 || flag2)
 		{
-			hurtCooldowns[cooldownCounter] = num11;
+			hurtCooldowns[cooldownCounter] = num9;
 		}
 		lifeRegenTime = 0f;
 		int? sourceProjectileType = damageSource.SourceProjectileType;
@@ -37607,34 +37706,34 @@ public class Player : Entity, IFixLoadedData
 		{
 			if (brainOfConfusionItem != null && !brainOfConfusionItem.IsAir)
 			{
-				for (int m = 0; m < Main.maxNPCs; m++)
+				for (int n = 0; n < Main.maxNPCs; n++)
 				{
-					if (!Main.npc[m].active || Main.npc[m].friendly)
+					if (!Main.npc[n].active || Main.npc[n].friendly)
 					{
 						continue;
 					}
-					int num12 = 300;
-					num12 += (int)num2 * 2;
-					if (Main.rand.Next(500) < num12)
+					int num10 = 300;
+					num10 += (int)num2 * 2;
+					if (Main.rand.Next(500) < num10)
 					{
-						float num13 = (Main.npc[m].Center - base.Center).Length();
-						float num14 = Main.rand.Next(200 + (int)num2 / 2, 301 + (int)num2 * 2);
-						if (num14 > 500f)
+						float num11 = (Main.npc[n].Center - base.Center).Length();
+						float num12 = Main.rand.Next(200 + (int)num2 / 2, 301 + (int)num2 * 2);
+						if (num12 > 500f)
 						{
-							num14 = 500f + (num14 - 500f) * 0.75f;
+							num12 = 500f + (num12 - 500f) * 0.75f;
 						}
-						if (num14 > 700f)
+						if (num12 > 700f)
 						{
-							num14 = 700f + (num14 - 700f) * 0.5f;
+							num12 = 700f + (num12 - 700f) * 0.5f;
 						}
-						if (num14 > 900f)
+						if (num12 > 900f)
 						{
-							num14 = 900f + (num14 - 900f) * 0.25f;
+							num12 = 900f + (num12 - 900f) * 0.25f;
 						}
-						if (num13 < num14)
+						if (num11 < num12)
 						{
-							float num15 = Main.rand.Next(90 + (int)num2 / 3, 300 + (int)num2 / 2);
-							Main.npc[m].AddBuff(31, (int)num15);
+							float num13 = Main.rand.Next(90 + (int)num2 / 3, 300 + (int)num2 / 2);
+							Main.npc[n].AddBuff(31, (int)num13);
 						}
 					}
 				}
@@ -37642,18 +37741,18 @@ public class Player : Entity, IFixLoadedData
 			}
 			if (starCloakItem != null && !starCloakItem.IsAir)
 			{
-				for (int n = 0; n < 3; n++)
+				for (int num14 = 0; num14 < 3; num14++)
 				{
 					float x = position.X + (float)Main.rand.Next(-400, 400);
 					float y = position.Y - (float)Main.rand.Next(500, 800);
 					Vector2 vector = new Vector2(x, y);
-					float num16 = position.X + (float)(width / 2) - vector.X;
-					float num17 = position.Y + (float)(height / 2) - vector.Y;
-					num16 += (float)Main.rand.Next(-100, 101);
-					float num18 = (float)Math.Sqrt(num16 * num16 + num17 * num17);
-					num18 = 23f / num18;
-					num16 *= num18;
-					num17 *= num18;
+					float num15 = position.X + (float)(width / 2) - vector.X;
+					float num16 = position.Y + (float)(height / 2) - vector.Y;
+					num15 += (float)Main.rand.Next(-100, 101);
+					float num17 = (float)Math.Sqrt(num15 * num15 + num16 * num16);
+					num17 = 23f / num17;
+					num15 *= num17;
+					num16 *= num17;
 					int type = 726;
 					Item item = starCloakItem;
 					if (starCloakItem_starVeilOverrideItem != null)
@@ -37671,52 +37770,52 @@ public class Player : Entity, IFixLoadedData
 						item = starCloakItem_manaCloakOverrideItem;
 						type = 723;
 					}
-					int num19 = 75;
+					int num18 = 75;
 					if (Main.masterMode)
 					{
-						num19 *= 3;
+						num18 *= 3;
 					}
 					else if (Main.expertMode)
 					{
-						num19 *= 2;
+						num18 *= 2;
 					}
-					Projectile.NewProjectile(GetProjectileSource_Accessory(item), x, y, num16, num17, type, num19, 5f, whoAmI, 0f, position.Y);
+					Projectile.NewProjectile(GetProjectileSource_Accessory(item), x, y, num15, num16, type, num18, 5f, whoAmI, 0f, position.Y);
 				}
 			}
 			if (honeyCombItem != null && !honeyCombItem.IsAir)
 			{
-				int num20 = 1;
+				int num19 = 1;
 				if (Main.rand.Next(3) == 0)
 				{
-					num20++;
+					num19++;
 				}
 				if (Main.rand.Next(3) == 0)
 				{
-					num20++;
+					num19++;
 				}
 				if (strongBees && Main.rand.Next(3) == 0)
 				{
-					num20++;
+					num19++;
 				}
-				float num21 = 13f;
+				float num20 = 13f;
 				if (strongBees)
 				{
-					num21 = 18f;
+					num20 = 18f;
 				}
 				if (Main.masterMode)
 				{
-					num21 *= 2f;
+					num20 *= 2f;
 				}
 				else if (Main.expertMode)
 				{
-					num21 *= 1.5f;
+					num20 *= 1.5f;
 				}
 				IEntitySource projectileSource_Accessory = GetProjectileSource_Accessory(honeyCombItem);
-				for (int num22 = 0; num22 < num20; num22++)
+				for (int num21 = 0; num21 < num19; num21++)
 				{
 					float speedX = (float)Main.rand.Next(-35, 36) * 0.02f;
 					float speedY = (float)Main.rand.Next(-35, 36) * 0.02f;
-					Projectile.NewProjectile(projectileSource_Accessory, position.X, position.Y, speedX, speedY, beeType(), beeDamage((int)num21), beeKB(0f), Main.myPlayer);
+					Projectile.NewProjectile(projectileSource_Accessory, position.X, position.Y, speedX, speedY, beeType(), beeDamage((int)num20), beeKB(0f), Main.myPlayer);
 				}
 				AddBuff(48, 300);
 			}
@@ -37732,28 +37831,28 @@ public class Player : Entity, IFixLoadedData
 		eyeHelper.BlinkBecausePlayerGotHurt();
 		if (statLife > 0)
 		{
-			double num23 = num2 / (double)statLifeMax2 * 100.0;
-			float num24 = 2 * hitDirection;
-			float num25 = 0f;
-			for (int num26 = 0; (double)num26 < num23; num26++)
+			double num22 = num2 / (double)statLifeMax2 * 100.0;
+			float num23 = 2 * hitDirection;
+			float num24 = 0f;
+			for (int num25 = 0; (double)num25 < num22; num25++)
 			{
 				if (stoned)
 				{
-					Dust.NewDust(position, width, height, 1, num24 + (float)hitDirection * num25 * Main.rand.NextFloat(), -2f);
+					Dust.NewDust(position, width, height, 1, num23 + (float)hitDirection * num24 * Main.rand.NextFloat(), -2f);
 				}
 				else if (frostArmor)
 				{
-					int num27 = Dust.NewDust(position, width, height, 135, num24 + (float)hitDirection * num25 * Main.rand.NextFloat(), -2f);
-					Main.dust[num27].shader = GameShaders.Armor.GetSecondaryShader(ArmorSetDye(), this);
+					int num26 = Dust.NewDust(position, width, height, 135, num23 + (float)hitDirection * num24 * Main.rand.NextFloat(), -2f);
+					Main.dust[num26].shader = GameShaders.Armor.GetSecondaryShader(ArmorSetDye(), this);
 				}
 				else if (boneArmor)
 				{
-					int num28 = Dust.NewDust(position, width, height, 26, num24 + (float)hitDirection * num25 * Main.rand.NextFloat(), -2f);
-					Main.dust[num28].shader = GameShaders.Armor.GetSecondaryShader(ArmorSetDye(), this);
+					int num27 = Dust.NewDust(position, width, height, 26, num23 + (float)hitDirection * num24 * Main.rand.NextFloat(), -2f);
+					Main.dust[num27].shader = GameShaders.Armor.GetSecondaryShader(ArmorSetDye(), this);
 				}
 				else
 				{
-					Dust.NewDust(position, width, height, 5, num24 + (float)hitDirection * num25 * Main.rand.NextFloat(), -2f);
+					Dust.NewDust(position, width, height, 5, num23 + (float)hitDirection * num24 * Main.rand.NextFloat(), -2f);
 				}
 			}
 		}
@@ -39048,7 +39147,7 @@ public class Player : Entity, IFixLoadedData
 					}
 					dontConsumeWand = true;
 					ApplyItemTime(bestPickaxe, pickSpeed);
-					SetItemAnimation((int)((float)bestPickaxe.useTime * pickSpeed));
+					SetItemAnimation(bestPickaxe.useTime, pickSpeed);
 					return false;
 				}
 				ClearMiningCacheAt(tileTargetX, tileTargetY, 1);
@@ -39071,7 +39170,7 @@ public class Player : Entity, IFixLoadedData
 				int num4 = (int)((float)bestPickaxe.useTime * pickSpeed);
 				int num5 = (int)((float)HeldItem.useTime * tileSpeed);
 				SetItemTime(num4 + num5);
-				SetItemAnimation((int)((float)bestPickaxe.useTime * pickSpeed));
+				SetItemAnimation(bestPickaxe.useTime, pickSpeed);
 				PlaceThing_Tiles_PlaceIt_AutoPaintAndActuate(tileDataCaches, type);
 			}
 		}
@@ -41835,6 +41934,10 @@ public class Player : Entity, IFixLoadedData
 		{
 			itemTime = 0;
 		}
+		if (itemAnimation == 0)
+		{
+			itemAnimationMax = 0;
+		}
 		if (itemAnimation == 0 && reuseDelay > 0)
 		{
 			ApplyReuseDelay();
@@ -42461,7 +42564,6 @@ public class Player : Entity, IFixLoadedData
 				if (item.stack <= 0 && itemAnimation == 0)
 				{
 					inventory[selectedItem] = new Item();
-					itemAnimationMax = 0;
 				}
 				if (selectedItem == 58 && itemAnimation > 0)
 				{
@@ -50619,9 +50721,13 @@ public class Player : Entity, IFixLoadedData
 		}
 		int frame = mount.Frame;
 		Vector2 vector = Vector2.Zero;
-		if (mount.Type == 56 || mount.Type == 61)
+		if (mount.Type == 61)
 		{
-			vector = new Vector2(6f, 14f) * Directions;
+			vector = new Vector2(-2f, 20f) * Directions;
+		}
+		else if (mount.Type == 56)
+		{
+			vector = new Vector2(6f, 18f) * Directions;
 			switch (frame)
 			{
 			case 1:
@@ -50636,9 +50742,9 @@ public class Player : Entity, IFixLoadedData
 				break;
 			}
 		}
-		if (mount.Type == 55)
+		else if (mount.Type == 55)
 		{
-			vector = new Vector2(0f, 14f) * Directions;
+			vector = new Vector2(0f, 18f) * Directions;
 			switch (frame)
 			{
 			case 1:
@@ -50672,7 +50778,7 @@ public class Player : Entity, IFixLoadedData
 				break;
 			}
 		}
-		if (mount.Type == 54)
+		else if (mount.Type == 54)
 		{
 			vector = new Vector2(23f, -8f) * Directions;
 			switch (frame)
@@ -53600,7 +53706,7 @@ public class Player : Entity, IFixLoadedData
 		using Stream stream = (isCloudSave ? ((Stream)new MemoryStream(2000)) : ((Stream)new FileStream(path, FileMode.Create)));
 		using CryptoStream cryptoStream = new CryptoStream(stream, rijndaelManaged.CreateEncryptor(ENCRYPTION_KEY, ENCRYPTION_KEY), CryptoStreamMode.Write);
 		using BinaryWriter binaryWriter = new BinaryWriter(cryptoStream);
-		binaryWriter.Write(317);
+		binaryWriter.Write(318);
 		playerFile.Metadata.Write(binaryWriter);
 		Serialize(playerFile, player, binaryWriter);
 		binaryWriter.Flush();
@@ -53950,7 +54056,7 @@ public class Player : Entity, IFixLoadedData
 				{
 					playerFileData.Metadata = FileMetadata.FromCurrentSettings(FileType.Player);
 				}
-				if (num > 317)
+				if (num > 318)
 				{
 					player.loadStatus = StatusID.LaterVersion;
 					player.name = binaryReader.ReadString();
@@ -53992,7 +54098,7 @@ public class Player : Entity, IFixLoadedData
 		_visualCloneStream.Seek(0L, SeekOrigin.Begin);
 		Serialize(_visualCloneDummyData, this, _visualCloneWriter);
 		_visualCloneStream.Seek(0L, SeekOrigin.Begin);
-		Deserialize(_visualCloneDummyData, player, _visualCloneReader, 317, out var _);
+		Deserialize(_visualCloneDummyData, player, _visualCloneReader, 318, out var _);
 		return player;
 	}
 

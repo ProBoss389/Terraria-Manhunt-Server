@@ -3590,6 +3590,10 @@ public class Mount
 		{
 			_idleTime = 0;
 		}
+		if (mountedPlayer.isDisplayDollOrInanimate)
+		{
+			_idleTime = 0;
+		}
 		if (velocity.Y == 0f)
 		{
 			_walkingGraceTimeLeft = _data.walkingGraceTimeMax;

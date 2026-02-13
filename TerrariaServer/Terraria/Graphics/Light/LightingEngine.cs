@@ -35,7 +35,9 @@ public class LightingEngine : ILightingEngine
 
 	private const int NON_VISIBLE_PADDING = 18;
 
-	private readonly List<PerFrameLight> _perFrameLights = new List<PerFrameLight>();
+	private List<PerFrameLight> _perFrameLights = new List<PerFrameLight>();
+
+	private List<PerFrameLight> _oldPerFrameLights = new List<PerFrameLight>();
 
 	private TileLightScanner _tileScanner = new TileLightScanner();
 
@@ -59,6 +61,7 @@ public class LightingEngine : ILightingEngine
 		_activeLightMap.Clear();
 		_workingLightMap.Clear();
 		_perFrameLights.Clear();
+		_oldPerFrameLights.Clear();
 	}
 
 	public Vector3 GetColor(int x, int y)
@@ -206,19 +209,25 @@ public class LightingEngine : ILightingEngine
 
 	private void ApplyPerFrameLights()
 	{
-		for (int i = 0; i < _perFrameLights.Count; i++)
+		List<PerFrameLight> list = _perFrameLights;
+		if (Main.gamePaused)
 		{
-			Point position = _perFrameLights[i].Position;
+			list = _oldPerFrameLights;
+		}
+		for (int i = 0; i < list.Count; i++)
+		{
+			Point position = list[i].Position;
 			if (_workingProcessedArea.Contains(position))
 			{
-				Vector3 value = _perFrameLights[i].Color;
+				Vector3 value = list[i].Color;
 				Vector3 value2 = _workingLightMap[position.X - _workingProcessedArea.X, position.Y - _workingProcessedArea.Y];
 				Vector3.Max(ref value2, ref value, out value);
 				_workingLightMap[position.X - _workingProcessedArea.X, position.Y - _workingProcessedArea.Y] = value;
 			}
 		}
-		if (!CaptureManager.Instance.IsCapturing)
+		if (!CaptureManager.Instance.IsCapturing && !Main.gamePaused)
 		{
+			Utils.Swap(ref _perFrameLights, ref _oldPerFrameLights);
 			_perFrameLights.Clear();
 		}
 	}

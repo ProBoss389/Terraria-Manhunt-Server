@@ -337,75 +337,77 @@ public class WorldGen
 
 		public static List<SecretSeed> AllSecretSeeds = new List<SecretSeed>();
 
-		public static SecretSeed paintEverythingGray = Register(SoundID.MenuAccept, "2htOIVagY/7JFx7acMpyUR6D3qJDr/u+");
+		public static SecretSeed paintEverythingGray = Register("SecretSeedDescription.paintEverythingGray", SoundID.MenuAccept, "2htOIVagY/7JFx7acMpyUR6D3qJDr/u+");
 
-		public static SecretSeed paintEverythingNegative = Register(SoundID.MenuAccept, "YJayFFSdWEl66+rlFoWJRNvBHJi8gHnx");
+		public static SecretSeed paintEverythingNegative = Register("SecretSeedDescription.paintEverythingNegative", SoundID.MenuAccept, "YJayFFSdWEl66+rlFoWJRNvBHJi8gHnx");
 
-		public static SecretSeed coatEverythingEcho = Register(SoundID.MenuAccept, "5Czr2vSNyB9hJd1yob+TYo0qqH/5U2P9");
+		public static SecretSeed coatEverythingEcho = Register("SecretSeedDescription.coatEverythingEcho", SoundID.MenuAccept, "5Czr2vSNyB9hJd1yob+TYo0qqH/5U2P9");
 
-		public static SecretSeed coatEverythingIlluminant = Register(SoundID.MenuAccept, "5YXhKErRZovhjJkrP9fptrVHbNc1oSSn");
+		public static SecretSeed coatEverythingIlluminant = Register("SecretSeedDescription.coatEverythingIlluminant", SoundID.MenuAccept, "5YXhKErRZovhjJkrP9fptrVHbNc1oSSn");
 
-		public static SecretSeed noSurface = Register(SoundID.MenuAccept, "cptECrPRxYeNTULJULs4gVoKdRsf3c3n");
+		public static SecretSeed noSurface = Register("SecretSeedDescription.noSurface", SoundID.MenuAccept, "cptECrPRxYeNTULJULs4gVoKdRsf3c3n");
 
-		public static SecretSeed extraLivingTrees = Register(SoundID.MenuAccept, "QQN1FbxlHeUCXPZc51GYvn8G5GXOJcny");
+		public static SecretSeed extraLivingTrees = Register("SecretSeedDescription.extraLivingTrees", SoundID.MenuAccept, "QQN1FbxlHeUCXPZc51GYvn8G5GXOJcny");
 
-		public static SecretSeed extraFloatingIslands = Register(SoundID.MenuAccept, "0ebq4RCzI3PVaUPOT0f6/+vkXEaoLz2U");
+		public static SecretSeed extraFloatingIslands = Register("SecretSeedDescription.extraFloatingIslands", SoundID.MenuAccept, "0ebq4RCzI3PVaUPOT0f6/+vkXEaoLz2U");
 
-		public static SecretSeed errorWorld = Register(SoundID.MenuAccept, "GkviuS3QN0pyESRJdjIs6oC8s8hOhUXw");
+		public static SecretSeed errorWorld = Register("SecretSeedDescription.errorWorld", SoundID.MenuAccept, "GkviuS3QN0pyESRJdjIs6oC8s8hOhUXw");
 
-		public static SecretSeed graveyardBloodmoonStart = Register(SoundID.MenuAccept, "N8G20sWOkIa7ZP0rS/jopLpe9180N6Tx");
+		public static SecretSeed graveyardBloodmoonStart = Register("SecretSeedDescription.graveyardBloodmoonStart", SoundID.MenuAccept, "N8G20sWOkIa7ZP0rS/jopLpe9180N6Tx");
 
-		public static SecretSeed surfaceIsInSpace = Register(SoundID.MenuAccept, "io2s6kMi4L7ZCDYZGP1Hc8nEWuYW4gp5");
+		public static SecretSeed surfaceIsInSpace = Register("SecretSeedDescription.surfaceIsInSpace", SoundID.MenuAccept, "io2s6kMi4L7ZCDYZGP1Hc8nEWuYW4gp5");
 
-		public static SecretSeed rainsForAYear = Register(SoundID.MenuAccept, "xYBNU5Soje9VhQHNQXETDKbwlc+7XZau");
+		public static SecretSeed rainsForAYear = Register("SecretSeedDescription.rainsForAYear", SoundID.MenuAccept, "xYBNU5Soje9VhQHNQXETDKbwlc+7XZau");
 
-		public static SecretSeed biggerAbandonedHouses = Register(SoundID.MenuAccept, "vWb/t7nNF+tnjgr5VgY2hi0HcT1j3kvC");
+		public static SecretSeed biggerAbandonedHouses = Register("SecretSeedDescription.biggerAbandonedHouses", SoundID.MenuAccept, "vWb/t7nNF+tnjgr5VgY2hi0HcT1j3kvC");
 
-		public static SecretSeed randomSpawn = Register(SoundID.MenuAccept, "zSwnCH9E121+S6VQdB0k20E7IPdtobls");
+		public static SecretSeed randomSpawn = Register("SecretSeedDescription.randomSpawn", SoundID.MenuAccept, "zSwnCH9E121+S6VQdB0k20E7IPdtobls");
 
-		public static SecretSeed addTeleporters = Register(SoundID.MenuAccept, "+URq9gxzcyHxAXVqdwl1fz8wgPYYu0Wx");
+		public static SecretSeed addTeleporters = Register("SecretSeedDescription.addTeleporters", SoundID.MenuAccept, "+URq9gxzcyHxAXVqdwl1fz8wgPYYu0Wx");
 
-		public static SecretSeed startInHardmode = Register(SoundID.MenuAccept, "6kX2PJe0FWt3i0fp0tVBh5jt84ozLXBo");
+		public static SecretSeed startInHardmode = Register("SecretSeedDescription.startInHardmode", SoundID.MenuAccept, "6kX2PJe0FWt3i0fp0tVBh5jt84ozLXBo");
 
-		public static SecretSeed noInfection = Register(SoundID.MenuAccept, "m1gQVuUnIRW083pnfFdnN3DPsg1qFYHZ");
+		public static SecretSeed noInfection = Register("SecretSeedDescription.noInfection", SoundID.MenuAccept, "m1gQVuUnIRW083pnfFdnN3DPsg1qFYHZ");
 
-		public static SecretSeed hallowOnTheSurface = Register(SoundID.MenuAccept, "KYvKIk2LK0oyNY86m+uPhKQ7QbzFmDsR");
+		public static SecretSeed hallowOnTheSurface = Register("SecretSeedDescription.hallowOnTheSurface", SoundID.MenuAccept, "KYvKIk2LK0oyNY86m+uPhKQ7QbzFmDsR");
 
-		public static SecretSeed worldIsInfected = Register(SoundID.MenuAccept, "kbxnychxHNDcoyFHhxM9OJHRxis6mFF/");
+		public static SecretSeed worldIsInfected = Register("SecretSeedDescription.worldIsInfected", SoundID.MenuAccept, "kbxnychxHNDcoyFHhxM9OJHRxis6mFF/");
 
-		public static SecretSeed surfaceIsMushrooms = Register(SoundID.MenuAccept, "e48+tRi5DqzRkBPk3yq9udBG/kaYOQaB");
+		public static SecretSeed surfaceIsMushrooms = Register("SecretSeedDescription.surfaceIsMushrooms", SoundID.MenuAccept, "e48+tRi5DqzRkBPk3yq9udBG/kaYOQaB");
 
-		public static SecretSeed surfaceIsDesert = Register(SoundID.MenuAccept, "eyGmBQhQ9QnE7UsIib1QmnNRVBNmQtMi");
+		public static SecretSeed surfaceIsDesert = Register("SecretSeedDescription.surfaceIsDesert", SoundID.MenuAccept, "eyGmBQhQ9QnE7UsIib1QmnNRVBNmQtMi");
 
-		public static SecretSeed pooEverywhere = Register(SoundID.MenuAccept, "Iubz1XcBvsfPjSZucIJ3hCDFFEpjG57w");
+		public static SecretSeed pooEverywhere = Register("SecretSeedDescription.pooEverywhere", SoundID.MenuAccept, "Iubz1XcBvsfPjSZucIJ3hCDFFEpjG57w");
 
-		public static SecretSeed noSpiderCaves = Register(SoundID.MenuAccept, "SPlOdka0fv8wUovao6u3VB7ZS+IbcPDu");
+		public static SecretSeed noSpiderCaves = Register("SecretSeedDescription.noSpiderCaves", SoundID.MenuAccept, "SPlOdka0fv8wUovao6u3VB7ZS+IbcPDu");
 
-		public static SecretSeed actuallyNoTraps = Register(SoundID.MenuAccept, "AoEz0g1XX0V/nJwcaN2RWwUf/6ghr9pT");
+		public static SecretSeed actuallyNoTraps = Register("SecretSeedDescription.actuallyNoTraps", SoundID.MenuAccept, "AoEz0g1XX0V/nJwcaN2RWwUf/6ghr9pT");
 
-		public static SecretSeed rainbowStuff = Register(SoundID.MenuAccept, "6lK0Tn4t2UlklesGiJ94617yKvk01ICB");
+		public static SecretSeed rainbowStuff = Register("SecretSeedDescription.rainbowStuff", SoundID.MenuAccept, "6lK0Tn4t2UlklesGiJ94617yKvk01ICB");
 
-		public static SecretSeed digExtraHoles = Register(SoundID.MenuAccept, "MucLvCERZix3rfcwUH68HDtuFYukiTv9");
+		public static SecretSeed digExtraHoles = Register("SecretSeedDescription.digExtraHoles", SoundID.MenuAccept, "MucLvCERZix3rfcwUH68HDtuFYukiTv9");
 
-		public static SecretSeed roundLandmasses = Register(SoundID.MenuAccept, "VSN8nV180t6PgabWDl4Uf55I1vu97JRD");
+		public static SecretSeed roundLandmasses = Register("SecretSeedDescription.roundLandmasses", SoundID.MenuAccept, "VSN8nV180t6PgabWDl4Uf55I1vu97JRD");
 
-		public static SecretSeed extraLiquid = Register(SoundID.MenuAccept, "ZYO3rUjSeCaaBrCE8Bv0FBtkjigLMz90");
+		public static SecretSeed extraLiquid = Register("SecretSeedDescription.extraLiquid", SoundID.MenuAccept, "ZYO3rUjSeCaaBrCE8Bv0FBtkjigLMz90");
 
-		public static SecretSeed portalGunInChests = Register(SoundID.MenuAccept, "ALdQZ+bxQA4VdfjVfdhO/sm9q3sZD9dJ");
+		public static SecretSeed portalGunInChests = Register("SecretSeedDescription.portalGunInChests", SoundID.MenuAccept, "ALdQZ+bxQA4VdfjVfdhO/sm9q3sZD9dJ");
 
-		public static SecretSeed worldIsFrozen = Register(SoundID.MenuAccept, "eH2IYQwQyOud0hyoTPaeVsqYlAP7MvbS");
+		public static SecretSeed worldIsFrozen = Register("SecretSeedDescription.worldIsFrozen", SoundID.MenuAccept, "eH2IYQwQyOud0hyoTPaeVsqYlAP7MvbS");
 
-		public static SecretSeed halloweenGen = Register(SoundID.MenuAccept, "Z4Odmvd5lScy/KGXHUO2nvqA9l3KRvm8");
+		public static SecretSeed halloweenGen = Register("SecretSeedDescription.halloweenGen", SoundID.MenuAccept, "Z4Odmvd5lScy/KGXHUO2nvqA9l3KRvm8");
 
-		public static SecretSeed endlessHalloween = Register(SoundID.MenuAccept, "KNSxbK83ZXH41aUhWLti9OFMxoMrCV1s");
+		public static SecretSeed endlessHalloween = Register("SecretSeedDescription.endlessHalloween", SoundID.MenuAccept, "KNSxbK83ZXH41aUhWLti9OFMxoMrCV1s");
 
-		public static SecretSeed endlessChristmas = Register(SoundID.MenuAccept, "gkN386qfe3u1qqQDpGsUu3DsRkEBpD1R");
+		public static SecretSeed endlessChristmas = Register("SecretSeedDescription.endlessChristmas", SoundID.MenuAccept, "gkN386qfe3u1qqQDpGsUu3DsRkEBpD1R");
 
-		public static SecretSeed vampirism = Register(SoundID.MenuAccept, "4eijvDtfcSl66CDifYSVP3WBZm9OLBoW");
+		public static SecretSeed vampirism = Register("SecretSeedDescription.vampirism", SoundID.MenuAccept, "4eijvDtfcSl66CDifYSVP3WBZm9OLBoW");
 
-		public static SecretSeed teamBasedSpawns = Register(SoundID.MenuAccept, "HnTdmrZ5OT1ldA3r0w3dCgrdLnJBtBSD");
+		public static SecretSeed teamBasedSpawns = Register("SecretSeedDescription.teamBasedSpawns", SoundID.MenuAccept, "HnTdmrZ5OT1ldA3r0w3dCgrdLnJBtBSD");
 
-		public static SecretSeed dualDungeons = Register(SoundID.MenuAccept, "ypBuvKpqKay//OvhG2COriSpGT7f4YY3");
+		public static SecretSeed dualDungeons = Register("SecretSeedDescription.dualDungeons", SoundID.MenuAccept, "ypBuvKpqKay//OvhG2COriSpGT7f4YY3");
+
+		public readonly string Localization;
 
 		private readonly string _code;
 
@@ -451,15 +453,31 @@ public class WorldGen
 			}
 		}
 
-		private SecretSeed(LegacySoundStyle sound, string code)
+		private SecretSeed(string localization, LegacySoundStyle sound, string code)
 		{
+			Localization = localization;
 			_sound = sound;
 			_code = code;
 		}
 
-		public static SecretSeed Register(LegacySoundStyle sound, string code)
+		public bool Check(string code)
 		{
-			SecretSeed secretSeed = new SecretSeed(sound, code);
+			if (string.IsNullOrWhiteSpace(code))
+			{
+				return false;
+			}
+			code = Regex.Replace(code.ToLower(), "[^a-z0-9]+", "");
+			if (string.IsNullOrWhiteSpace(code))
+			{
+				return false;
+			}
+			string text = Secrets.ToSecret(code);
+			return _code == text;
+		}
+
+		public static SecretSeed Register(string localization, LegacySoundStyle sound, string code)
+		{
+			SecretSeed secretSeed = new SecretSeed(localization, sound, code);
 			AllSecretSeeds.Add(secretSeed);
 			return secretSeed;
 		}
@@ -507,7 +525,10 @@ public class WorldGen
 			{
 				activeSecretSeedCount++;
 				seed._enabled = true;
-				SecretSeedsTracker.AddSeedToTrack(seed.TextThatWasUsedToUnlock);
+				if (!Main.dedServ)
+				{
+					SecretSeedsTracker.AddSeedToTrack(seed.TextThatWasUsedToUnlock);
+				}
 				if (playSound)
 				{
 					SoundEngine.PlaySound(seed._sound);
@@ -6290,8 +6311,9 @@ public class WorldGen
 						}
 						if (SolidTile(m, n))
 						{
+							Tile tile2 = Main.tile[m, n];
 							num9++;
-							if (Main.tile[m, n].type == 189 || Main.tile[m, n].type == 202)
+							if ((tile2.type >= 0 && TileID.Sets.Clouds[tile2.type]) || tile2.type == 202)
 							{
 								num9 -= 100;
 							}
@@ -7014,6 +7036,8 @@ public class WorldGen
 		GenVars.shimmerPosition = Vector2D.Zero;
 		Main.cloudBGActive = 0f;
 		Main.raining = false;
+		Main.rainTime = 0;
+		Main.maxRaining = 0f;
 		Main.hardMode = false;
 		Main.helpText = 0;
 		Main.BartenderHelpTextIndex = 0;
@@ -43581,13 +43605,13 @@ public class WorldGen
 					break;
 				}
 				int maxValue = 8;
-				if (Main.Difficulty == 2f)
-				{
-					maxValue = 4;
-				}
-				else if (Main.Difficulty == 3f)
+				if (Main.Difficulty >= GameDifficultyLevel.Master)
 				{
 					maxValue = 2;
+				}
+				else if (Main.Difficulty >= GameDifficultyLevel.Expert)
+				{
+					maxValue = 4;
 				}
 				if (genRand.Next(maxValue) == 0 && NPC.CountNPCS(316) < 2)
 				{

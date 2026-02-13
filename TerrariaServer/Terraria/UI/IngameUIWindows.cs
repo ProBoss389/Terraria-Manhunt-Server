@@ -66,5 +66,6 @@ public static class IngameUIWindows
 		Main.SetNPCShopIndex(0);
 		Main.CreativeMenu.CloseMenu();
 		NewCraftingUI.Close(quiet: true);
+		CraftingUI.ClearHacks();
 	}
 }

@@ -19,6 +19,49 @@ namespace Terraria.GameContent.UI.States;
 
 public class UIManageControls : UIState
 {
+	public class SpecialControls
+	{
+		public const string MouseSnapToggle = "sp1";
+
+		public const string MouseHotbarToggle = "sp2";
+
+		public const string TriggersDeadZone = "sp3";
+
+		public const string SlidersDeadZone = "sp4";
+
+		public const string LeftXDeadZone = "sp5";
+
+		public const string LeftYDeadZone = "sp6";
+
+		public const string RightXDeadZone = "sp7";
+
+		public const string RightYDeadZone = "sp8";
+
+		public const string ResetGameplay = "sp9";
+
+		public const string ResetHotbar = "sp10";
+
+		public const string ResetMap = "sp11";
+
+		public const string ResetGamepad = "sp12";
+
+		public const string ResetGamepadAdvanced = "sp13";
+
+		public const string InvertLeftX = "sp14";
+
+		public const string InvertLeftY = "sp15";
+
+		public const string InvertRightX = "sp16";
+
+		public const string InvertRightY = "sp17";
+
+		public const string TimeBeforeRadial = "sp18";
+
+		public const string TicksPerInventoryMovement = "sp19";
+
+		public const string DisableDoubleTapForDashing = "sp20";
+	}
+
 	public static int ForceMoveTo = -1;
 
 	private const float PanelTextureHeight = 30f;
@@ -27,10 +70,10 @@ public class UIManageControls : UIState
 	{
 		"Throw", "Inventory", "RadialHotbar", "RadialQuickbar", "LockOn", "ToggleCreativeMenu", "Loadout1", "Loadout2", "Loadout3", "ToggleCameraMode",
 		"sp3", "sp4", "sp5", "sp6", "sp7", "sp8", "sp18", "sp19", "sp9", "sp10",
-		"sp11", "sp12", "sp13"
+		"sp11", "sp12", "sp13", "ArmorSetAbility"
 	};
 
-	private static List<string> _BindingsHalfSingleLine = new List<string> { "sp9", "sp10", "sp11", "sp12", "sp13" };
+	private static List<string> _BindingsHalfSingleLine = new List<string> { "sp9", "sp10", "sp11", "sp12", "sp13", "sp20" };
 
 	private bool OnKeyboard = true;
 
@@ -230,13 +273,13 @@ public class UIManageControls : UIState
 		{
 			"MouseLeft", "MouseRight", "Up", "Down", "Left", "Right", "Jump", "Grapple", "SmartSelect", "SmartCursor",
 			"QuickMount", "QuickHeal", "QuickMana", "QuickBuff", "Throw", "Inventory", "ToggleCreativeMenu", "ViewZoomIn", "ViewZoomOut", "Loadout1",
-			"Loadout2", "Loadout3", "ToggleCameraMode", "sp9"
+			"Loadout2", "Loadout3", "NextLoadout", "PreviousLoadout", "ToggleCameraMode", "ArmorSetAbility", "Dash", "sp20", "sp9"
 		};
 		List<string> bindings2 = new List<string>
 		{
 			"MouseLeft", "MouseRight", "Up", "Down", "Left", "Right", "Jump", "Grapple", "SmartSelect", "SmartCursor",
 			"QuickMount", "QuickHeal", "QuickMana", "QuickBuff", "LockOn", "Throw", "Inventory", "Loadout1", "Loadout2", "Loadout3",
-			"ToggleCameraMode", "sp9"
+			"NextLoadout", "PreviousLoadout", "ToggleCameraMode", "ArmorSetAbility", "Dash", "sp20", "sp9"
 		};
 		List<string> bindings3 = new List<string>
 		{
@@ -397,9 +440,9 @@ public class UIManageControls : UIState
 		{
 		case "sp1":
 		{
-			UIKeybindingToggleListItem uIKeybindingToggleListItem5 = new UIKeybindingToggleListItem(() => Lang.menu[196].Value, () => PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap1"].Contains(Buttons.DPadUp.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap2"].Contains(Buttons.DPadRight.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap3"].Contains(Buttons.DPadDown.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap4"].Contains(Buttons.DPadLeft.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap1"].Contains(Buttons.DPadUp.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap2"].Contains(Buttons.DPadRight.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap3"].Contains(Buttons.DPadDown.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap4"].Contains(Buttons.DPadLeft.ToString()), color);
-			uIKeybindingToggleListItem5.OnLeftClick += SnapButtonClick;
-			return uIKeybindingToggleListItem5;
+			UIKeybindingToggleListItem uIKeybindingToggleListItem3 = new UIKeybindingToggleListItem(() => Lang.menu[196].Value, () => PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap1"].Contains(Buttons.DPadUp.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap2"].Contains(Buttons.DPadRight.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap3"].Contains(Buttons.DPadDown.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepad].KeyStatus["DpadSnap4"].Contains(Buttons.DPadLeft.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap1"].Contains(Buttons.DPadUp.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap2"].Contains(Buttons.DPadRight.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap3"].Contains(Buttons.DPadDown.ToString()) && PlayerInput.CurrentProfile.InputModes[InputMode.XBoxGamepadUI].KeyStatus["DpadSnap4"].Contains(Buttons.DPadLeft.ToString()), color);
+			uIKeybindingToggleListItem3.OnLeftClick += SnapButtonClick;
+			return uIKeybindingToggleListItem3;
 		}
 		case "sp2":
 		{
@@ -457,101 +500,101 @@ public class UIManageControls : UIState
 			}, 1005, color);
 		case "sp9":
 		{
-			UIKeybindingSimpleListItem uIKeybindingSimpleListItem3 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
-			uIKeybindingSimpleListItem3.OnLeftClick += delegate
+			UIKeybindingSimpleListItem uIKeybindingSimpleListItem4 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
+			uIKeybindingSimpleListItem4.OnLeftClick += delegate
 			{
 				string copyableProfileName = GetCopyableProfileName();
 				PlayerInput.CurrentProfile.CopyGameplaySettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
 			};
-			return uIKeybindingSimpleListItem3;
+			return uIKeybindingSimpleListItem4;
 		}
 		case "sp10":
-		{
-			UIKeybindingSimpleListItem uIKeybindingSimpleListItem5 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
-			uIKeybindingSimpleListItem5.OnLeftClick += delegate
-			{
-				string copyableProfileName = GetCopyableProfileName();
-				PlayerInput.CurrentProfile.CopyHotbarSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
-			};
-			return uIKeybindingSimpleListItem5;
-		}
-		case "sp11":
-		{
-			UIKeybindingSimpleListItem uIKeybindingSimpleListItem2 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
-			uIKeybindingSimpleListItem2.OnLeftClick += delegate
-			{
-				string copyableProfileName = GetCopyableProfileName();
-				PlayerInput.CurrentProfile.CopyMapSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
-			};
-			return uIKeybindingSimpleListItem2;
-		}
-		case "sp12":
 		{
 			UIKeybindingSimpleListItem uIKeybindingSimpleListItem = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
 			uIKeybindingSimpleListItem.OnLeftClick += delegate
 			{
 				string copyableProfileName = GetCopyableProfileName();
-				PlayerInput.CurrentProfile.CopyGamepadSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
+				PlayerInput.CurrentProfile.CopyHotbarSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
 			};
 			return uIKeybindingSimpleListItem;
 		}
+		case "sp11":
+		{
+			UIKeybindingSimpleListItem uIKeybindingSimpleListItem3 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
+			uIKeybindingSimpleListItem3.OnLeftClick += delegate
+			{
+				string copyableProfileName = GetCopyableProfileName();
+				PlayerInput.CurrentProfile.CopyMapSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
+			};
+			return uIKeybindingSimpleListItem3;
+		}
+		case "sp12":
+		{
+			UIKeybindingSimpleListItem uIKeybindingSimpleListItem2 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
+			uIKeybindingSimpleListItem2.OnLeftClick += delegate
+			{
+				string copyableProfileName = GetCopyableProfileName();
+				PlayerInput.CurrentProfile.CopyGamepadSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
+			};
+			return uIKeybindingSimpleListItem2;
+		}
 		case "sp13":
 		{
-			UIKeybindingSimpleListItem uIKeybindingSimpleListItem4 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
-			uIKeybindingSimpleListItem4.OnLeftClick += delegate
+			UIKeybindingSimpleListItem uIKeybindingSimpleListItem5 = new UIKeybindingSimpleListItem(() => Lang.menu[86].Value, color);
+			uIKeybindingSimpleListItem5.OnLeftClick += delegate
 			{
 				string copyableProfileName = GetCopyableProfileName();
 				PlayerInput.CurrentProfile.CopyGamepadAdvancedSettingsFrom(PlayerInput.OriginalProfiles[copyableProfileName], currentInputMode);
 			};
-			return uIKeybindingSimpleListItem4;
+			return uIKeybindingSimpleListItem5;
 		}
 		case "sp14":
 		{
-			UIKeybindingToggleListItem uIKeybindingToggleListItem = new UIKeybindingToggleListItem(() => Lang.menu[205].Value, () => PlayerInput.CurrentProfile.LeftThumbstickInvertX, color);
-			uIKeybindingToggleListItem.OnLeftClick += delegate
+			UIKeybindingToggleListItem uIKeybindingToggleListItem6 = new UIKeybindingToggleListItem(() => Lang.menu[205].Value, () => PlayerInput.CurrentProfile.LeftThumbstickInvertX, color);
+			uIKeybindingToggleListItem6.OnLeftClick += delegate
 			{
 				if (PlayerInput.CurrentProfile.AllowEditting)
 				{
 					PlayerInput.CurrentProfile.LeftThumbstickInvertX = !PlayerInput.CurrentProfile.LeftThumbstickInvertX;
 				}
 			};
-			return uIKeybindingToggleListItem;
+			return uIKeybindingToggleListItem6;
 		}
 		case "sp15":
 		{
-			UIKeybindingToggleListItem uIKeybindingToggleListItem3 = new UIKeybindingToggleListItem(() => Lang.menu[206].Value, () => PlayerInput.CurrentProfile.LeftThumbstickInvertY, color);
-			uIKeybindingToggleListItem3.OnLeftClick += delegate
+			UIKeybindingToggleListItem uIKeybindingToggleListItem2 = new UIKeybindingToggleListItem(() => Lang.menu[206].Value, () => PlayerInput.CurrentProfile.LeftThumbstickInvertY, color);
+			uIKeybindingToggleListItem2.OnLeftClick += delegate
 			{
 				if (PlayerInput.CurrentProfile.AllowEditting)
 				{
 					PlayerInput.CurrentProfile.LeftThumbstickInvertY = !PlayerInput.CurrentProfile.LeftThumbstickInvertY;
 				}
 			};
-			return uIKeybindingToggleListItem3;
+			return uIKeybindingToggleListItem2;
 		}
 		case "sp16":
 		{
-			UIKeybindingToggleListItem uIKeybindingToggleListItem2 = new UIKeybindingToggleListItem(() => Lang.menu[207].Value, () => PlayerInput.CurrentProfile.RightThumbstickInvertX, color);
-			uIKeybindingToggleListItem2.OnLeftClick += delegate
+			UIKeybindingToggleListItem uIKeybindingToggleListItem7 = new UIKeybindingToggleListItem(() => Lang.menu[207].Value, () => PlayerInput.CurrentProfile.RightThumbstickInvertX, color);
+			uIKeybindingToggleListItem7.OnLeftClick += delegate
 			{
 				if (PlayerInput.CurrentProfile.AllowEditting)
 				{
 					PlayerInput.CurrentProfile.RightThumbstickInvertX = !PlayerInput.CurrentProfile.RightThumbstickInvertX;
 				}
 			};
-			return uIKeybindingToggleListItem2;
+			return uIKeybindingToggleListItem7;
 		}
 		case "sp17":
 		{
-			UIKeybindingToggleListItem uIKeybindingToggleListItem6 = new UIKeybindingToggleListItem(() => Lang.menu[208].Value, () => PlayerInput.CurrentProfile.RightThumbstickInvertY, color);
-			uIKeybindingToggleListItem6.OnLeftClick += delegate
+			UIKeybindingToggleListItem uIKeybindingToggleListItem5 = new UIKeybindingToggleListItem(() => Lang.menu[208].Value, () => PlayerInput.CurrentProfile.RightThumbstickInvertY, color);
+			uIKeybindingToggleListItem5.OnLeftClick += delegate
 			{
 				if (PlayerInput.CurrentProfile.AllowEditting)
 				{
 					PlayerInput.CurrentProfile.RightThumbstickInvertY = !PlayerInput.CurrentProfile.RightThumbstickInvertY;
 				}
 			};
-			return uIKeybindingToggleListItem6;
+			return uIKeybindingToggleListItem5;
 		}
 		case "sp18":
 			return new UIKeybindingSliderItem(delegate
@@ -601,6 +644,23 @@ public class UIManageControls : UIState
 					}
 				}
 			}, 1008, color);
+		case "sp20":
+		{
+			UIKeybindingToggleListItem uIKeybindingToggleListItem = new UIKeybindingToggleListItem(() => Language.GetTextValue("UI.DoubleTapDash"), () => Player.Settings.DashControl == Player.Settings.DashPreference.AllowDoubleTap, color);
+			uIKeybindingToggleListItem.OnLeftClick += delegate
+			{
+				switch (Player.Settings.DashControl)
+				{
+				case Player.Settings.DashPreference.AllowDoubleTap:
+					Player.Settings.DashControl = Player.Settings.DashPreference.OnlyThroughHotkeys;
+					break;
+				case Player.Settings.DashPreference.OnlyThroughHotkeys:
+					Player.Settings.DashControl = Player.Settings.DashPreference.AllowDoubleTap;
+					break;
+				}
+			};
+			return uIKeybindingToggleListItem;
+		}
 		default:
 			return new UIKeybindingListItem(bind, currentInputMode, color);
 		}

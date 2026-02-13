@@ -21,10 +21,10 @@ public static class IngameOptions
 
 	public static float[] leftScale = new float[10] { 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f };
 
-	public static float[] rightScale = new float[17]
+	public static float[] rightScale = new float[20]
 	{
 		0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f,
-		0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f
+		0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 0.7f
 	};
 
 	private static Dictionary<int, int> _leftSideCategoryMapping = new Dictionary<int, int>
@@ -328,7 +328,7 @@ public static class IngameOptions
 		switch (category)
 		{
 		case 0:
-			num12 = 16;
+			num12 = 17;
 			num4 = 1f;
 			num5 = 1.001f;
 			num6 = 0.001f;
@@ -634,6 +634,16 @@ public static class IngameOptions
 				}
 			}
 			num13++;
+			string textValue = Language.GetTextValue(Main.SettingPlayWhenUnfocused ? "UI.PlayWhenUnfocusedOn" : "UI.PlayWhenUnfocusedOff");
+			if (DrawRightSide(sb, textValue, num13, vector6, vector7, rightScale[num13], (rightScale[num13] - num4) / (num5 - num4)))
+			{
+				rightHover = num13;
+				if (flag4)
+				{
+					Main.SettingPlayWhenUnfocused = !Main.SettingPlayWhenUnfocused;
+				}
+			}
+			num13++;
 			if (DrawRightSide(sb, Main.ReversedUpDownArmorSetBonuses ? Lang.menu[220].Value : Lang.menu[221].Value, num13, vector6, vector7, rightScale[num13], (rightScale[num13] - num4) / (num5 - num4)))
 			{
 				rightHover = num13;
@@ -657,17 +667,17 @@ public static class IngameOptions
 				}
 			}
 			num13++;
-			string textValue;
+			string textValue2;
 			if (Player.Settings.HoverControl != Player.Settings.HoverControlMode.Hold)
 			{
 				_ = 1;
-				textValue = Language.GetTextValue("UI.HoverControlSettingIsClick");
+				textValue2 = Language.GetTextValue("UI.HoverControlSettingIsClick");
 			}
 			else
 			{
-				textValue = Language.GetTextValue("UI.HoverControlSettingIsHold");
+				textValue2 = Language.GetTextValue("UI.HoverControlSettingIsHold");
 			}
-			if (DrawRightSide(sb, textValue, num13, vector6, vector7, rightScale[num13], (rightScale[num13] - num4) / (num5 - num4)))
+			if (DrawRightSide(sb, textValue2, num13, vector6, vector7, rightScale[num13], (rightScale[num13] - num4) / (num5 - num4)))
 			{
 				rightHover = num13;
 				if (flag4)
@@ -750,8 +760,8 @@ public static class IngameOptions
 				}
 			}
 			num16++;
-			string textValue2 = Language.GetTextValue("UI.MinimapFrame_" + Main.MinimapFrameManagerInstance.ActiveSelectionKeyName);
-			if (DrawRightSide(sb, Language.GetTextValue("UI.SelectMapBorder", textValue2), num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
+			string textValue3 = Language.GetTextValue("UI.MinimapFrame_" + Main.MinimapFrameManagerInstance.ActiveSelectionKeyName);
+			if (DrawRightSide(sb, Language.GetTextValue("UI.SelectMapBorder", textValue3), num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
 			{
 				rightHover = num16;
 				if (flag4)
@@ -800,8 +810,8 @@ public static class IngameOptions
 			num16++;
 			vector6.X += num;
 			string activeSetKeyName = Main.ResourceSetsManager.ActiveSetKeyName;
-			string textValue3 = Language.GetTextValue("UI.HealthManaStyle_" + activeSetKeyName);
-			if (DrawRightSide(sb, Language.GetTextValue("UI.SelectHealthStyle", textValue3), num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
+			string textValue4 = Language.GetTextValue("UI.HealthManaStyle_" + activeSetKeyName);
+			if (DrawRightSide(sb, Language.GetTextValue("UI.SelectHealthStyle", textValue4), num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
 			{
 				rightHover = num16;
 				if (flag4)
@@ -825,8 +835,8 @@ public static class IngameOptions
 				}
 			}
 			num16++;
-			string textValue4 = Language.GetTextValue(BigProgressBarSystem.ShowText ? "UI.ShowBossLifeTextOn" : "UI.ShowBossLifeTextOff");
-			if (DrawRightSide(sb, textValue4, num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
+			string textValue5 = Language.GetTextValue(BigProgressBarSystem.ShowText ? "UI.ShowBossLifeTextOn" : "UI.ShowBossLifeTextOff");
+			if (DrawRightSide(sb, textValue5, num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
 			{
 				rightHover = num16;
 				if (flag4)
@@ -867,8 +877,8 @@ public static class IngameOptions
 				}
 			}
 			num16++;
-			string textValue5 = Language.GetTextValue(Main.FlashyEffectsInterface ? "UI.FlashyEffectsInterfaceOn" : "UI.FlashyEffectsInterfaceOff");
-			if (DrawRightSide(sb, textValue5, num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
+			string textValue6 = Language.GetTextValue(Main.FlashyEffectsInterface ? "UI.FlashyEffectsInterfaceOn" : "UI.FlashyEffectsInterfaceOff");
+			if (DrawRightSide(sb, textValue6, num16, vector6, vector7, rightScale[num16], (rightScale[num16] - num4) / (num5 - num4)))
 			{
 				rightHover = num16;
 				if (flag4)
@@ -1060,8 +1070,8 @@ public static class IngameOptions
 				}
 			}
 			num18++;
-			string textValue6 = Language.GetTextValue(Main.FlashyEffectsWorld ? "UI.FlashyEffectsWorldOn" : "UI.FlashyEffectsWorldOff");
-			if (DrawRightSide(sb, textValue6, num18, vector6, vector7, rightScale[num18], (rightScale[num18] - num4) / (num5 - num4)))
+			string textValue7 = Language.GetTextValue(Main.FlashyEffectsWorld ? "UI.FlashyEffectsWorldOn" : "UI.FlashyEffectsWorldOff");
+			if (DrawRightSide(sb, textValue7, num18, vector6, vector7, rightScale[num18], (rightScale[num18] - num4) / (num5 - num4)))
 			{
 				rightHover = num18;
 				if (flag4)

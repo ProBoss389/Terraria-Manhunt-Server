@@ -320,7 +320,7 @@ public static class TileSnapshot
 		_tempStream.Position = 0L;
 		TileEntity.Write(_tempWriter, ent);
 		_tempStream.Position = 0L;
-		return TileEntity.Read(_tempReader, 317);
+		return TileEntity.Read(_tempReader, 318);
 	}
 
 	public static void Restore()
@@ -494,7 +494,7 @@ public static class TileSnapshot
 		int num = reader.ReadInt32();
 		for (int j = 0; j < num; j++)
 		{
-			_tileEntities.Add(TileEntity.Read(reader, 317));
+			_tileEntities.Add(TileEntity.Read(reader, 318));
 		}
 		if (_chests == null)
 		{

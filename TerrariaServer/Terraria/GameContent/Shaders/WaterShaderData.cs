@@ -116,7 +116,7 @@ public class WaterShaderData : ScreenShaderData
 		_usePlayerWaves = Main.WaveQuality >= 2;
 		_useRippleWaves = Main.WaveQuality >= 2;
 		_useCustomWaves = Main.WaveQuality >= 2;
-		if (!Main.gamePaused && Main.hasFocus)
+		if (!FocusHelper.PauseLiquidRenderer)
 		{
 			_progress += (float)gameTime.ElapsedGameTime.TotalSeconds * base.Intensity * 0.75f;
 			_progress %= 86400f;

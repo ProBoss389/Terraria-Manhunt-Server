@@ -482,7 +482,7 @@ public class TileDrawing : TileDrawingBase
 	{
 		FlushLogData = (solidLayer ? TimeLogger.FlushSolidTiles : TimeLogger.FlushNonSolidTiles);
 		DrawCallLogData = (solidLayer ? TimeLogger.SolidDrawCalls : TimeLogger.NonSolidDrawCalls);
-		_isActiveAndNotPaused = !Main.gamePaused && Main.instance.IsActive;
+		_isActiveAndNotPaused = FocusHelper.AllowTileDrawingToEmitEffects;
 		_perspectivePlayer = Main.SceneMetrics.PerspectivePlayer;
 		Vector2 unscaledPosition = Main.Camera.UnscaledPosition;
 		if (!solidLayer)
@@ -7000,9 +7000,9 @@ public class TileDrawing : TileDrawingBase
 				bool flag2 = _rand.Next(600) == 0;
 				if (!flag2)
 				{
-                    int directionX;
-                    _windGrid.GetWindTime(i, j, 8, out var windTimeLeft, out directionX, out directionX);
-                    flag2 = windTimeLeft > 0 && _rand.Next(48) == 0;
+					int directionX;
+					_windGrid.GetWindTime(i, j, 8, out var windTimeLeft, out directionX, out directionX);
+					flag2 = windTimeLeft > 0 && _rand.Next(48) == 0;
 				}
 				if (flag2)
 				{

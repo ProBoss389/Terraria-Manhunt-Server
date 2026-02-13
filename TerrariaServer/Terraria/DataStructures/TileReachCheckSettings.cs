@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace Terraria.DataStructures;
@@ -55,9 +56,9 @@ public struct TileReachCheckSettings
 		x += TB;
 		y += TB;
 		LX = (int)(player.position.X / 16f) - x + 1;
-		HX = (int)((player.position.X + (float)player.width) / 16f) + x - 1;
+		HX = (int)Math.Ceiling((player.position.X + (float)player.width) / 16f) + x - 2;
 		LY = (int)(player.position.Y / 16f) - y + 1;
-		HY = (int)((player.position.Y + (float)player.height) / 16f) + y - 2;
+		HY = (int)Math.Ceiling((player.position.Y + (float)player.height) / 16f) + y - 2;
 	}
 
 	public Rectangle GetTileRegion(Player player, int TB = 0)

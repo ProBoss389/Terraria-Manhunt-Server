@@ -168,6 +168,10 @@ public class UIKeybindingListItem : UIElement
 			"Loadout1" => Language.GetTextValue("UI.Loadout1"), 
 			"Loadout2" => Language.GetTextValue("UI.Loadout2"), 
 			"Loadout3" => Language.GetTextValue("UI.Loadout3"), 
+			"Dash" => Language.GetTextValue("UI.Dash"), 
+			"NextLoadout" => Language.GetTextValue("UI.NextLoadout"), 
+			"PreviousLoadout" => Language.GetTextValue("UI.PreviousLoadout"), 
+			"ArmorSetAbility" => Language.GetTextValue("UI.ArmorSetAbility"), 
 			"ToggleCameraMode" => Language.GetTextValue("UI.ToggleCameraMode"), 
 			_ => _keybind, 
 		};

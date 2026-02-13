@@ -189,7 +189,7 @@ public class PlayerInputProfile
 	{
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		Dictionary<string, object> dictionary2 = new Dictionary<string, object>();
-		dictionary.Add("Last Launched Version", 317);
+		dictionary.Add("Last Launched Version", 318);
 		dictionary2.Add("Edittable", AllowEditting);
 		dictionary2.Add("Gamepad - HotbarRadialHoldTime", HotbarRadialHoldTimeRequired);
 		dictionary2.Add("Gamepad - LeftThumbstickDeadzoneX", LeftThumbstickDeadzoneX);
@@ -262,11 +262,11 @@ public class PlayerInputProfile
 
 	public void CopyGameplaySettingsFrom(PlayerInputProfile profile, InputMode mode)
 	{
-		string[] keysToCopy = new string[23]
+		string[] keysToCopy = new string[27]
 		{
 			"MouseLeft", "MouseRight", "Up", "Down", "Left", "Right", "Jump", "Grapple", "SmartSelect", "SmartCursor",
 			"QuickMount", "QuickHeal", "QuickMana", "QuickBuff", "Throw", "Inventory", "ViewZoomIn", "ViewZoomOut", "Loadout1", "Loadout2",
-			"Loadout3", "ToggleCreativeMenu", "ToggleCameraMode"
+			"Loadout3", "NextLoadout", "PreviousLoadout", "ToggleCreativeMenu", "ToggleCameraMode", "ArmorSetAbility", "Dash"
 		};
 		CopyKeysFrom(profile, mode, keysToCopy);
 	}

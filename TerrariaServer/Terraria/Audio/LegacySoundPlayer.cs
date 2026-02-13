@@ -416,7 +416,7 @@ public class LegacySoundPlayer
 			{
 				if (DoesSoundScaleWithAmbientVolume(type))
 				{
-					num2 *= Main.ambientVolume * (float)((!Main.gameInactive) ? 1 : 0);
+					num2 *= Main.ambientVolume * (float)((!FocusHelper.QuietAmbientSounds) ? 1 : 0);
 					if (Main.gameMenu)
 					{
 						num2 = 0f;
@@ -764,7 +764,7 @@ public class LegacySoundPlayer
 					soundEffectInstance = SoundInstanceMenuClose;
 					break;
 				case 12:
-					if (Main.hasFocus)
+					if (FocusHelper.AllowUIInputs)
 					{
 						if (SoundInstanceMenuTick != null)
 						{

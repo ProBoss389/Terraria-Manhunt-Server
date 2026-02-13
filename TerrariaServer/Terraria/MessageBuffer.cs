@@ -191,7 +191,7 @@ public class MessageBuffer
 				{
 					break;
 				}
-				if (reader.ReadString() == "Terraria" + 317)
+				if (reader.ReadString() == "Terraria" + 318)
 				{
 					if (string.IsNullOrEmpty(Netplay.ServerPassword))
 					{
@@ -3312,7 +3312,7 @@ public class MessageBuffer
 			}
 			else
 			{
-				TileEntity tileEntity = TileEntity.Read(reader, 317, networkSend: true);
+				TileEntity tileEntity = TileEntity.Read(reader, 318, networkSend: true);
 				tileEntity.ID = num150;
 				TileEntity.Add(tileEntity);
 			}

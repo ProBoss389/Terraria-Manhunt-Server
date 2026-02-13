@@ -89,7 +89,7 @@ public class SmartCursorHelper
 		{
 			return;
 		}
-		bool num = IsHoveringOverAnInteractibleTileThatBlocksSmartCursor(smartCursorUsageInfo);
+		bool num = IsHoveringOverAnInteractableTileThatBlocksSmartCursor(smartCursorUsageInfo);
 		TryFindingPaintInplayerInventory(smartCursorUsageInfo, out smartCursorUsageInfo.paintLookup, out smartCursorUsageInfo.paintCoatingLookup);
 		int num2 = smartCursorUsageInfo.item.tileBoost;
 		if (smartCursorUsageInfo.item.createWall > 0 || smartCursorUsageInfo.item.createTile > 0 || smartCursorUsageInfo.item.tileWand > 0)
@@ -180,7 +180,7 @@ public class SmartCursorHelper
 		}
 	}
 
-	private static bool IsHoveringOverAnInteractibleTileThatBlocksSmartCursor(SmartCursorUsageInfo providedInfo)
+	private static bool IsHoveringOverAnInteractableTileThatBlocksSmartCursor(SmartCursorUsageInfo providedInfo)
 	{
 		bool result = false;
 		Tile tile = Main.tile[providedInfo.screenTargetX, providedInfo.screenTargetY];

@@ -10260,7 +10260,7 @@
 		"Revolver": "I colpi a tempo riducono il tempo di ricarica e aumentano le probabilità di colpo critico",
 		"RemoteControlCar": "Premi Salta per correre sui muri se sono dietro all'auto\n'Ultima regola del Car Club, parliamo sempre del Car Club'",
 		"PalworldMinionCattiva": "Evoca Cattiva per combattere al tuo fianco\nUn pal carino che ti aiuterà nell'estrazione di minerali\n{InputTrigger_InteractWithTile} per accarezzarlo!",
-		"PalworldMinionFoxsparks": "Evoca Foxparks per combattere al tuo fianco\n{InputTrigger_UseOrAttack} per usare l'abilità di Foxsparks Abbraccio di fuoco, che spara fiamme!\n{InputTrigger_InteractWithTile} per accarezzarla!",
+		"PalworldMinionFoxsparks": "Evoca Foxparks per combattere al tuo fianco\n{InputTrigger_UseOrAttack} per usare l'abilità di Foxparks Abbraccio di fuoco, che spara fiamme!\n{InputTrigger_InteractWithTile} per accarezzarla!",
 		"PalworldPetChillet": "Evoca Chillet per una cavalcata!\nPotenzia i tuoi attacchi mentre lo cavalchi.\nTocca due volte in una direzione per usare Schianto a razzo!\n{InputTrigger_InteractWithTile} per accarezzarlo!",
 		"PalworldPetChilletIgnis": "Evoca Chillet Ignis per una cavalcata!\nPotenzia i tuoi attacchi mentre lo cavalchi.\nTocca due volte in una direzione per usare Schianto a razzo!\n{InputTrigger_InteractWithTile} per accarezzarlo!",
 		"PalworldDigtoise": "Evoca Digtoise per aiutare con l'estrazione dei minerali!\n{InputTrigger_UseOrAttack} per direzionare Digtoise\n{InputTrigger_InteractWithTile} per richiamare Digtoise\n{InputTrigger_InteractWithTile} per accarezzarlo!",

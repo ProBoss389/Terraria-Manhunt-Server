@@ -194,7 +194,7 @@ public class WorldMap
 			int num = binaryReader.ReadInt32();
 			bool flag = (num & 0x8000) == 32768;
 			num &= -32769;
-			if (num <= 317)
+			if (num <= 318)
 			{
 				if (flag)
 				{

@@ -137,13 +137,7 @@ public class PlayerFileData : FileData
 
 	public void UpdatePlayTimer()
 	{
-		bool flag = Main.gamePaused && !Main.hasFocus;
-		bool flag2 = Main.instance.IsActive && !flag;
-		if (Main.gameMenu)
-		{
-			flag2 = false;
-		}
-		if (flag2)
+		if (FocusHelper.AllowCountingPlayerTime)
 		{
 			StartPlayTimer();
 		}

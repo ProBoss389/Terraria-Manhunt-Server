@@ -51,16 +51,16 @@ public static class SoundEngine
 				Main.audioSystem.UpdateAudioEngine();
 			}
 			SoundInstanceGarbageCollector.Update();
-			bool flag = (!Main.hasFocus || Main.gamePaused) && Main.netMode == 0;
-			if (!AreSoundsPaused && flag)
+			bool pauseSounds = FocusHelper.PauseSounds;
+			if (!AreSoundsPaused && pauseSounds)
 			{
 				SoundPlayer.PauseAll();
 			}
-			else if (AreSoundsPaused && !flag)
+			else if (AreSoundsPaused && !pauseSounds)
 			{
 				SoundPlayer.ResumeAll();
 			}
-			AreSoundsPaused = flag;
+			AreSoundsPaused = pauseSounds;
 			SoundPlayer.Update();
 		}
 	}

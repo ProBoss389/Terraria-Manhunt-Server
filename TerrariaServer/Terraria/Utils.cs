@@ -1200,6 +1200,24 @@ public static class Utils
 		return objs[random.Next(objs.Length)];
 	}
 
+	public static bool JustBecameTrue(bool state, ref bool releasedStateHolder)
+	{
+		bool result = false;
+		if (state)
+		{
+			if (releasedStateHolder)
+			{
+				result = true;
+			}
+			releasedStateHolder = false;
+		}
+		else
+		{
+			releasedStateHolder = true;
+		}
+		return result;
+	}
+
 	public static T NextFromCollection<T>(this UnifiedRandom random, List<T> objs)
 	{
 		return objs[random.Next(objs.Count)];

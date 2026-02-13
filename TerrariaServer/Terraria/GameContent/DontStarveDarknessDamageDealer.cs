@@ -47,7 +47,7 @@ public class DontStarveDarknessDamageDealer
 
 	public static void Update(Player player)
 	{
-		if (player.dead || Main.gameInactive || player.shimmering || Main.disableDontStarveDarknessDamage)
+		if (player.dead || !FocusHelper.AllowDontStarveDarknessDamage || player.shimmering || Main.disableDontStarveDarknessDamage)
 		{
 			ResetTimer();
 			return;

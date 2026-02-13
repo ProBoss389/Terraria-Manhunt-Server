@@ -129,7 +129,7 @@ public class PartySky : CustomSky
 			return;
 		}
 		MultipleSkyWorkaroundFix = false;
-		if (Main.gamePaused || !Main.hasFocus)
+		if (FocusHelper.PauseSkies)
 		{
 			return;
 		}

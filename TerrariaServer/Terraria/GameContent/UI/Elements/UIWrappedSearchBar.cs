@@ -230,7 +230,7 @@ public class UIWrappedSearchBar : UIElement
 	public override void Update(GameTime gameTime)
 	{
 		base.Update(gameTime);
-		if (IsWritingText && Main.hasFocus && (Main.mouseLeft || Main.mouseRight) && !Elements.Any((UIElement e) => e.IsMouseHovering))
+		if (IsWritingText && FocusHelper.AllowUIInputs && (Main.mouseLeft || Main.mouseRight) && !Elements.Any((UIElement e) => e.IsMouseHovering))
 		{
 			ToggleTakingText();
 		}

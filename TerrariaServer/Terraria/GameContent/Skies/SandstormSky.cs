@@ -23,7 +23,7 @@ public class SandstormSky : CustomSky
 
 	public override void Update(GameTime gameTime)
 	{
-		if (Main.gamePaused || !Main.hasFocus)
+		if (FocusHelper.PauseSkies)
 		{
 			return;
 		}

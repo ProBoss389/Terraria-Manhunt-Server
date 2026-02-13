@@ -112,5 +112,13 @@ public class TriggerNames
 
 	public const string Loadout3 = "Loadout3";
 
+	public const string NextLoadout = "NextLoadout";
+
+	public const string PreviousLoadout = "PreviousLoadout";
+
+	public const string Dash = "Dash";
+
+	public const string ArmorSetAbility = "ArmorSetAbility";
+
 	public const string ToggleCameraMode = "ToggleCameraMode";
 }

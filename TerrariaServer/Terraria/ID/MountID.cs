@@ -20,6 +20,8 @@ public static class MountID
 
 		public static bool[] Cart = Factory.CreateBoolSet(6, 13, 11, 15, 16, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 38, 39, 51, 53);
 
+		public static bool[] IsTransformationMount = Factory.CreateBoolSet(52, 54, 55, 56, 61);
+
 		public static bool[] PlayerIsHidden = Factory.CreateBoolSet(52, 54, 55, 56, 61);
 
 		public static bool[] DontHoldItems = Factory.CreateBoolSet(55, 56, 61);

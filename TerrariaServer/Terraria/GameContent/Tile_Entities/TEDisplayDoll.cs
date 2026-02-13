@@ -387,6 +387,7 @@ public class TEDisplayDoll : TileEntityType<TEDisplayDoll>, IFixLoadedData
 			}
 		}
 		dollPlayer.miscDyes[3] = _dyes[8];
+		dollPlayer.miscDyes[2] = _dyes[8];
 		int num2 = 0;
 		DisplayDollPoseID displayDollPoseID = (DisplayDollPoseID)_pose;
 		if (!IsValidPose(_pose))

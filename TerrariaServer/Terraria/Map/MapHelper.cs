@@ -3048,7 +3048,7 @@ public static class MapHelper
 			using DeflateStream deflateStream = new DeflateStream(memoryStream, CompressionMode.Compress);
 			int num = 0;
 			byte[] array = new byte[16384];
-			binaryWriter.Write(317);
+			binaryWriter.Write(318);
 			Main.MapFileMetadata.IncrementAndWrite(binaryWriter);
 			binaryWriter.Write(Main.worldName);
 			binaryWriter.Write(Main.worldID);

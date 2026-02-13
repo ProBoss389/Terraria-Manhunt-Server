@@ -256,8 +256,6 @@ public struct PlayerDrawSet
 
 	public bool hideEntirePlayerExceptHelmetsAndFaceAccessories;
 
-	public bool invisShadow;
-
 	public Projectile SelectedDrawnProjectile;
 
 	public Vector2 Center => new Vector2(Position.X + (float)(drawPlayer.width / 2), Position.Y + (float)(drawPlayer.height / 2));
@@ -402,9 +400,13 @@ public struct PlayerDrawSet
 			{
 				AdjustmentsForRatMount();
 			}
-			if (drawPlayer.mount.Type == 56 || drawPlayer.mount.Type == 61)
+			if (drawPlayer.mount.Type == 56)
 			{
 				AdjustmentsForBatMount();
+			}
+			if (drawPlayer.mount.Type == 61)
+			{
+				AdjustmentsForPixieMount();
 			}
 		}
 		if (drawPlayer.isDisplayDollOrInanimate)
@@ -963,27 +965,12 @@ public struct PlayerDrawSet
 			}
 			if (shadow > 0f)
 			{
-				if (invisShadow)
-				{
-					colorLegs *= shadowOpacity;
-					colorBodySkin *= shadowOpacity;
-					colorHead *= shadowOpacity;
-					colorHair *= shadowOpacity;
-					colorEyes *= shadowOpacity;
-					colorEyeWhites *= shadowOpacity;
-					colorShirt *= shadowOpacity;
-					colorPants *= shadowOpacity;
-					colorShoes *= shadowOpacity;
-				}
-				else
-				{
-					colorLegs = Color.Transparent;
-					colorBodySkin = Color.Transparent;
-					colorHead = Color.Transparent;
-					colorHair = Color.Transparent;
-					colorEyes = Color.Transparent;
-					colorEyeWhites = Color.Transparent;
-				}
+				colorLegs = Color.Transparent;
+				colorBodySkin = Color.Transparent;
+				colorHead = Color.Transparent;
+				colorHair = Color.Transparent;
+				colorEyes = Color.Transparent;
+				colorEyeWhites = Color.Transparent;
 			}
 		}
 		float num13 = 1f;
@@ -1285,7 +1272,7 @@ public struct PlayerDrawSet
 				DustCache.Add(dust19.dustIndex);
 			}
 		}
-		if (shadow == 0f && drawPlayer.palladiumRegen && drawPlayer.statLife < drawPlayer.statLifeMax2 && Main.instance.IsActive && !Main.gamePaused && drawPlayer.miscCounter % 10 == 0 && shadow == 0f)
+		if (shadow == 0f && drawPlayer.palladiumRegen && drawPlayer.statLife < drawPlayer.statLifeMax2 && FocusHelper.AllowPlayerToEmitEffects && drawPlayer.miscCounter % 10 == 0 && shadow == 0f)
 		{
 			Vector2 position4 = default(Vector2);
 			position4.X = Position.X + (float)Main.rand.Next(drawPlayer.width);
@@ -1297,7 +1284,7 @@ public struct PlayerDrawSet
 			int item = Gore.NewGore(position4, new Vector2((float)Main.rand.Next(-10, 11) * 0.1f, (float)Main.rand.Next(-20, -10) * 0.1f), 331, (float)Main.rand.Next(80, 120) * 0.01f);
 			GoreCache.Add(item);
 		}
-		if (shadow == 0f && drawPlayer.loveStruck && Main.instance.IsActive && !Main.gamePaused && Main.rand.Next(5) == 0)
+		if (shadow == 0f && drawPlayer.loveStruck && FocusHelper.AllowPlayerToEmitEffects && Main.rand.Next(5) == 0)
 		{
 			Vector2 vector = new Vector2(Main.rand.Next(-10, 11), Main.rand.Next(-10, 11));
 			vector.Normalize();
@@ -1308,7 +1295,7 @@ public struct PlayerDrawSet
 			Main.gore[num17].velocity.Y -= 0.6f;
 			GoreCache.Add(num17);
 		}
-		if (drawPlayer.stinky && Main.instance.IsActive && !Main.gamePaused)
+		if (drawPlayer.stinky && FocusHelper.AllowPlayerToEmitEffects)
 		{
 			num13 *= 0.7f;
 			num15 *= 0.55f;
@@ -1325,7 +1312,7 @@ public struct PlayerDrawSet
 				DustCache.Add(num18);
 			}
 		}
-		if (drawPlayer.slowOgreSpit && Main.instance.IsActive && !Main.gamePaused)
+		if (drawPlayer.slowOgreSpit && FocusHelper.AllowPlayerToEmitEffects)
 		{
 			num13 *= 0.6f;
 			num15 *= 0.45f;
@@ -1350,7 +1337,7 @@ public struct PlayerDrawSet
 				GoreCache.Add(num19);
 			}
 		}
-		if (Main.instance.IsActive && !Main.gamePaused && shadow == 0f)
+		if (FocusHelper.AllowPlayerToEmitEffects && shadow == 0f)
 		{
 			float num20 = (float)drawPlayer.miscCounter / 180f;
 			float num21 = 0f;
@@ -1403,12 +1390,12 @@ public struct PlayerDrawSet
 				}
 			}
 		}
-		if (drawPlayer.witheredArmor && Main.instance.IsActive && !Main.gamePaused)
+		if (drawPlayer.witheredArmor && FocusHelper.AllowPlayerToEmitEffects)
 		{
 			num14 *= 0.5f;
 			num13 *= 0.75f;
 		}
-		if (drawPlayer.witheredWeapon && drawPlayer.itemAnimation > 0 && heldItem.damage > 0 && Main.instance.IsActive && !Main.gamePaused && Main.rand.Next(3) == 0)
+		if (drawPlayer.witheredWeapon && drawPlayer.itemAnimation > 0 && heldItem.damage > 0 && FocusHelper.AllowPlayerToEmitEffects && Main.rand.Next(3) == 0)
 		{
 			Dust dust22 = Dust.NewDustDirect(new Vector2(Position.X - 2f, Position.Y - 2f), drawPlayer.width + 4, drawPlayer.height + 4, 272, 0f, 0f, 50, default(Color), 0.5f);
 			dust22.velocity *= 1.6f;
@@ -1869,6 +1856,12 @@ public struct PlayerDrawSet
 	}
 
 	private void AdjustmentsForBatMount()
+	{
+		hideEntirePlayer = true;
+		weaponDrawOrder = WeaponDrawOrder.BehindBackArm;
+	}
+
+	private void AdjustmentsForPixieMount()
 	{
 		hideEntirePlayer = true;
 		weaponDrawOrder = WeaponDrawOrder.BehindBackArm;

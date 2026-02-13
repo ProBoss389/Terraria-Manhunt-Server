@@ -728,7 +728,7 @@ public abstract class AWorkshopPublishInfoState<TPublishedObjectType> : UIState,
 		{
 			try
 			{
-				FileStream stream = File.OpenRead(_previewImagePath);
+				using FileStream stream = File.OpenRead(_previewImagePath);
 				texture2D = Texture2D.FromStream(Main.graphics.GraphicsDevice, stream);
 			}
 			catch (Exception exception)

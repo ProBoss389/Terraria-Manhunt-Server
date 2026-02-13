@@ -15,6 +15,8 @@ public class CraftingUI : ICraftingUI
 {
 	public static float[] availableRecipeY = new float[Recipe.maxRecipes];
 
+	private static NewCraftingUI.RecipeFilter _lastFilter;
+
 	private static float inventoryScale
 	{
 		get
@@ -81,6 +83,44 @@ public class CraftingUI : ICraftingUI
 		}
 	}
 
+	public static bool AnyAdvancedGridVisible => NewCraftingUI.Visible;
+
+	public static string CraftingWindowTextKey
+	{
+		get
+		{
+			if (Player.Settings.CraftingGridControl != Player.Settings.CraftingGridMode.Classic)
+			{
+				return "GameUI.CraftingWindow";
+			}
+			return "GameUI.CraftingWindowClassic";
+		}
+	}
+
+	public static string CraftingWindowTextTipKey
+	{
+		get
+		{
+			if (Player.Settings.CraftingGridControl != Player.Settings.CraftingGridMode.Classic)
+			{
+				return "GameUI.CraftingWindowTip";
+			}
+			return "GameUI.CraftingWindowClassicTip";
+		}
+	}
+
+	public static NewCraftingUI.RecipeFilter RecipeFilterHack
+	{
+		get
+		{
+			if (!Main.playerInventory || Main.PipsCurrentPage != Main.PipPage.Recipes || Player.Settings.CraftingGridControl != Player.Settings.CraftingGridMode.Classic)
+			{
+				return null;
+			}
+			return _lastFilter;
+		}
+	}
+
 	public CraftingUI()
 	{
 		for (int i = 0; i < availableRecipeY.Length; i++)
@@ -98,13 +138,38 @@ public class CraftingUI : ICraftingUI
 		}
 	}
 
+	public static void ClearHacks()
+	{
+		_lastFilter = null;
+	}
+
+	public void OpenCloseFilter(NewCraftingUI.RecipeFilter filter)
+	{
+		if (Main.playerInventory && Main.PipsCurrentPage == Main.PipPage.Recipes && Main.PipsUseGrid)
+		{
+			_lastFilter = null;
+			IngameUIWindows.CloseAll();
+			return;
+		}
+		_lastFilter = filter;
+		IngameUIWindows.CloseAll(quiet: true);
+		Player.OpenInventory();
+		Main.PipsUseGrid = true;
+		Main.PipsCurrentPage = Main.PipPage.Recipes;
+	}
+
 	public void DrawRecipesList(SpriteBatch spriteBatch, int adjY, int middleY, Color craftingTipColor)
 	{
 		UILinkPointNavigator.Shortcuts.CRAFT_CurrentRecipeBig = -1;
 		UILinkPointNavigator.Shortcuts.CRAFT_CurrentRecipeSmall = -1;
 		if (numAvailableRecipes > 0)
 		{
-			DynamicSpriteFontExtensionMethods.DrawString(spriteBatch, FontAssets.MouseText.Value, Lang.inter[25].Value, new Vector2(76f, 414 + adjY), craftingTipColor, 0f, default(Vector2), 1f, SpriteEffects.None, 0f, (Vector2[])null, (Color[])null);
+			string text = Lang.inter[25].Value;
+			if (RecipeFilterHack != null)
+			{
+				text = RecipeFilterHack.GetWindowDescription();
+			}
+			DynamicSpriteFontExtensionMethods.DrawString(spriteBatch, FontAssets.MouseText.Value, text, new Vector2(76f, 414 + adjY), craftingTipColor, 0f, default(Vector2), 1f, SpriteEffects.None, 0f, (Vector2[])null, (Color[])null);
 		}
 		AdjustRecipeOffsets();
 		for (int i = 0; i < Recipe.maxRecipes; i++)
@@ -201,8 +266,12 @@ public class CraftingUI : ICraftingUI
 
 	public static void DrawGridToggle(SpriteBatch spriteBatch, int craftX, int craftY, int gamepadPointId)
 	{
+		if (_lastFilter != null && (!_lastFilter.CanRemainOpen() || Main.PipsCurrentPage != Main.PipPage.Recipes || !Main.playerInventory))
+		{
+			_lastFilter = null;
+		}
 		UILinkPointNavigator.SetPosition(gamepadPointId, new Vector2(craftX, craftY));
-		if (numAvailableRecipes == 0 && !NewCraftingUI.Visible)
+		if (numAvailableRecipes == 0 && !AnyAdvancedGridVisible)
 		{
 			if (Main.PipsCurrentPage == Main.PipPage.Recipes)
 			{
@@ -215,24 +284,57 @@ public class CraftingUI : ICraftingUI
 		{
 			Utils.DrawSelectedCraftingBarIndicator(spriteBatch, craftX, craftY);
 		}
-		int num = 2 - NewCraftingUI.Visible.ToInt() * 2 + flag.ToInt();
+		bool flag2 = Player.Settings.CraftingGridControl == Player.Settings.CraftingGridMode.Classic;
+		int num = 2;
+		if (NewCraftingUI.Visible)
+		{
+			num = 4;
+		}
+		if (Main.PipsCurrentPage == Main.PipPage.Recipes && Main.PipsUseGrid)
+		{
+			num = 0;
+		}
+		num += flag.ToInt();
 		spriteBatch.Draw(TextureAssets.CraftToggle[num].Value, new Vector2(craftX, craftY), null, Color.White, 0f, TextureAssets.CraftToggle[num].Value.Size() / 2f, 1f, SpriteEffects.None, 0f);
 		if (flag)
 		{
-			Main.instance.MouseTextNoOverride(Language.GetTextValue("GameUI.CraftingWindow"), 0, 0);
+			Main.instance.MouseTextNoOverride(Language.GetTextValue(CraftingWindowTextTipKey), 0, 0);
 			Main.player[Main.myPlayer].mouseInterface = true;
 			if (Main.mouseLeft && Main.mouseLeftRelease)
 			{
 				if (!Main.TryChangePipsPage(Main.PipPage.Recipes))
 				{
-					if (NewCraftingUI.Visible)
+					if (flag2)
 					{
-						UILinkPointNavigator.ChangePoint(11001);
+						NewCraftingUI.Close(quiet: true, returnToInventory: true);
+						Main.PipsUseGrid = !Main.PipsUseGrid;
 					}
-					NewCraftingUI.ToggleInInventory();
+					else
+					{
+						Main.PipsUseGrid = false;
+						if (AnyAdvancedGridVisible)
+						{
+							UILinkPointNavigator.ChangePoint(11001);
+						}
+						NewCraftingUI.ToggleInInventory();
+					}
 					Main.mouseLeftRelease = false;
 				}
 				SoundEngine.PlaySound(12);
+			}
+			if (Main.mouseRight && Main.mouseRightRelease)
+			{
+				Main.mouseRightRelease = false;
+				SoundEngine.PlaySound(12);
+				switch (Player.Settings.CraftingGridControl)
+				{
+				case Player.Settings.CraftingGridMode.Classic:
+					Player.Settings.CraftingGridControl = Player.Settings.CraftingGridMode.Modern;
+					break;
+				case Player.Settings.CraftingGridMode.Modern:
+					Player.Settings.CraftingGridControl = Player.Settings.CraftingGridMode.Classic;
+					break;
+				}
 			}
 		}
 		Main.DoStatefulTickSound(ref Main.GridToggleMouseOverCrafting, flag);

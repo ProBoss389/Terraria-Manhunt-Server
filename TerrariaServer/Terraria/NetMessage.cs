@@ -126,7 +126,7 @@ public class NetMessage
 			switch (msgType)
 			{
 			case 1:
-				writer.Write("Terraria" + 317);
+				writer.Write("Terraria" + 318);
 				break;
 			case 2:
 				text.Serialize(writer);
@@ -2460,7 +2460,7 @@ public class NetMessage
 		num3 = reader.ReadInt16();
 		for (int m = 0; m < num3; m++)
 		{
-			TileEntity.Add(TileEntity.Read(reader, 317));
+			TileEntity.Add(TileEntity.Read(reader, 318));
 		}
 		MapUpdateQueue.Add(new Rectangle(xStart, yStart, width, height));
 		Main.sectionManager.SetTilesLoaded(xStart, yStart, xStart + width - 1, yStart + height - 1);

@@ -244,6 +244,54 @@ public class TriggersSet
 		}
 	}
 
+	public bool Dash
+	{
+		get
+		{
+			return KeyStatus["Dash"];
+		}
+		set
+		{
+			KeyStatus["Dash"] = value;
+		}
+	}
+
+	public bool ArmorSetAbility
+	{
+		get
+		{
+			return KeyStatus["ArmorSetAbility"];
+		}
+		set
+		{
+			KeyStatus["ArmorSetAbility"] = value;
+		}
+	}
+
+	public bool NextLoadout
+	{
+		get
+		{
+			return KeyStatus["NextLoadout"];
+		}
+		set
+		{
+			KeyStatus["NextLoadout"] = value;
+		}
+	}
+
+	public bool PreviousLoadout
+	{
+		get
+		{
+			return KeyStatus["PreviousLoadout"];
+		}
+		set
+		{
+			KeyStatus["PreviousLoadout"] = value;
+		}
+	}
+
 	public bool MapZoomIn
 	{
 		get
@@ -754,18 +802,32 @@ public class TriggersSet
 			{
 				p.QuickBuff();
 			}
-			if (Loadout1)
+			if (Utils.JustBecameTrue(Loadout1, ref p.releaseLoadout1))
 			{
 				p.TrySwitchingLoadout(0);
 			}
-			if (Loadout2)
+			if (Utils.JustBecameTrue(Loadout2, ref p.releaseLoadout2))
 			{
 				p.TrySwitchingLoadout(1);
 			}
-			if (Loadout3)
+			if (Utils.JustBecameTrue(Loadout3, ref p.releaseLoadout3))
 			{
 				p.TrySwitchingLoadout(2);
 			}
+			if (Utils.JustBecameTrue(NextLoadout, ref p.releaseNextLoadout))
+			{
+				p.TrySwitchingToNextLoadout();
+			}
+			if (Utils.JustBecameTrue(PreviousLoadout, ref p.releasePreviousLoadout))
+			{
+				p.TrySwitchingToPreviousLoadout();
+			}
+			p.controlDash = Dash;
+			if (!p.controlDash)
+			{
+				p.releaseDash = true;
+			}
+			p.controlArmorSetAbility = ArmorSetAbility;
 		}
 		p.controlInv = Inventory;
 		p.controlThrow = Throw;

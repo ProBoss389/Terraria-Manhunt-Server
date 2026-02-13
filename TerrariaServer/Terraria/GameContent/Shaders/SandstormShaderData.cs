@@ -17,7 +17,7 @@ public class SandstormShaderData : ScreenShaderData
 		Vector2 vector = new Vector2(0f - Main.windSpeedCurrent, -1f) * new Vector2(20f, 0.1f);
 		vector.Normalize();
 		vector *= new Vector2(2f, 0.2f);
-		if (!Main.gamePaused && Main.hasFocus)
+		if (FocusHelper.UpdateVisualEffects)
 		{
 			_texturePosition += vector * (float)gameTime.ElapsedGameTime.TotalSeconds;
 		}

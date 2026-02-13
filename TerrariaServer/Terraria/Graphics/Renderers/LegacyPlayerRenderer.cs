@@ -138,23 +138,8 @@ public class LegacyPlayerRenderer : IPlayerRenderer
 		_drawData.Clear();
 		_dust.Clear();
 		_gore.Clear();
-		bool num = drawPlayer.whoAmI == Main.myPlayer;
-		bool invis = drawPlayer.invis;
-		if (num)
-		{
-			drawPlayer.invis = false;
-			if (invis)
-			{
-				shadow = MathHelper.Min(shadow, 0.8f);
-				drawInfo.invisShadow = true;
-			}
-		}
 		drawInfo.BoringSetup(drawPlayer, _drawData, _dust, _gore, position, shadow, rotation, rotationOrigin, OverrideHeldProjectile);
 		DrawPlayer_UseNormalLayers(ref drawInfo);
-		if (num)
-		{
-			drawPlayer.invis = invis;
-		}
 		PlayerDrawLayers.DrawPlayer_TransformDrawData(ref drawInfo);
 		if (scale != 1f)
 		{

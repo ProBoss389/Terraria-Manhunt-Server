@@ -75,7 +75,7 @@ public static class BannerSystem
 				{
 					return false;
 				}
-				Load(reader, 317);
+				Load(reader, 318);
 				break;
 			case MessageType.KillCountUpdate:
 				if (Main.netMode == 2)

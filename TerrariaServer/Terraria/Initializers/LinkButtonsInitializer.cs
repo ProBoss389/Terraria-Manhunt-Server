@@ -15,16 +15,17 @@ public class LinkButtonsInitializer
 		titleLinks.Add(MakeSimpleButton("TitleLinks.Instagram", "https://www.instagram.com/terraria_logic/", 1));
 		titleLinks.Add(MakeSimpleButton("TitleLinks.Reddit", "https://www.reddit.com/r/Terraria/", 2));
 		titleLinks.Add(MakeSimpleButton("TitleLinks.Twitter", "https://twitter.com/Terraria_Logic", 3));
-		titleLinks.Add(MakeSimpleButton("TitleLinks.Forums", "https://forums.terraria.org/index.php", 4));
-		titleLinks.Add(MakeSimpleButton("TitleLinks.Merch", "https://terraria.org/store", 5));
-		titleLinks.Add(MakeSimpleButton("TitleLinks.Wiki", "https://terraria.wiki.gg/", 6));
+		titleLinks.Add(MakeSimpleButton("TitleLinks.Bluesky", "https://bsky.app/profile/terraria.bsky.social", 4));
+		titleLinks.Add(MakeSimpleButton("TitleLinks.Forums", "https://forums.terraria.org/index.php", 5));
+		titleLinks.Add(MakeSimpleButton("TitleLinks.Merch", "https://terraria.org/store", 6));
+		titleLinks.Add(MakeSimpleButton("TitleLinks.Wiki", "https://terraria.wiki.gg/", 7));
 	}
 
 	private static TitleLinkButton MakeSimpleButton(string textKey, string linkUrl, int horizontalFrameIndex)
 	{
 		Asset<Texture2D> asset = Main.Assets.Request<Texture2D>("Images/UI/TitleLinkButtons", AssetRequestMode.ImmediateLoad);
-		Rectangle value = asset.Frame(7, 2, horizontalFrameIndex);
-		Rectangle value2 = asset.Frame(7, 2, horizontalFrameIndex, 1);
+		Rectangle value = asset.Frame(8, 2, horizontalFrameIndex);
+		Rectangle value2 = asset.Frame(8, 2, horizontalFrameIndex, 1);
 		value.Width--;
 		value.Height--;
 		value2.Width--;

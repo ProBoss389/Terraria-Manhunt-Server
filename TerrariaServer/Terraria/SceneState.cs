@@ -98,7 +98,7 @@ public class SceneState
 		bool flag7 = flag2 || flag3 || perspectivePlayer.sunScorchCounter > 0;
 		ManageSpecialBiomeVisuals("HeatDistortion", Main.UseHeatDistortion && flag7);
 		ManageSpecialBiomeVisuals("Graveyard", Main.GraveyardVisualIntensity > 0f);
-		ManageSpecialBiomeVisuals("Sepia", metrics.RadioThingMonolith || perspectivePlayer.dontStarveShader);
+		ManageSpecialBiomeVisuals("Sepia", Main.onlyDontStarveWorld ^ (perspectivePlayer.dontStarveShader || metrics.RadioThingMonolith));
 		ManageSpecialBiomeVisuals("Noir", metrics.NoirMonolith || perspectivePlayer.noirShader);
 		ManageSpecialBiomeVisuals("CRT", metrics.CRTMonolith || perspectivePlayer.CRTMonolithShader);
 		ManageSpecialBiomeVisuals("Test2", metrics.RetroMonolith || perspectivePlayer.retroMonolithShader);
